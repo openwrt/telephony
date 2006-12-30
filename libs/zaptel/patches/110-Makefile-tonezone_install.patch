@@ -1,0 +1,19 @@
+--- zaptel-1.2.12.org/Makefile	2006-12-07 00:22:11.000000000 +0100
++++ zaptel-1.2.12/Makefile	2006-12-23 00:12:30.000000000 +0100
+@@ -357,6 +357,16 @@
+ 		/sbin/update-modules ; \
+ 	fi
+ 
++install-tonezone: $(LIBTONEZONE_SO)
++	install -D -m 755 $(LIBTONEZONE_SO) $(INSTALL_PREFIX)/usr/lib/$(LIBTONEZONE_SO).$(LIBTONEZONE_SO_MAJOR_VER).$(LIBTONEZONE_SO_MINOR_VER)
++	rm -f $(INSTALL_PREFIX)/usr/lib/$(LIBTONEZONE_SO)
++	ln -sf $(LIBTONEZONE_SO).$(LIBTONEZONE_SO_MAJOR_VER).$(LIBTONEZONE_SO_MINOR_VER) \
++		$(INSTALL_PREFIX)/usr/lib/$(LIBTONEZONE_SO).$(LIBTONEZONE_SO_MAJOR_VER)
++	ln -sf $(LIBTONEZONE_SO).$(LIBTONEZONE_SO_MAJOR_VER).$(LIBTONEZONE_SO_MINOR_VER) \
++		$(INSTALL_PREFIX)/usr/lib/$(LIBTONEZONE_SO)
++	install -D -m 644 zaptel.h $(INSTALL_PREFIX)/usr/include/linux/zaptel.h
++	install -D -m 644 tonezone.h $(INSTALL_PREFIX)/usr/include/tonezone.h
++
+ install-udev: devices
+ 
+ firmware:
