@@ -55,12 +55,6 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.so* $(1)/usr/lib/
 endef
 
-define Build/UninstallDev
-	rm -rf $(STAGING_DIR)/usr/include/linux/zaptel.h
-	rm -rf $(STAGING_DIR)/usr/include/tonezone.h
-	rm -rf $(STAGING_DIR)/usr/lib/libtonezone.so*
-endef
-
 define Package/zaptel-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.so.* $(1)/usr/lib/
