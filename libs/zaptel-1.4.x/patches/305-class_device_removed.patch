@@ -1,0 +1,77 @@
+--- zaptel-1.4.x/kernel/zaptel-base.c.orig	2008-08-18 12:55:48.000000000 +0200
++++ zaptel-1.4.x/kernel/zaptel-base.c	2008-08-18 12:49:25.000000000 +0200
+@@ -163,13 +163,29 @@
+ 
+ /* udev necessary data structures.  Yeah! */
+ #ifdef CONFIG_ZAP_UDEV
+-
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#define CLASS_DEV_CREATE(class, devt, device, name) \
++        device_create(class, device, devt, name)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
+ #define CLASS_DEV_CREATE(class, devt, device, name) \
+         class_device_create(class, NULL, devt, device, name)
+-#else
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
+ #define CLASS_DEV_CREATE(class, devt, device, name) \
+         class_device_create(class, devt, device, name)
++#else
++#define CLASS_DEV_CREATE(class, devt, device, name) \
++        class_simple_device_add(class, devt, device, name)
++#endif
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#define CLASS_DEV_DESTROY(class, devt) \
++        device_destroy(class, devt)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
++#define CLASS_DEV_DESTROY(class, devt) \
++        class_device_destroy(class, devt)
++#else
++#define CLASS_DEV_DESTROY(class, devt) \
++        class_simple_device_remove(class, devt)
+ #endif
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
+@@ -178,8 +194,6 @@
+ static struct class_simple *zap_class = NULL;
+ #define class_create class_simple_create
+ #define class_destroy class_simple_destroy
+-#define class_device_create class_simple_device_add
+-#define class_device_destroy(a, b) class_simple_device_remove(b)
+ #endif
+ 
+ #endif /* CONFIG_ZAP_UDEV */
+@@ -5337,7 +5351,7 @@
+ #ifdef CONFIG_ZAP_UDEV
+ 	for (x = 0; x < span->channels; x++) {
+ 		if (span->chans[x].channo < 250)
+-			class_device_destroy(zap_class, MKDEV(ZT_MAJOR, span->chans[x].channo));
++			CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, span->chans[x].channo));
+ 	}
+ #endif /* CONFIG_ZAP_UDEV */
+ 
+@@ -7825,7 +7839,7 @@
+ int zt_unregister_chardev(struct zt_chardev *dev)
+ {
+ #ifdef CONFIG_ZAP_UDEV
+-	class_device_destroy(zap_class, MKDEV(ZT_MAJOR, dev->minor));
++	CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, dev->minor));
+ #endif /* CONFIG_ZAP_UDEV */
+ 
+ #ifdef CONFIG_DEVFS_FS
+@@ -7904,10 +7918,10 @@
+ 	devfs_unregister_chrdev(ZT_MAJOR, "zaptel");
+ #else
+ #ifdef CONFIG_ZAP_UDEV
+-	class_device_destroy(zap_class, MKDEV(ZT_MAJOR, 253)); /* timer */
+-	class_device_destroy(zap_class, MKDEV(ZT_MAJOR, 254)); /* channel */
+-	class_device_destroy(zap_class, MKDEV(ZT_MAJOR, 255)); /* pseudo */
+-	class_device_destroy(zap_class, MKDEV(ZT_MAJOR, 0)); /* ctl */
++	CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, 253)); /* timer */
++	CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, 254)); /* channel */
++	CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, 255)); /* pseudo */
++	CLASS_DEV_DESTROY(zap_class, MKDEV(ZT_MAJOR, 0)); /* ctl */
+ 	class_destroy(zap_class);
+ #endif /* CONFIG_ZAP_UDEV */
+ 	unregister_chrdev(ZT_MAJOR, "zaptel");
