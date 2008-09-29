@@ -1,0 +1,23 @@
+diff -Nru zaptel-1.4.9.2.org/kernel/zaptel-base.c zaptel-1.4.9.2/kernel/zaptel-base.c
+--- zaptel-1.4.9.2.org/kernel/zaptel-base.c	2008-02-28 20:00:47.000000000 +0100
++++ zaptel-1.4.9.2/kernel/zaptel-base.c	2008-03-06 10:02:20.000000000 +0100
+@@ -7346,6 +7346,7 @@
+ #endif /* CONFIG_ZAP_UDEV */
+ 	
+ #ifdef CONFIG_DEVFS_FS
++	umode_t mode = S_IFCHR|S_IRUGO|S_IWUGO;
+ 	dev->devfs_handle = devfs_register(zaptel_devfs_dir, dev->name, DEVFS_FL_DEFAULT, ZT_MAJOR, dev->minor, mode, &zt_fops, NULL);
+ #endif /* CONFIG_DEVFS_FS */
+ 
+diff -Nru zaptel-1.4.9.2.org/kernel/zaptel.h zaptel-1.4.9.2/kernel/zaptel.h
+--- zaptel-1.4.9.2.org/kernel/zaptel.h	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/zaptel.h	2008-03-06 10:00:41.000000000 +0100
+@@ -1203,7 +1203,7 @@
+ 	const char *name;
+ 	__u8 minor;
+ #ifdef CONFIG_DEVFS_FS
+-	static devfs_handle_t devfs_handle;
++	devfs_handle_t devfs_handle;
+ #endif
+ };
+ 

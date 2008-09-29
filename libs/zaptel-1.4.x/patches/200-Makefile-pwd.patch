@@ -1,0 +1,10 @@
+--- zaptel-1.4.6.org/Makefile	2007-09-20 20:42:35.000000000 +0200
++++ zaptel-1.4.6/Makefile	2007-11-10 18:07:07.000000000 +0100
+@@ -10,6 +10,7 @@
+ ifeq ($(MAKELEVEL),0)
+ PWD:=$(shell pwd)
+ endif
++PWD:=`pwd`
+ 
+ ARCH:=$(shell uname -m | sed -e s/i.86/i386/)
+ 
