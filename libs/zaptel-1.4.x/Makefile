@@ -62,30 +62,34 @@ define Package/zaptel14-libtonezone/description
 	This package contains the libraries for accessing zaptel/dummy drivers.
 endef
 
-define Build/Compile/zaptel14
+define Build/Compile/zaptel14-template
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		ARCH="$(LINUX_KARCH)" \
-		CC=$(KERNEL_CC) \
-		LD=$(TARGET_CROSS)ld \
-		HOSTCC=$(HOSTCC) \
-		KVERS=$(LINUX_VERSION) \
-		KSRC=$(LINUX_DIR) \
+		LD="$(TARGET_CROSS)ld" \
+		AR="$(TARGET_CROSS)ar" \
+		HOSTCC="$(HOSTCC)" \
+		DEB_HOST_GNU_TYPE="$(ARCH)" \
+		KVERS="$(LINUX_VERSION)" \
+		KSRC="$(LINUX_DIR)" \
+		$(1)
+endef
+
+define Build/Compile/zaptel14
+	$(call Build/Compile/zaptel14-template, \
+		CC="$(KERNEL_CC)" \
 		KFLAGS_PPC="-G 0 -mno-abicalls -fno-pic -pipe -finline-limit=100000 -mabi=32 $(TARGET_CFLAGS) -mlong-calls -fno-common -nostdinc -iwithprefix include" \
 		TOPDIR_MODULES="zaptel ztdummy" \
 		SUBDIR_MODULES="" \
-		modules zttest
+		modules zttest \
+	)
 endef
 
 define Build/Compile/zaptel14-libtonezone
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		CC=$(TARGET_CC) \
-		LD=$(TARGET_CROSS)ld \
-		AR=$(TARGET_CROSS)ar \
-		KSRC=$(LINUX_DIR) \
-		HOSTCC=$(HOSTCC) \
-		install-libs install-include
+	$(call Build/Compile/zaptel14-template, \
+		CC="$(TARGET_CC)" \
+		install-libs install-include \
+	)
 endef
 
 define Build/Compile

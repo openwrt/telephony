@@ -1,0 +1,14 @@
+Index: zaptel-1.4.9.2/Makefile
+===================================================================
+--- zaptel-1.4.9.2.orig/Makefile	2008-08-15 01:42:26.000000000 -0700
++++ zaptel-1.4.9.2/Makefile	2008-08-15 01:42:43.000000000 -0700
+@@ -18,7 +18,9 @@
+ PWD:=$(shell pwd)
+ endif
+ 
++ifndef ARCH
+ ARCH:=$(shell uname -m | sed -e s/i.86/i386/)
++endif
+ 
+ ifeq ($(DEB_HOST_GNU_TYPE),)
+ UNAME_M:=$(shell uname -m)
