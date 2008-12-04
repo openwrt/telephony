@@ -20,42 +20,43 @@ PKG_MD5SUM:=f6af404cc0244b93a2fc88b237f374bd
 include $(INCLUDE_DIR)/package.mk
 
 define Package/zaptel14/Default
-	TITLE:=Zaptel
-	URL:=http://ftp.digium.com/pub/zaptel/releases
+  TITLE:=Zaptel
+  URL:=http://ftp.digium.com/pub/zaptel/releases
 endef
 
 define KernelPackage/zaptel14
-	SUBMENU:=Other modules
-	$(call Package/zaptel14/Default)
-	TITLE+= (kernel module)
-	VERSION:=$(LINUX_VERSION)-$(PKG_VERSION)-$(BOARD)-$(PKG_RELEASE)
-	FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
-		$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
-	AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
+  SUBMENU:=Other modules
+  $(call Package/zaptel14/Default)
+  DEPENDS:=@!LINUX_2_6_27
+  TITLE+= (kernel module)
+  VERSION:=$(LINUX_VERSION)-$(PKG_VERSION)-$(BOARD)-$(PKG_RELEASE)
+  FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
+  	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
 endef
 
 define KernelPackage/zaptel14/description
-	This package contains the Zaptel core module and ztdummy driver.
+  This package contains the Zaptel core module and ztdummy driver.
 endef
 
 define Package/zaptel14-util
-	$(call Package/zaptel14/Default)
-	SECTION:=utils
-	CATEGORY:=Utilities
-	TITLE+= utils
-	DEPENDS := +kmod-zaptel14
+  $(call Package/zaptel14/Default)
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE+= utils
+  DEPENDS += +kmod-zaptel14
 endef
 
 define Package/zaptel14-util/description
-	This package contains the zttest program
+  This package contains the zttest program
 endef
 
 define Package/zaptel14-libtonezone
-	$(call Package/zaptel14/Default)
-	SECTION:=libs
-	CATEGORY:=Libraries
-	TITLE+= libtonezone (library)
-	DEPENDS := +kmod-zaptel14
+  $(call Package/zaptel14/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE+= libtonezone (library)
+  DEPENDS += +kmod-zaptel14
 endef
 
 define Package/zaptel14-libtonezone/description
