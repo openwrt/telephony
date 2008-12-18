@@ -27,7 +27,6 @@ endef
 define KernelPackage/zaptel14
   SUBMENU:=Other modules
   $(call Package/zaptel14/Default)
-  DEPENDS:=@!LINUX_2_6_27
   TITLE+= (kernel module)
   VERSION:=$(LINUX_VERSION)-$(PKG_VERSION)-$(BOARD)-$(PKG_RELEASE)
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \

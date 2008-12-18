@@ -1,12 +1,15 @@
---- zaptel-1.4.x/kernel/zaptel-base.c.orig	2008-08-18 12:55:48.000000000 +0200
-+++ zaptel-1.4.x/kernel/zaptel-base.c	2008-08-18 12:49:25.000000000 +0200
-@@ -163,13 +163,29 @@
- 
+diff -Nru zaptel-1.4.9.2.org/kernel/zaptel-base.c zaptel-1.4.9.2/kernel/zaptel-base.c
+--- zaptel-1.4.9.2.org/kernel/zaptel-base.c	2008-02-28 20:00:47.000000000 +0100
++++ zaptel-1.4.9.2/kernel/zaptel-base.c	2008-11-29 16:01:23.000000000 +0100
+@@ -163,12 +163,32 @@
  /* udev necessary data structures.  Yeah! */
  #ifdef CONFIG_ZAP_UDEV
--
+ 
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
++#define CLASS_DEV_CREATE(class, devt, device, name) \
++      device_create(class, device, devt, NULL, "%s", name)
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 +#define CLASS_DEV_CREATE(class, devt, device, name) \
 +        device_create(class, device, devt, name)
 +#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
@@ -33,7 +36,7 @@
  #endif
  
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,13)
-@@ -178,8 +194,6 @@
+@@ -177,8 +197,6 @@
  static struct class_simple *zap_class = NULL;
  #define class_create class_simple_create
  #define class_destroy class_simple_destroy
@@ -42,7 +45,7 @@
  #endif
  
  #endif /* CONFIG_ZAP_UDEV */
-@@ -5337,7 +5351,7 @@
+@@ -4973,7 +4991,7 @@
  #ifdef CONFIG_ZAP_UDEV
  	for (x = 0; x < span->channels; x++) {
  		if (span->chans[x].channo < 250)
@@ -51,7 +54,7 @@
  	}
  #endif /* CONFIG_ZAP_UDEV */
  
-@@ -7825,7 +7839,7 @@
+@@ -7355,7 +7373,7 @@
  int zt_unregister_chardev(struct zt_chardev *dev)
  {
  #ifdef CONFIG_ZAP_UDEV
@@ -60,7 +63,7 @@
  #endif /* CONFIG_ZAP_UDEV */
  
  #ifdef CONFIG_DEVFS_FS
-@@ -7904,10 +7918,10 @@
+@@ -7434,10 +7452,10 @@
  	devfs_unregister_chrdev(ZT_MAJOR, "zaptel");
  #else
  #ifdef CONFIG_ZAP_UDEV

@@ -1,0 +1,78 @@
+diff -Nru zaptel-1.4.9.2.org/kernel/wctdm24xxp/base.c zaptel-1.4.9.2/kernel/wctdm24xxp/base.c
+--- zaptel-1.4.9.2.org/kernel/wctdm24xxp/base.c	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/wctdm24xxp/base.c	2008-11-29 15:55:17.000000000 +0100
+@@ -44,7 +44,11 @@
+ #include <linux/interrupt.h>
+ #include <linux/workqueue.h>
+ #include <linux/delay.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#include <linux/semaphore.h>
++#else
+ #include <asm/semaphore.h>
++#endif
+ 
+ #ifdef LINUX26
+ #include <linux/moduleparam.h>
+diff -Nru zaptel-1.4.9.2.org/kernel/wctdm24xxp/GpakApi.c zaptel-1.4.9.2/kernel/wctdm24xxp/GpakApi.c
+--- zaptel-1.4.9.2.org/kernel/wctdm24xxp/GpakApi.c	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/wctdm24xxp/GpakApi.c	2008-11-29 15:55:17.000000000 +0100
+@@ -34,7 +34,11 @@
+  */
+ 
+ #include <linux/version.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#include <linux/semaphore.h>
++#else
+ #include <asm/semaphore.h>
++#endif
+ 
+ #include "zaptel.h"
+ 
+diff -Nru zaptel-1.4.9.2.org/kernel/wctdm24xxp/GpakCust.c zaptel-1.4.9.2/kernel/wctdm24xxp/GpakCust.c
+--- zaptel-1.4.9.2.org/kernel/wctdm24xxp/GpakCust.c	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/wctdm24xxp/GpakCust.c	2008-11-29 15:55:17.000000000 +0100
+@@ -37,7 +37,11 @@
+ 
+ #include <linux/version.h>
+ #include <linux/delay.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#include <linux/semaphore.h>
++#else
+ #include <asm/semaphore.h>
++#endif
+ 
+ #include "zaptel.h"
+ #include "wctdm24xxp.h"
+diff -Nru zaptel-1.4.9.2.org/kernel/wcte12xp/vpmadt032.c zaptel-1.4.9.2/kernel/wcte12xp/vpmadt032.c
+--- zaptel-1.4.9.2.org/kernel/wcte12xp/vpmadt032.c	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/wcte12xp/vpmadt032.c	2008-11-29 15:55:17.000000000 +0100
+@@ -29,7 +29,12 @@
+  */
+ 
+ #include <linux/delay.h>
++#include <linux/version.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#include <linux/semaphore.h>
++#else
+ #include <asm/semaphore.h>
++#endif
+ #include <linux/pci.h> 
+ #include <linux/firmware.h> 
+ #include <linux/list.h> 
+diff -Nru zaptel-1.4.9.2.org/kernel/xpp/xpd.h zaptel-1.4.9.2/kernel/xpp/xpd.h
+--- zaptel-1.4.9.2.org/kernel/xpp/xpd.h	2008-02-05 00:00:48.000000000 +0100
++++ zaptel-1.4.9.2/kernel/xpp/xpd.h	2008-11-29 15:55:17.000000000 +0100
+@@ -29,8 +29,13 @@
+ #ifdef	__KERNEL__
+ #include <linux/kernel.h>
+ #include <linux/device.h>
++#include <linux/version.h>
+ #include <asm/atomic.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
++#include <linux/semaphore.h>
++#else
+ #include <asm/semaphore.h>
++#endif
+ #include <linux/moduleparam.h>
+ #ifdef	XPP_DEBUGFS
+ #ifndef	CONFIG_DEBUG_FS
