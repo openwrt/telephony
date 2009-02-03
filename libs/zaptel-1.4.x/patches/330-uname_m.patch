@@ -1,0 +1,12 @@
+diff -urN zaptel-1.4.9.2/Makefile zaptel-1.4.9.2.new/Makefile
+--- zaptel-1.4.9.2/Makefile	2008-02-22 01:31:47.000000000 +0100
++++ zaptel-1.4.9.2.new/Makefile	2009-02-03 15:24:16.000000000 +0100
+@@ -21,7 +21,7 @@
+ ARCH:=$(shell uname -m | sed -e s/i.86/i386/)
+ 
+ ifeq ($(DEB_HOST_GNU_TYPE),)
+-UNAME_M:=$(shell uname -m)
++UNAME_M:=$(ARCH)
+ else
+ UNAME_M:=$(DEB_HOST_GNU_TYPE)
+ endif
