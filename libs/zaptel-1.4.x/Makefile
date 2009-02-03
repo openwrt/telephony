@@ -74,6 +74,7 @@ endef
 
 define Build/Compile/user
 	$(MAKE) -C $(PKG_BUILD_DIR) \
+	        ARCH="$(LINUX_KARCH)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		install-libs install-include zttest
 endef
