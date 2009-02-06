@@ -61,14 +61,19 @@ define Package/zaptel14-libtonezone/description
  This package contains the libraries for accessing zaptel/dummy drivers.
 endef
 
+MAKE_FLAGS:= \
+	ARCH="$(LINUX_KARCH)" \
+	CC="$(TARGET_CC) $(TARGET_CFLAGS)" \
+	LD="$(TARGET_CROSS)ld" \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
+	KVERS="$(LINUX_VERSION)" \
+	KSRC="$(LINUX_DIR)" \
+	TOPDIR_MODULES="zaptel ztdummy" \
+	SUBDIR_MODULES=""
+
 define Build/Compile/kmod
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-	        ARCH="$(LINUX_KARCH)" \
-	        CROSS_COMPILE="$(TARGET_CROSS)" \
-		KVERS="$(LINUX_VERSION)" \
-		KSRC="$(LINUX_DIR)" \
-		TOPDIR_MODULES="zaptel ztdummy" \
-		SUBDIR_MODULES="" \
+		$(MAKE_FLAGS) \
 		modules
 endef
 
