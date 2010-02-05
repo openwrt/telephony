@@ -1,0 +1,14 @@
+diff --git a/kernel/zaptel-base.c b/kernel/zaptel-base.c
+index dbd6588..d4fc584 100644
+--- a/kernel/zaptel-base.c
++++ b/kernel/zaptel-base.c
+@@ -60,6 +60,9 @@
+ #include <linux/if_ppp.h>
+ #endif
+ #include <asm/atomic.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++#include <linux/sched.h>
++#endif
+ 
+ #ifndef CONFIG_OLD_HDLC_API
+ #define NEW_HDLC_INTERFACE
