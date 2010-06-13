@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=zaptel
 PKG_VERSION:=1.4.12.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/zaptel/releases/ \
@@ -24,13 +24,18 @@ define Package/zaptel14/Default
   URL:=http://ftp.digium.com/pub/zaptel/releases
 endef
 
-define KernelPackage/zaptel14
-  $(call Package/zaptel14/Default)
+define KernelPackage/zaptel14/Default
+  TITLE:=Zaptel (kernel module)
   SUBMENU:=Other modules
-  TITLE+= (kernel module)
+endef
+
+define KernelPackage/zaptel14
+  $(call KernelPackage/zaptel14/Default)
   KCONFIG:=CONFIG_FTRACE=y \
-			CONFIG_TRACING \
-			CONFIG_KMEMTRACE
+			CONFIG_TRACING=y \
+			CONFIG_KMEMTRACE=y \
+			BRANCH_PROFILE_NONE=y \
+			RING_BUFFER_BENCHMARK=n \
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
   	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
@@ -38,6 +43,28 @@ endef
 
 define KernelPackage/zaptel14/description
  This package contains the Zaptel core module and ztdummy driver.
+endef
+
+define KernelPackage/zaptel14-wcusb
+  $(call KernelPackage/zaptel14/Default)
+  DEPENDS += +kmod-zaptel14
+  FILES:=$(PKG_BUILD_DIR)/kernel/wcusb.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,71,wcusb)
+endef
+
+define KernelPackage/zaptel14-wcusb/description
+ This package contains the Zaptel S100U usb driver.
+endef
+
+define KernelPackage/zaptel14-wctdm
+  $(call KernelPackage/zaptel14/Default)
+  DEPENDS += +kmod-zaptel14
+  FILES:=$(PKG_BUILD_DIR)/kernel/wctdm.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,71,wctdm)
+endef
+
+define KernelPackage/zaptel14-wctdm/description
+ This package contains the Zaptel wctdm driver.
 endef
 
 define Package/zaptel14-util
@@ -49,7 +76,7 @@ define Package/zaptel14-util
 endef
 
 define Package/zaptel14-util/description
- This package contains the zttest program
+ This package contains the zaptel utils.
 endef
 
 define Package/zaptel14-libtonezone
@@ -71,7 +98,7 @@ MAKE_FLAGS:= \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 	KVERS="$(LINUX_VERSION)" \
 	KSRC="$(LINUX_DIR)" \
-	TOPDIR_MODULES="zaptel ztdummy" \
+	TOPDIR_MODULES="zaptel ztdummy wcusb wctdm" \
 	SUBDIR_MODULES=""
 
 define Build/Compile/kmod
@@ -110,5 +137,7 @@ define Package/zaptel14-libtonezone/install
 endef
 
 $(eval $(call KernelPackage,zaptel14))
+$(eval $(call KernelPackage,zaptel14-wcusb))
+$(eval $(call KernelPackage,zaptel14-wctdm))
 $(eval $(call BuildPackage,zaptel14-util))
 $(eval $(call BuildPackage,zaptel14-libtonezone))

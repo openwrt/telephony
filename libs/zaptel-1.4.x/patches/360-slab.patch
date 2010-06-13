@@ -1,0 +1,38 @@
+Index: zaptel-1.4.12.1/kernel/wctdm.c
+===================================================================
+--- zaptel-1.4.12.1.orig/kernel/wctdm.c	2010-06-13 12:11:26.000000000 +0200
++++ zaptel-1.4.12.1/kernel/wctdm.c	2010-06-13 12:17:47.000000000 +0200
+@@ -30,6 +30,8 @@
+ #include <linux/errno.h>
+ #include <linux/pci.h>
+ #include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/sched.h>
+ #include <asm/io.h>
+ #include "proslic.h"
+ #include "wctdm.h"
+Index: zaptel-1.4.12.1/kernel/wcusb.c
+===================================================================
+--- zaptel-1.4.12.1.orig/kernel/wcusb.c	2010-06-13 12:10:07.000000000 +0200
++++ zaptel-1.4.12.1/kernel/wcusb.c	2010-06-13 12:10:13.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <linux/init.h>
+ #include <linux/usb.h>
+ #include <linux/errno.h>
++#include <linux/slab.h>
+ 
+ #include <linux/version.h>
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,19)
+Index: zaptel-1.4.12.1/kernel/ztdummy.c
+===================================================================
+--- zaptel-1.4.12.1.orig/kernel/ztdummy.c	2010-06-13 08:58:02.000000000 +0200
++++ zaptel-1.4.12.1/kernel/ztdummy.c	2010-06-13 08:58:23.000000000 +0200
+@@ -38,6 +38,7 @@
+  */
+ 
+ #include <linux/version.h>
++#include <linux/slab.h>
+ 
+ #ifndef VERSION_CODE
+ #  define VERSION_CODE(vers,rel,seq) ( ((vers)<<16) | ((rel)<<8) | (seq) )
+
