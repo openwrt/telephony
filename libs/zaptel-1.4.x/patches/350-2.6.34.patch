@@ -1,0 +1,26 @@
+Index: zaptel-1.4.12.1/kernel/zconfig.h
+===================================================================
+--- zaptel-1.4.12.1.orig/kernel/zconfig.h	2010-06-13 08:51:02.000000000 +0200
++++ zaptel-1.4.12.1/kernel/zconfig.h	2010-06-13 08:53:22.000000000 +0200
+@@ -22,6 +22,8 @@
+ #include <linux/version.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <linux/config.h>
++#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
++#include <generated/autoconf.h>
+ #else
+ #include <linux/autoconf.h>
+ #endif
+Index: zaptel-1.4.12.1/kernel/ztdummy.c
+===================================================================
+--- zaptel-1.4.12.1.orig/kernel/ztdummy.c	2010-06-13 08:58:02.000000000 +0200
++++ zaptel-1.4.12.1/kernel/ztdummy.c	2010-06-13 08:58:23.000000000 +0200
+@@ -38,6 +38,7 @@
+  */
+ 
+ #include <linux/version.h>
++#include <linux/slab.h>
+ 
+ #ifndef VERSION_CODE
+ #  define VERSION_CODE(vers,rel,seq) ( ((vers)<<16) | ((rel)<<8) | (seq) )
+

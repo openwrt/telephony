@@ -9,12 +9,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=zaptel
-PKG_VERSION:=1.4.9.2
-PKG_RELEASE:=2
+PKG_VERSION:=1.4.12.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://ftp.digium.com/pub/zaptel/releases/
-PKG_MD5SUM:=f6af404cc0244b93a2fc88b237f374bd
+PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/zaptel/releases/ \
+        http://ftp.digium.com/pub/zaptel/releases/
+PKG_MD5SUM:=71e83a020b020fa60905edecf70e95a3
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -27,6 +28,9 @@ define KernelPackage/zaptel14
   $(call Package/zaptel14/Default)
   SUBMENU:=Other modules
   TITLE+= (kernel module)
+  KCONFIG:=CONFIG_FTRACE=y \
+			CONFIG_TRACING \
+			CONFIG_KMEMTRACE
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
   	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
