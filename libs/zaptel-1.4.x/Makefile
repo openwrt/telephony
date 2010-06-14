@@ -34,8 +34,8 @@ define KernelPackage/zaptel14
   KCONFIG:=CONFIG_FTRACE=y \
 			CONFIG_TRACING=y \
 			CONFIG_KMEMTRACE=y \
-			BRANCH_PROFILE_NONE=y \
-			RING_BUFFER_BENCHMARK=n \
+			CONFIG_BRANCH_PROFILE_NONE=y \
+			CONFIG_RING_BUFFER_BENCHMARK=n \
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
   	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
