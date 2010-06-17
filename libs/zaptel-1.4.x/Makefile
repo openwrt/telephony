@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2006-2009 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=zaptel
 PKG_VERSION:=1.4.12.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/zaptel/releases/ \
@@ -35,7 +35,9 @@ define KernelPackage/zaptel14
 			CONFIG_TRACING=y \
 			CONFIG_KMEMTRACE=y \
 			CONFIG_BRANCH_PROFILE_NONE=y \
-			CONFIG_RING_BUFFER_BENCHMARK=n \
+			CONFIG_PROFILE_ANNOTATED_BRANCHES=n \
+			CONFIG_PROFILE_ALL_BRANCHES=n \
+			CONFIG_RING_BUFFER_BENCHMARK=n
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
   	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
