@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=zaptel
 PKG_VERSION:=1.4.12.1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/zaptel/releases/ \
@@ -31,14 +31,6 @@ endef
 
 define KernelPackage/zaptel14
   $(call KernelPackage/zaptel14/Default)
-  KCONFIG:=CONFIG_FTRACE=y \
-			CONFIG_TRACING=y \
-			CONFIG_KMEMTRACE=y \
-			CONFIG_BRANCH_PROFILE_NONE=y \
-			CONFIG_PROFILE_ANNOTATED_BRANCHES=n \
-			CONFIG_PROFILE_ALL_BRANCHES=n \
-			CONFIG_RING_BUFFER_BENCHMARK=n \
-			CONFIG_SYSPROF_TRACER=n
   FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
   	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
