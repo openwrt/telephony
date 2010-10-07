@@ -1,6 +1,10 @@
---- a/kernel/ztdummy.c
-+++ b/kernel/ztdummy.c
-@@ -55,7 +55,7 @@
+---
+ kernel/ztdummy.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+--- zaptel-1.4.12.1.orig/kernel/ztdummy.c
++++ zaptel-1.4.12.1/kernel/ztdummy.c
+@@ -54,7 +54,7 @@
   * the #define USE_RTC should be commented out.
   */
  #if defined(__i386__) || defined(__x86_64__)
@@ -9,7 +13,7 @@
  /* The symbol hrtimer_forward is only exported as of 2.6.22: */
  #if defined(CONFIG_HIGH_RES_TIMERS) && LINUX_VERSION_CODE >= VERSION_CODE(2,6,22)
  #define USE_HIGHRESTIMER
-@@ -91,6 +91,18 @@
+@@ -90,6 +90,18 @@
  #endif
  #include "ztdummy.h"
  
@@ -28,7 +32,7 @@
  
  static struct ztdummy *ztd;
  
-@@ -200,7 +212,7 @@ static enum hrtimer_restart ztdummy_hr_i
+@@ -199,7 +211,7 @@ static enum hrtimer_restart ztdummy_hr_i
  	 * expired.
  	 * We should worry if overrun is 2 or more; then we really missed 
  	 * a tick */
@@ -37,7 +41,7 @@
  			ktime_set(0, ZAPTEL_TIME_NS));
  	if(overrun > 1) {
  		if(printk_ratelimit())
-@@ -223,7 +235,7 @@ static enum hrtimer_restart ztdummy_hr_i
+@@ -222,7 +234,7 @@ static enum hrtimer_restart ztdummy_hr_i
  /* use kernel system tick timer if PC architecture RTC is not available */
  static void ztdummy_timer(unsigned long param)
  {
