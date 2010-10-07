@@ -15,7 +15,7 @@
 +	int ret;
 +
 +	lock_kernel();
-+	ret = zt_ioctl(file->f_mapping->host, file, cmd, data);
++	ret = zt_ioctl(file->f_path.dentry->d_inode, file, cmd, data);
 +	unlock_kernel();
 +
 +	return ret;
