@@ -25,40 +25,40 @@ define Package/libre
 endef
 
 define Package/libre/description
-       Generic library for real-time communications with async IO support.
+	Generic library for real-time communications with async IO support.
 endef
 
 TARGET_CFLAGS += $(FPIC)
 
 define Build/Compile
-       $(MAKE) -C $(PKG_BUILD_DIR) \
-               HAVE_LIBRESOLV= \
-               CC="$(TARGET_CC)" \
-               EXTRA_CFLAGS="$(TARGET_CFLAGS) -DOPENWRT" \
-               EXTRA_LFLAGS="-lm" \
-               DESTDIR="$(PKG_INSTALL_DIR)" \
-               SYSROOT="$(TOOLCHAIN_DIR)" \
-               SYSROOT_ALT="$(STAGING_DIR)/usr" \
-               RELEASE=1 \
-               all install
+	$(MAKE) -C $(PKG_BUILD_DIR) \
+		HAVE_LIBRESOLV= \
+		CC="$(TARGET_CC)" \
+		EXTRA_CFLAGS="$(TARGET_CFLAGS) -DOPENWRT" \
+		EXTRA_LFLAGS="-lm" \
+		DESTDIR="$(PKG_INSTALL_DIR)" \
+		SYSROOT="$(TOOLCHAIN_DIR)" \
+		SYSROOT_ALT="$(STAGING_DIR)/usr" \
+		RELEASE=1 \
+		all install
 endef
 
 define Build/InstallDev
-       mkdir -p $(1)/usr/include
-       $(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include/
-       mkdir -p $(1)/usr/lib
-       $(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so*} $(1)/usr/lib/
+	mkdir -p $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include/
+	mkdir -p $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so*} $(1)/usr/lib/
 endef
 
 define Build/UninstallDev
-       rm -rf \
-               $(STAGING_DIR)/usr/include/re \
-               $(STAGING_DIR)/usr/lib/libre.{a,so*}
+	rm -rf \
+		$(STAGING_DIR)/usr/include/re \
+		$(STAGING_DIR)/usr/lib/libre.{a,so*}
 endef
 
 define Package/libre/install
-       $(INSTALL_DIR) $(1)/usr/lib
-       $(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so* $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libre))
