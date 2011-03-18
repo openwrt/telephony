@@ -31,20 +31,35 @@ endef
 
 define KernelPackage/zaptel14
   $(call KernelPackage/zaptel14/Default)
-  FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX) \
-  	$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
-  AUTOLOAD:=$(call AutoLoad,70,zaptel ztdummy)
+  TITLE:=Zaptel (kernel module)
+  FILES:=$(PKG_BUILD_DIR)/kernel/zaptel.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,70,zaptel)
 endef
 
 define KernelPackage/zaptel14/description
- This package contains the Zaptel core module and ztdummy driver.
+ This package contains the Zaptel core module.  No longer includes ztdummy
+ because it is not needed in all cases (and is in fact broken on x86).
+endef
+
+
+define KernelPackage/zaptel14-dummy
+  $(call KernelPackage/zaptel14/Default)
+  TITLE:=Zaptel Dummy (timer; kernel module)
+  DEPENDS += +kmod-zaptel14 @TARGET_x86:@BROKEN
+  FILES:=$(PKG_BUILD_DIR)/kernel/ztdummy.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,71,ztdummy)
+endef
+
+define KernelPackage/zaptel14/description
+ This package contains the Zaptel ztdummy driver.  Broken on x86 due to lack
+ of RTC on some hardware.
 endef
 
 define KernelPackage/zaptel14-wcusb
   $(call KernelPackage/zaptel14/Default)
   DEPENDS += +kmod-zaptel14
   FILES:=$(PKG_BUILD_DIR)/kernel/wcusb.$(LINUX_KMOD_SUFFIX)
-  AUTOLOAD:=$(call AutoLoad,71,wcusb)
+  AUTOLOAD:=$(call AutoLoad,72,wcusb)
 endef
 
 define KernelPackage/zaptel14-wcusb/description
@@ -55,7 +70,7 @@ define KernelPackage/zaptel14-wctdm
   $(call KernelPackage/zaptel14/Default)
   DEPENDS += +kmod-zaptel14
   FILES:=$(PKG_BUILD_DIR)/kernel/wctdm.$(LINUX_KMOD_SUFFIX)
-  AUTOLOAD:=$(call AutoLoad,71,wctdm)
+  AUTOLOAD:=$(call AutoLoad,72,wctdm)
 endef
 
 define KernelPackage/zaptel14-wctdm/description
@@ -132,6 +147,7 @@ define Package/zaptel14-libtonezone/install
 endef
 
 $(eval $(call KernelPackage,zaptel14))
+$(eval $(call KernelPackage,zaptel14-dummy))
 $(eval $(call KernelPackage,zaptel14-wcusb))
 $(eval $(call KernelPackage,zaptel14-wctdm))
 $(eval $(call BuildPackage,zaptel14-util))
