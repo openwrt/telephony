@@ -82,7 +82,7 @@ define Package/zaptel14-util
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE+= utils
-  DEPENDS += +kmod-zaptel14
+  DEPENDS += +kmod-zaptel14 +zaptel14-libtonezone +libnewt
 endef
 
 define Package/zaptel14-util/description
@@ -100,6 +100,14 @@ endef
 define Package/zaptel14-libtonezone/description
  This package contains the libraries for accessing zaptel/dummy drivers.
 endef
+
+CONFIGURE_VARS += \
+	LDFLAGS="$$$$LDFLAGS -Wl,-rpath-link $(STAGING_DIR)/usr/lib"
+
+CONFIGURE_ARGS += \
+	--with-newt="$(STAGING_DIR)/usr" \
+	--without-curses \
+	--without-ncurses 
 
 MAKE_FLAGS:= \
 	ARCH="$(LINUX_KARCH)" \
@@ -121,7 +129,7 @@ define Build/Compile/user
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 	        ARCH="$(LINUX_KARCH)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		install-libs install-include zttest
+		install-libs install-include zttest ztcfg zttool ztdiag fxotune ztmonitor ztscan ztspeed fxstest
 endef
 
 define Build/Compile
@@ -139,6 +147,14 @@ endef
 define Package/zaptel14-util/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zttest $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztcfg $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zttool $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztdiag $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fxotune $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fxstest $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztmonitor $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztscan $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztspeed $(1)/usr/bin/
 endef
 
 define Package/zaptel14-libtonezone/install
