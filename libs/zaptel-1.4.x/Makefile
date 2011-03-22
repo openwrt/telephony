@@ -155,6 +155,8 @@ define Package/zaptel14-util/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztmonitor $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztscan $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ztspeed $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/zaptel
+	$(INSTALL_DATA) ./files/10-create-device-node $(1)/etc/hotplug.d/zaptel/
 endef
 
 define Package/zaptel14-libtonezone/install
