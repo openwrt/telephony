@@ -7,12 +7,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
-PKG_VERSION:=0.1.0
+PKG_VERSION:=0.2.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-#PKG_MD5SUM:=734892c8ca5e7e835828048a1289a0cc
+PKG_MD5SUM:=0aa00762fbee7694b9e5844675f5c57d
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -44,14 +44,17 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	mkdir -p $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/share/re
+	$(CP) $(PKG_BUILD_DIR)/mk/re.mk $(1)/usr/share/re/
+	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include/
-	mkdir -p $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so*} $(1)/usr/lib/
 endef
 
 define Build/UninstallDev
 	rm -rf \
+		$(STAGING_DIR)/usr/share/re \
 		$(STAGING_DIR)/usr/include/re \
 		$(STAGING_DIR)/usr/lib/libre.{a,so*}
 endef
