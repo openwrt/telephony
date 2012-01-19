@@ -1,0 +1,10 @@
+--- a/include/re_types.h
++++ b/include/re_types.h
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <sys/types.h>
++#include <stdint.h>
+ 
+ #ifdef _MSC_VER
+ #include <stdlib.h>
