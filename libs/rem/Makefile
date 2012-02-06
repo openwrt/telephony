@@ -37,7 +37,7 @@ define Build/Compile
 		EXTRA_CFLAGS="$(TARGET_CFLAGS) -DOPENWRT" \
 		EXTRA_LFLAGS="-lm" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		SYSROOT="$(TOOLCHAIN_DIR)" \
+		SYSROOT="$$$$($(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s#/include/pthread.h##p')" \
 		SYSROOT_ALT="$(STAGING_DIR)/usr" \
 		RELEASE=1 \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
