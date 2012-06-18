@@ -22,13 +22,13 @@ include $(INCLUDE_DIR)/package.mk
 define Package/zaptel14/Default
   TITLE:=Zaptel
   URL:=http://ftp.digium.com/pub/zaptel/releases
-  DEPENDS:=@BROKEN
+  DEPENDS:=
 endef
 
 define KernelPackage/zaptel14/Default
   TITLE:=Zaptel (kernel module)
   SUBMENU:=Other modules
-  DEPENDS:=@BROKEN
+  DEPENDS:=
 endef
 
 define KernelPackage/zaptel14
@@ -131,6 +131,8 @@ define Build/Compile/user
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 	        ARCH="$(LINUX_KARCH)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
+		AR="$(TARGET_CROSS)ar" \
+		RANLIB="$(TARGET_CROSS)ranlib" \
 		install-libs install-include zttest ztcfg zttool ztdiag fxotune ztmonitor ztscan ztspeed fxstest
 endef
 
