@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
-PKG_VERSION:=0.4.0
+PKG_VERSION:=0.4.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_MD5SUM:=0d5cf133a62d11a2f80875a8fa7adab6
+PKG_MD5SUM:=bfac8837974e911bd4d4017a8f1ce39b
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -53,6 +53,7 @@ define Build/InstallDev
 endef
 
 define Package/librem/install
+	rm -f $(BUILD_DIR)/$(PKG_NAME)
 	ln -sf $(PKG_NAME)-$(PKG_VERSION) $(BUILD_DIR)/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.so $(1)/usr/lib/
