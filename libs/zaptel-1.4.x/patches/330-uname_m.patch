@@ -2,8 +2,8 @@
  Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- zaptel-1.4.12.1.orig/Makefile
-+++ zaptel-1.4.12.1/Makefile
+--- a/Makefile
++++ b/Makefile
 @@ -25,7 +25,7 @@ ARCH:=$(shell uname -m | sed -e s/i.86/i
  endif
  

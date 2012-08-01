@@ -1,7 +1,5 @@
-Index: zaptel-1.4.12.1/kernel/zconfig.h
-===================================================================
---- zaptel-1.4.12.1.orig/kernel/zconfig.h	2010-06-13 08:51:02.000000000 +0200
-+++ zaptel-1.4.12.1/kernel/zconfig.h	2010-06-13 08:53:22.000000000 +0200
+--- a/kernel/zconfig.h
++++ b/kernel/zconfig.h
 @@ -22,6 +22,8 @@
  #include <linux/version.h>
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
@@ -11,4 +9,3 @@ Index: zaptel-1.4.12.1/kernel/zconfig.h
  #else
  #include <linux/autoconf.h>
  #endif
-

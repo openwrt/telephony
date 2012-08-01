@@ -2,8 +2,8 @@
  kernel/ztdummy.c |   18 +++++++++++++++---
  1 file changed, 15 insertions(+), 3 deletions(-)
 
---- zaptel-1.4.12.1.orig/kernel/ztdummy.c
-+++ zaptel-1.4.12.1/kernel/ztdummy.c
+--- a/kernel/ztdummy.c
++++ b/kernel/ztdummy.c
 @@ -54,7 +54,7 @@
   * the #define USE_RTC should be commented out.
   */

@@ -2,8 +2,8 @@
  kernel/ztdummy.c |    2 --
  1 file changed, 2 deletions(-)
 
---- zaptel-1.4.12.1.orig/kernel/ztdummy.c
-+++ zaptel-1.4.12.1/kernel/ztdummy.c
+--- a/kernel/ztdummy.c
++++ b/kernel/ztdummy.c
 @@ -53,7 +53,6 @@
   * If using an i386 architecture without a PC real-time clock,
   * the #define USE_RTC should be commented out.

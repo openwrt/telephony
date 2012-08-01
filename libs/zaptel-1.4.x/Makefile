@@ -27,7 +27,7 @@ endef
 
 define KernelPackage/zaptel14/Default
   TITLE:=Zaptel (kernel module)
-  SUBMENU:=Other modules
+  SUBMENU:=Voice over IP
   DEPENDS:=
 endef
 

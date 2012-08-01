@@ -2,8 +2,8 @@
  kernel/zaptel-base.c |   18 ++++++++++++++++++
  1 file changed, 18 insertions(+)
 
---- zaptel-1.4.12.1.orig/kernel/zaptel-base.c
-+++ zaptel-1.4.12.1/kernel/zaptel-base.c
+--- a/kernel/zaptel-base.c
++++ b/kernel/zaptel-base.c
 @@ -5181,6 +5181,20 @@ static int zt_ioctl(struct inode *inode,
  	return zt_chan_ioctl(inode, file, cmd, data, unit);
  }
