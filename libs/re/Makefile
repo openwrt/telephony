@@ -28,6 +28,10 @@ endef
 
 TARGET_CFLAGS += $(FPIC)
 
+ifneq ($(CONFIG_USE_EGLIBC),)
+TARGET_CFLAGS += -D_GNU_SOURCE
+endif
+
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		HAVE_LIBRESOLV= \
