@@ -1,0 +1,10 @@
+--- a/configure
++++ b/configure
+@@ -16353,7 +16353,6 @@
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+ 
+-$as_echo "#define HAVE_RES_NINIT 1" >>confdefs.h
+ 
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing res_9_ndestroy" >&5
+ $as_echo_n "checking for library containing res_9_ndestroy... " >&6; }
