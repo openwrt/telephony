@@ -1,0 +1,10 @@
+--- a/src/mod/xml_int/mod_xml_rpc/Makefile
++++ b/src/mod/xml_int/mod_xml_rpc/Makefile
+@@ -14,7 +14,6 @@ $(XMLRPC_DIR)/lib/abyss/src/date.o\
+ $(XMLRPC_DIR)/src/double.o\
+ $(XMLRPC_DIR)/lib/libutil/error.o\
+ $(XMLRPC_DIR)/lib/abyss/src/file.o\
+-$(XMLRPC_DIR)/lib/expat/gennmtab/gennmtab.o\
+ $(XMLRPC_DIR)/lib/util/getoptx.o\
+ $(XMLRPC_DIR)/lib/abyss/src/handler.o\
+ $(XMLRPC_DIR)/lib/abyss/src/http.o\

@@ -1,0 +1,11 @@
+--- a/src/mod/codecs/mod_isac/typedefs.h
++++ b/src/mod/codecs/mod_isac/typedefs.h
+@@ -66,7 +66,7 @@
+ #define WEBRTC_ARCH_X86
+ #define WEBRTC_ARCH_32_BITS
+ #define WEBRTC_ARCH_LITTLE_ENDIAN
+-#elif defined(__ARMEL__)
++#elif defined(__ARMEL__) || defined(__mips__)
+ // TODO(andrew): We'd prefer to control platform defines here, but this is
+ // currently provided by the Android makefiles. Commented to avoid duplicate
+ // definition warnings.

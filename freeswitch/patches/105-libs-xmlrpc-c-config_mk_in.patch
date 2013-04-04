@@ -1,0 +1,13 @@
+--- a/libs/xmlrpc-c/config.mk.in
++++ b/libs/xmlrpc-c/config.mk.in
+@@ -335,8 +335,8 @@ endif
+ # The cross compiling user can update config.mk or override
+ # BUILDTOOL_CC on a make command.
+ 
+-BUILDTOOL_CC = $(CC)
+-BUILDTOOL_CCLD = $(CCLD)
++BUILDTOOL_CC = $(HOSTCC)
++BUILDTOOL_CCLD = $(HOSTCC)
+ 
+ # Here are the commands 'make install' uses to install various kinds of files:
+ 
