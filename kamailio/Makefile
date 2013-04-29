@@ -34,7 +34,7 @@ endef
 
 define Package/kamailio
 $(call Package/kamailio/Default)
-  TITLE:=Mature and flexible open source SIP server
+  TITLE:=Mature and flexible open source SIP server, v1.5.x
   MENU:=1
 endef
 
