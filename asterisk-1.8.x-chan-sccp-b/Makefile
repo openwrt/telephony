@@ -27,7 +27,7 @@ define Package/asterisk18-chan-sccp-b
   TITLE:=SCCP channel provider for asterisk
   URL:=http://chan-sccp-b.net.sourceforge.net/
   MAINTAINER:=Hans Zandbelt <hans.zandbelt@gmail.com>
-  DEPENDS:=+asterisk18 +libltdl
+  DEPENDS:= asterisk18 +libltdl
 endef
 
 define Package/asterisk18-chan-sccp-b/description
