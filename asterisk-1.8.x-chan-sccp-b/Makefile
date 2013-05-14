@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18-chan-sccp-b
-PKG_REV=3004
+PKG_REV=4631
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -17,6 +17,8 @@ PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/trunk
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
+
+PKG_FIXUP:=autoreconf -fi
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -34,12 +36,13 @@ define Package/asterisk18-chan-sccp-b/description
  by asterisk by default.
 endef
 
-CONFIGURE_ARGS += \
-	--with-asterisk=$(STAGING_DIR)/usr/include/asterisk-1.8
+define Build/Configure
+	$(call Build/Configure/Default,--with-asterisk=$(STAGING_DIR)/usr/include/asterisk-1.8)
+endef
 
 define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		CFLAGS="$(CFLAGS) -DLOW_MEMORY" \
+		CFLAGS="$(CFLAGS) -I$(PKG_BUILD_DIR)/src -DLOW_MEMORY" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		all install
 endef
@@ -50,7 +53,7 @@ endef
 
 define Package/asterisk18-chan-sccp-b/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_BIN)  ./files/sccp.openwrt.conf $(1)/etc/asterisk/sccp.conf
+	$(CP)  ./files/sccp.openwrt.conf $(1)/etc/asterisk/sccp.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
 endef
