@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2012 OpenWrt.org
+# Copyright (C) 2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.10.1
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -245,6 +245,17 @@ $(call Package/asterisk18/Default/description)
  This package provides ODBC support for Asterisk.
 endef
 
+define Package/asterisk18-pbx-lua
+$(call Package/asterisk18/Default)
+  TITLE:=Lua support
+  DEPENDS:= asterisk18 +libpthread +libc +liblua
+endef
+
+define Package/asterisk18-pbx-lua/description
+$(call Package/asterisk18/Default/description)
+ This package provides Lua resources for Asterisk.
+endef
+
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-app-meetme),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr"
@@ -304,6 +315,15 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-res-srtp),)
 else
   CONFIGURE_ARGS+= \
 	--without-srtp
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-pbx-lua),)
+  CONFIGURE_ARGS+= \
+	--with-lua="$(STAGING_DIR)/usr"
+  TARGET_LDFLAGS+=-ldl -lcrypt
+else
+  CONFIGURE_ARGS+= \
+	--without-pbx-lua
 endif
 
 CONFIGURE_ARGS+= \
@@ -611,6 +631,13 @@ define Package/asterisk18-odbc/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/*odbc*.so $(1)/usr/lib/asterisk/modules/
 endef
 
+define Package/asterisk18-pbx-lua/install
+	$(INSTALL_DIR) $(1)/etc/asterisk
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/extensions.lua $(1)/etc/asterisk/
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/pbx_lua.so $(1)/usr/lib/asterisk/modules/
+endef
+
 define Buildasterisk18ModuleTemplate
 
   define Package/asterisk18-$(subst _,-,$(1))
@@ -642,6 +669,7 @@ $(eval $(call BuildPackage,asterisk18-res-musiconhold))
 $(eval $(call BuildPackage,asterisk18-chan-gtalk))
 $(eval $(call BuildPackage,asterisk18-chan-mobile))
 $(eval $(call BuildPackage,asterisk18-odbc))
+$(eval $(call BuildPackage,asterisk18-pbx-lua))
 $(eval $(call BuildPackage,asterisk18-res-fax))
 $(eval $(call BuildPackage,asterisk18-res-fax-spandsp))
 $(eval $(call BuildPackage,asterisk18-res-timing-timerfd))
