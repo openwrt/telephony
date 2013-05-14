@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2011 OpenWrt.org
+# Copyright (C) 2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -26,7 +26,6 @@ define Package/asterisk18-chan-sccp-b
   CATEGORY:=Network
   TITLE:=SCCP channel provider for asterisk
   URL:=http://chan-sccp-b.net.sourceforge.net/
-  MAINTAINER:=Hans Zandbelt <hans.zandbelt@gmail.com>
   DEPENDS:= asterisk18 +libltdl
 endef
 
