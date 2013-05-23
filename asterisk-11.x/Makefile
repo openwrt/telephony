@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.3.0
+PKG_VERSION:=11.4.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=e80bd74335994d856f732237a4a5bc5f
+PKG_MD5SUM:=f2654567261f194f537bd2fbb97c9117
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -233,39 +233,12 @@ CONFIGURE_ARGS+= \
 	--with-z="$(STAGING_DIR)/usr" \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc
-PJLIB_CONFIGURE_ARGS= \
-	--disable-floating-point \
-	--disable-sound \
-	--disable-oss \
-	--disable-speex-aec \
-	--disable-l16-codec \
-	--disable-gsm-codec \
-	--disable-g722-codec \
-	--disable-g7221-codec \
-	--disable-speex-codec \
-	--disable-ilbc-codec \
-	--disable-g711-codec \
-	--disable-opencore-amrnb \
-	--disable-video \
-	--disable-sdl \
-	--disable-ffmpeg \
-	--disable-v4l2
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
 endef
 
 define Build/Configure
-	$(call Build/Configure/Default, \
-		$(PJLIB_CONFIGURE_ARGS), \
-		LD="$(TARGET_CC)" \
-		AR="" \
-		CFLAGS="$(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)" \
-		CXXFLAGS="$(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS) $(EXTRA_LDFLAGS) -lc $(LIBGCC_S) -lm" \
-		,res/pjproject)
-	$(MAKE) -j1 -C $(PKG_BUILD_DIR)/res/pjproject dep
-	$(MAKE) -j1 -C $(PKG_BUILD_DIR)/res/pjproject
 	$(call Build/Configure/Default,,$(SITE_VARS))
 endef
 
