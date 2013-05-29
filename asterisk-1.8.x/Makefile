@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.10.1
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -101,6 +101,18 @@ endef
 define Package/asterisk18-cdr/description
 $(call Package/asterisk18/Default/description)
  This package provides Call Detail Record support to
+ Asterisk.
+endef
+
+define Package/asterisk18-pgsql
+$(call Package/asterisk18/Default)
+  TITLE:=PostgreSQL support
+  DEPENDS:= asterisk18 +libpq
+endef
+
+define Package/asterisk18-pgsql/description
+$(call Package/asterisk18/Default/description)
+ This package provides PostgreSQL support to
  Asterisk.
 endef
 
@@ -283,6 +295,14 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-curl),)
 else
   CONFIGURE_ARGS+= \
 	--without-curl
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-pgsql),)
+  CONFIGURE_ARGS+= \
+	--with-postgres="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-postgres
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mysql),)
@@ -481,7 +501,6 @@ define Package/asterisk18-cdr/conffiles
 /etc/asterisk/cdr_custom.conf
 /etc/asterisk/cdr_manager.conf
 /etc/asterisk/cdr_odbc.conf
-/etc/asterisk/cdr_pgsql.conf
 /etc/asterisk/cdr_tds.conf
 endef
 
@@ -502,6 +521,19 @@ define Package/asterisk18-cdr/install
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/cdr*.conf $(1)/etc/asterisk/
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/*cdr*.so $(1)/usr/lib/asterisk/modules/
+endef
+
+define Package/asterisk18-pgsql/conffiles
+/etc/asterisk/cel_pgsql.conf
+/etc/asterisk/cdr_pgsql.conf
+/etc/asterisk/res_pgsql.conf
+endef
+
+define Package/asterisk18-pgsql/install
+	$(INSTALL_DIR) $(1)/etc/asterisk
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/{cel,cdr,res}_pgsql.conf $(1)/etc/asterisk/
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/{cel,cdr,res_config}_pgsql.so $(1)/usr/lib/asterisk/modules/
 endef
 
 define Package/asterisk18-res-musiconhold/install
@@ -669,6 +701,7 @@ $(eval $(call BuildPackage,asterisk18-res-musiconhold))
 $(eval $(call BuildPackage,asterisk18-chan-gtalk))
 $(eval $(call BuildPackage,asterisk18-chan-mobile))
 $(eval $(call BuildPackage,asterisk18-odbc))
+$(eval $(call BuildPackage,asterisk18-pgsql))
 $(eval $(call BuildPackage,asterisk18-pbx-lua))
 $(eval $(call BuildPackage,asterisk18-res-fax))
 $(eval $(call BuildPackage,asterisk18-res-fax-spandsp))
