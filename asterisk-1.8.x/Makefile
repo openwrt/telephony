@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.10.1
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -95,7 +95,7 @@ endef
 define Package/asterisk18-cdr
 $(call Package/asterisk18/Default)
   TITLE:=CDR support
-  DEPENDS:= asterisk18 @BROKEN
+  DEPENDS:= asterisk18
 endef
 
 define Package/asterisk18-cdr/description
@@ -500,8 +500,7 @@ define Package/asterisk18-cdr/conffiles
 /etc/asterisk/cdr.conf
 /etc/asterisk/cdr_custom.conf
 /etc/asterisk/cdr_manager.conf
-/etc/asterisk/cdr_odbc.conf
-/etc/asterisk/cdr_tds.conf
+/etc/asterisk/cdr_syslog.conf
 endef
 
 define Package/asterisk18-res-musiconhold/conffiles
@@ -518,9 +517,10 @@ endef
 
 define Package/asterisk18-cdr/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/cdr*.conf $(1)/etc/asterisk/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/{cdr,cdr_custom,cdr_manager,cdr_syslog}.conf $(1)/etc/asterisk/
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/*cdr*.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/{app_,app_fork,func_}cdr.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/cdr_csv.so $(1)/usr/lib/asterisk/modules/
 endef
 
 define Package/asterisk18-pgsql/conffiles
@@ -656,11 +656,19 @@ define Package/asterisk18-res-srtp/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/res_srtp.so $(1)/usr/lib/asterisk/modules/
 endef
 
+define Package/asterisk18-odbc/conffiles
+/etc/asterisk/cdr_adaptive_odbc.conf
+/etc/asterisk/cdr_odbc.conf
+/etc/asterisk/cel_odbc.conf
+/etc/asterisk/func_odbc.conf
+/etc/asterisk/res_odbc.conf
+endef
+
 define Package/asterisk18-odbc/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(CP) $(PKG_INSTALL_DIR)/etc/asterisk/*odbc*.conf $(1)/etc/asterisk/
+	$(CP) $(PKG_INSTALL_DIR)/etc/asterisk/{cdr_adaptive,cdr,cel,func,res}_odbc.conf $(1)/etc/asterisk/
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/*odbc*.so $(1)/usr/lib/asterisk/modules/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/{cdr_adaptive,cdr,cel,func,res_config,res}_odbc $(1)/usr/lib/asterisk/modules/
 endef
 
 define Package/asterisk18-pbx-lua/install
