@@ -668,7 +668,7 @@ define Package/asterisk18-odbc/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
 	$(CP) $(PKG_INSTALL_DIR)/etc/asterisk/{cdr_adaptive,cdr,cel,func,res}_odbc.conf $(1)/etc/asterisk/
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/{cdr_adaptive,cdr,cel,func,res_config,res}_odbc $(1)/usr/lib/asterisk/modules/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/{cdr_adaptive,cdr,cel,func,res_config,res}_odbc.so $(1)/usr/lib/asterisk/modules/
 endef
 
 define Package/asterisk18-pbx-lua/install
