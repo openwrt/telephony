@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.4.0
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -306,7 +306,7 @@ $(eval $(call BuildAsteriskModule,app-talkdetect,File playback with audio detect
 $(eval $(call BuildAsteriskModule,app-verbose,Verbose logging,Verbose logging application,,,,app_verbose,))
 $(eval $(call BuildAsteriskModule,app-waituntil,Sleep,support sleeping until the given epoch,,,,app_waituntil,))
 $(eval $(call BuildAsteriskModule,app-while,While loop,a while loop implementation,,,,app_while,))
-$(eval $(call BuildAsteriskModule,cdr-core,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
+$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
 $(eval $(call BuildAsteriskModule,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,,cdr_csv,))
 $(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,,cdr_sqlite3_custom,))
 $(eval $(call BuildAsteriskModule,codec-a-mu,Alaw to ulaw translation,translation between alaw and ulaw codecs,,,,codec_a_mu,))
