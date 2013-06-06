@@ -26,7 +26,7 @@
  #applications/mod_soundtouch
  applications/mod_spandsp
  #applications/mod_spy
-@@ -61,17 +66,20 @@ codecs/mod_h26x
+@@ -63,17 +68,20 @@ codecs/mod_h26x
  codecs/mod_vp8
  #codecs/mod_ilbc
  #codecs/mod_isac
@@ -47,7 +47,7 @@
  #endpoints/mod_h323
  #endpoints/mod_html5
  #endpoints/mod_khomp
-@@ -88,6 +96,7 @@ event_handlers/mod_cdr_csv
+@@ -90,6 +98,7 @@ event_handlers/mod_cdr_csv
  event_handlers/mod_cdr_sqlite
  #event_handlers/mod_erlang_event
  #event_handlers/mod_event_multicast
@@ -55,7 +55,7 @@
  event_handlers/mod_event_socket
  #event_handlers/mod_event_zmq
  #event_handlers/mod_radius_cdr
-@@ -113,6 +122,7 @@ loggers/mod_syslog
+@@ -115,6 +124,7 @@ loggers/mod_syslog
  #say/mod_say_de
  say/mod_say_en
  #say/mod_say_es

@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_DISTNAME:=$(PKG_NAME)_git
-PKG_VERSION:=1.3.17
+PKG_VERSION:=1.5.2b
 
 
 #
@@ -18,7 +18,7 @@ PKG_VERSION:=1.3.17
 #
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=6af84a870c21836e20077f27a85d94fd382a02be
+FS_DEFAULT_HEAD:=b4ed2f55bf4f68ab83b16884dfcd3d6421ac25c0
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_SOFIA_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -28,7 +28,7 @@ PKG_SOURCE:=$(PKG_SOURCE_SUBDIR)-$(PKG_SOURCE_VERSION_SHORT).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 
-PKG_FIXUP:=autoreconf
+PKG_FIXUP:=libtool autoreconf
 PKG_BUILD_PARALLEL:=1
 
 
@@ -163,11 +163,14 @@ FS_MOD_AVAILABLE:= \
 
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_FS_SOFIA_WITH_ALSA \
 	CONFIG_FS_SOFIA_WITH_BUILTIN_ZRTP \
+	CONFIG_FS_SOFIA_WITH_FIXED_POINT \
 	CONFIG_FS_SOFIA_WITH_IPV6 \
 	CONFIG_FS_SOFIA_WITH_MYSQL \
 	CONFIG_FS_SOFIA_WITH_ODBC \
 	CONFIG_FS_SOFIA_WITH_OPT \
+	CONFIG_FS_SOFIA_WITH_POSTGRESQL \
 	CONFIG_FS_SOFIA_WITH_PULL_CURRENT \
 	CONFIG_FS_SOFIA_WITH_SCTP \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
@@ -192,7 +195,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+libcurl +libiconv-full +libjpeg +libncurses +libpq +libpthread +librt +libstdcpp
+  DEPENDS:=+libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp
   MENU:=1
 endef
 
@@ -216,6 +219,13 @@ define Package/$(PKG_NAME)/config
 	Enable this option ONLY if you know what you are doing. It may and/or may not be cleanly 
 	compiled and may require some intervension to create new patches. If you take this route
 	and come up with some patches, please contemplate to contribute or send in your patches.
+
+    config FS_SOFIA_WITH_ALSA
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Compile with ALSA support"
+    default n
+    help
+        Compile $(PKG_NAME) with ALSA Support.
 
     config FS_SOFIA_WITH_IPV6
     depends on PACKAGE_$(PKG_NAME)
@@ -249,6 +259,14 @@ define Package/$(PKG_NAME)-mod-sofia/config
     help
         Compile $(PKG_NAME) with MySQL.
 
+    config FS_SOFIA_WITH_POSTGRESQL
+    depends on PACKAGE_$(PKG_NAME)-mod-sofia
+    bool "Compile with PostgreSQL"
+    default n
+    select PACKAGE_libpq
+    help
+        Compile $(PKG_NAME) with PostgreSQL.
+
     config FS_SOFIA_WITH_ODBC
     depends on PACKAGE_$(PKG_NAME)-mod-sofia
     depends on PACKAGE_sqliteodbc
@@ -265,6 +283,16 @@ define Package/$(PKG_NAME)-mod-sofia/config
     default y
     help
         Compile $(PKG_NAME)-mod-sofia with SCTP support.
+endef
+
+
+define Package/$(PKG_NAME)-mod-spandsp/config
+    config FS_SOFIA_WITH_FIXED_POINT
+    depends on FS_SOFIA_WITH_MYSQL && PACKAGE_$(PKG_NAME)-mod-spandsp
+    bool "Enable fixed point support (may degrade performance)"
+    default n
+    help
+	Compile spandsp package with a fixed point support. ONLY enabled this option when necessary, i.e. CPU doesn't support floating computation.
 endef
 
 
@@ -534,7 +562,7 @@ endif
 
 FS_TARGET_CFLAGS:= $(TARGET_CFLAGS) -DLUA_USE_LINUX $(FPIC) -std=gnu99 -Wno-format
 FS_TARGET_CXXFLAGS:= $(TARGET_CXXFLAGS) -DLUA_USE_LINUX $(FPIC) -Wno-format
-FS_TARGET_CPPFLAGS:= -I. -I./lua $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),-I$(STAGING_DIR_HOST)/lib/erlang/lib/erl_interface-3.6/include) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) $(TARGET_CPPFLAGS)
+FS_TARGET_CPPFLAGS:= -I. -I./lua $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),-I$(STAGING_DIR_HOST)/lib/erlang/lib/erl_interface-3.7.7/include) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) $(TARGET_CPPFLAGS)
 
 
 CONFIGURE_ARGS+= \
@@ -550,9 +578,12 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_SOFIA_WITH_MYSQL),--with-mysql,--without-mysql) \
 	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_OPT,optimization) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-iogg) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang,--without-erlang) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
+	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_SOFIA_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
 	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_BUILTIN_ZRTP,zrtp) \
@@ -719,7 +750,7 @@ define Package/$(PKG_NAME)-config-minimal/install
 	# Copying dialplan directory jingle_profiles sip_profiles $(PKG_NAME).xml
 	# fur_elise.ttml mime.types tetris.ttml tones.conf vars.xml
 	#
-	$(foreach f,dialplan directory jingle_profiles sip_profiles $(PKG_NAME).xml fur_elise.ttml mime.types tetris.ttml tones.conf vars.xml,$(if $(PKG_BUILD_DIR)/conf/vanilla/$(f),$(CP) $(PKG_BUILD_DIR)/conf/vanilla/$(f) $(1)/etc/$(PKG_NAME);))
+	$(foreach f,dialplan directory jingle_profiles sip_profiles $(PKG_NAME).xml fur_elise.ttml mime.types tetris.ttml vars.xml,$(if $(PKG_BUILD_DIR)/conf/vanilla/$(f),$(CP) $(PKG_BUILD_DIR)/conf/vanilla/$(f) $(1)/etc/$(PKG_NAME);))
 
 	#
 	# Copying acl ivr modules post_load_modules switch timezones
@@ -823,33 +854,6 @@ define Package/$(PKG_NAME)-tools/install
 endef
 
 
-#
-# 1. Name
-# 2. Title
-# 3. Package configuration files
-# 4. Inter module depends
-# 5. Extra depends
-#
-define BuildLib
-  define Package/$(PKG_NAME)-$(1)
-    $$(call Package/$(PKG_NAME)/Default)
-    TITLE:= FS $(2) library and pkgconfig files
-    DEPENDS:= $(PKG_NAME) $(foreach l,$(4),+$(PKG_NAME)-$(l)) $(5)
-  endef
-
-  define Package/$(PKG_NAME)-$(1)/install
-	[ -d "$$(1)/usr/lib/pkgconfig" ] || $(INSTALL_DIR) $$(1)/usr/lib/pkgconfig
-
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/$(patsubst lib%,%,$(3)).pc $$(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(1)* $$(1)/usr/lib/
-	$(if $$(1)/usr/lib/$(1).la,sed -i -e "s#\(^.*\)=' \(.*\)-lm\(.*\)#\1=' -L/usr/lib -L/usr/lib/libiconv-full/lib -L/usr/lib/libintl-full/lib -lm\3#g" $$(1)/usr/lib/$(1).la)
-  endef
-
-  $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
-endef
-
-
-#
 # 1. Name
 # 2. Title
 # 3. Selection on module configuration file
@@ -876,7 +880,7 @@ define BuildPlugin
 	#
 	# mod_$(subst -,_,$(1)): $(5)
 	#
-	$(foreach f,$(5),[ -d $(dir $$(1)/usr/${f}) ] || $(INSTALL_DIR) $(dir $$(1)/usr/${f});$(CP) $(PKG_INSTALL_DIR)/usr/${f} $$(1)/usr;)
+	$(foreach f,$(5),[ -d $(dir $$(1)/usr/${f}) ] || $(INSTALL_DIR) $(dir $$(1)/usr/${f});$(CP) $$$$(wildcard $(PKG_INSTALL_DIR)/usr/${f}*) $(dir $$(1)/usr/${f});)
 
 	#
 	# mod_$(subst -,_,$(1)): Clean installed library control files from referencig to OpenWRT PATH.
@@ -949,16 +953,10 @@ $(eval $(call BuildPackage,$(PKG_NAME)-config-minimal))
 
 
 #
-# $(eval $(call BuildLib,Name,Title,Package Configuration Files,Inter Depends,Extra Depends))
-#
-$(eval $(call BuildLib,libopenzap,OpenZAP,openzap,,))
-
-
-#
 # $(eval $(call BuildPlugin,Name,Title,Selection on module Conf File,Files,Inter Depends,Extra Depends))
 #
 $(eval $(call BuildPlugin,abstraction,An Abstraction To API Call,vanilla,,,,))
-$(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+alsa-lib))
+$(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+alsa-lib @FS_SOFIA_WITH_ALSA))
 $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
@@ -966,7 +964,7 @@ $(eval $(call BuildPlugin,blacklist,Blacklist,vanilla,,,,))
 $(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,callcenter,Call Center,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
-$(eval $(call BuildPlugin,cdr-pg-csv,Postgress CDR Handler,vanilla,,,,+coreutils +libpq))
+$(eval $(call BuildPlugin,cdr-pg-csv,Postgress CDR Handler,vanilla,,,,+coreutils @FS_SOFIA_WITH_POSTGRESQL))
 $(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,+libsqlite3))
 $(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+libogg))
 $(eval $(call BuildPlugin,cepstral,Cepstral Interface,vanilla,,,,@BROKEN)) # needs <swift.h>
@@ -982,9 +980,9 @@ $(eval $(call BuildPlugin,db,Database Backend,vanilla,,,,))
 $(eval $(call BuildPlugin,dialplan-asterisk,Asterisk Dialplan Parser,vanilla,,,,))
 $(eval $(call BuildPlugin,dialplan-directory,Dialplan Directory,vanilla,,,,))
 $(eval $(call BuildPlugin,dialplan-xml,Dialplan-XML Interface,vanilla,,,,))
-$(eval $(call BuildPlugin,dingaling,Jabber Interface,vanilla,,,,+libgcrypt +libopenssl))
+$(eval $(call BuildPlugin,dingaling,Jabber Interface,vanilla,,,,+libopenssl))
 $(eval $(call BuildPlugin,directory,Search By Name Directory IVR,vanilla,,,,))
-$(eval $(call BuildPlugin,distributor,Simple Robin-Round Load to Gateway,vanilla,,,,))
+$(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,enum,ENUM Routing,,,,,))
@@ -1001,7 +999,7 @@ $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 $(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,))
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,g729,G.729 Codec,vanilla,,,,))
-$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,,+alsa-lib @BROKEN)) # needs gsmlib
+$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA @BROKEN)) # needs gsmlib
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
@@ -1023,12 +1021,12 @@ $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
-$(eval $(call BuildPlugin,openzap,Zaptel (Superseded by FreeTDM),libs,ozmod,,,+$(PKG_NAME)-libopenzap +libpcap))
+$(eval $(call BuildPlugin,openzap,Zaptel (Superseded by FreeTDM),libs,ozmod,lib/libopenzap lib/pkgconfig/openzap,,+libpcap))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
-$(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,,+alsa-lib))
-$(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,,+alsa-lib))
+$(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA))
+$(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA))
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
-$(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,+freeradius2 @BROKEN)) # fails in freeradius-client
+$(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
 $(eval $(call BuildPlugin,redis,Redis Limited Backend,vanilla,,,,))
 $(eval $(call BuildPlugin,rss,RRS Feeds via TTS,vanilla,,,,))
 $(eval $(call BuildPlugin,rtmp,RTMP Protocol Handler,vanilla,,,,))

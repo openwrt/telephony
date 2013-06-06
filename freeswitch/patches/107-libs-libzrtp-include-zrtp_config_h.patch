@@ -1,6 +1,6 @@
 --- a/libs/libzrtp/include/zrtp_config.h
 +++ b/libs/libzrtp/include/zrtp_config.h
-@@ -66,8 +66,16 @@
+@@ -68,8 +68,16 @@
   * If the byte order is not specified manually in zrtp_config_user.h - try to detect it automatically
   */
  #if !defined(ZRTP_BYTE_ORDER)
