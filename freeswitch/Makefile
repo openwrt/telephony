@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.2b
 #
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=b4ed2f55bf4f68ab83b16884dfcd3d6421ac25c0
+FS_DEFAULT_HEAD:=f858176f8956c539c41c9b09cc87dae8c4d9b1c2
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_SOFIA_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -105,6 +105,7 @@ FS_MOD_AVAILABLE:= \
 	portaudio-stream \
 	posix-timer \
 	radius-cdr \
+	rayo \
 	redis \
 	rss \
 	rtmp \
@@ -986,7 +987,7 @@ $(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,enum,ENUM Routing,,,,,))
-$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
+$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang @BROKEN))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
@@ -1027,6 +1028,7 @@ $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA))
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
 $(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
+$(eval $(call BuildPlugin,rayo,Rayo server & node implementation,vanilla,,,,))
 $(eval $(call BuildPlugin,redis,Redis Limited Backend,vanilla,,,,))
 $(eval $(call BuildPlugin,rss,RRS Feeds via TTS,vanilla,,,,))
 $(eval $(call BuildPlugin,rtmp,RTMP Protocol Handler,vanilla,,,,))
