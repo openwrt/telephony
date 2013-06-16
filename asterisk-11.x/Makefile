@@ -74,6 +74,7 @@ define Package/asterisk11/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=http://www.asterisk.org/
+  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk11/Default/description

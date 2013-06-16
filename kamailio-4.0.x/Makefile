@@ -30,6 +30,7 @@ define Package/kamailio4/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.kamailio.org/
+  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
   DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2
 endef
 
