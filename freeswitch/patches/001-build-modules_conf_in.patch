@@ -55,7 +55,7 @@
  event_handlers/mod_event_socket
  #event_handlers/mod_event_zmq
  #event_handlers/mod_radius_cdr
-@@ -115,6 +124,7 @@ loggers/mod_syslog
+@@ -117,6 +126,7 @@ loggers/mod_syslog
  #say/mod_say_de
  say/mod_say_en
  #say/mod_say_es

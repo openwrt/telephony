@@ -1,6 +1,6 @@
 --- a/configure.in
 +++ b/configure.in
-@@ -157,7 +157,7 @@ if test "${enable_optimizer}" = "yes" ;
+@@ -162,7 +162,7 @@ if test "${enable_optimizer}" = "yes" ;
          AX_CC_MAXOPT
  fi
  
@@ -9,7 +9,7 @@
  
  # set defaults for use on all platforms
  SWITCH_AM_CFLAGS="-I${switch_srcdir}/src/include -I${switch_builddir}/src/include -I${switch_srcdir}/libs/libteletone/src -I${switch_srcdir}/libs/stfu"
-@@ -592,7 +592,7 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -597,7 +597,7 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  

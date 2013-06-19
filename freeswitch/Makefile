@@ -18,9 +18,9 @@ PKG_VERSION:=1.5.2b
 #
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=f858176f8956c539c41c9b09cc87dae8c4d9b1c2
+FS_DEFAULT_HEAD:=9cf05e3595456bcd75dbd18ed372130cf4da6158
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
-PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_SOFIA_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
+PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
 PKG_RELEASE:=$(PKG_SOURCE_VERSION_SHORT)
 PKG_SOURCE_SUBDIR:=$(PKG_DISTNAME)
@@ -164,16 +164,17 @@ FS_MOD_AVAILABLE:= \
 
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_FS_SOFIA_WITH_ALSA \
-	CONFIG_FS_SOFIA_WITH_BUILTIN_ZRTP \
-	CONFIG_FS_SOFIA_WITH_FIXED_POINT \
-	CONFIG_FS_SOFIA_WITH_IPV6 \
-	CONFIG_FS_SOFIA_WITH_MYSQL \
-	CONFIG_FS_SOFIA_WITH_ODBC \
-	CONFIG_FS_SOFIA_WITH_OPT \
-	CONFIG_FS_SOFIA_WITH_POSTGRESQL \
-	CONFIG_FS_SOFIA_WITH_PULL_CURRENT \
-	CONFIG_FS_SOFIA_WITH_SCTP \
+	CONFIG_FS_WITH_ALSA \
+	CONFIG_FS_WITH_BUILTIN_ZRTP \
+	CONFIG_FS_WITH_FIXED_POINT \
+	CONFIG_FS_WITH_IPV6 \
+	CONFIG_FS_WITH_MYSQL \
+	CONFIG_FS_WITH_ODBC \
+	CONFIG_FS_WITH_OPT \
+	CONFIG_FS_WITH_POSTGRESQL \
+	CONFIG_FS_WITH_PULL_CURRENT \
+	CONFIG_FS_WITH_SQLITE3 \
+	CONFIG_FS_WITH_SCTP \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
 
 
@@ -196,7 +197,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp
+  DEPENDS:=+libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq
   MENU:=1
 endef
 
@@ -209,7 +210,7 @@ endef
 
 
 define Package/$(PKG_NAME)/config
-    config FS_SOFIA_WITH_PULL_CURRENT
+    config FS_WITH_PULL_CURRENT
     depends on DEVEL
     depends on PACKAGE_$(PKG_NAME)
     bool "Pull the latest git HEAD - $(PKG_SOURCE_VERSION_SHORT) (Press < Help > for more information)"
@@ -221,79 +222,86 @@ define Package/$(PKG_NAME)/config
 	compiled and may require some intervension to create new patches. If you take this route
 	and come up with some patches, please contemplate to contribute or send in your patches.
 
-    config FS_SOFIA_WITH_ALSA
+    config FS_WITH_ALSA
     depends on PACKAGE_$(PKG_NAME)
-    bool "Compile with ALSA support"
+    bool "Enable ALSA for sound support"
     default n
     help
-        Compile $(PKG_NAME) with ALSA Support.
+        Compile $(PKG_NAME) with ALSA support.
 
-    config FS_SOFIA_WITH_IPV6
+    config FS_WITH_BUILTIN_ZRTP
     depends on PACKAGE_$(PKG_NAME)
-    bool "Compile with IPV6 support"
+    bool "Enable built-in ZRTP"
     default y
     help
-        Compile $(PKG_NAME) with IPV6 Support.
+        Compile $(PKG_NAME) with ZRTP support.
 
-    config FS_SOFIA_WITH_OPT
+    config FS_WITH_IPV6
     depends on PACKAGE_$(PKG_NAME)
-    bool "Compile with optimization"
+    bool "Enable IPV6 support in APR"
     default y
     help
-        Compile $(PKG_NAME) with optimization enabled.
+        Compile libs/apr package with IPV6 support.
 
-    config FS_SOFIA_WITH_BUILTIN_ZRTP
+    config FS_WITH_OPT
     depends on PACKAGE_$(PKG_NAME)
-    bool "Compile with built-in ZRTP support"
+    bool "Enable optimization"
     default y
     help
-        Compile $(PKG_NAME)-mod-sofia with ZRTP Support.
-endef
+	Compile $(PKG_NAME) with optimization flag enabled. This will add max optimising
+	compiler flags
 
+    config FS_WITH_SCTP
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
+    default y
+    select PACKAGE_sctp
+    help
+        Compile $(PKG_NAME) with SCTP support.
 
-define Package/$(PKG_NAME)-mod-sofia/config
-    config FS_SOFIA_WITH_MYSQL
-    depends on PACKAGE_$(PKG_NAME)-mod-sofia
-    bool "Compile with MySQL"
+    config FS_WITH_MYSQL
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Compile apr-util with MySQL"
     default n
     select PACKAGE_libmysqlclient
     help
-        Compile $(PKG_NAME) with MySQL.
+        Compile libs/apr-util with MySQL.
 
-    config FS_SOFIA_WITH_POSTGRESQL
-    depends on PACKAGE_$(PKG_NAME)-mod-sofia
-    bool "Compile with PostgreSQL"
+    config FS_WITH_POSTGRESQL
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Compile apr-util (also enable $(PKG_NAME) core) with PostgreSQL support"
     default n
-    select PACKAGE_libpq
     help
-        Compile $(PKG_NAME) with PostgreSQL.
+        Compile both libs/apr-util and $(PKG_NAME) with PostgreSQL support.
 
-    config FS_SOFIA_WITH_ODBC
-    depends on PACKAGE_$(PKG_NAME)-mod-sofia
+    config FS_WITH_SQLITE3
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Compile apr-util with SQLITE3"
+    default y
+    select PACKAGE_libsqlite3
+    help
+        Compile libs/apr-util with SQLITE3.
+
+    config FS_WITH_ODBC
+    depends on PACKAGE_$(PKG_NAME)
     depends on PACKAGE_sqliteodbc
     depends on PACKAGE_unixodbc_svn
     bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
     default n
     help
-        Compile $(PKG_NAME)-mod-sofia with ODBC Support. Since both sqliteodbc and unixodbc_svn packages are not yet available on OpenWRT, $(PKG_NAME)-mod-sofia CAN NOT be compiled with ODBC support.
-
-    config FS_SOFIA_WITH_SCTP
-    depends on PACKAGE_$(PKG_NAME)-mod-sofia
-    depends on PACKAGE_sctp
-    bool "Compile with SCTP (Stream Control Transfer Protocol) support"
-    default y
-    help
-        Compile $(PKG_NAME)-mod-sofia with SCTP support.
+	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
+	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
 endef
 
 
 define Package/$(PKG_NAME)-mod-spandsp/config
-    config FS_SOFIA_WITH_FIXED_POINT
-    depends on FS_SOFIA_WITH_MYSQL && PACKAGE_$(PKG_NAME)-mod-spandsp
-    bool "Enable fixed point support (may degrade performance)"
+    config FS_WITH_FIXED_POINT
+    depends on PACKAGE_$(PKG_NAME)-mod-spandsp
+    bool "Enable fixed point support for spandsp (may degrade performance)"
     default n
     help
-	Compile spandsp package with a fixed point support. ONLY enabled this option when necessary, i.e. CPU doesn't support floating computation.
+	Compile spandsp package with a fixed point support. ONLY enabled this option when
+	necessary, i.e. CPU doesn't support floating computation.
 endef
 
 
@@ -498,25 +506,25 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),)
- $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.24.tar.gz,6c0a8ec292e444dff10b652644f4fc54,,,))
+ $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.25.tar.gz,1140efad453ed1a72259d799f7fef0fc,,,))
 	MAKE_INSTALL_TARGETS+= sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-16KHz),)
- $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.24.tar.gz,e9b5c1cdd393660d0cdf7de6b7e03c45,,,))
+ $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.25.tar.gz,20b9bf1b1637be2abe838113fb675c41,,,))
 	MAKE_INSTALL_TARGETS+= hd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-32KHz),)
- $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.24.tar.gz,fa110675de07ca5f6d85646f3093b0ce,,,))
+ $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.25.tar.gz,977d453d8ffa9a5b0fadee8408e84f60,,,))
 	MAKE_INSTALL_TARGETS+= uhd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-48KHz),)
- $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.24.tar.gz,813ea6eeae5545bb6e11664189691f8b,,,))
+ $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.25.tar.gz,96ec0df908eb1c535063fdc8580626d2,,,))
 	MAKE_INSTALL_TARGETS+= cd-sounds-install
 endif
 
@@ -576,21 +584,23 @@ CONFIGURE_ARGS+= \
 	--sysconfdir="/etc/$(PKG_NAME)" \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
-	$(if $(CONFIG_FS_SOFIA_WITH_MYSQL),--with-mysql,--without-mysql) \
-	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_IPV6,ipv6) \
-	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_OPT,optimization) \
+	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
+	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
+	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
+	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
+	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang,--without-erlang) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
-	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_POSTGRESQL,core-pgsql-support) \
-	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_SOFIA_WITH_FIXED_POINT,fixed-point) \
+	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
-	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_BUILTIN_ZRTP,zrtp) \
-	$(call autoconf_bool,CONFIG_FS_SOFIA_WITH_ODBC,core-odbc-support) \
-	$(if $(CONFIG_FS_SOFIA_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_SOFIA_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
+	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
+	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
+	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
+	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 
 
 CONFIGURE_VARS+= \
@@ -617,12 +627,9 @@ CONFIGURE_VARS+= \
 	CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
 	CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
 	LDFLAGS="$(TARGET_LDFLAGS) -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\"" \
-	PATH="$(PATH):$(STAGING_DIR)" \
 	HOST_CC="/usr/bin/cc" \
 	HOST_CXX="/usr/bin/g++" \
 	CROSS_COMPILE="1" \
-	PKG_CONFIG="$(STAGING_DIR_HOST)/bin/pkg-config" \
-	PKG_CONFIG_PATH="$(STAGING_DIR_HOST)/lib/pkgconfig" \
 	ax_cv_c_compiler_vendor="gnu" \
 	ac_cv_dev_urandom="yes" \
 	ac_cv_file_dbd_apr_dbd_mysql_c="no" \
@@ -957,7 +964,7 @@ $(eval $(call BuildPackage,$(PKG_NAME)-config-minimal))
 # $(eval $(call BuildPlugin,Name,Title,Selection on module Conf File,Files,Inter Depends,Extra Depends))
 #
 $(eval $(call BuildPlugin,abstraction,An Abstraction To API Call,vanilla,,,,))
-$(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+alsa-lib @FS_SOFIA_WITH_ALSA))
+$(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
@@ -965,8 +972,8 @@ $(eval $(call BuildPlugin,blacklist,Blacklist,vanilla,,,,))
 $(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,callcenter,Call Center,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
-$(eval $(call BuildPlugin,cdr-pg-csv,Postgress CDR Handler,vanilla,,,,+coreutils @FS_SOFIA_WITH_POSTGRESQL))
-$(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,+libsqlite3))
+$(eval $(call BuildPlugin,cdr-pg-csv,PostgreSQL CDR Handler,vanilla,,,,+coreutils +FS_WITH_POSTGRESQL:libpq @FS_WITH_POSTGRESQL))
+$(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,@FS_WITH_SQLITE3))
 $(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+libogg))
 $(eval $(call BuildPlugin,cepstral,Cepstral Interface,vanilla,,,,@BROKEN)) # needs <swift.h>
 $(eval $(call BuildPlugin,cidlookup,Data Query For CID->NAME Services,mod,,,,+libcurl)) # ~/conf
@@ -1000,7 +1007,7 @@ $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 $(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,))
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,g729,G.729 Codec,vanilla,,,,))
-$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA @BROKEN)) # needs gsmlib
+$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+alsa-lib @FS_WITH_ALSA @BROKEN)) # needs gsmlib
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
@@ -1024,8 +1031,8 @@ $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,openzap,Zaptel (Superseded by FreeTDM),libs,ozmod,lib/libopenzap lib/pkgconfig/openzap,,+libpcap))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
-$(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA))
-$(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+alsa-lib @FS_SOFIA_WITH_ALSA))
+$(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+alsa-lib @FS_WITH_ALSA))
+$(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
 $(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
 $(eval $(call BuildPlugin,rayo,Rayo server & node implementation,vanilla,,,,))
