@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.2b
 #
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=bd2862080c7f55450a99b5565650c8300512a59a
+FS_DEFAULT_HEAD:=48e1415f64c76648486778294c20a8fd992af354
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -227,21 +227,21 @@ define Package/$(PKG_NAME)/config
     bool "Enable ALSA for sound support"
     default n
     help
-        Compile $(PKG_NAME) with ALSA support.
+	Compile $(PKG_NAME) with ALSA support.
 
     config FS_WITH_BUILTIN_ZRTP
     depends on PACKAGE_$(PKG_NAME)
     bool "Enable built-in ZRTP"
     default y
     help
-        Compile $(PKG_NAME) with ZRTP support.
+	Compile $(PKG_NAME) with ZRTP support.
 
     config FS_WITH_IPV6
     depends on PACKAGE_$(PKG_NAME)
     bool "Enable IPV6 support in APR"
     default y
     help
-        Compile libs/apr package with IPV6 support.
+	Compile libs/apr package with IPV6 support.
 
     config FS_WITH_OPT
     depends on PACKAGE_$(PKG_NAME)
@@ -257,7 +257,7 @@ define Package/$(PKG_NAME)/config
     default y
     select PACKAGE_sctp
     help
-        Compile $(PKG_NAME) with SCTP support.
+	Compile $(PKG_NAME) with SCTP support in lib APR.
 
     config FS_WITH_MYSQL
     depends on PACKAGE_$(PKG_NAME)
@@ -265,14 +265,14 @@ define Package/$(PKG_NAME)/config
     default n
     select PACKAGE_libmysqlclient
     help
-        Compile libs/apr-util with MySQL.
+	Compile libs/apr-util with MySQL.
 
     config FS_WITH_POSTGRESQL
     depends on PACKAGE_$(PKG_NAME)
     bool "Compile apr-util (also enable $(PKG_NAME) core) with PostgreSQL support"
     default n
     help
-        Compile both libs/apr-util and $(PKG_NAME) with PostgreSQL support.
+	Compile both libs/apr-util and $(PKG_NAME) with PostgreSQL support.
 
     config FS_WITH_SQLITE3
     depends on PACKAGE_$(PKG_NAME)
@@ -280,7 +280,7 @@ define Package/$(PKG_NAME)/config
     default y
     select PACKAGE_libsqlite3
     help
-        Compile libs/apr-util with SQLITE3.
+	Compile libs/apr-util with SQLITE3.
 
     config FS_WITH_ODBC
     depends on PACKAGE_$(PKG_NAME)
