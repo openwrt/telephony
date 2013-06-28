@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-chan-sccp-b
-PKG_REV=4631
+PKG_REV=4751
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
