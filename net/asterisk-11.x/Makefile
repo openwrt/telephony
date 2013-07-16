@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.4.0
-PKG_RELEASE:=6
+PKG_VERSION:=11.5.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=f2654567261f194f537bd2fbb97c9117
+PKG_MD5SUM:=34ca88eeb50580823ec6e38d4c0ad0dc
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -358,6 +358,7 @@ $(eval $(call BuildAsteriskModule,res-ael-share,Shareable AEL code,support for s
 $(eval $(call BuildAsteriskModule,res-agi,Asterisk Gateway Interface,support for the Asterisk Gateway Interface extension,,,,res_agi,))
 $(eval $(call BuildAsteriskModule,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,,res_clioriginate,))
 $(eval $(call BuildAsteriskModule,res-monitor,Provide Monitor,Cryptographic Signature capability,,,,res_monitor,))
+$(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,/etc/asterisk/phoneprov.conf,phoneprov.conf,res_phoneprov,))
 $(eval $(call BuildAsteriskModule,res-pktccops,Provide PacketCable COPS,simple client/server model for supporting policy control over QoS signaling protocols,,/etc/asterisk/res_pktccops.conf,res_pktccops.conf,res_pktccops,))
 $(eval $(call BuildAsteriskModule,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,/etc/asterisk/smdi.conf,smdi.conf,res_smdi,))
 $(eval $(call BuildAsteriskModule,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk11-res-timing-pthread,/etc/asterisk/res_fax.conf /etc/asterisk/udptl.conf,udptl.conf res_fax.conf,res_fax,))
