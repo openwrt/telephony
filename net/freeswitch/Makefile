@@ -9,16 +9,16 @@ include $(TOPDIR)/rules.mk
 
 
 PKG_NAME:=freeswitch
-PKG_DISTNAME:=$(PKG_NAME)_git
-PKG_VERSION:=1.5.3b
+PKG_SOURCE_PROTO:=git
+PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
+PKG_VERSION:=1.5.5b
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from http://fisheye.freeswitch.org
 #
-PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=37a1f2c6334906119d8dbfec9c16f2ee45216f32
+FS_DEFAULT_HEAD:=adf5e2f6ecd1e2cd44011379d4db7a647c99b375
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -589,9 +589,9 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang,--without-erlang) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with,--without)-erlang \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
@@ -1028,9 +1028,9 @@ $(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROK
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
-$(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,openzap,Zaptel (Superseded by FreeTDM),libs,ozmod,lib/libopenzap lib/pkgconfig/openzap,,+libpcap))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
+$(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
