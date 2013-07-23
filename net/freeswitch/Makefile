@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.5b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=adf5e2f6ecd1e2cd44011379d4db7a647c99b375
+FS_DEFAULT_HEAD:=1dbcfbfa028b4818f83eb7c5fb624b525a2011b2
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
