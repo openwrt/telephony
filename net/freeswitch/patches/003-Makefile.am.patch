@@ -16,7 +16,7 @@
  endif
  
  library_includedir      = $(includedir)
-@@ -426,7 +429,7 @@ $(switch_builddir)/quiet_libtool: $(swit
+@@ -427,7 +430,7 @@ $(switch_builddir)/quiet_libtool: $(swit
  	@cat libtool | sed -e 's|$$show "$$command"|if test -z "$$suppress_output" ; then $$show "Compiling $$srcfile ..." ; fi|' > $(switch_builddir)/quiet_libtool
  
  build/print_git_revision: build/print_git_revision.c
@@ -25,7 +25,7 @@
  
  src/include/switch_version.h: src/include/switch_version.h.in Makefile build/print_git_revision $(libfreeswitch_la_SOURCES) $(library_include_HEADERS)
  	@cat $< > $@; \
-@@ -664,7 +667,9 @@ sndfile-reconf:
+@@ -665,7 +668,9 @@ sndfile-reconf:
  
  tiff-reconf:
  	cd libs/tiff-4.0.2 && autoreconf -fi
@@ -36,7 +36,7 @@
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:
-@@ -689,9 +694,6 @@ iks-reconf:
+@@ -690,9 +695,6 @@ iks-reconf:
  	$(MAKE) mod_dingaling-clean
  
  spandsp-reconf: tiff-reconf

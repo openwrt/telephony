@@ -15,10 +15,11 @@ PKG_VERSION:=1.5.5b
 
 
 #
-# The latest FS git hash in PKG_SOURCE_VERSION can be obtained from http://fisheye.freeswitch.org
+# The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
+# http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=6a5595b049075a58240c327718129cf3870c285c
+FS_DEFAULT_HEAD:=4eee5aee8c94910f65f47ade4e873aa62e7117eb
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -168,6 +169,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_BUILTIN_ZRTP \
 	CONFIG_FS_WITH_FIXED_POINT \
 	CONFIG_FS_WITH_IPV6 \
+	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
 	CONFIG_FS_WITH_OPT \
@@ -190,7 +192,7 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.$(PKG_NAME).org/
-  MAINTAINER:=Mazilo <openwrt.forum.mazilo@recursor.net>
+  MAINTAINER:=Mazilo <openwrt.mazilo@recursor.net>
 endef
 
 
@@ -216,11 +218,13 @@ define Package/$(PKG_NAME)/config
     bool "Pull the latest git HEAD - $(PKG_SOURCE_VERSION_SHORT) (Press < Help > for more information)"
     default n
     help
-	This existing git HEAD ($(FS_DEFAULT_HEAD)) is probably outdated. 
-	Enable this option for the latest git HEAD ($(FS_LATEST_HEAD)). 
-	Enable this option ONLY if you know what you are doing. It may and/or may not be cleanly 
-	compiled and may require some intervension to create new patches. If you take this route
-	and come up with some patches, please contemplate to contribute or send in your patches.
+	This existing git HEAD ($(FS_DEFAULT_HEAD))
+	is probably outdated. Enable this option for the latest git HEAD
+	($(FS_LATEST_HEAD)) ONLY if you know what
+	you are doing. It may and/or may not be cleanly compiled and may
+	require some intervension to create new patches. If you take this
+	route and come up with some patches, please contemplate to contribute
+	or send in your patches.
 
     config FS_WITH_ALSA
     depends on PACKAGE_$(PKG_NAME)
@@ -243,13 +247,22 @@ define Package/$(PKG_NAME)/config
     help
 	Compile libs/apr package with IPV6 support.
 
+    config FS_WITH_LZMA
+    depends on PACKAGE_$(PKG_NAME) && PACKAGE_liblzma
+    bool "Enable liblzma usage in libtiff"
+    default y
+    #select PACKAGE_liblzma
+    help
+	Compile libs/tiff package with liblzma support. This option requires
+	LZMA2 compression package called liblzma.
+
     config FS_WITH_OPT
     depends on PACKAGE_$(PKG_NAME)
     bool "Enable optimization"
     default y
     help
-	Compile $(PKG_NAME) with optimization flag enabled. This will add max optimising
-	compiler flags
+	Compile $(PKG_NAME) with optimization flag enabled. This will add
+	max optimising compiler flags
 
     config FS_WITH_SCTP
     depends on PACKAGE_$(PKG_NAME)
@@ -593,7 +606,7 @@ CONFIGURE_ARGS+= \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with,--without)-erlang \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
-	$(call autoconf_bool,CONFIG_PACKAGE_liblzma,lzma) \
+	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
@@ -1067,7 +1080,7 @@ $(eval $(call BuildPlugin,snmp,SNMP AgentX Subagent,vanilla,,,,+libnetsnmp))
 $(eval $(call BuildPlugin,snom,SNOM specific features,vanilla,,,,))
 $(eval $(call BuildPlugin,sofia,SOFIA SIP,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,sonar,Sonar Ping Timer,vanilla,,,,))
-$(eval $(call BuildPlugin,spandsp,Span DSP,mod,,,,+libjpeg +@PACKAGE_xz:PACKAGE_liblzma)) # ~/conf
+$(eval $(call BuildPlugin,spandsp,Span DSP,mod,,,,+libjpeg +FS_WITH_LZMA:liblzma)) # ~/conf
 $(eval $(call BuildPlugin,speex,Speex codec,mod,,,,))
 $(eval $(call BuildPlugin,spidermonkey,JavaScript,vanilla,,,,@BROKEN)) # fails in js
 $(eval $(call BuildPlugin,spidermonkey-core_db,JavaScript DB,vanilla,,,,@BROKEN))
