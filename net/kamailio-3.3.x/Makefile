@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio3
 PKG_VERSION:=3.3.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -129,8 +129,7 @@ define BuildPlugin
 
   define Package/kamailio3-mod-$(1)/install
 	[ -z "$(2)" ] || $(INSTALL_DIR) $$(1)/usr/lib/kamailio/$(6)
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/$(6)/$(2).so \
-			$$(1)/usr/lib/kamailio/$(6)/ ;
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/$(6)/$(2).so $$(1)/usr/lib/kamailio/$(6)/
   endef
 
   INCL_MODULES+=$(2)
@@ -246,8 +245,8 @@ PKG_MAKE_ARGS:= \
 	lib-dir="/usr/lib/kamailio/" \
 	modules-dir="/usr/lib/kamailio/modules/" \
 	include_modules="$(INCL_MODULES)" \
-	$(KAM3_EXTRA_ARGS) \
-	TLS_HOOKS=1 extra_defs="-DUSE_PTHREAD_MUTEX " \
+	TLS_HOOKS=1 \
+	extra_defs="-DUSE_PTHREAD_MUTEX " \
 	CFLAGS="$(TARGET_CFLAGS)" \
 	ISSMP="no" \
 	LOCALBASE="$(STAGING_DIR)/usr" \
@@ -256,26 +255,21 @@ PKG_MAKE_ARGS:= \
 	PCRELIBS:="$(TARGET_LDFLAGS)" \
 	cfg_target:=/etc/kamailio/ \
 	PREFIX:=/usr \
-	prefix:=/usr quiet=verbose
+	CROSS_COMPILE=$(TARGET_CROSS) \
+	CC="$(TARGET_CC)" \
+	ARCH="$(ARCH)"  \
+	DESTDIR=$(PKG_INSTALL_DIR) \
+	quiet=verbose
 
 define Build/Compile
-	if ! [ -f $(PREBUILT_STAMP) ]; then echo $(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		CC="$(TARGET_CC)" \
-		ARCH="$(ARCH)"  \
-		EXTRA_LIBS=-L$(STAGING_DIR)/usr/lib/ \
+	if ! [ -f $(PREBUILT_STAMP) ]; then \
+		echo $(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
+		EXTRA_LIBS=-L$(STAGING_DIR)/usr/lib/ prefix:=/usr \
 		all && touch $(PREBUILT_STAMP); \
 	fi
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		CC="$(TARGET_CC)" \
-		ARCH="$(ARCH)"  \
-		DESTDIR=$(PKG_INSTALL_DIR) \
-		prefix=/ \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) prefix=/ \
 		install-cfg
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		CC="$(TARGET_CC)" \
-		ARCH="$(ARCH)"  \
-		DESTDIR=$(PKG_INSTALL_DIR) \
-		prefix=/usr \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) prefix=/usr \
 		install-bin install-modules-all install-utils
 endef
 
