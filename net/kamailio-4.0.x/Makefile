@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.0.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -45,7 +45,6 @@ define Package/kamailio4/conffiles
 /etc/kamailio/kamailio.cfg
 /etc/kamailio/kamailio-advanced.cfg
 /etc/kamailio/dictionary.kamailio
-/etc/kamailio/tls.cfg
 endef
 
 define Package/kamailio4-tools
@@ -69,7 +68,11 @@ define Package/kamailio4/install
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/etc/kamailio/*{kamailio,tls}* \
+		$(PKG_INSTALL_DIR)/etc/kamailio/{kamailio-advanced.cfg,kamailio.cfg} \
+		$(1)/etc/kamailio/
+	$(INSTALL_DIR) $(1)/etc/kamailio
+	$(CP) \
+		$(PKG_INSTALL_DIR)/etc/kamailio/dictionary.kamailio \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(CP) \
@@ -78,7 +81,7 @@ define Package/kamailio4/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
-		$(1)/etc/init.d/kamailio	
+		$(1)/etc/init.d/kamailio
 endef
 
 define Package/kamailio4-tools/install
@@ -87,7 +90,7 @@ define Package/kamailio4-tools/install
 		$(PKG_BUILD_DIR)/utils/kamctl/kamctlrc \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) \
+	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/kam{ctl,dbctl} \
 		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio
@@ -105,8 +108,7 @@ define BuildPlugin
 
   define Package/kamailio4-mod-$(1)/install
 	$(INSTALL_DIR) $$(1)/usr/lib/kamailio/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so \
-			$$(1)/usr/lib/kamailio/modules/ ;
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so $$(1)/usr/lib/kamailio/modules/
   endef
 
   INCL_MODULES+=$(2)
@@ -229,22 +231,18 @@ PKG_MAKE_ARGS:= \
 	CC="$(TARGET_CC)" \
 	ARCH="$(ARCH)"  \
 	DESTDIR=$(PKG_INSTALL_DIR) \
-	quiet=verbose \
-	prefix=/usr
-
-define Build/Configure
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		cfg
-endef
+	quiet=verbose
 
 define Build/Compile
 	if ! [ -f $(PREBUILT_STAMP) ]; then \
 		echo $(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		EXTRA_LIBS=-L$(STAGING_DIR)/usr/lib/ \
+		EXTRA_LIBS=-L$(STAGING_DIR)/usr/lib/ prefix:=/usr \
 		all && touch $(PREBUILT_STAMP); \
 	fi
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
-		install
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) prefix=/ \
+		install-cfg
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) prefix=/usr \
+		install-bin install-modules-all install-utils
 endef
 
 $(eval $(call BuildPackage,kamailio4))
