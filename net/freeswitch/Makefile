@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.5b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=3ec15cce68852fd4dba7336dd7a7a505d143a111
+FS_DEFAULT_HEAD:=451aece80391bf08bc0e8b25fce2e2cb4f88bc41
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -658,7 +658,6 @@ CONFIGURE_VARS+= \
 	apr_cv_type_rwlock_t="yes" \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),ac_cv_path_PERL="yes",) \
 	libzmq_cv_cxx_werror_flag="" \
-	ac_cv_cflags_warn_all_ansi='-Wall -std=c99 -Wno-unused-variable' \
 
 
 define Build/Prepare
