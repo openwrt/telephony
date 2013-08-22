@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.5.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -78,17 +78,17 @@ define Package/asterisk11/Default
 endef
 
 define Package/asterisk11/Default/description
-Asterisk is a complete PBX in software. It provides all of the features
-you would expect from a PBX and more. Asterisk does voice over IP in three
-protocols, and can interoperate with almost all standards-based telephony
-equipment using relatively inexpensive hardware.
+ Asterisk is a complete PBX in software. It provides all of the features
+ you would expect from a PBX and more. Asterisk does voice over IP in three
+ protocols, and can interoperate with almost all standards-based telephony
+ equipment using relatively inexpensive hardware.
 endef
 
 define Package/asterisk11
 $(call Package/asterisk11/Default)
   TITLE:=Complete open source PBX, v11.x
   MENU:=1
-  DEPENDS:=+libuuid +libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +zlib @!TARGET_avr32
+  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libxml2 +zlib @!TARGET_avr32
 endef
 
 define Package/asterisk11/description
@@ -118,7 +118,7 @@ AST_CFG_FILES:= \
 	asterisk.conf acl.conf ccss.conf extconfig.conf extensions.conf features.conf indications.conf logger.conf manager.conf modules.conf \
 	rtp.conf sip_notify.conf sip.conf udptl.conf
 AST_EMB_MODULES:=\
-	app_dial app_echo app_macro app_playback codec_gsm codec_ulaw format_gsm format_pcm format_wav format_wav_gsm func_callerid \
+	app_dial app_echo app_macro app_playback codec_ulaw format_pcm func_callerid \
 	func_logic func_strings func_timeout chan_sip chan_local pbx_config res_crypto res_http_websocket res_rtp_asterisk res_rtp_multicast
 
 define Package/asterisk11/install
@@ -134,33 +134,20 @@ $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk11/install/module,$(1),$(m
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-mobile),)
   CONFIGURE_ARGS+= \
-	--with-gnutls="$(STAGING_DIR)/usr" \
-	--with-iksemel="$(STAGING_DIR)/usr"
-  SITE_VARS+= \
-	ac_cv_lib_iksemel_iks_start_sasl=yes \
-	ac_cv_lib_gnutls_gnutls_bye=yes
+	--with-bluetooth="$(STAGING_DIR)/usr"
 else
   CONFIGURE_ARGS+= \
-	--without-gnutls \
-	--without-iksemel
+	--without-bluetooth
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-curl),)
   CONFIGURE_ARGS+= \
-	--with-curl="$(STAGING_DIR)/usr"
+	--with-libcurl="$(STAGING_DIR)/usr"
 else
   CONFIGURE_ARGS+= \
-	--without-curl
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pgsql),)
-  CONFIGURE_ARGS+= \
-	--with-postgres="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-	--without-postgres
+	--without-libcurl
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
@@ -169,31 +156,6 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
 else
   CONFIGURE_ARGS+= \
 	--without-mysqlclient
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
-  CONFIGURE_ARGS+= \
-	--with-spandsp="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-	--without-spandsp
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-mobile),)
-  CONFIGURE_ARGS+= \
-	--with-bluetooth="$(STAGING_DIR)/usr"
-else
-
-  CONFIGURE_ARGS+= \
-	--without-bluetooth
-endif
-
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-srtp),)
-  CONFIGURE_ARGS+= \
-	--with-srtp="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-       --without-srtp
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pbx-lua),)
@@ -205,13 +167,52 @@ else
 	--without-lua
 endif
 
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pgsql),)
+  CONFIGURE_ARGS+= \
+	--with-postgres="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-postgres
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
+  CONFIGURE_ARGS+= \
+	--with-spandsp="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-spandsp
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-srtp),)
+  CONFIGURE_ARGS+= \
+	--with-srtp="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-srtp
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
+  CONFIGURE_ARGS+= \
+	--with-iksemel="$(STAGING_DIR)/usr"
+  SITE_VARS+= \
+	ac_cv_lib_iksemel_iks_start_sasl=yes
+else
+  CONFIGURE_ARGS+= \
+	--without-iksemel
+endif
+
 EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
 EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
 CONFIGURE_ARGS+= \
-	--without-curses \
-	--with-gsm=internal \
+	--build=$(GNU_HOST_NAME) \
+	--host=$(GNU_TARGET_NAME) \
+	--target=$(GNU_TARGET_NAME) \
 	--without-cap \
+	--without-curses \
+	--without-dahdi \
+	--with-gsm=internal \
 	--without-gtk2 \
+	--with-ilbc=internal \
 	--without-isdnnet \
 	--without-misdn \
 	--without-nbs \
@@ -222,24 +223,34 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	--with-popt="$(STAGING_DIR)/usr" \
 	--without-pri \
-	--without-qt \
+	--without-pwlib \
 	--without-radius \
 	--without-sdl \
+	--without-sqlite \
+	--with-sqlite3="$(STAGING_DIR)/usr" \
 	--without-suppserv \
 	--without-tds \
 	--without-termcap \
 	--without-tinfo \
+	--without-tonezone \
+	--without-uuid \
 	--without-vorbis \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
 	--with-sounds-cache="$(DL_DIR)" \
-	--disable-xmldoc
-
-define Build/Prepare
-	$(call Build/Prepare/Default)
-endef
+	$(if $(CONFIG_AST_WITHOUT_SSL_WRAPPER_LIB),--disable-asteriskssl) \
+	--disable-xmldoc 
 
 define Build/Configure
+	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
+		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
+		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
+	echo "export LDLAGS += $(TARGET_LDFLAGS) $(EXTRA_LDFLAGS)"\
+		" -lc $(LIBGCC_S) -lm"\
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
+	echo "export CXXFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
+		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
 endef
 
@@ -330,6 +341,8 @@ $(eval $(call BuildAsteriskModule,format-ilbc,ILBC format,support for ILBC forma
 $(eval $(call BuildAsteriskModule,format-pcm,PCM,support for PCM format,,,,format_pcm,))
 $(eval $(call BuildAsteriskModule,format-sln,Raw slinear format,support for raw slinear format,,,,format_sln,))
 $(eval $(call BuildAsteriskModule,format-vox,VOX format,support for ADPCM vox format,,,,format_vox,))
+$(eval $(call BuildAsteriskModule,format-wav,WAV format (8000hz Signed Linear),support for proprietary Microsoft WAV format (8000hz Signed Linear),,,,format_wav,))
+$(eval $(call BuildAsteriskModule,format-wav-gsm,WAV format (Proprietary GSM),support for proprietary Microsoft WAV format (Proprietary GSM),,,,format_wav_gsm,))
 $(eval $(call BuildAsteriskModule,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,,func_blacklist,))
 $(eval $(call BuildAsteriskModule,func-cut,CUT function,CUT function,,,,func_cut,))
 $(eval $(call BuildAsteriskModule,func-db,Database interaction,functions for interaction with the database,,,,func_db,))
