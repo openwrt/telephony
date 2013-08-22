@@ -238,7 +238,6 @@ CONFIGURE_ARGS+= \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
 	--with-sounds-cache="$(DL_DIR)" \
-	$(if $(CONFIG_AST_WITHOUT_SSL_WRAPPER_LIB),--disable-asteriskssl) \
 	--disable-xmldoc 
 
 define Build/Configure
