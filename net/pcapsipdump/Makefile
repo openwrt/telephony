@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcapsipdump
-PKG_VERSION:=0.1.4
-PKG_RELEASE:=3
+PKG_VERSION:=0.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/psipdump
-PKG_MD5SUM:=95ed26caf66237a654cae2cacdaa3386
+PKG_SOURCE_URL:=@SF/pcapsipdump
+PKG_MD5SUM:=2c04c54c3478f7cb94978d54538006d2
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
@@ -28,9 +28,9 @@ define Package/pcapsipdump
 endef
 
 define Package/pcapsipdump/description
-        pcapsipdump is a tool for dumping SIP sessions (+RTP traffic, if available) to disk in a
-        fashion similar to "tcpdump -w" (format is exactly the same), but one file per sip session
-        (even if there is thousands of concurrect SIP sessions).
+ pcapsipdump is a tool for dumping SIP sessions (+RTP traffic, if available) to disk in a
+ fashion similar to "tcpdump -w" (format is exactly the same), but one file per sip session
+ (even if there is thousands of concurrect SIP sessions).
 endef
 
 TARGET_CC=$(TARGET_CXX)
