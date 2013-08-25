@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
-PKG_VERSION:=1.5.2
+PKG_VERSION:=1.5.5
 PKG_RELEASE:=1
-PKG_VARIANT:=-tls
+PKG_VARIANT:=tls
 
-PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/1.5.2/src/
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_MD5SUM:=26b0d0d3c67c2d981bee86a803cca51f
+PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_VARIANT)_src.tar.gz
+PKG_MD5SUM:=fd1793712ce3d484e5bff4ea85641e43
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)$(PKG_VARIANT)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_VARIANT)
 
 PKG_BUILD_DEPENDS:=curl expat libxml2 mysql openldap openssl pcre postgresql radiusclient-ng
 
@@ -30,7 +30,6 @@ define Package/kamailio/Default
   SUBMENU:=Telephony
   URL:=http://www.kamailio.org/
 endef
-
 
 define Package/kamailio
 $(call Package/kamailio/Default)
@@ -62,7 +61,6 @@ define Package/kamailio-example/conffiles
 /etc/kamailio/kamailio.cfg
 endef
 
-
 define Package/kamailio-tools
 $(call Package/kamailio/Default)
   TITLE:=Kamailio control tools
@@ -72,7 +70,6 @@ endef
 define Package/kamailio-tools/conffiles
 /etc/kamailio/kamctlrc
 endef
-
 
 PKG_EXCL_MODULES:= \
 	auth_diameter \
@@ -95,7 +92,6 @@ PKG_MAKE_ARGS:= \
 	lib-dir="usr/lib/kamailio/" \
 	modules-dir="usr/lib/kamailio/modules/" \
 	exclude_modules="$(PKG_EXCL_MODULES)" \
-
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) \
