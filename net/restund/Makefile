@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2010-2011 OpenWrt.org
+# Copyright (C) 2010-2013 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,18 +9,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
-PKG_VERSION:=0.4.1
+PKG_VERSION:=0.4.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=e11da0acd10af42ce6101f3106cd34dc
+PKG_MD5SUM:=dd58fc56c29f812fc14988412a3bf14a
 
-restund-mods:= \
-	mysql \
+restund-mods:= mysql
 
-PKG_CONFIG_DEPENDS:= \
-	$(patsubst %,CONFIG_PACKAGE_restund-mod-%,$(restund-mods)) \
+PKG_CONFIG_DEPENDS:= $(patsubst %,CONFIG_PACKAGE_restund-mod-%,$(restund-mods))
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -36,7 +34,6 @@ $(call Package/restund/Default)
   TITLE:=Modular STUN/TURN server
   DEPENDS:=+libre +libpthread
 endef
-
 
 restund-mod-mysql := USE_MYSQL
 
