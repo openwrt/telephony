@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-chan-dongle
 PKG_VERSION:=14012013
-PKG_REV:=0b0c67c4cd5e1ee22d83d69e9b728f3b66b598f8
+PKG_REV:=1cede952ed640fee3172265ffd533b7bd7074aee
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk11-$(PKG_VERSION).tar.gz
@@ -34,7 +34,7 @@ define Package/asterisk11-chan-dongle
 endef
 
 define Package/asterisk11-chan-dongle/description
-Asterisk channel driver for Huawei UMTS 3G dongle
+ Asterisk channel driver for Huawei UMTS 3G dongle.
 endef
 
 MAKE_ARGS:= \
