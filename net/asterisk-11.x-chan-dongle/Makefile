@@ -31,6 +31,7 @@ define Package/asterisk11-chan-dongle
   URL:=http://www.asterisk.org/	
   DEPENDS:= asterisk11 +libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
+  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk11-chan-dongle/description
