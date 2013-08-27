@@ -29,7 +29,6 @@ define Package/$(PKG_NAME)/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=http://yate.null.ro/
-  MAINTAINER:=Daniel Dickinson <openwrt@cshore.neomailbox.net>
 endef
 
 define Package/$(PKG_NAME)
