@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.5.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -88,7 +88,7 @@ define Package/asterisk11
 $(call Package/asterisk11/Default)
   TITLE:=Complete open source PBX, v11.x
   MENU:=1
-  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +zlib @!TARGET_avr32
+  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
 endef
 
 define Package/asterisk11/description
@@ -234,7 +234,7 @@ CONFIGURE_ARGS+= \
 	--without-termcap \
 	--without-tinfo \
 	--without-tonezone \
-	--without-uuid \
+	--with-uuid="$(STAGING_DIR)/usr" \
 	--without-vorbis \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
