@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 CFG_PATH="/etc/asterisk/"
 GUI_CFG_PREFIX="gui_"
