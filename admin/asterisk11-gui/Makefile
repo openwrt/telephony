@@ -9,19 +9,19 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-gui
 PKG_VERSION:=2.1.0-rc1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk-gui/releases/
 PKG_SOURCE:=asterisk-gui-$(PKG_VERSION).tar.gz
 PKG_MD5SUM:=055bf2aaba365e696198925d039ac3cb
-PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-gui-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk11-gui-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11-gui
   SECTION:=admin
   CATEGORY:=Administration
-  TITLE:=Asterisk GUI
+  TITLE:=Asterisk GUI for Asterisk 11.x
   DEPENDS:=+@PACKAGE_asterisk11 +asterisk11-app-exec +asterisk11-app-system
   VERSION:=$(PKG_VERSION)
 endef
@@ -33,6 +33,13 @@ endef
 
 EXTRA_CFLAGS:=$(TARGET_CPPFLAGS)
 EXTRA_LDFLAGS:=$(TARGET_LDFLAGS)
+
+define Build/Prepare
+	rm -rf $(PKG_BUILD_DIR)/
+	mkdir -p $(PKG_BUILD_DIR)/
+	$(TAR) -xzf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR) --strip 1
+	$(Build/Patch)
+endef
 
 define Build/Configure
 	( cd $(PKG_BUILD_DIR); ./bootstrap.sh )
