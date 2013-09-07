@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18-chan-sccp-b
-PKG_REV=4631
+PKG_REV=4850
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -27,7 +27,7 @@ define Package/asterisk18-chan-sccp-b
   SECTION:=net
   CATEGORY:=Network
   TITLE:=SCCP channel provider for asterisk
-  URL:=http://chan-sccp-b.net.sourceforge.net/
+  URL:=http://chan-sccp-b.sourceforge.net/
   DEPENDS:= asterisk18 +libltdl
 endef
 
