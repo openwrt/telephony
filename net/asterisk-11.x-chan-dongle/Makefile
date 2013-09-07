@@ -8,19 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-chan-dongle
-PKG_VERSION:=14012013
-PKG_REV:=1cede952ed640fee3172265ffd533b7bd7074aee
+PKG_VERSION:=1.1r35
+PKG_REV:=28a46567a88cebdc365db6f294e682246fd2dd7b
 PKG_RELEASE:=1
 
-PKG_SOURCE:=asterisk11-$(PKG_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=asterisk11-chan-dongle-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_SOURCE_URL:=https://github.com/jstasiak/asterisk-chan-dongle.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=asterisk11
 PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_FIXUP:=autoreconf
 
-PKG_SOURCE_SUBDIR:=chan_dongle-$(PKG_VERSION)
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
+
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 
