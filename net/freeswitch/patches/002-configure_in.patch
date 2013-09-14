@@ -9,7 +9,7 @@
  
  # set defaults for use on all platforms
  SWITCH_AM_CFLAGS="-I${switch_srcdir}/src/include -I${switch_builddir}/src/include -I${switch_srcdir}/libs/libteletone/src -I${switch_srcdir}/libs/stfu"
-@@ -601,7 +601,7 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -607,7 +607,7 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  

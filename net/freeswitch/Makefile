@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.5b
+PKG_VERSION:=1.5.6b
 
 
 #
@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.5b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=dbfde499a42b4f72eaf5578da2ebc741b85dedb3
+FS_DEFAULT_HEAD:=fb238ed99779b28eeb1cc839b033ea2cf9d03212
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
