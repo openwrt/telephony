@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.10.1
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -33,7 +33,6 @@ define Package/asterisk18/Default/description
  protocols, and can interoperate with almost all standards-based telephony
  equipment using relatively inexpensive hardware.
 endef
-
 
 define Package/asterisk18
 $(call Package/asterisk18/Default)
@@ -751,6 +750,7 @@ $(eval $(call Buildasterisk18ModuleTemplate,func_devstate,Blinky lights control,
 $(eval $(call Buildasterisk18ModuleTemplate,func_vmcount,vmcount dialplan,a vmcount dialplan function))
 $(eval $(call Buildasterisk18ModuleTemplate,func_extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control))
 $(eval $(call Buildasterisk18ModuleTemplate,func_global,Global variable,global variable dialplan functions))
+$(eval $(call Buildasterisk18ModuleTemplate,func_groupcount,Group count,Counts the number of channels in the specified group))
 $(eval $(call Buildasterisk18ModuleTemplate,func_shell,Shell,support for shell execution))
 $(eval $(call Buildasterisk18ModuleTemplate,pbx_ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic))
 $(eval $(call Buildasterisk18ModuleTemplate,res_ael_share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules))

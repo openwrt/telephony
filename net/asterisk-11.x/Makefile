@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.5.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -349,6 +349,7 @@ $(eval $(call BuildAsteriskModule,func-db,Database interaction,functions for int
 $(eval $(call BuildAsteriskModule,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,,func_devstate,))
 $(eval $(call BuildAsteriskModule,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,,func_extstate,))
 $(eval $(call BuildAsteriskModule,func-global,Global variable,global variable dialplan functions,,,,func_global,))
+$(eval $(call BuildAsteriskModule,func-groupcount,Group count,Counts the number of channels in the specified group,,,,func_groupcount,))
 $(eval $(call BuildAsteriskModule,func-channel,Channel info,Channel info dialplan function,,,,func_channel,))
 $(eval $(call BuildAsteriskModule,func-shell,Shell,support for shell execution,,,,func_shell,))
 $(eval $(call BuildAsteriskModule,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,,func_uri,))
