@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+START=99
+start() {
+       [ ! -L /var/lib/asterisk ] && {
+		mkdir /var/lib -p
+                ln -sf /usr/lib/asterisk /var/lib/asterisk
+                }
+        }
+
+stop() {
+         [ -L /var/lib/asterisk ] && {
+                rm /var/lib/asterisk
+                }
+        }
+
+restart() {
+                stop
+                start
+        }
+
