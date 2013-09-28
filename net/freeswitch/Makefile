@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.6b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=fb238ed99779b28eeb1cc839b033ea2cf9d03212
+FS_DEFAULT_HEAD:=6b9382290d9b6cf3ebcd8396c32a305fc0182c6b
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -146,6 +146,7 @@ FS_MOD_AVAILABLE:= \
 	spidermonkey-socket \
 	spidermonkey-teletone \
 	spy \
+	ssml \
 	stress \
 	syslog \
 	timerfd \
@@ -227,7 +228,7 @@ define Package/$(PKG_NAME)/config
 	or send in your patches.
 
     config FS_WITH_ALSA
-    depends on PACKAGE_$(PKG_NAME) && PACKAGE_alsa-lib
+    depends on PACKAGE_$(PKG_NAME)
     bool "Enable ALSA for sound support"
     default n
     help
@@ -596,7 +597,7 @@ CONFIGURE_ARGS+= \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
 	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
-	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
+	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql-support \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
@@ -1023,7 +1024,7 @@ $(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+FS_W
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
-$(eval $(call BuildPlugin,html5,HTML5 Endpoint Module,vanilla,,,,))
+#$(eval $(call BuildPlugin,html5,HTML5 Endpoint Module,vanilla,,,,)) # defunct?
 $(eval $(call BuildPlugin,httapi,HT Telephony API and HTTP Caching,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,http-cache,HTTP GET With Caching,mod,,,,+libcurl)) # ~/conf
 $(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,))
@@ -1087,6 +1088,7 @@ $(eval $(call BuildPlugin,spidermonkey-odbc,JavaScript ODBC,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,spidermonkey-socket,JavaScript Socket,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,spidermonkey-teletone,JavaScript Teletone,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,spy,User Spy,vanilla,,,,))
+$(eval $(call BuildPlugin,ssml,SSML audio rendering format,mod,,,rayo,))
 $(eval $(call BuildPlugin,stress,Voice Stress Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,syslog,SysLog logger,vanilla,,,,))
 $(eval $(call BuildPlugin,timerfd,Linux Kernel timerfd API,vanilla,,,,))

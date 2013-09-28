@@ -8,10 +8,3 @@
  #applications/mod_sonar
  applications/mod_sms
  #applications/mod_snapshot
-@@ -152,4 +153,4 @@ xml_int/mod_xml_scgi
- #../../libs/openzap/mod_openzap
- 
- ## Experimental Modules (don't cry if they're broken)
--#../../contrib/mod/xml_int/mod_xml_odbc
-\ No newline at end of file
-+#../../contrib/mod/xml_int/mod_xml_odbc
