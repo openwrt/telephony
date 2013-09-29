@@ -249,9 +249,10 @@ define Package/$(PKG_NAME)/config
 	Compile libs/apr package with IPV6 support.
 
     config FS_WITH_LZMA
-    depends on PACKAGE_$(PKG_NAME) && PACKAGE_liblzma
+    depends on PACKAGE_$(PKG_NAME)
     bool "Enable liblzma usage in libtiff"
     default y
+    select PACKAGE_liblzma
     help
 	Compile libs/tiff package with liblzma support. This option requires
 	LZMA2 compression package called liblzma.
