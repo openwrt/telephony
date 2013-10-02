@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.6b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=6b9382290d9b6cf3ebcd8396c32a305fc0182c6b
+FS_DEFAULT_HEAD:=1825b5bc89a315d42ef822da0b449886d298ffb6
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -74,6 +74,7 @@ FS_MOD_AVAILABLE:= \
 	fifo \
 	file-string \
 	flite \
+	format-cdr \
 	fsk \
 	fsv \
 	g723-1 \
@@ -645,6 +646,7 @@ CONFIGURE_VARS+= \
 	HOST_CXX="/usr/bin/g++" \
 	CROSS_COMPILE="1" \
 	ax_cv_c_compiler_vendor="gnu" \
+	ac_cv_cflags_warn_all_ansi='-Wall -std=c99 -Wno-unused-variable' \
 	ac_cv_dev_urandom="yes" \
 	ac_cv_file_dbd_apr_dbd_mysql_c="no" \
 	ac_cv_file__dev_random="no" \
@@ -1017,6 +1019,7 @@ $(eval $(call BuildPlugin,expr,Expression Evaluation,vanilla,,,,))
 $(eval $(call BuildPlugin,fifo,FIFO,vanilla,,,,))
 $(eval $(call BuildPlugin,file-string,Streaming Multiple Sound Files Sequentially,vanilla,,,,@OBSOLETE)) # merged into dptools
 $(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,@(!(armeb||avr32)||BROKEN)))
+$(eval $(call BuildPlugin,format-cdr,XML CDR Module to files or curl,vanilla,,,,))
 $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 $(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,))
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
