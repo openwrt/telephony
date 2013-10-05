@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-chan-sccp-b
-PKG_REV=4850
-PKG_VERSION:=r$(PKG_REV)
+PKG_REV=4883
+PKG_VERSION:=4.1r$(PKG_REV)
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://svn.code.sf.net/p/chan-sccp-b/code/trunk
+PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/V4.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
@@ -28,7 +28,8 @@ define Package/asterisk11-chan-sccp-b
   CATEGORY:=Network
   TITLE:=SCCP channel provider for asterisk
   URL:=http://chan-sccp-b.sourceforge.net/
-  DEPENDS:= asterisk11 +libltdl
+  DEPENDS:=asterisk11 +libltdl
+  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk11-chan-sccp-b/description
@@ -37,7 +38,7 @@ define Package/asterisk11-chan-sccp-b/description
 endef
 
 define Build/Configure
-    $(call Build/Configure/Default,--with-asterisk=$(STAGING_DIR)/usr/include/asterisk-11)
+	$(call Build/Configure/Default,--with-asterisk=$(STAGING_DIR)/usr/include/asterisk-11)
 endef
 
 define Build/Compile
