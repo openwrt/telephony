@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2006-2009 OpenWrt.org
+# Copyright (C) 2006-2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pwlib
-PKG_VERSION:=1.11.1
-PKG_RELEASE:=2
+PKG_VERSION:=1_11_1
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=ftp://peternixon.net/pub/voxgratia
-PKG_MD5SUM:=e1102dfd2608e3a117a2e016d0db53e3
+PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION)-src.tar.gz
+PKG_SOURCE_URL:=@SF/openh323/
+PKG_MD5SUM:=8b7a7a2ed8da6792006922476dd3b2f3
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/pwlib-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)_v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -75,15 +75,15 @@ CONFIGURE_ARGS += \
 	--disable-video \
 	--disable-vxml \
 	--disable-wavfile \
-	--disable-xmlrpc \
+	--disable-xmlrpc
 
 CONFIGURE_VARS += \
-	STDCXXFLAGS="$(TARGET_CFLAGS) -fno-builtin" \
+	STDCXXFLAGS="$(TARGET_CFLAGS) -fno-builtin"
 
 MAKE_FLAGS += optnoshared
 
 define Build/InstallDev
-	ln -sf $(PKG_NAME)-$(PKG_VERSION) $(BUILD_DIR)/$(PKG_NAME)
+	ln -sf $(PKG_NAME)_v$(PKG_VERSION) $(BUILD_DIR)/$(PKG_NAME)
 	$(SED) 's|//\(#include <ptlib/sound.h>\)|\1|' $(PKG_BUILD_DIR)/include/ptlib.h
 endef
 
