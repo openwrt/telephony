@@ -128,7 +128,7 @@ start_instance() {
 	echo ua_string = "$ua_string" >> "$siproxd_conf_prefix$cfg"
 	echo use_rport = "$use_rport" >> "$siproxd_conf_prefix$cfg"
 	if [ -n "$outbound_proxy_host" ]; then
-		echo oubound_proxy_host = "$outbound_proxy_host" >> "$siproxd_conf_prefix$cfg"
+		echo outbound_proxy_host = "$outbound_proxy_host" >> "$siproxd_conf_prefix$cfg"
 	fi
 	if [ -n "$outbound_proxy_port" ]; then
 		echo outbound_proxy_port = "$outbound_proxy_port" >> "$siproxd_conf_prefix$cfg"
