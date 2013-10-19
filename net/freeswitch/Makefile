@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.6b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=1825b5bc89a315d42ef822da0b449886d298ffb6
+FS_DEFAULT_HEAD:=8ea0bc73a9e162504b8e0564f585cbfb5b39acfc
 FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -174,6 +174,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
+	CONFIG_FS_WITH_OPENSSL \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_PULL_CURRENT \
@@ -194,14 +195,14 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.$(PKG_NAME).org/
-  MAINTAINER:=Mazilo <openwrt.mazilo@recursor.net>
+  MAINTAINER:=Mazi Lo <openwrt.mazilo@recursor.net>
 endef
 
 
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq +libuuid
+  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq +libuuid
   MENU:=1
 endef
 
@@ -257,6 +258,13 @@ define Package/$(PKG_NAME)/config
     help
 	Compile libs/tiff package with liblzma support. This option requires
 	LZMA2 compression package called liblzma.
+
+    config FS_WITH_OPENSSL
+    depends on PACKAGE_$(PKG_NAME)
+    bool "Enable SSL support"
+    default y
+    help
+	Compile $(PKG_NAME) with SSL support.
 
     config FS_WITH_OPT
     depends on PACKAGE_$(PKG_NAME)
@@ -602,6 +610,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql-support \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
+	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
