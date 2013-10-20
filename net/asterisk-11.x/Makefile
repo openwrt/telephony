@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.5.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -17,6 +17,7 @@ PKG_MD5SUM:=51943aa9f3292c471d31cb4e1ce2d639
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
+include $(INCLUDE_DIR)/ltqtapi.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11/install/module
@@ -241,6 +242,13 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc 
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifneq ($(CONFIG_TARGET_lantiq),)
+	$(CP) ./src-lantiq/* $(PKG_BUILD_DIR)/
+endif
+endef
+
 define Build/Configure
 	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
 		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
@@ -349,14 +357,15 @@ $(eval $(call BuildAsteriskModule,func-db,Database interaction,functions for int
 $(eval $(call BuildAsteriskModule,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,,func_devstate,))
 $(eval $(call BuildAsteriskModule,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,,func_extstate,))
 $(eval $(call BuildAsteriskModule,func-global,Global variable,global variable dialplan functions,,,,func_global,))
-$(eval $(call BuildAsteriskModule,func-groupcount,Group count,Counts the number of channels in the specified group,,,,func_groupcount,))
+$(eval $(call BuildAsteriskModule,func-groupcount,Group count,for counting number of channels in the specified group,,,,func_groupcount,))
 $(eval $(call BuildAsteriskModule,func-channel,Channel info,Channel info dialplan function,,,,func_channel,))
 $(eval $(call BuildAsteriskModule,func-shell,Shell,support for shell execution,,,,func_shell,))
 $(eval $(call BuildAsteriskModule,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,,func_uri,))
 $(eval $(call BuildAsteriskModule,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,,func_vmcount,))
 $(eval $(call BuildAsteriskModule,func-base64,base64 support,support of base64 function,,,,func_base64,))
-$(eval $(call BuildAsteriskModule,chan-agent,Agents proxy channel, an implementation of agents proxy channel,,,,chan_agent,))
+$(eval $(call BuildAsteriskModule,chan-agent,Agents proxy channel,an implementation of agents proxy channel,,,,chan_agent,))
 $(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,IAX support,,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
+$(eval $(call BuildAsteriskModule,chan-lantiq,Lantiq channel,lantiq TAPI support,$(LTQ_TAPI_DEPENDS) @BROKEN,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsteriskModule,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
 $(eval $(call BuildAsteriskModule,chan-mobile,Mobile channel,the channel chan_mobile,+bluez-libs,/etc/asterisk/chan_mobile.conf,chan_mobile.conf,chan_mobile,))
