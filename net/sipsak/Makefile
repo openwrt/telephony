@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2009 OpenWrt.org
+# Copyright (C) 2006-2013 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sipsak
-PKG_VERSION:=0.9.6
-PKG_RELEASE:=2
+PKG_VERSION:=0.9.6-1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://download.berlios.de/sipsak/ \
-	http://ftp.iptel.org/pub/sipsak/
+PKG_SOURCE_URL:=@SF/sipsak.berlios
 PKG_MD5SUM:=c4eb8e282902e75f4f040f09ea9d99d5
 
+PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-0.9.6
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
