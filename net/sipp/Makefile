@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sipp
-PKG_VERSION:=3.3
+PKG_VERSION:=3.3.990
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/sipp
-PKG_MD5SUM:=8c1d513423f9dabee799e738b737e311
+PKG_MD5SUM:=904fffbc277bafce28762ebb041b9620
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
@@ -36,8 +36,15 @@ endef
 
 TAR_CMD:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components 1 $(TAR_OPTIONS)
 
-define Build/Configure
-endef
+CONFIGURE_ARGS+= \
+	--build=$(GNU_HOST_NAME) \
+	--host=$(GNU_TARGET_NAME) \
+	--target=$(GNU_TARGET_NAME) \
+	--enable-epoll \
+	--without-gsl \
+	--without-pcap \
+	--with-rtpstream \
+	--without-sctp
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
