@@ -19,9 +19,8 @@ PKG_VERSION:=1.5.6b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=8ea0bc73a9e162504b8e0564f585cbfb5b39acfc
-FS_LATEST_HEAD:=$(if $(DUMP),$(FS_DEFAULT_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1))
-PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_PULL_CURRENT),$(FS_LATEST_HEAD),$(FS_DEFAULT_HEAD))
+FS_DEFAULT_HEAD:=c8be999c3446ffc8a4bbe10116855e542b29129e
+PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
 PKG_RELEASE:=$(PKG_SOURCE_VERSION_SHORT)
 PKG_SOURCE_SUBDIR:=$(PKG_DISTNAME)
@@ -169,15 +168,16 @@ FS_MOD_AVAILABLE:= \
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_ALSA \
 	CONFIG_FS_WITH_BUILTIN_ZRTP \
+	CONFIG_FS_WITH_DEFAULT_HEAD \
 	CONFIG_FS_WITH_FIXED_POINT \
 	CONFIG_FS_WITH_IPV6 \
+	CONFIG_FS_WITH_LATEST_HEAD \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
 	CONFIG_FS_WITH_OPENSSL \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
-	CONFIG_FS_WITH_PULL_CURRENT \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SCTP \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
@@ -202,7 +202,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq +libuuid
+  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +libuuid
   MENU:=1
 endef
 
@@ -215,105 +215,7 @@ endef
 
 
 define Package/$(PKG_NAME)/config
-    config FS_WITH_PULL_CURRENT
-    depends on DEVEL
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Pull the latest git HEAD - $(PKG_SOURCE_VERSION_SHORT) (Press < Help > for more information)"
-    default n
-    help
-	This existing git HEAD ($(FS_DEFAULT_HEAD))
-	is probably outdated. Enable this option for the latest git HEAD
-	($(FS_LATEST_HEAD)) ONLY if you know what
-	you are doing. It may and/or may not be cleanly compiled and may
-	require some intervension to create new patches. If you take this
-	route and come up with some patches, please contemplate to contribute
-	or send in your patches.
-
-    config FS_WITH_ALSA
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable ALSA for sound support"
-    default n
-    help
-	Compile $(PKG_NAME) with ALSA support.
-
-    config FS_WITH_BUILTIN_ZRTP
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable built-in ZRTP"
-    default y
-    help
-	Compile $(PKG_NAME) with ZRTP support.
-
-    config FS_WITH_IPV6
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable IPV6 support in APR"
-    default y
-    help
-	Compile libs/apr package with IPV6 support.
-
-    config FS_WITH_LZMA
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable liblzma usage in libtiff"
-    default y
-    select PACKAGE_liblzma
-    help
-	Compile libs/tiff package with liblzma support. This option requires
-	LZMA2 compression package called liblzma.
-
-    config FS_WITH_OPENSSL
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable SSL support"
-    default y
-    help
-	Compile $(PKG_NAME) with SSL support.
-
-    config FS_WITH_OPT
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable optimization"
-    default y
-    help
-	Compile $(PKG_NAME) with optimization flag enabled. This will add
-	max optimising compiler flags
-
-    config FS_WITH_SCTP
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
-    default y
-    select PACKAGE_sctp
-    help
-	Compile $(PKG_NAME) with SCTP support in lib APR.
-
-    config FS_WITH_MYSQL
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Compile apr-util with MySQL"
-    default n
-    select PACKAGE_libmysqlclient
-    help
-	Compile libs/apr-util with MySQL.
-
-    config FS_WITH_POSTGRESQL
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Compile apr-util (also enable $(PKG_NAME) core) with PostgreSQL support"
-    default n
-    help
-	Compile both libs/apr-util and $(PKG_NAME) with PostgreSQL support.
-
-    config FS_WITH_SQLITE3
-    depends on PACKAGE_$(PKG_NAME)
-    bool "Compile apr-util with SQLITE3"
-    default y
-    select PACKAGE_libsqlite3
-    help
-	Compile libs/apr-util with SQLITE3.
-
-    config FS_WITH_ODBC
-    depends on PACKAGE_$(PKG_NAME)
-    depends on PACKAGE_sqliteodbc
-    depends on PACKAGE_unixodbc_svn
-    bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
-    default n
-    help
-	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
-	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
+  source "$(SOURCE)/Config.in"
 endef
 
 
@@ -523,7 +425,7 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-opus),)
- $(eval $(call Download/files,opus,opus-1.0.2.tar.gz,c503ad05a59ddb44deab96204401be03,,downloads/libs/,libs/))
+ $(eval $(call Download/files,opus,opus-1.0.3.tar.gz,86eedbd3c5a0171d2437850435e6edff,,downloads/libs/,libs/))
 endif
 
 
@@ -607,7 +509,6 @@ CONFIGURE_ARGS+= \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
 	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
-	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql-support \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
 	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \

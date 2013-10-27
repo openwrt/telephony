@@ -1,0 +1,114 @@
+menu "Configuration"
+	depends on PACKAGE_freeswitch
+
+choice
+    depends on DEVEL
+    prompt "Git HEAD version to use"
+    default FS_WITH_DEFAULT_HEAD
+    help
+	The existing git HEAD is probably outdated. This option allows
+	OpenWRT to pull the latest git HEAD. Please ONLY enable this
+	option if you know what you are doing. It may and/or may not
+	be cleanly compiled and may require some intervension to create
+	new patches. If you take this route and come up with some patches,
+	please contemplate to contribute
+	or send in your patches.
+
+    config FS_WITH_DEFAULT_HEAD
+      bool "Default"
+      help
+	Since developers @FreeSWITCH are actively working to improve
+	FreeSWITCH, there is a chance the default git HEAD has long
+	been oudated.
+
+    config FS_WITH_LATEST_HEAD
+      bool "Latest"
+      help
+	Please use this option with cautious. It may and/or may not compile
+	out of the box and may and/or may not require some additional new
+	patches.
+
+endchoice
+
+choice 
+    prompt "Select database"
+    default FS_WITH_SQLITE3
+    help
+	Select which database library to use for libs/apr-util package.
+	Default is SQLite.
+
+    config FS_WITH_MYSQL
+      bool "MySQL"
+      select PACKAGE_libmysqlclient
+      help
+	Compile libs/apr-util with MySQL support.
+
+    config FS_WITH_POSTGRESQL
+      bool "PostgreSQL"
+      select PACKAGE_libpq
+      help
+	Compile libs/apr-util with PostgreSQL support.
+
+    config FS_WITH_SQLITE3
+      bool "SQLITE3"
+      select PACKAGE_libsqlite3
+      help
+	Compile libs/apr-util with SQLITE3 support.
+
+endchoice
+
+config FS_WITH_ALSA
+    bool "Enable ALSA for sound support"
+    default n
+    help
+	Compile $(PKG_NAME) with ALSA support.
+
+config FS_WITH_BUILTIN_ZRTP
+    bool "Enable built-in ZRTP"
+    default y
+    help
+	Compile $(PKG_NAME) with ZRTP support.
+
+config FS_WITH_IPV6
+    bool "Enable IPV6 support in APR"
+    default y
+    help
+	Compile libs/apr package with IPV6 support.
+
+config FS_WITH_LZMA
+    bool "Enable liblzma usage in libtiff"
+    default y
+    select PACKAGE_liblzma
+    help
+	Compile libs/tiff package with liblzma support. This option requires
+	LZMA2 compression package called liblzma.
+
+config FS_WITH_OPENSSL
+    bool "Enable SSL support"
+    default y
+    help
+	Compile $(PKG_NAME) with SSL support.
+
+config FS_WITH_OPT
+    bool "Enable optimization"
+    default y
+    help
+	Compile $(PKG_NAME) with optimization flag enabled. This will add
+	max optimising compiler flags
+
+config FS_WITH_SCTP
+    bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
+    default y
+    select PACKAGE_sctp
+    help
+	Compile $(PKG_NAME) with SCTP support in lib APR.
+
+config FS_WITH_ODBC
+    depends on PACKAGE_sqliteodbc
+    depends on PACKAGE_unixodbc_svn
+    bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
+    default n
+    help
+	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
+	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
+endmenu
