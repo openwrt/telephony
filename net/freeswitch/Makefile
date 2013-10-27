@@ -187,9 +187,6 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
 
-TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
-
-
 define Package/$(PKG_NAME)/Default
   SECTION:=net
   CATEGORY:=Network
@@ -202,7 +199,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +libuuid
+  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq +libuuid
   MENU:=1
 endef
 
