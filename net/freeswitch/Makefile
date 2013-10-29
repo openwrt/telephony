@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.6b
 # http://fisheye.freeswitch.org
 #
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=c8be999c3446ffc8a4bbe10116855e542b29129e
+FS_DEFAULT_HEAD:=40c105322193b7d0160814ed8ffcd5bf7f566944
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
 PKG_RELEASE:=$(PKG_SOURCE_VERSION_SHORT)
@@ -30,6 +30,9 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_FIXUP:=libtool autoreconf
 PKG_BUILD_PARALLEL:=1
+
+
+TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
 
 
 FS_MOD_AVAILABLE:= \
@@ -161,6 +164,7 @@ FS_MOD_AVAILABLE:= \
 	xml-cdr \
 	xml-curl \
 	xml-rpc \
+	xml-radius \
 	xml-scgi \
 	yaml \
 
@@ -180,6 +184,9 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SCTP \
+	CONFIG_FS_WITH_SRTP \
+	CONFIG_FS_WITH_THREADS \
+	CONFIG_FS_WITH_VISIBILITY \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
 
 
@@ -199,7 +206,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +FS_WITH_POSTGRESQL:libpq +libuuid
+  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +libuuid
   MENU:=1
 endef
 
@@ -506,6 +513,7 @@ CONFIGURE_ARGS+= \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
 	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
+	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
 	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
@@ -516,11 +524,15 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-pkgconfig) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
+	$(call autoconf_bool,CONFIG_FS_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_THREADS,threads) \
+	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 
@@ -1014,5 +1026,6 @@ $(eval $(call BuildPlugin,vp8,VP8 Video Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-cdr,XML-CDR Handler,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl Gateway,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
+$(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
 $(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,))

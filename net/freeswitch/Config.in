@@ -63,6 +63,12 @@ config FS_WITH_ALSA
     help
 	Compile $(PKG_NAME) with ALSA support.
 
+config FS_WITH_VISIBILITY
+    bool "Enable API visibility support"
+    default y
+    help
+	Compile $(PKG_NAME) with API visibility support.
+
 config FS_WITH_BUILTIN_ZRTP
     bool "Enable built-in ZRTP"
     default y
@@ -82,6 +88,15 @@ config FS_WITH_LZMA
     help
 	Compile libs/tiff package with liblzma support. This option requires
 	LZMA2 compression package called liblzma.
+
+config FS_WITH_ODBC
+    depends on PACKAGE_sqliteodbc
+    depends on PACKAGE_unixodbc_svn
+    bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
+    default n
+    help
+	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
+	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
 
 config FS_WITH_OPENSSL
     bool "Enable SSL support"
@@ -103,12 +118,16 @@ config FS_WITH_SCTP
     help
 	Compile $(PKG_NAME) with SCTP support in lib APR.
 
-config FS_WITH_ODBC
-    depends on PACKAGE_sqliteodbc
-    depends on PACKAGE_unixodbc_svn
-    bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
-    default n
+config FS_WITH_SRTP
+    bool "Enable SRTP"
+    default y
     help
-	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
-	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
+	Compile $(PKG_NAME) with SRTP support.
+
+config FS_WITH_THREADS
+    bool "Enable threading support in APR"
+    default y
+    help
+	Compile $(PKG_NAME) with threads support in libs/apr.
+
 endmenu
