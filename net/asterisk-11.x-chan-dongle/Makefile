@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=asterisk11-chan-dongle
 PKG_VERSION:=1.1r35
 PKG_REV:=28a46567a88cebdc365db6f294e682246fd2dd7b
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_SUBDIR:=asterisk11-chan-dongle-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
@@ -28,7 +28,7 @@ define Package/asterisk11-chan-dongle
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  URL:=http://www.asterisk.org/	
+  URL:=https://code.google.com/p/asterisk-chan-dongle/
   DEPENDS:= asterisk11 +libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
   MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
