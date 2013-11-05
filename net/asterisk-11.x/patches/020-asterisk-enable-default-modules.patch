@@ -31,3 +31,14 @@
  	<support_level>extended</support_level>
   ***/
  
+--- a/addons/chan_ooh323.c
++++ b/addons/chan_ooh323.c
+@@ -18,7 +18,7 @@
+ 
+ 
+ /*** MODULEINFO
+-	<defaultenabled>no</defaultenabled>
++	<defaultenabled>yes</defaultenabled>
+ 	<support_level>extended</support_level>
+  ***/
+ 
