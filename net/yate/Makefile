@@ -94,14 +94,14 @@ CONFIGURE_ARGS+= \
 	--enable-inline \
 	--enable-atomics \
 	--disable-sse2 \
-	--enable-sctp \
+	--disable-sctp \
 	--enable-resolver \
 	--enable-internalregex \
 	--disable-dahdi \
 	--disable-zaptel \
 	--disable-wpcard \
 	--disable-tdmcard \
-	--enable-wanpipe \
+	--disable-wanpipe \
 	--enable-ilbc \
 	--enable-ilbc-webrtc \
 	--enable-isac-float \
@@ -112,7 +112,7 @@ CONFIGURE_ARGS+= \
 	--without-wphwec \
 	--with-libgsm="$(STAGING_DIR)/usr/include/gsm" \
 	--with-libspeex="$(STAGING_DIR)/usr/include" \
-	--with-amrnb="$(STAGING_DIR)/usr" \
+	--without-amrnb \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
 	--without-pwlib \
 	--without-openh323 \
@@ -257,10 +257,10 @@ $(eval $(call BuildPlugin,isaccodec,,internet Speech Audio Codec,))
 $(eval $(call BuildPlugin,isupmangler,sig,ISUP parameter mangling in a STP,))
 $(eval $(call BuildPlugin,jabberclient,client,Jabber Client,))
 $(eval $(call BuildPlugin,jabberserver,jabber,Jabber Server,))
-$(eval $(call BuildPlugin,jbfeatures,jabber,Jabber Server Features,))
 $(eval $(call BuildPlugin,javascript,,Routing using the embedded Javascript language,))
+$(eval $(call BuildPlugin,jbfeatures,jabber,Jabber Server Features,))
 $(eval $(call BuildPlugin,lateroute,server,Last Chance Routing,))
-$(eval $(call BuildPlugin,lksctp,server,SCTP sockets using linux kernel,@BROKEN)) # Missing libraries/header files
+$(eval $(call BuildPlugin,lksctp,server,SCTP sockets using linux kernel,@BROKEN))
 $(eval $(call BuildPlugin,mgcpca,server,Media Gateway Control Protocol Agent,))
 $(eval $(call BuildPlugin,mgcpgw,server,Media Gateway Control Protocol Gateway,))
 $(eval $(call BuildPlugin,moh,,On Hold (music) Generator,))
@@ -276,14 +276,14 @@ $(eval $(call BuildPlugin,pbx,,PBX Message Handlers,))
 $(eval $(call BuildPlugin,pbxassist,server,Full featured PBX and IVR,))
 $(eval $(call BuildPlugin,pgsqldb,server,PostgrestSQL Backend DB,+libpq))
 $(eval $(call BuildPlugin,presence,server,Presence,))
-$(eval $(call BuildPlugin,regfile,server,Registration based on users in file,))
-$(eval $(call BuildPlugin,register,server,Call Detail Record to a database,))
 $(eval $(call BuildPlugin,queues,server,Call Distribution and Queues from Database,))
 $(eval $(call BuildPlugin,queuesnotify,server,Notify when queued call status changes,))
 $(eval $(call BuildPlugin,regexroute,,Regular Expression Based Routing,))
+$(eval $(call BuildPlugin,regfile,server,Registration based on users in file,))
+$(eval $(call BuildPlugin,register,server,Call Detail Record to a database,))
 $(eval $(call BuildPlugin,rmanager,,Yate Remote Management,))
-$(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,))
 $(eval $(call BuildPlugin,sigtransport,server,SIGTRAN (SS7 over IP) connection provider,))
+$(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,))
 $(eval $(call BuildPlugin,sipfeatures,server,SIP Features (SUBSCRIBE/NOTIFY),))
 $(eval $(call BuildPlugin,speexcodec,,Speex Codec,+libspeex))
 $(eval $(call BuildPlugin,subscription,server,Subcription handler and presence notifier,))
@@ -295,11 +295,12 @@ $(eval $(call BuildPlugin,wavefile,,Wav file Record and Playback,))
 $(eval $(call BuildPlugin,wpcard,server,Wanpipe PRI cards Signalling and Data Driver,@BROKEN)) # Mising wanpipe and PRI libraries
 $(eval $(call BuildPlugin,yiaxchan,,IAX Channel,))
 $(eval $(call BuildPlugin,yjinglechan,,Jingle Channel,))
-$(eval $(call BuildPlugin,yrtpchan,,RTP Channel and Other Data Helper,))
 $(eval $(call BuildPlugin,yradius,server,RADIUS Client,))
+$(eval $(call BuildPlugin,yrtpchan,,RTP Channel and Other Data Helper,))
 $(eval $(call BuildPlugin,ysigchan,server,SS7/ISDN Protocols - Yate Signalling Library,))
 $(eval $(call BuildPlugin,ysipchan,,SIP Channel,))
-$(eval $(call BuildPlugin,ysockschan,,SOCKS Channel,))
 $(eval $(call BuildPlugin,ysnmpagent,server,SNMP Protocol Agent,,/usr/share/yate/data/NULL-TEAM-MIB.txt /usr/share/yate/data/snmp_mib.conf /usr/share/yate/data/YATE-MIB.txt))
+$(eval $(call BuildPlugin,ysockschan,,SOCKS Channel,))
 $(eval $(call BuildPlugin,ystunchan,,STUN Support,))
 $(eval $(call BuildPlugin,zlibcompress,,Zlib Compression,+zlib))
+
