@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.6.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -42,7 +42,7 @@ endef
 
 define Package/asterisk11/install/sounds
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
 endef
 
 define BuildAsteriskModule
@@ -133,6 +133,24 @@ $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk11/install/module,$(1),$(m
 	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
+endef
+
+define Package/asterisk11-sounds
+$(call Package/asterisk11/Default)
+  TITLE:=Sounds support
+  DEPENDS:=asterisk11
+endef
+
+define Package/asterisk11-sounds/description
+$(call Package/asterisk11/Default/description)
+This package provides sounds for Asterisk.
+endef
+
+define Package/asterisk11-sounds/install
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
+	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
+	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-mobile),)
@@ -288,6 +306,7 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk11))
+$(eval $(call BuildPackage,asterisk11-sounds))
 
 ################################
 # AST modules
@@ -392,5 +411,5 @@ $(eval $(call BuildAsteriskModule,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp,)
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsteriskModule,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
 $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
-$(eval $(call BuildAsteriskModule,sounds,Sounds,contains sound files,,,,,a* b* d* h* i* m* p* q* s* t*))
+#$(eval $(call BuildAsteriskModule,sounds,Sounds,contains sound files,,,,,a* b* d* h* i* m* p* q* s* t*))
 $(eval $(call BuildAsteriskModule,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*))
