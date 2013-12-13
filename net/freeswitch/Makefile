@@ -31,6 +31,12 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_FIXUP:=libtool autoreconf
 PKG_BUILD_PARALLEL:=1
 
+PKG_BUILD_DEPENDS:= \
+	FS_WITH_MYSQL:libmysqlclient \
+	FS_WITH_POSTGRESQL:libpq \
+	FS_WITH_SQLITE3:libsqlite3 \
+	FS_WITH_LZMA:liblzma \
+	FS_WITH_SCTP:sctp
 
 TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
 

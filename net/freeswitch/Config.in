@@ -39,19 +39,16 @@ choice
 
     config FS_WITH_MYSQL
       bool "MySQL"
-      select PACKAGE_libmysqlclient
       help
 	Compile libs/apr-util with MySQL support.
 
     config FS_WITH_POSTGRESQL
       bool "PostgreSQL"
-      select PACKAGE_libpq
       help
 	Compile libs/apr-util with PostgreSQL support.
 
     config FS_WITH_SQLITE3
       bool "SQLITE3"
-      select PACKAGE_libsqlite3
       help
 	Compile libs/apr-util with SQLITE3 support.
 
@@ -84,7 +81,6 @@ config FS_WITH_IPV6
 config FS_WITH_LZMA
     bool "Enable liblzma usage in libtiff"
     default y
-    select PACKAGE_liblzma
     help
 	Compile libs/tiff package with liblzma support. This option requires
 	LZMA2 compression package called liblzma.
@@ -114,7 +110,6 @@ config FS_WITH_OPT
 config FS_WITH_SCTP
     bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
     default y
-    select PACKAGE_sctp
     help
 	Compile $(PKG_NAME) with SCTP support in lib APR.
 
