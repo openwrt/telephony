@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.6.0
-PKG_RELEASE:=3
+PKG_VERSION:=11.7.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=698acb491e20990e87bbbcf1462c8538
+PKG_MD5SUM:=f0c6b577f1efd8dc2de1f259b95a8d66
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -262,7 +262,7 @@ CONFIGURE_ARGS+= \
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-ifneq ($(CONFIG_TARGET_lantiq),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-chan-lantiq),)
 	$(CP) ./src-lantiq/* $(PKG_BUILD_DIR)/
 endif
 endef
@@ -411,5 +411,4 @@ $(eval $(call BuildAsteriskModule,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp,)
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsteriskModule,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
 $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
-#$(eval $(call BuildAsteriskModule,sounds,Sounds,contains sound files,,,,,a* b* d* h* i* m* p* q* s* t*))
 $(eval $(call BuildAsteriskModule,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*))
