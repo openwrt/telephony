@@ -277,23 +277,20 @@ endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
   CONFIGURE_ARGS+= \
-	--with-gnutls="$(STAGING_DIR)/usr" \
 	--with-iksemel="$(STAGING_DIR)/usr"
   SITE_VARS+= \
-	ac_cv_lib_iksemel_iks_start_sasl=yes \
-	ac_cv_lib_gnutls_gnutls_bye=yes
+	ac_cv_lib_iksemel_iks_start_sasl=yes
 else
   CONFIGURE_ARGS+= \
-	--without-gnutls \
 	--without-iksemel
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-curl),)
   CONFIGURE_ARGS+= \
-	--with-curl="$(STAGING_DIR)/usr"
+	--with-libcurl="$(STAGING_DIR)/usr"
 else
   CONFIGURE_ARGS+= \
-	--without-curl
+	--without-libcurl
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-pgsql),)
@@ -342,17 +339,15 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-pbx-lua),)
   TARGET_LDFLAGS+=-ldl -lcrypt
 else
   CONFIGURE_ARGS+= \
-	--without-pbx-lua
+	--without-lua
 endif
 
 CONFIGURE_ARGS+= \
 	--without-curses \
 	--with-gsm=internal \
 	--without-cap \
-	--without-gtk \
 	--without-gtk2 \
 	--without-isdnnet \
-	--without-kde \
 	--without-misdn \
 	--without-nbs \
 	--with-ncurses="$(STAGING_DIR)/usr" \
@@ -362,7 +357,6 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	--with-popt="$(STAGING_DIR)/usr" \
 	--without-pri \
-	--without-qt \
 	--without-radius \
 	--without-sdl \
 	--without-suppserv \
