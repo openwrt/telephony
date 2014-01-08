@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
-PKG_VERSION:=0.4.3
+PKG_VERSION:=0.4.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_MD5SUM:=c44bf87118b19464621fe459d69853d1
+PKG_MD5SUM:=2b00171a9106105bf90325a5bc63fc65
 
 include $(INCLUDE_DIR)/package.mk
 
