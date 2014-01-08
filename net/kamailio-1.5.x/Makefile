@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
 PKG_VERSION:=1.5.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_VARIANT:=tls
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
@@ -100,6 +100,7 @@ define Build/Compile
 		CC="$(TARGET_CC)" \
 		ARCH="$(ARCH)"  \
 		CFLAGS="$(TARGET_CFLAGS)" \
+		LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
 		ISSMP="no" \
 		LOCALBASE="$(STAGING_DIR)/usr" \
 		SYSBASE="$(STAGING_DIR)/usr" \
