@@ -29,7 +29,7 @@ define Package/asterisk18-chan-dongle
   SECTION:=net
   CATEGORY:=Network
   URL:=https://code.google.com/p/asterisk-chan-dongle/
-  DEPENDS:= asterisk18 +libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
+  DEPENDS:= asterisk18 +libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch @BROKEN
   TITLE:=Huawei UMTS 3G dongle support
   MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
