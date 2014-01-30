@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.4.10
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -95,9 +95,7 @@ define Package/baresip/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/baresip $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/lib/baresip/modules
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/ice.so \
-		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/stun.so \
-		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/turn.so \
+		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/{account,contact,ice,menu,stun,turn}.so \
 		$(1)/usr/lib/baresip/modules/.
 	$(INSTALL_DIR) $(1)/usr/share/baresip
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/baresip/* $(1)/usr/share/baresip/.
