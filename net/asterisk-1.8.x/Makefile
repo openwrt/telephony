@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.25.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -719,6 +719,7 @@ $(eval $(call Buildasterisk18ModuleTemplate,app_chanisavail,Channel availability
 $(eval $(call Buildasterisk18ModuleTemplate,app_chanspy,Channel listen in,support for listening in on any channel))
 $(eval $(call Buildasterisk18ModuleTemplate,app_directed_pickup,Directed call pickup,support for directed call pickup))
 $(eval $(call Buildasterisk18ModuleTemplate,app_exec,Exec application,support for application execution))
+$(eval $(call Buildasterisk18ModuleTemplate,app_followme,FollowMe application,support for FollowMe functionality,+asterisk18-chan-local))
 $(eval $(call Buildasterisk18ModuleTemplate,app_minivm,Minimal voicemail system,a voicemail system in small building blocks working together based on the Comedian Mail voicemail system))
 $(eval $(call Buildasterisk18ModuleTemplate,app_readexten,Extension to variable,a trivial application to read an extension into a variable))
 $(eval $(call Buildasterisk18ModuleTemplate,app_read,Variable read,a trivial application to read a variable))
