@@ -1,8 +1,6 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2013 OpenWrt.org
 
-. /lib/functions/service.sh
-
 START=99
 APP=asterisk
 OPTIONS=
