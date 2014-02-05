@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.7.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -49,7 +49,7 @@ define BuildAsteriskModule
   define Package/asterisk11-$(1)
   $$(call Package/asterisk11/Default)
     TITLE:=$(2) support
-    DEPENDS:= asterisk11 $(4)
+    DEPENDS:= asterisk11 $(patsubst +%,+PACKAGE_asterisk11-$(1):%,$(4))
   endef
 
   define Package/asterisk11-$(1)/conffiles
@@ -262,9 +262,6 @@ CONFIGURE_ARGS+= \
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-ifneq ($(CONFIG_PACKAGE_asterisk11-chan-lantiq),)
-	$(CP) ./src-lantiq/* $(PKG_BUILD_DIR)/
-endif
 endef
 
 define Build/Configure
@@ -384,7 +381,6 @@ $(eval $(call BuildAsteriskModule,func-vmcount,vmcount dialplan,a vmcount dialpl
 $(eval $(call BuildAsteriskModule,func-base64,base64 support,support of base64 function,,,,func_base64,))
 $(eval $(call BuildAsteriskModule,chan-agent,Agents proxy channel,an implementation of agents proxy channel,,,,chan_agent,))
 $(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,IAX support,,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
-$(eval $(call BuildAsteriskModule,chan-lantiq,Lantiq channel,lantiq TAPI support,$(LTQ_TAPI_DEPENDS) @BROKEN,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsteriskModule,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
 $(eval $(call BuildAsteriskModule,chan-mobile,Mobile channel,the channel chan_mobile,+bluez-libs,/etc/asterisk/chan_mobile.conf,chan_mobile.conf,chan_mobile,))
