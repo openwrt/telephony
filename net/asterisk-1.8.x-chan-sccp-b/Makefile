@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18-chan-sccp-b
-PKG_REV:=5055
+PKG_REV:=5113
 PKG_VERSION:=4.1r$(PKG_REV)
 PKG_RELEASE:=1
 
