@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 
 START=99
 APP=asterisk
@@ -17,6 +17,7 @@ start() {
        [ -d $DEST/var/lib ] || mkdir -p $DEST/var/lib
        [ -h $DEST/var/lib/asterisk ] || ln -s /usr/lib/asterisk /var/lib/asterisk
        [ -d $DEST/var/lib/asterisk/keys ] || mkdir -p $DEST/var/lib/asterisk/keys
+       [ -d $DEST/var/log/asterisk/cdr-csv ] || mkdir -p $DEST/var/log/asterisk/cdr-csv
 
        SERVICE_PID_FILE="/var/run/asterisk/asterisk.pid" \
        service_start $BIN_FILE $OPTIONS
