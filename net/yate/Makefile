@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2013 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 # Copyright (C) 2006-2011 SMBPhone
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.0.0
+RELEASEVER:=5.1.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
@@ -17,7 +17,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=6113bce2b81b402431c61d1f777e09a6
+PKG_MD5SUM:=91bfb1433ec665efd1620f4abfb5606d
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_INSTALL:=1
