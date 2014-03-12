@@ -1,5 +1,5 @@
---- kamailio4-4.0.1/modules/json/Makefile	2013-04-25 16:56:29.000000000 +0200
-+++ kamailio4-next/modules/json/Makefile	2013-05-31 10:54:42.125995025 +0200
+--- a/modules/json/Makefile
++++ b/modules/json/Makefile
 @@ -11,12 +11,12 @@ LIBS=
  
  BUILDER = $(shell which pkg-config)
