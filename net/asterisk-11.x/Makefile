@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.8.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -320,7 +320,7 @@ $(eval $(call BuildPackage,asterisk11-sounds))
 
 $(eval $(call BuildAsteriskModule,app-alarmreceiver,Alarm receiver,Central Station Alarm receiver for Ademco Contact ID,,,,app_alarmreceiver,))
 $(eval $(call BuildAsteriskModule,app-authenticate,Authenticate commands,Execute arbitrary authenticate commands,,,,app_authenticate,))
-$(eval $(call BuildAsteriskModule,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,,/etc/asterisk/confbridge.conf,confbridge.conf,app_confbridge bridge_builtin_features bridge_multiplexed bridge_simple bridge_softmix,))
+$(eval $(call BuildAsteriskModule,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,,/etc/asterisk/confbridge.conf,confbridge.conf,app_confbridge bridge_builtin_features bridge_multiplexed bridge_simple bridge_softmix chan_bridge,))
 $(eval $(call BuildAsteriskModule,app-directed_pickup,Directed call pickup,support for directed call pickup,,,,app_directed_pickup,))
 $(eval $(call BuildAsteriskModule,app-disa,Direct Inward System Access,Direct Inward System Access,,,,app_disa,))
 $(eval $(call BuildAsteriskModule,app-exec,Exec application,support for application execution,,,,app_exec,))
