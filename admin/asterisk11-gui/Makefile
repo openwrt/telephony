@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-gui
 PKG_VERSION:=2.1.0-rc1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk-gui/releases/
 PKG_SOURCE:=asterisk-gui-$(PKG_VERSION).tar.gz
@@ -70,13 +70,6 @@ define Package/asterisk11-gui/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/gui_backups
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(CP)	./files/agui-postinst $(1)/etc/uci-defaults/
-endef
-
-define Package/asterisk11-gui/postinst
-	#!/bin/sh
-	[ -n "$${IPKG_INSTROOT}" ] && exit
-	. /lib/functions.sh
-	uci_apply_defaults
 endef
 
 $(eval $(call BuildPackage,asterisk11-gui))
