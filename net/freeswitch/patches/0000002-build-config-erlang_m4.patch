@@ -1,0 +1,56 @@
+--- a/build/config/erlang.m4
++++ b/build/config/erlang.m4
+@@ -16,25 +16,26 @@ then
+ 
+ 	if test "$with_erlang" != "yes" -a "$with_erlang" != "try" ; then
+ 		AC_MSG_CHECKING([for erlang])
+-		if test ! -x "$with_erlang" ; then
++		if test ! -x "$with_erlang/../../host/lib/erlang/bin" ; then
+ 			AC_MSG_ERROR([Specified erlang does not exist or is not executable: $with_erlang])
+ 		fi
+-		AC_MSG_RESULT([$with_erlang])
+-		AC_SUBST([ERLANG], ["$with_erlang"])
++		AC_MSG_RESULT(["$with_erlang/../../host/lib/erlang/bin/erl"])
++		AC_SUBST([ERL],["$with_erlang/../../host/lib/erlang/bin/erl"])
+ 	else
+-		AC_PATH_PROG([ERLANG], ["erl"], ["no"], ["$PATH:/usr/bin:/usr/local/bin"])
++		AC_ERLANG_NEED_ERL(["$with_erlang/../../host/lib/erlang/bin"])
+ 	fi
+ 
+-	if test "$ERLANG" != "no" ; then
++	if test "$ERL" != "no" ; then
+ 		AC_MSG_CHECKING([erlang version])
+-		ERLANG_VER="`$ERLANG -version 2>&1 | cut -d' ' -f6`"
++		ERLANG_VER="`$ERL -version 2>&1 | cut -d' ' -f6`"
+ 
+ 		if test -z "$ERLANG_VER" ; then
+ 			AC_MSG_ERROR([Unable to detect erlang version])
++		else
++			AC_MSG_RESULT([$ERLANG_VER])
+ 		fi
+-		AC_MSG_RESULT([$ERLANG_VER])
+ 
+-		ERLANG_LIBDIR=`$ERLANG -noshell -eval 'io:format("~n~s/lib~n", [[code:lib_dir("erl_interface")]]).' -s erlang halt | tail -n 1`
++		ERLANG_LIBDIR="$with_erlang/lib"
+ 		AC_MSG_CHECKING([erlang libdir])
+ 		if test -z "`echo $ERLANG_LIBDIR`" ; then
+ 			AC_MSG_ERROR([failed])
+@@ -44,7 +45,7 @@ then
+ 		fi
+ 		AC_MSG_RESULT([$ERLANG_LIBDIR])
+ 
+-		ERLANG_INCDIR=`$ERLANG -noshell -eval 'io:format("~n~s/include~n", [[code:lib_dir("erl_interface")]]).' -s erlang halt | tail -n 1`
++		ERLANG_INCDIR="$with_erlang/include"
+ 		AC_MSG_CHECKING([erlang incdir])
+ 		if test -z "`echo $ERLANG_INCDIR`" ; then
+ 			AC_MSG_ERROR([failed])
+@@ -61,7 +62,8 @@ then
+ 		# check liei
+ 		AC_CHECK_LIB([$ERLANG_LIB], [ei_encode_version], [has_libei="yes"], [has_libei="no"])
+ 		# maybe someday ei will actually expose this?
+-		AC_CHECK_LIB([$ERLANG_LIB], [ei_link_unlink], [ERLANG_CFLAGS="$ERLANG_CFLAGS -DEI_LINK_UNLINK"])
++		# until then, we comment it out
++		#AC_CHECK_LIB([$ERLANG_LIB], [ei_link_unlink], [ERLANG_CFLAGS="$ERLANG_CFLAGS -DEI_LINK_UNLINK"])
+ 
+ 		if test "$has_libei" = "no" ; then
+ 			AS_IF([test "$with_erlang" = "try"],

@@ -6,9 +6,9 @@
 +include $(BASE)/build/openwrt_rules.mk
 +
  EXTRA_DIST =
- SUBDIRS = . src
- AUTOMAKE_OPTIONS = foreign
-@@ -164,7 +168,6 @@ ZRTP_LIBS = -lbn -lzrtp
+ SUBDIRS = . src build
+ AUTOMAKE_OPTIONS = foreign subdir-objects
+@@ -171,7 +175,6 @@ ZRTP_LIBS = -lbn -lzrtp
  libfreeswitch_la_LDFLAGS += $(ZRTP_LDFLAGS)
  libfreeswitch_la_LIBADD += $(ZRTP_LIBS)
  CORE_LIBS += libs/libzrtp/libzrtp.a
@@ -16,16 +16,7 @@
  endif
  
  library_includedir      = $(includedir)
-@@ -427,7 +430,7 @@ $(switch_builddir)/quiet_libtool: $(swit
- 	@cat libtool | sed -e 's|$$show "$$command"|if test -z "$$suppress_output" ; then $$show "Compiling $$srcfile ..." ; fi|' > $(switch_builddir)/quiet_libtool
- 
- build/print_git_revision: build/print_git_revision.c
--	$(CC) -o $@ $<
-+	$(HOSTCC) -o $@ $<
- 
- src/include/switch_version.h: src/include/switch_version.h.in Makefile build/print_git_revision $(libfreeswitch_la_SOURCES) $(library_include_HEADERS)
- 	@cat $< > $@; \
-@@ -665,7 +668,9 @@ sndfile-reconf:
+@@ -630,7 +633,9 @@ sndfile-reconf:
  
  tiff-reconf:
  	cd libs/tiff-4.0.2 && autoreconf -fi
@@ -36,7 +27,7 @@
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:
-@@ -690,9 +695,6 @@ iks-reconf:
+@@ -653,9 +658,6 @@ iks-reconf:
  	$(MAKE) mod_dingaling-clean
  
  spandsp-reconf: tiff-reconf

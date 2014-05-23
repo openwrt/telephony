@@ -1,0 +1,11 @@
+--- a/src/mod/codecs/mod_opus/Makefile.am
++++ b/src/mod/codecs/mod_opus/Makefile.am
+@@ -17,7 +17,7 @@ $(OPUS_DIR)/configure:
+ 
+ $(OPUS_BUILDDIR)/Makefile: $(OPUS_DIR)/configure
+ 	mkdir -p $(OPUS_BUILDDIR)
+-	cd $(OPUS_BUILDDIR) && $(DEFAULT_VARS) $(OPUS_DIR)/configure --disable-shared --with-pic --srcdir=$(OPUS_DIR)
++	cd $(OPUS_BUILDDIR) && $(DEFAULT_VARS) $(OPUS_DIR)/configure --host=$(host) --disable-shared --with-pic --srcdir=$(OPUS_DIR)
+ 	$(TOUCH_TARGET)
+ 
+ $(OPUS_LA): $(OPUS_BUILDDIR)/Makefile

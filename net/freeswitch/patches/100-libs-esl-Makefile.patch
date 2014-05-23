@@ -1,9 +1,0 @@
---- a/libs/esl/Makefile
-+++ b/libs/esl/Makefile
-@@ -1,3 +1,6 @@
-+BASE=../..
-+include $(BASE)/build/openwrt_rules.mk
-+
- include eslmake.rules
- PWD=$(shell pwd)
- INCS=-I$(PWD)/src/include
