@@ -11,32 +11,40 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.6b
+PKG_VERSION:=1.5.13b
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
+FS_WITH_DEFAULT_HEAD:=757b7440104e34cf57ab30a411e081470ce2e180
 PKG_SOURCE_URL:=git://git.$(PKG_NAME).org/$(PKG_NAME).git
-FS_DEFAULT_HEAD:=40c105322193b7d0160814ed8ffcd5bf7f566944
-PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_DEFAULT_HEAD))
+PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
+FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
 PKG_RELEASE:=$(PKG_SOURCE_VERSION_SHORT)
 PKG_SOURCE_SUBDIR:=$(PKG_DISTNAME)
-PKG_SOURCE:=$(PKG_SOURCE_SUBDIR)-$(PKG_SOURCE_VERSION_SHORT).tar.bz2
+PKG_SOURCE:=$(PKG_SOURCE_SUBDIR)-$(if $(CONFIG_FS_WITH_LOCAL_SOURCE),$(FS_WITH_DEFAULT_HEAD_SHORT).tar.xz,$(PKG_SOURCE_VERSION_SHORT).tar.bz2)
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 
 PKG_FIXUP:=libtool autoreconf
 PKG_BUILD_PARALLEL:=1
 
+
+ifeq ($(CONFIG_DEVEL),y)
+	export QUILT=1
+endif
+
+
 PKG_BUILD_DEPENDS:= \
+	FS_WITH_CORE_LIBEDIT_SUPPORT:libedit \
 	FS_WITH_MYSQL:libmysqlclient \
 	FS_WITH_POSTGRESQL:libpq \
 	FS_WITH_SQLITE3:libsqlite3 \
-	FS_WITH_LZMA:liblzma \
-	FS_WITH_SCTP:sctp
+	FS_WITH_SCTP:sctp \
+
 
 TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
 
@@ -47,10 +55,12 @@ FS_MOD_AVAILABLE:= \
 	amr \
 	amrwb \
 	avmd \
+	basic \
 	blacklist \
 	bv \
 	callcenter \
 	cdr-csv \
+	cdr-mongodb \
 	cdr-pg-csv \
 	cdr-sqlite \
 	celt \
@@ -83,6 +93,7 @@ FS_MOD_AVAILABLE:= \
 	file-string \
 	flite \
 	format-cdr \
+	freetdm \
 	fsk \
 	fsv \
 	g723-1 \
@@ -99,16 +110,18 @@ FS_MOD_AVAILABLE:= \
 	java \
 	json-cdr \
 	lcr \
+	ldap \
 	local-stream \
 	logfile \
 	loopback \
 	lua \
 	managed \
+	memcache \
+	mongo \
 	mp4 \
 	mp4v \
 	native-file \
 	nibblebill \
-	openzap \
 	opus \
 	oreka \
 	portaudio \
@@ -169,6 +182,7 @@ FS_MOD_AVAILABLE:= \
 	vp8 \
 	xml-cdr \
 	xml-curl \
+	xml-ldap \
 	xml-rpc \
 	xml-radius \
 	xml-scgi \
@@ -178,19 +192,27 @@ FS_MOD_AVAILABLE:= \
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_ALSA \
 	CONFIG_FS_WITH_BUILTIN_ZRTP \
+	CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT \
 	CONFIG_FS_WITH_DEFAULT_HEAD \
+	CONFIG_FS_WITH_ERLANG \
+	CONFIG_FS_WITH_FHS \
 	CONFIG_FS_WITH_FIXED_POINT \
 	CONFIG_FS_WITH_IPV6 \
+	CONFIG_FS_WITH_KERNEL_LINUX \
 	CONFIG_FS_WITH_LATEST_HEAD \
+	CONFIG_FS_WITH_LOCAL_SOURCE \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
 	CONFIG_FS_WITH_OPENSSL \
+	CONFIG_FS_WITH_OPENWRT_SOURCE \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SCTP \
 	CONFIG_FS_WITH_SRTP \
+	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
+	CONFIG_FS_WITH_SRTP_OPENSSL \
 	CONFIG_FS_WITH_THREADS \
 	CONFIG_FS_WITH_VISIBILITY \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
@@ -212,15 +234,15 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libjpeg +libncurses +libpthread +librt +libstdcpp +libuuid
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libiconv-full +libintl-full +libjpeg +libncurses +PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +libstdcpp +libuuid
   MENU:=1
 endef
 
 
 define Package/$(PKG_NAME)/description
   FreeSWITCH is an open source telephony platform designed to
-  facilitate the creation of voice and chat driven products scaling
-  from a soft-phone up to a soft-switch.  See http://wiki.$(PKG_NAME).org
+  facilitate the creation of voice and chat driven products 
+  scaling from a soft-phone up to a soft-switch.
 endef
 
 
@@ -303,6 +325,7 @@ $(call Package/$(PKG_NAME)/Default)
 		+$(PKG_NAME)-mod-local-stream \
 		+$(PKG_NAME)-mod-lua \
 		+$(PKG_NAME)-mod-native-file \
+		+$(PKG_NAME)-mod-say-en \
 		+$(PKG_NAME)-mod-sndfile \
 		+$(PKG_NAME)-mod-sofia \
 		+$(PKG_NAME)-mod-speex \
@@ -434,8 +457,23 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-flite),)
 endif
 
 
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-memcache),)
+ $(eval $(call Download/files,memcache,libmemcached-0.32.tar.gz,2f06059803737b6bf6135edfc86db4b3,,downloads/libs/,libs/))
+endif
+
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-mongo),)
+ $(eval $(call Download/files,mongo,mongo-c-driver-0.92.2.tar.gz,afab25a33abd3f1e0ba79c5a9da92651,,downloads/libs/,libs/))
+endif
+
+
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-opus),)
- $(eval $(call Download/files,opus,opus-1.0.3.tar.gz,86eedbd3c5a0171d2437850435e6edff,,downloads/libs/,libs/))
+ $(eval $(call Download/files,opus,opus-1.1-p2.tar.gz,5da7cb39925bfb7dd60ea2e810f71357,,downloads/libs/,libs/))
+endif
+
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-ldap)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-ldap),)
+ $(eval $(call Download/files,ldap,openldap-2.4.19.tar.gz,4a6dab2711fcf141f19bb680bc335887,,downloads/libs/,libs/))
 endif
 
 
@@ -503,9 +541,21 @@ ifneq ($(CONFIG_USE_EGLIBC),)
 endif
 
 
-FS_TARGET_CFLAGS:= $(TARGET_CFLAGS) -DLUA_USE_LINUX $(FPIC) -std=gnu99 -Wno-format
-FS_TARGET_CXXFLAGS:= $(TARGET_CXXFLAGS) -DLUA_USE_LINUX $(FPIC) -Wno-format
-FS_TARGET_CPPFLAGS:= -I. -I./lua $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),-I$(STAGING_DIR_HOST)/lib/erlang/lib/erl_interface-3.7.7/include) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) $(TARGET_CPPFLAGS)
+FS_TARGET_CFLAGS:= $(TARGET_CFLAGS) -DLUA_USE_LINUX $(FPIC) -std=gnu99 -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-implicit-function-declaration
+FS_TARGET_CXXFLAGS:= $(TARGET_CXXFLAGS)
+FS_TARGET_CPPFLAGS:= -I. -I./lua $(TARGET_CPPFLAGS) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) -I`ls -d $(PKG_BUILD_DIR)/libs/*|grep tiff`/libtiff -I$(PKG_BUILD_DIR)/libs/spandsp/src
+
+
+MAKE_FLAGS += \
+	OPT_FLAGS+="$(TARGET_CFLAGS)"
+
+
+MAKE_VARS += \
+	AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar" \
+	CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
+	CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
+	RANLIB="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ranlib" \
+	CC_FOR_BUILD="$(HOSTCC)" \
 
 
 CONFIGURE_ARGS+= \
@@ -518,46 +568,54 @@ CONFIGURE_ARGS+= \
 	--sysconfdir="/etc/$(PKG_NAME)" \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
-	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
-	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
-	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
+	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
+	$(call autoconf_bool,CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT,core-libedit-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
 	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
-	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
-	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
-	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with,--without)-erlang \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
+	$(call autoconf_bool,CONFIG_FS_WITH_KERNEL_LINUX,kernel-linux) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
-	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-pkgconfig) \
+	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_SRTP,srtp) \
+	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_GENERIC_AESICM,generic-aesicm) \
+	$(call autoconf_bool,CONFIG_FS_WITH_THREADS,threads) \
+	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
-	$(call autoconf_bool,CONFIG_FS_WITH_SRTP,srtp) \
-	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
-	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
-	$(call autoconf_bool,CONFIG_FS_WITH_THREADS,threads) \
-	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
-	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
+	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
+	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
+	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
+	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
+	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang="$(CONFIG_FS_WITH_ERLANG)",--without-erlang) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
+	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
+
+
+ifeq ($(ARCH),arm)
+	CONFIGURE_ARGS+= --enable-arm5e-asm \
+
+endif
 
 
 CONFIGURE_VARS+= \
 	config_TARGET_CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
-	config_TARGET_CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
 	config_TARGET_CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
+	config_TARGET_CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
 	config_TARGET_CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
 	config_TARGET_CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
 	config_TARGET_READLINE_INC="$(FS_TARGET_CPPFLAGS)" \
 	config_TARGET_READLINE_LIBS="$(TARGET_LDFLAGS) -lreadline -lncurses" \
 	config_TARGET_LIBS="$(TARGET_LDFLAGS) -lpthread -ldl" \
 	config_BUILD_CC="$(HOSTCC)" \
-	config_BUILD_CFLAGS="$(HOST_CFLAGS)" \
 	CC_FOR_BUILD="$(HOSTCC)" \
 	BUILDTOOL_CC="$(HOSTCC)" \
 	BUILDTOOL_CCLD="$(HOSTCC)" \
-	LDFLAGS="$$$$LDFLAGS" \
 	LDFLAGS_FOR_BUILD="$(HOST_LDFLAGS)" \
 	CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
 	CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
@@ -594,24 +652,28 @@ define Build/Prepare
 	$(call Prepare/event-zmq)
 	$(call Prepare/flite)
 	$(call Prepare/json-cdr)
+	$(call Prepare/ldap)
+	$(call Prepare/memcache)
+	$(call Prepare/mongo)
 	$(call Prepare/opus)
-	$(call Prepare/sounds-en-08KHz)
-	$(call Prepare/sounds-en-16KHz)
-	$(call Prepare/sounds-en-32KHz)
-	$(call Prepare/sounds-en-48KHz)
-	$(call Prepare/sounds-moh-08KHz)
-	$(call Prepare/sounds-moh-16KHz)
-	$(call Prepare/sounds-moh-32KHz)
-	$(call Prepare/sounds-moh-48KHz)
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),$(call Prepare/sounds-en-08KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-16KHz),$(call Prepare/sounds-en-16KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-32KHz),$(call Prepare/sounds-en-32KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-48KHz),$(call Prepare/sounds-en-48KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-08KHz),$(call Prepare/sounds-moh-08KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-16KHz),$(call Prepare/sounds-moh-16KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-32KHz),$(call Prepare/sounds-moh-32KHz))
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-48KHz),$(call Prepare/sounds-moh-48KHz))
 endef
 
 
 define Build/Configure
-	if [ -d $(PKG_BUILD_DIR)/libs/libcodec2/src ]; then \
-		(cd $(PKG_BUILD_DIR)/libs/libcodec2/src; $(HOSTCC) -c generate_codebook.c; $(HOSTCC) -o generate_codebook generate_codebook.o -lm) \
-	fi
+
+ifeq ($(CONFIG_FS_WITH_LOCAL_SOURCE),y)
+	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull; if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi))
+endif
 	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
-	$(call Build/Configure/Default,)
+	$(call Build/Configure/Default)
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 			$(SED) 's|^[ #]*\([^#]*/mod_$(subst -,_,$(m))\)$$$$|\1|g' $(PKG_BUILD_DIR)/modules.conf
@@ -623,23 +685,19 @@ endef
 
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar" \
-		RANLIB="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ranlib" \
-		CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
-		CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
+	$(call Build/Compile/Default, \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		LDFLAGS_FOR_BUILD="$(HOST_LDFLAGS)" \
-		all $(MAKE_INSTALL_TARGETS)
+		all $(MAKE_INSTALL_TARGETS) \
+	)
 	$(SED) 's|^\([ \t]*\)\(.*\)"mod_console"\(.*\)$$$$|\1<!-- \2"mod_console"\3 -->|' $(PKG_INSTALL_DIR)/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
 	$(SED) 's|^\([ \t]*\)<!-- *\(.*\)"mod_syslog"\(.*\) *-->\(.*\)$$$$|\1\2"mod_syslog"\3\4|' $(PKG_INSTALL_DIR)/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
 endef
 
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/$(PKG_NAME)
+	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/$(PKG_NAME)/include/* $(1)/usr/include/$(PKG_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include $(1)/usr
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib$(PKG_NAME).{a,so*} $(1)/usr/lib/
 endef
 
@@ -652,6 +710,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(INSTALL_BIN) ./files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
@@ -659,6 +718,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) ./files/$(PKG_NAME).default $(1)/etc/default/$(PKG_NAME)
 	$(INSTALL_DATA) ./files/$(PKG_NAME).hotplug $(1)/etc/hotplug.d/iface/90-$(PKG_NAME)
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/$(PKG_NAME) $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include $(1)/usr/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib$(PKG_NAME)* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/$(PKG_NAME).pc $(1)/usr/lib/pkgconfig/
 	$(if $(1)/usr/lib/lib$(PKG_NAME).la,sed -i -e "s#-lcurl -lz\(.*\)/usr/lib/libexpat.la\(.*\)$(TOOLCHAIN_DIR)/$(REAL_GNU_TARGET_NAME)\(.*\)#-L/usr/lib -lcurl -lz /usr/lib/libexpat.la\2/usr\3#g" $(1)/usr/lib/lib$(PKG_NAME).la)
@@ -909,10 +969,12 @@ $(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+FS_WITH_ALSA:alsa-lib @
 $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
+$(eval $(call BuildPlugin,basic,BASIC,vanilla,,,,))
 $(eval $(call BuildPlugin,blacklist,Blacklist,vanilla,,,,))
 $(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,callcenter,Call Center,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
+$(eval $(call BuildPlugin,cdr-mongodb,MongoDB CDR logger,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-pg-csv,PostgreSQL CDR Handler,vanilla,,,,+coreutils +FS_WITH_POSTGRESQL:libpq @FS_WITH_POSTGRESQL))
 $(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,@FS_WITH_SQLITE3))
 $(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+libogg))
@@ -934,8 +996,8 @@ $(eval $(call BuildPlugin,directory,Search By Name Directory IVR,vanilla,,,,))
 $(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
-$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,))
-$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang @BROKEN))
+$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns))
+$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
@@ -949,7 +1011,7 @@ $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 $(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,))
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,g729,G.729 Codec,vanilla,,,,))
-$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs gsmlib
+$(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+FS_WITH_ALSA:alsa-lib +FS_WITH_LZMA:liblzma @FS_WITH_ALSA @BROKEN)) # needs gsmlib
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
@@ -960,17 +1022,19 @@ $(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,isac,iSAC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,java,Java Language Interface,vanilla,,,,@BROKEN)) # needs java
 $(eval $(call BuildPlugin,json-cdr,JSon-CDR Interface,mod,,,,+libcurl))
+$(eval $(call BuildPlugin,ldap,LDAP interface,vanilla,,,,+libsasl2))
 $(eval $(call BuildPlugin,lcr,Least Cost Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,local-stream,Multi-Channel On Same Stream,vanilla,,,,))
 $(eval $(call BuildPlugin,logfile,File Logger,vanilla,,,,))
 $(eval $(call BuildPlugin,loopback,Loopback to Dialplan Endpoint,vanilla,,,,))
 $(eval $(call BuildPlugin,lua,LUA Language Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,managed,Media Switching Software Library,vanilla,,,,+glib2 @BROKEN)) # needs Mono
+$(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req libmemcached
+$(eval $(call BuildPlugin,mongo,A Document-Oriented Database,vanilla,,,,))
 $(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROKEN)) # needs libmp4v2
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
-$(eval $(call BuildPlugin,openzap,Zaptel (Superseded by FreeTDM),libs,ozmod,lib/libopenzap lib/pkgconfig/openzap,,+libpcap))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA))
@@ -1031,7 +1095,8 @@ $(eval $(call BuildPlugin,voicemail-ivr,VoiceMail IVR,vanilla,,,,))
 $(eval $(call BuildPlugin,vp8,VP8 Video Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-cdr,XML-CDR Handler,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl Gateway,vanilla,,,,+libcurl))
+$(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+libsasl2 +PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap))
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,))
+$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml))

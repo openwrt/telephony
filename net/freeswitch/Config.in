@@ -1,7 +1,7 @@
 menu "Configuration"
 	depends on PACKAGE_freeswitch
 
-choice
+  choice
     depends on DEVEL
     prompt "Git HEAD version to use"
     default FS_WITH_DEFAULT_HEAD
@@ -28,9 +28,39 @@ choice
 	out of the box and may and/or may not require some additional new
 	patches.
 
-endchoice
+  endchoice
 
-choice 
+  choice
+    depends on FS_WITH_LATEST_HEAD
+    prompt "FS TARRED archive to use"
+    default FS_WITH_OPENWRT_SOURCE
+    help
+	Select which tarred to use: local or OpenWRT
+	local: FS tarred from local archive
+	OpenWRT: FS tarred download from source by OpenWRT
+
+   config FS_WITH_LOCAL_SOURCE
+      bool "local"
+      help
+	Use local tarred archive. This approach requires a manually checkout
+	source from FS git repository using 'git clone', then package the
+	source using tar with XZ compression. The tarred file should include
+	$(PKG_VERSION) as follows:
+	1. "git clone git://git.freeswitch.org/freeswitch.git <dir>"
+	2. Change to <dir>.
+	3. "git checkout $(FS_DEFAULT_HEAD) && git submodule update"
+	4. Back to parent <dir>.
+	5. "tar -Jcf freeswitch_git-$(PKG_VERSION).tar.xz <dir>"
+	6. Move the tarred file to OpenWRT download directory.
+
+   config FS_WITH_OPENWRT_SOURCE
+      bool "OpenWRT"
+      help
+	Use (download) tarred archive from OpenWRT.
+
+  endchoice
+
+  choice 
     prompt "Select database"
     default FS_WITH_SQLITE3
     help
@@ -52,77 +82,122 @@ choice
       help
 	Compile libs/apr-util with SQLITE3 support.
 
-endchoice
+  endchoice
 
-config FS_WITH_ALSA
+  config FS_WITH_ALSA
     bool "Enable ALSA for sound support"
     default n
     help
-	Compile $(PKG_NAME) with ALSA support.
+	Compile with ALSA support.
 
-config FS_WITH_VISIBILITY
+  config FS_WITH_VISIBILITY
     bool "Enable API visibility support"
     default y
     help
-	Compile $(PKG_NAME) with API visibility support.
+	Compile with API visibility support.
 
-config FS_WITH_BUILTIN_ZRTP
+  config FS_WITH_BUILTIN_ZRTP
     bool "Enable built-in ZRTP"
     default y
     help
-	Compile $(PKG_NAME) with ZRTP support.
+	Compile with ZRTP support.
 
-config FS_WITH_IPV6
+  config FS_WITH_CORE_LIBEDIT_SUPPORT
+    bool "Compile with libedit Support"
+    default n
+    help
+	Compile with libedit Support. ATM, libedit isn't 
+	supported by OpenWRT.
+
+  config FS_WITH_FHS
+    bool "Follow the FHS when placing files and directories"
+    default y
+    help
+	Build FreeSWITCH to comply with FHS when placing 
+	files and directories.
+
+
+  config FS_WITH_IPV6
     bool "Enable IPV6 support in APR"
     default y
     help
 	Compile libs/apr package with IPV6 support.
 
-config FS_WITH_LZMA
+  config FS_WITH_LZMA
     bool "Enable liblzma usage in libtiff"
     default y
     help
-	Compile libs/tiff package with liblzma support. This option requires
-	LZMA2 compression package called liblzma.
+	Compile libs/tiff package with liblzma support. This option
+	requires LZMA2 compression package called liblzma.
 
-config FS_WITH_ODBC
+  config FS_WITH_ODBC
     depends on PACKAGE_sqliteodbc
     depends on PACKAGE_unixodbc_svn
-    bool "Compile with ODBC support (Requires unixodbc_svn NOT YET AVAILABLE)"
+    bool "Compile with ODBC support (Requires unixodbc NOT YET AVAILABLE)"
     default n
     help
-	Compile $(PKG_NAME) with ODBC support. Since both sqliteodbc and unixodbc_svn packages
-	are not yet available on OpenWRT, $(PKG_NAME) CAN NOT be compiled with ODBC support.
+	Enable ODBC support. Since both sqliteodbc and unixodbc 
+	packages are not yet available on OpenWRT, ODBC support 
+	should not be enabled.
 
-config FS_WITH_OPENSSL
+  config FS_WITH_OPENSSL
     bool "Enable SSL support"
     default y
     help
-	Compile $(PKG_NAME) with SSL support.
+	Compile with SSL support.
 
-config FS_WITH_OPT
+  config FS_WITH_OPT
     bool "Enable optimization"
     default y
     help
-	Compile $(PKG_NAME) with optimization flag enabled. This will add
-	max optimising compiler flags
+	Compile with optimization flag enabled. This
+	will add max optimising compiler flags
 
-config FS_WITH_SCTP
+  config FS_WITH_SCTP
     bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
     default y
     help
-	Compile $(PKG_NAME) with SCTP support in lib APR.
+	Compile with SCTP support in lib APR.
 
-config FS_WITH_SRTP
+  config FS_WITH_SRTP
     bool "Enable SRTP"
     default y
     help
-	Compile $(PKG_NAME) with SRTP support.
+	Compile with SRTP support.
 
-config FS_WITH_THREADS
+  config FS_WITH_KERNEL_LINUX
+    depends on FS_WITH_SRTP
+    bool "Build library to run in Linux kernel context"
+    default n
+    help
+	Build library to run in Linux kernel context.
+
+  config FS_WITH_SRTP_GENERIC_AESICM
+    depends on FS_WITH_SRTP
+    bool "Compile in changes for ISMAcryp"
+    default y
+    help
+	Compile in changes for ISMAcryp.
+
+  config FS_WITH_SRTP_KERNEL_LINUX
+    depends on FS_WITH_SRTP
+    bool "Build library to run in Linux kernel context"
+    default y
+    help
+	Build library to run in Linux kernel context.
+
+  config FS_WITH_THREADS
     bool "Enable threading support in APR"
     default y
     help
-	Compile $(PKG_NAME) with threads support in libs/apr.
+	Compile with threads support in libs/apr.
+
+  config FS_WITH_ERLANG
+    depends on PACKAGE_freeswitch-mod-erlang-event
+    string
+    prompt "path to erlang installed directory"
+    default "$(STAGING_DIR)/usr"
+    help
+	Specify the path to erlang libraries.
 
 endmenu
