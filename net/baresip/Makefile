@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.4.10
-PKG_RELEASE:=3
+PKG_VERSION:=0.4.11
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=e73b91a3bca4aa11a19b6967b030a458
+PKG_MD5SUM:=bf25d14749ca286716c9b23108472c8a
 
 baresip-mods:= \
 	alsa \
