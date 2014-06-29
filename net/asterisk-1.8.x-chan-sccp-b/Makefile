@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18-chan-sccp-b
-PKG_REV:=5393
-PKG_VERSION:=4.1r$(PKG_REV)
+PKG_REV:=5540
+PKG_VERSION:=v4.2r$(PKG_REV)
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/V4.1
+PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/tags/openwrt
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
@@ -54,7 +54,7 @@ endef
 
 define Package/asterisk18-chan-sccp-b/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(CP)  ./files/sccp.openwrt.conf $(1)/etc/asterisk/sccp.conf
+	$(CP) ./files/sccp.openwrt.conf $(1)/etc/asterisk/sccp.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
 endef
