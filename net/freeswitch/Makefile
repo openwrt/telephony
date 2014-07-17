@@ -224,6 +224,11 @@ PKG_CONFIG_DEPENDS:= \
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
+ifneq ($(CONFIG_CCACHE),)
+TARGET_CC=$(TARGET_CC_NOCACHE)
+TARGET_CXX=$(TARGET_CXX_NOCACHE)
+endif
+
 
 define Package/$(PKG_NAME)/Default
   SECTION:=net
