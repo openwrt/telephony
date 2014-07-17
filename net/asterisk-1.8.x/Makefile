@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
-PKG_VERSION:=1.8.28.2
+PKG_VERSION:=1.8.29.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=c16f288f97ac39042eb8e9bee6766aff
+PKG_MD5SUM:=23778d7ebefdecd4c742d5de39f5e2c1
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -303,7 +303,7 @@ endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mysql),)
   CONFIGURE_ARGS+= \
-	--with-mysqlclient="$(STAGING_DIR)/usr/bin"
+	--with-mysqlclient
 else
   CONFIGURE_ARGS+= \
 	--without-mysqlclient

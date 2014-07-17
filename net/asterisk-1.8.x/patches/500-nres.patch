@@ -1,11 +1,12 @@
---- a/configure
-+++ b/configure
-@@ -16911,7 +16911,7 @@ if ac_fn_c_try_link "$LINENO"; then :
+diff -rupN asterisk-1.8.29.0/configure asterisk-1.29.0-new/configure
+--- asterisk-1.8.29.0/configure	2014-06-21 01:12:25.000000000 +0200
++++ asterisk-1.29.0-new/configure	2014-07-17 20:29:27.122165674 +0200
+@@ -16925,8 +16925,6 @@ if ac_fn_c_try_link "$LINENO"; then :
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
  $as_echo "yes" >&6; }
  
 -$as_echo "#define HAVE_RES_NINIT 1" >>confdefs.h
-+$as_echo "//#define HAVE_RES_NINIT 1" >>confdefs.h
- 
+-
  	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing res_9_ndestroy" >&5
  $as_echo_n "checking for library containing res_9_ndestroy... " >&6; }
+ if ${ac_cv_search_res_9_ndestroy+:} false; then :
