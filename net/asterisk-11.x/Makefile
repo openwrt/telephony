@@ -8,16 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.10.2
+PKG_VERSION:=11.11.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=142691ceabdf4cd378a9725419215bd2
+PKG_MD5SUM:=2983e6ebf2892bdefd41a597873f433a
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
-include $(INCLUDE_DIR)/ltqtapi.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11/install/module
@@ -173,7 +172,7 @@ endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
   CONFIGURE_ARGS+= \
-	--with-mysqlclient="$(STAGING_DIR)/usr/bin"
+	--with-mysqlclient
 else
   CONFIGURE_ARGS+= \
 	--without-mysqlclient
