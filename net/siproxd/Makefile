@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2011 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -36,7 +36,7 @@ define Package/siproxd
 endef
 
 define Package/siproxd/description
-	Siproxd is a proxy/masquerading daemon for the SIP protocol.
+ Siproxd is a proxy/masquerading daemon for the SIP protocol.
 endef
 
 define Package/siproxd/conffiles
