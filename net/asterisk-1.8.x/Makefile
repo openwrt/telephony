@@ -67,18 +67,6 @@ $(call Package/asterisk18/Default/description)
  This package contains voicemail related modules for Asterisk.
 endef
 
-define Package/asterisk18-app-meetme
-$(call Package/asterisk18/Default)
-  TITLE:=conferencing support
-  DEPENDS:= asterisk18 +dahdi-tools-libtonezone +kmod-dahdi-linux
-endef
-
-define Package/asterisk18-app-meetme/description
-$(call Package/asterisk18/Default/description)
- This package provides the MeetMe application driver Conferencing support to
- Asterisk.
-endef
-
 define Package/asterisk18-chan-iax2
 $(call Package/asterisk18/Default)
   TITLE:=IAX support
@@ -267,14 +255,6 @@ $(call Package/asterisk18/Default/description)
  This package provides Lua resources for Asterisk.
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-app-meetme),)
-  CONFIGURE_ARGS+= \
-	--with-dahdi="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-	--without-dahdi
-endif
-
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
@@ -346,6 +326,7 @@ CONFIGURE_ARGS+= \
 	--without-curses \
 	--with-gsm=internal \
 	--without-cap \
+	--without-dahdi \
 	--without-gtk2 \
 	--without-isdnnet \
 	--without-misdn \
@@ -468,20 +449,6 @@ define Package/asterisk18-voicemail/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/res_smdi.so $(1)/usr/lib/asterisk/modules/
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/vm-*.gsm $(1)/usr/lib/asterisk/sounds/
-endef
-
-define Package/asterisk18-app-meetme/conffiles
-/etc/asterisk/meetme.conf
-endef
-
-define Package/asterisk18-app-meetme/install
-	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/meetme.conf $(1)/etc/asterisk/
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/app_meetme.so $(1)/usr/lib/asterisk/modules/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_dahdi.so $(1)/usr/lib/asterisk/modules/
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/conf-*.gsm $(1)/usr/lib/asterisk/sounds/
 endef
 
 define Package/asterisk18-chan-iax2/conffiles
@@ -695,7 +662,6 @@ endef
 $(eval $(call BuildPackage,asterisk18))
 $(eval $(call BuildPackage,asterisk18-voicemail))
 $(eval $(call BuildPackage,asterisk18-sounds))
-#$(eval $(call BuildPackage,asterisk18-app-meetme))
 $(eval $(call BuildPackage,asterisk18-chan-iax2))
 $(eval $(call BuildPackage,asterisk18-cdr))
 $(eval $(call BuildPackage,asterisk18-res-musiconhold))
