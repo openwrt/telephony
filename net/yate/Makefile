@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.1.0
+RELEASEVER:=5.3.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
@@ -17,7 +17,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=91bfb1433ec665efd1620f4abfb5606d
+PKG_MD5SUM:=531bfe6189e6d2f7d5e890151dc81d24
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_INSTALL:=1
