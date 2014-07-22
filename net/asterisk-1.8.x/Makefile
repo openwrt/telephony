@@ -255,6 +255,17 @@ $(call Package/asterisk18/Default/description)
  This package provides Lua resources for Asterisk.
 endef
 
+define Package/asterisk18-smsq
+$(call Package/asterisk18/Default)
+  TITLE:=SMS application helper
+  DEPENDS:= asterisk18 +libpopt +libstdcpp
+endef
+
+define Package/asterisk18-smsq/description
+$(call Package/asterisk18/Default/description)
+ This package provides support for sending SMS from CLI via Asterisk.
+endef
+
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
@@ -638,6 +649,11 @@ define Package/asterisk18-pbx-lua/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/pbx_lua.so $(1)/usr/lib/asterisk/modules/
 endef
 
+define Package/asterisk18-smsq/install
+	$(INSTALL_DIR) $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/smsq $(1)/usr/sbin/
+endef
+
 define Buildasterisk18ModuleTemplate
 
   define Package/asterisk18-$(subst _,-,$(1))
@@ -680,6 +696,7 @@ $(eval $(call BuildPackage,asterisk18-curl))
 $(eval $(call BuildPackage,asterisk18-mysql))
 $(eval $(call BuildPackage,asterisk18-chan-lantiq))
 $(eval $(call BuildPackage,asterisk18-res-srtp))
+$(eval $(call BuildPackage,asterisk18-smsq))
 $(eval $(call Buildasterisk18ModuleTemplate,app_authenticate,Authenticate,support for executing arbitrary authenticate commands))
 $(eval $(call Buildasterisk18ModuleTemplate,app_chanisavail,Channel availability check,support for checking if a channel is available))
 $(eval $(call Buildasterisk18ModuleTemplate,app_chanspy,Channel listen in,support for listening in on any channel))
@@ -690,7 +707,7 @@ $(eval $(call Buildasterisk18ModuleTemplate,app_minivm,Minimal voicemail system,
 $(eval $(call Buildasterisk18ModuleTemplate,app_readexten,Extension to variable,a trivial application to read an extension into a variable))
 $(eval $(call Buildasterisk18ModuleTemplate,app_read,Variable read,a trivial application to read a variable))
 $(eval $(call Buildasterisk18ModuleTemplate,app_sayunixtime,Say Unix time,an application to say Unix time))
-$(eval $(call Buildasterisk18ModuleTemplate,app_sms,SMS,SMS support (ETSI ES 201 912 protocol 1)))
+$(eval $(call Buildasterisk18ModuleTemplate,app_sms,SMS,SMS support (ETSI ES 201 912 protocol 1),+asterisk18-smsq))
 $(eval $(call Buildasterisk18ModuleTemplate,app_stack,Stack applications, stack applications Gosub Return etc., +asterisk18-res-agi))
 $(eval $(call Buildasterisk18ModuleTemplate,app_system,System exec,support for executing system commands))
 $(eval $(call Buildasterisk18ModuleTemplate,app_talkdetect,File playback with audio detect,for file playback with audio detect))
