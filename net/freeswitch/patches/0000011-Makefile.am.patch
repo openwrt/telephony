@@ -16,7 +16,16 @@
  endif
  
  library_includedir      = $(includedir)
-@@ -630,7 +633,9 @@ sndfile-reconf:
+@@ -310,7 +313,7 @@ endif
+ $(libfreeswitch_la_SOURCES): $(CORE_LIBS) $(switch_builddir)/modules.conf  
+ 
+ src/include/switch_swigable_cpp.h: $(switch_srcdir)/src/include/switch_cpp.h
+-	cat $(switch_srcdir)/src/include/switch_cpp.h | perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
++	cat $(switch_srcdir)/src/include/switch_cpp.h | $(STAGING_DIR_HOST)/usr/bin/perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
+ #	$(CC) -E $(switch_srcdir)/src/include/switch_cpp.h \
+ #		-I$(switch_srcdir)/src/include -I$(switch_srcdir)/libs/libteletone/src \
+ #		-DSWITCH_DECLARE_CLASS= -DSWITCH_DECLARE\(x\)=x -DSWITCH_DECLARE_CONSTRUCTOR= \
+@@ -629,7 +632,9 @@ sndfile-reconf:
  
  tiff-reconf:
  	cd libs/tiff-4.0.2 && autoreconf -fi
@@ -27,7 +36,7 @@
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:
-@@ -653,9 +658,6 @@ iks-reconf:
+@@ -649,9 +654,6 @@ iks-reconf:
  	$(MAKE) mod_dingaling-clean
  
  spandsp-reconf: tiff-reconf

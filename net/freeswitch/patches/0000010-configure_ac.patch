@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -803,7 +803,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -810,7 +810,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -8,3 +8,64 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
+@@ -1240,36 +1239,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+ # perl checks
+ #
+ 
+-AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl=yes],[ac_cv_have_perl=no])
+-
+-# -a "x$ac_cv_have_EXTERN_h" != "xno"
++AC_CHECK_PROG([PERL],[perl],[ac_cv_have_perl=yes],[ac_cv_have_perl=no],[${STAGING_DIR}/../host/usr/bin])
+ 
+ if test "x$ac_cv_have_perl" != "xno"; then
+-   PERL=perl
+-   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlib}'`"
+-   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlib}'`/CORE"
+-   PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
+-   PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's|-arch x86_64 -arch i386||'` -DEMBED_PERL"
+-   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
+-   PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
++   PERL="${STAGING_DIR}/../host/usr/bin/perl"
++   #PERL_SITEDIR="`${PERL} -MConfig -e 'print $Config{installarchlib}'`"
++   PERL_SITELIB="/usr/lib/perl5/5.20"
++   PERL_SITEDIR="${STAGING_DIR}${PERL_SITELIB}"
++   PERL_COREDIR="${PERL_SITEDIR}/CORE"
++   PERL_INC="-I${PERL_COREDIR}"
++   #PERL_CFLAGS="-w -DMULTIPLICITY `${PERL} -MExtUtils::Embed -e ccopts` -DEMBED_PERL"
++   PERL_CFLAGS="-w -DMULTIPLICITY -fwrapv -fno-strict-aliasing -pipe -fstack-protector ${PERL_INC} -DEMBED_PERL"
++   PERL_LIBDIR="-L${PERL_COREDIR}"
++   #PERL_LIBS="${PERL_LIBDIR} -lpthread `${PERL} -MConfig -e 'print $Config{libs}' | sed -e 's| -lgdbm_compat||g'` "
++   #PERL_LDFLAGS="`${PERL} -MExtUtils::Embed -e ldopts | sed -e 's| -lgdbm_compat||g'` "
++   PERL_LIBS="-lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc "
++   PERL_LDFLAGS="${PERL_LIBDIR} -lpthread -lperl -lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc -lrt "
+ 
+    save_CFLAGS="$CFLAGS"
+-   CFLAGS="$PERL_CFLAGS"
++   CFLAGS="${PERL_CFLAGS}"
+    AC_CHECK_HEADER([EXTERN.h], [ac_cv_have_EXTERN_h=yes], [ac_cv_have_EXTERN_h=no], [[#include <EXTERN.h>
+ # include <perl.h>]])
+    CFLAGS="$save_CFLAGS"
+ 
+    save_LDFLAGS="$LDFLAGS"
+-   LDFLAGS="$PERL_LDFLAGS"
++   LDFLAGS="${PERL_LDFLAGS}"
+    AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
+-   LDFLAGS="$save_LDFLAGS"
++   LDFLAGS+="$save_LDFLAGS"
+ 
+-   AC_SUBST(PERL_SITEDIR)
+-   AC_SUBST(PERL_LIBDIR)
+-   AC_SUBST(PERL_LIBS)
++   AC_SUBST(PERL)
+    AC_SUBST(PERL_CFLAGS)
+-   AC_SUBST(PERL_LDFLAGS)
++   AC_SUBST(PERL_COREDIR)
+    AC_SUBST(PERL_INC)
++   AC_SUBST(PERL_LDFLAGS)
++   AC_SUBST(PERL_LIBDIR)
++   AC_SUBST(PERL_LIBS)
++   AC_SUBST(PERL_SITEDIR)
++   AC_SUBST(PERL_SITELIB)
+ fi
+ 
+ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_have_perl" != "xno" -a "x$ac_cv_have_EXTERN_h" != "xno" -a "x$ac_cv_use_libperl" != "xno"])
