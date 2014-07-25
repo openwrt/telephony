@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sipsak
 PKG_VERSION:=0.9.6-1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/sipsak.berlios
@@ -26,7 +26,7 @@ define Package/sipsak
   SUBMENU:=Telephony
   DEPENDS:=+libopenssl
   TITLE:=SIP (Session Initiation Protocol) stress and diagnostics utility
-  URL:=http://www.sipsak.org/
+  URL:=http://sourceforge.net/projects/sipsak.berlios/
 endef
 
 define Build/Configure
