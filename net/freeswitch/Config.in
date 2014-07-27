@@ -101,6 +101,12 @@ menu "Configuration"
     help
 	Compile with ZRTP support.
 
+  config FS_WITH_OGG
+    bool "Enable ogg support in mod_celt"
+    default y
+    help
+	Enable this option to allow use of OGG in mod_celt.
+
   config FS_WITH_CORE_LIBEDIT_SUPPORT
     bool "Compile with libedit Support"
     default n
@@ -199,11 +205,11 @@ menu "Configuration"
     help
 	Specify the path to erlang libraries.
 
-  config FS_WITH_OGG_INCLUDES
-    string
-    prompt "OGG include HEADER path"
-    default "$$(STAGING_DIR)/usr/include"
-    help
-	Specify the include header path for OGG library.
+#  config FS_WITH_OGG_INCLUDES
+#    string
+#    prompt "OGG include HEADER path"
+#    default "$$(STAGING_DIR)/usr/include"
+#    help
+#	Specify the include header path for OGG library.
 
 endmenu

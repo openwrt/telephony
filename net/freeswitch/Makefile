@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.13b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=3d5d8163b329f86aafed087815a51494ce50ce1a
+FS_WITH_DEFAULT_HEAD:=c411f8c7a99ea535bac661fb70676cebd1acfac5
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -205,7 +205,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
-	CONFIG_FS_WITH_OGG_INCLUDES \
+	CONFIG_FS_WITH_OGG \
 	CONFIG_FS_WITH_OPENSSL \
 	CONFIG_FS_WITH_OPENWRT_SOURCE \
 	CONFIG_FS_WITH_OPT \
@@ -591,7 +591,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_WITH_OGG_INCLUDES),--with-ogg-includes="$(STAGING_DIR)/usr/include") \
+	$(if $(CONFIG_FS_WITH_OGG),--with-ogg="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
 	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
 	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
@@ -898,12 +898,12 @@ define BuildPlugin
 	#
 	# mod_$(subst -,_,$(1)): Clean installed library control files from referencig to OpenWRT PATH.
 	#
-	$(STAGING_DIR_HOST)/bin/sed -i -re 's|$(STAGING_DIR)||g;s|$(TOOLCHAIN_DIR)||g;s|$(TARGET_CROSS)|usr|g;s|$(REAL_GNU_TARGET_NAME)|usr|g;s|$(PKG_BUILD_DIR)(.*)libzrtp ||g;s|-L$(PKG_BUILD_DIR)(.*)libtiff ||g;:a;s|((-[IL]/\S+\s).*)\2|\1|;ta' $(foreach l,`find $$(1)/usr/lib -name "*.la" -print`,$(l));
+	$(STAGING_DIR_HOST)/bin/sed -i -re 's|$(STAGING_DIR)||g;s|$(TOOLCHAIN_DIR)||g;s|$(TARGET_CROSS)|usr|g;s|$(REAL_GNU_TARGET_NAME)|usr|g;s|-L$(PKG_BUILD_DIR)(.*)libzrtp ||g;s|-L$(PKG_BUILD_DIR)(.*)libtiff ||g;:a;s|((-[IL]/\S+\s).*)\2|\1|;ta' $(foreach l,`find $$(1)/usr/lib -name "*.la" -print`,$(l))
 
 	#
 	# 1. mod_$(subst -,_,$(1)) XML configuration files from: $$$$(patsubst $(PKG_BUILD_DIR)/%,%,$$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/conf/$(3)/autoload_configs/$(subst -,_,$(1)).conf.xml)))
 	#
-	$$$$(if $$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/conf/$(3)/autoload_configs/$(subst -,_,$(1)).conf.xml)),[ -d $$(1)/etc/$(PKG_NAME)/autoload_configs ] || $(INSTALL_DIR) $$(1)/etc/$(PKG_NAME)/autoload_configs;$(CP) $$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/conf/$(3)/autoload_configs/$(subst -,_,$(1)).conf.xml)) $$(1)/etc/$(PKG_NAME)/autoload_configs;$(STAGING_DIR_HOST) 's|/usr/local/lib|/usr/lib|g;s|/usr/local|/etc|g' $$(1)/etc/$(PKG_NAME)/autoload_configs/$(subst -,_,$(1)).conf.xml)
+	$$$$(if $$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/conf/$(3)/autoload_configs/$(subst -,_,$(1)).conf.xml)),[ -d $$(1)/etc/$(PKG_NAME)/autoload_configs ] || $(INSTALL_DIR) $$(1)/etc/$(PKG_NAME)/autoload_configs;$(CP) $$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/conf/$(3)/autoload_configs/$(subst -,_,$(1)).conf.xml)) $$(1)/etc/$(PKG_NAME)/autoload_configs;$(SED) 's|/usr/local/lib|/usr/lib|g;s|/usr/local|/etc|g' $$(1)/etc/$(PKG_NAME)/autoload_configs/$(subst -,_,$(1)).conf.xml)
 
 	#
 	# 2. mod_$(subst -,_,$(1)) XML configuration files from: $$$$(patsubst $(PKG_BUILD_DIR)/%,%,$$$$(firstword $$$$(wildcard $(PKG_BUILD_DIR)/$(3)/$(1)/*/$(subst -,_,$(1)).conf.xml)))
