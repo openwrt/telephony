@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.3.0
+RELEASEVER:=5.4.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
@@ -17,7 +17,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=531bfe6189e6d2f7d5e890151dc81d24
+PKG_MD5SUM:=427fd2ffde51116271534f398bf913e8
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_INSTALL:=1
@@ -110,7 +110,7 @@ CONFIGURE_ARGS+= \
 	--with-libpq="$(STAGING_DIR)/usr" \
 	--with-mysql="$(STAGING_DIR)/usr" \
 	--without-wphwec \
-	--with-libgsm="$(STAGING_DIR)/usr/include/gsm" \
+	--without-libgsm \
 	--with-libspeex="$(STAGING_DIR)/usr/include" \
 	--without-amrnb \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
@@ -247,7 +247,6 @@ $(eval $(call BuildPlugin,eventlogs,server,Write events and alarms to log files,
 $(eval $(call BuildPlugin,extmodule,,External Module Handler,))
 $(eval $(call BuildPlugin,faxchan,,Spandsp Fax Channel,+libspandsp))
 $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,))
-$(eval $(call BuildPlugin,gsmcodec,,GSM Codec,+libgsm))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,))
 $(eval $(call BuildPlugin,h323chan,,Open H.323 Channel,+libopenh323 @BROKEN)) # libopenh323 doesn't create package or stagin_dir includes or libs
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,))
