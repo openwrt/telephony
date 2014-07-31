@@ -44,26 +44,14 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 define Package/$(PKG_NAME)/Default/description
-  Is a next-generation telephony engine focused on the VoIP and PSTN.  It does
+  Is a next-generation telephony engine focused on the VoIP and PSTN. It does
   SIP, H.323, IAX, PSTN, and more.
-endef
-
-define Package/$(PKG_NAME)-scripts-php
-  $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +php5 +php5-cli
-  TITLE:= PHP Scripts and script libraries for Yate
 endef
 
 define Package/$(PKG_NAME)-scripts-perl
   $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +microperl
+  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perl
   TITLE:= Perl module for Yate
-endef
-
-define Package/$(PKG_NAME)-scripts-python
-  $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +python-mini
-  TITLE:= Python module for Yate
 endef
 
 define Package/$(PKG_NAME)-sounds
@@ -144,27 +132,9 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./files/yate.init $(1)/etc/init.d/yate
 endef
 
-define Package/$(PKG_NAME)-scripts-php/install
-	$(INSTALL_DIR) $(1)/usr/share/yate/scripts
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/leavemail.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/queue_in.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/queue_out.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/route.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/voicemail.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/libvoicemail.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/libyatechan.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/libyateivr.php $(1)/usr/share/yate/scripts/
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/libyate.php $(1)/usr/share/yate/scripts/
-endef
-
 define Package/$(PKG_NAME)-scripts-perl/install
 	$(INSTALL_DIR) $(1)/usr/share/yate/scripts
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/Yate.pm $(1)/usr/share/yate/scripts/
-endef
-
-define Package/$(PKG_NAME)-scripts-python/install
-	$(INSTALL_DIR) $(1)/usr/share/yate/scripts
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/libyate.py $(1)/usr/share/yate/scripts/
 endef
 
 define Package/$(PKG_NAME)-sounds/install
@@ -217,9 +187,7 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-collection-basic))
-$(eval $(call BuildPackage,$(PKG_NAME)-scripts-php))
 $(eval $(call BuildPackage,$(PKG_NAME)-scripts-perl))
-$(eval $(call BuildPackage,$(PKG_NAME)-scripts-python))
 $(eval $(call BuildPackage,$(PKG_NAME)-sounds))
 $(eval $(call BuildPlugin,accfile,server,SIP or H.323 client (from file),))
 $(eval $(call BuildPlugin,alsachan,client,ALSA Sound Channel,+alsa-lib))
