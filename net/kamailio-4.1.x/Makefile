@@ -51,7 +51,7 @@ endef
 define Package/kamailio4-tools
 $(call Package/kamailio4/Default)
   TITLE:=Kamailio4 control tools
-  DEPENDS:=kamailio4 +bash
+  DEPENDS:=kamailio4
 endef
 
 define Package/kamailio4-tools/conffiles

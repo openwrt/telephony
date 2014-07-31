@@ -68,7 +68,7 @@ endef
 define Package/kamailio3-tools
 $(call Package/kamailio3/Default)
   TITLE:=Kamailio3 control tools
-  DEPENDS:=kamailio3 +bash
+  DEPENDS:=kamailio3
 endef
 
 define Package/kamailio3-tools/conffiles
