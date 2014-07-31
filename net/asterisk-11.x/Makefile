@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.11.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -155,14 +155,6 @@ define Package/asterisk11-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-mobile),)
-  CONFIGURE_ARGS+= \
-	--with-bluetooth="$(STAGING_DIR)/usr"
-else
-  CONFIGURE_ARGS+= \
-	--without-bluetooth
-endif
-
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-curl),)
   CONFIGURE_ARGS+= \
 	--with-libcurl="$(STAGING_DIR)/usr"
@@ -228,6 +220,7 @@ CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
+	--without-bluetooth \
 	--without-cap \
 	--without-curses \
 	--without-dahdi \
@@ -384,7 +377,6 @@ $(eval $(call BuildAsterisk11Module,chan-agent,Agents proxy channel,an implement
 $(eval $(call BuildAsterisk11Module,chan-iax2,IAX2 channel,IAX support,+asterisk11-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk11Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
-$(eval $(call BuildAsterisk11Module,chan-mobile,Mobile channel,the channel chan_mobile,+bluez-libs,/etc/asterisk/chan_mobile.conf,chan_mobile.conf,chan_mobile,))
 $(eval $(call BuildAsterisk11Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
 $(eval $(call BuildAsterisk11Module,chan-skinny,Skinny channel,the channel chan_skinny,,/etc/asterisk/skinny.conf,skinny.conf,chan_skinny,))
 $(eval $(call BuildAsterisk11Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,/etc/asterisk/unistim.conf,unistim.conf,chan_unistim,))
