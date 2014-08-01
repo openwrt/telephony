@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2009 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=miax
 PKG_VERSION:=1.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/miax
@@ -23,15 +23,15 @@ define Package/miax
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=+libpthread +bluez-libs
+  DEPENDS:=+libpthread
   TITLE:=A console iax (asterisk) client
   URL:=http://www.eja.it/?l=en&n=miax
 endef
 
 define Package/miax/description
-	miax is a console iax (asterisk) client, it can work with 
-	a soundcard as a normal voip phone, taking input/output from 
-	keyboard, analog/gsm/isdn modem or bluetooth phones.
+  miax is a console iax (asterisk) client, it can work with 
+  a soundcard as a normal voip phone, taking input/output from 
+  keyboard or analog/gsm/isdn modem.
 endef
 
 define Build/Compile
