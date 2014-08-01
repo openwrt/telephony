@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-gui
 PKG_VERSION:=2.1.0-rc1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk-gui/releases/
 PKG_SOURCE:=asterisk-gui-$(PKG_VERSION).tar.gz
@@ -68,8 +68,6 @@ define Package/asterisk11-gui/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/scripts
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/scripts/* $(1)/usr/lib/asterisk/scripts
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/gui_backups
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(CP)	./files/agui-postinst $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,asterisk11-gui))
