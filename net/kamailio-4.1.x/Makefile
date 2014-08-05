@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.1.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -117,12 +117,12 @@ define BuildPlugin
 endef
 
 $(eval $(call BuildPlugin,acc,acc,Accounting,tm,))
-$(eval $(call BuildPlugin,acc-radius,acc_radius,Accounting for RADIUS backend,acc,+libradiusclient-ng))
+#$(eval $(call BuildPlugin,acc-radius,acc_radius,Accounting for RADIUS backend,acc,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,alias-db,alias_db,Database-backend aliases,db-sqlite,))
 $(eval $(call BuildPlugin,auth,auth,Authentication Framework,,))
 $(eval $(call BuildPlugin,auth-db,auth_db,Database-backend authentication,auth db-sqlite,))
 $(eval $(call BuildPlugin,auth-diameter,auth_diameter,Diameter-backend authentication,sl,))
-$(eval $(call BuildPlugin,auth-radius,auth_radius,RADIUS-backend authentication,auth,+libradiusclient-ng))
+#$(eval $(call BuildPlugin,auth-radius,auth_radius,RADIUS-backend authentication,auth,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,avpops,avpops,AVP operation,,))
 $(eval $(call BuildPlugin,benchmark,benchmark,Config benchmark,,))
 $(eval $(call BuildPlugin,cfgutils,cfgutils,Config utilities,,))
@@ -131,7 +131,7 @@ $(eval $(call BuildPlugin,cfg-rpc,cfg_rpc,Update core and module parameters at r
 $(eval $(call BuildPlugin,corex,corex,Legacy functions,,))
 $(eval $(call BuildPlugin,ctl,ctl,BINRPC transport interface,,))
 $(eval $(call BuildPlugin,db-flatstore,db_flatstore,Fast writing-only text database-backed,,))
-$(eval $(call BuildPlugin,db-mysql,db_mysql,MySQL database-backend,,+libmysqlclient))
+#$(eval $(call BuildPlugin,db-mysql,db_mysql,MySQL database-backend,,+libmysqlclient @BROKEN))
 $(eval $(call BuildPlugin,db-postgres,db_postgres,PostgreSQL Database-backend,,+libpq))
 $(eval $(call BuildPlugin,db-sqlite,db_sqlite,Sqlite DB support,,+libsqlite3))
 $(eval $(call BuildPlugin,db-text,db_text,Text database-backend,,))
@@ -146,26 +146,26 @@ $(eval $(call BuildPlugin,domainpolicy,domainpolicy,Domain policy,,))
 $(eval $(call BuildPlugin,enum,enum,ENUM lookup,,))
 $(eval $(call BuildPlugin,exec,exec,External exec,,))
 $(eval $(call BuildPlugin,group,group,Database-backend user-groups,,))
-$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap))
+#$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap @BROKEN))
 $(eval $(call BuildPlugin,htable,htable,Hash Table,,))
 $(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,))
 $(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations,,))
 $(eval $(call BuildPlugin,json,json,Access to JSON document attributes,,+libjson))
 $(eval $(call BuildPlugin,kex,kex,Core extensions,,))
 $(eval $(call BuildPlugin,lcr,lcr,Least Cost Routing,tm,+libpcre))
-$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap))
+#$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap @BROKEN))
 $(eval $(call BuildPlugin,maxfwd,maxfwd,Max-Forward processor,,))
 $(eval $(call BuildPlugin,mediaproxy,mediaproxy,Automatic NAT traversal,dialog,))
 $(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Management Interface,,))
 $(eval $(call BuildPlugin,mi-fifo,mi_fifo,FIFO support for Management Interface,,))
 $(eval $(call BuildPlugin,mi-rpc,mi_rpc,RPC support for Management Interface,,))
-$(eval $(call BuildPlugin,misc_radius,misc_radius,Generic RADIUS,,+libradiusclient-ng))
+#$(eval $(call BuildPlugin,misc_radius,misc_radius,Generic RADIUS,,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,msilo,msilo,SIP message silo,tm,))
 $(eval $(call BuildPlugin,nat_traversal,nat_traversal,NAT traversal,dialog sl tm,))
 $(eval $(call BuildPlugin,nathelper,nathelper,NAT traversal helper,,+rtpproxy))
 $(eval $(call BuildPlugin,path,path,SIP path insertion,rr,))
 $(eval $(call BuildPlugin,pdt,pdt,Prefix-to-Domain translator,,))
-$(eval $(call BuildPlugin,peering,peering,Perring,,+libradiusclient-ng))
+#$(eval $(call BuildPlugin,peering,peering,Perring,,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,permissions,permissions,Permissions control,,))
 $(eval $(call BuildPlugin,pike,pike,Flood detector,,))
 $(eval $(call BuildPlugin,presence,presence,Presence server,sl tm,+libxml2))
