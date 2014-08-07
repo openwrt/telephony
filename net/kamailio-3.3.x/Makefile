@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio3
 PKG_VERSION:=3.3.7
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -167,13 +167,13 @@ $(eval $(call BuildPlugin,domainpolicy,domainpolicy,Domain policy,,,modules_k))
 $(eval $(call BuildPlugin,enum,enum,ENUM lookup,,,modules))
 $(eval $(call BuildPlugin,exec,exec,External exec,,,modules_k))
 $(eval $(call BuildPlugin,group,group,Database-backend user-groups,,,modules_k))
-#$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap @BROKEN,modules_k))
+$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap,modules_k))
 $(eval $(call BuildPlugin,htable,htable,Hash Table,,,modules_k))
 #$(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,,modules_k))
 $(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations module,,,modules))
 $(eval $(call BuildPlugin,kex,kex,Core extensions,,,modules_k))
 $(eval $(call BuildPlugin,lcr,lcr,Least Cost Routing,tm,+libpcre,modules))
-#$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap @BROKEN,modules_k))
+$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap,modules_k))
 $(eval $(call BuildPlugin,maxfwd,maxfwd,Max-Forward processor,,,modules_k))
 $(eval $(call BuildPlugin,mediaproxy,mediaproxy,Automatic NAT traversal,dialog,,modules))
 $(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Management Interface,,,modules_k))
