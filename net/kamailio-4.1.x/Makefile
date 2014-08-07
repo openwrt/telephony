@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.1.4
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -146,14 +146,14 @@ $(eval $(call BuildPlugin,domainpolicy,domainpolicy,Domain policy,,))
 $(eval $(call BuildPlugin,enum,enum,ENUM lookup,,))
 $(eval $(call BuildPlugin,exec,exec,External exec,,))
 $(eval $(call BuildPlugin,group,group,Database-backend user-groups,,))
-#$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap @BROKEN))
+$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap))
 $(eval $(call BuildPlugin,htable,htable,Hash Table,,))
 #$(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,))
 $(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations,,))
 $(eval $(call BuildPlugin,json,json,Access to JSON document attributes,,+libjson))
 $(eval $(call BuildPlugin,kex,kex,Core extensions,,))
 $(eval $(call BuildPlugin,lcr,lcr,Least Cost Routing,tm,+libpcre))
-#$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap @BROKEN))
+$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap))
 $(eval $(call BuildPlugin,maxfwd,maxfwd,Max-Forward processor,,))
 $(eval $(call BuildPlugin,mediaproxy,mediaproxy,Automatic NAT traversal,dialog,))
 $(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Management Interface,,))
