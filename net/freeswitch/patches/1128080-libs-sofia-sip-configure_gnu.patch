@@ -1,0 +1,8 @@
+--- a/libs/sofia-sip/configure.gnu
++++ b/libs/sofia-sip/configure.gnu
+@@ -1,4 +1,4 @@
+ #! /bin/sh
+ srcpath=$(dirname $0 2>/dev/null )  || srcpath="." 
+-$srcpath/configure "$@" --with-pic --with-glib=no --disable-shared  --without-doxygen --disable-stun
++$srcpath/configure "$@" --with-pic --with-glib=no --disable-shared  --without-doxygen
+ 
