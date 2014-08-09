@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.13b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=c411f8c7a99ea535bac661fb70676cebd1acfac5
+FS_WITH_DEFAULT_HEAD:=e3e84a7820954195e8311be783a3e0cf9c1ba2ad
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -238,7 +238,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm +libiconv-full +libintl-full +libjpeg +libncurses +PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid
 endef
 
 
@@ -997,8 +997,8 @@ $(eval $(call BuildPlugin,directory,Search By Name Directory IVR,vanilla,,,,))
 $(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
-$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns))
-$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
+$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns @BROKEN))
+$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang @BROKEN))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
@@ -1023,7 +1023,7 @@ $(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,isac,iSAC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,java,Java Language Interface,vanilla,,,,@BROKEN)) # needs java
 $(eval $(call BuildPlugin,json-cdr,JSon-CDR Interface,mod,,,,+libcurl))
-$(eval $(call BuildPlugin,ldap,LDAP interface,vanilla,,,,+libsasl2))
+$(eval $(call BuildPlugin,ldap,LDAP interface,vanilla,,,,+libopenldap))
 $(eval $(call BuildPlugin,lcr,Least Cost Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,local-stream,Multi-Channel On Same Stream,vanilla,,,,))
 $(eval $(call BuildPlugin,logfile,File Logger,vanilla,,,,))
@@ -1098,7 +1098,7 @@ $(eval $(call BuildPlugin,voicemail-ivr,VoiceMail IVR,vanilla,,,,))
 $(eval $(call BuildPlugin,vp8,VP8 Video Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-cdr,XML-CDR Handler,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl Gateway,vanilla,,,,+libcurl))
-$(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+libsasl2 +PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap))
+$(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap))
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))

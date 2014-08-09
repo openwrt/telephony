@@ -1,6 +1,15 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -810,7 +810,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -360,7 +360,7 @@ elif test "x${ax_cv_c_compiler_vendor}"
+ elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
+     APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
+     APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
+-    APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
++#    APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
+     if test "${enable_64}" = "yes"; then
+ 	case "$host" in
+              *darwin12.*|*darwin11.*|*darwin10.*|*darwin9.*|*darwin8.*)
+@@ -811,7 +811,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -8,7 +17,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1240,36 +1239,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1241,36 +1240,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
