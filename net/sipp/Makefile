@@ -14,6 +14,7 @@ PKG_RELEASE:=1
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/sipp
 PKG_MD5SUM:=904fffbc277bafce28762ebb041b9620
+PKG_CHECK_FORMAT_SECURITY:=0
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
