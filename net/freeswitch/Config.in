@@ -1,7 +1,8 @@
 menu "Configuration"
-  depends on PACKAGE_freeswitch && DEVEL
+  depends on PACKAGE_freeswitch
 
   choice
+  depends on DEVEL
     prompt "Git HEAD version to use"
     default FS_WITH_DEFAULT_HEAD
     help

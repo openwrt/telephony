@@ -677,7 +677,6 @@ endef
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull; if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi))
 	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
-	$(call Build/Configure/Default)
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 			$(SED) 's|^[ #]*\([^#]*/mod_$(subst -,_,$(m))\)$$$$|\1|g' $(PKG_BUILD_DIR)/modules.conf
@@ -685,6 +684,7 @@ define Build/Configure
 			$(SED) 's|^\([^#]*/mod_$(subst -,_,$(m))\)$$$$|#\1|g' $(PKG_BUILD_DIR)/modules.conf
 		)
 	)
+	$(call Build/Configure/Default)
 endef
 
 
