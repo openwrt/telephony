@@ -108,7 +108,6 @@ define BuildPlugin
   $$(eval $$(call BuildPackage,restund-mod-$(1)))
 endef
 
-
 $(eval $(call BuildPackage,restund))
 
-$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+PACKAGE_restund-mod-mysql:libmysqlclient @BROKEN))
+#$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+PACKAGE_restund-mod-mysql:libmysqlclient @BROKEN))
