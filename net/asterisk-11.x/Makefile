@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.11.0
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -163,14 +163,6 @@ else
 	--without-libcurl
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
-  CONFIGURE_ARGS+= \
-	--with-mysqlclient
-else
-  CONFIGURE_ARGS+= \
-	--without-mysqlclient
-endif
-
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pbx-lua),)
   CONFIGURE_ARGS+= \
 	--with-lua="$(STAGING_DIR)/usr"
@@ -230,6 +222,7 @@ CONFIGURE_ARGS+= \
 	--without-isdnnet \
 	--without-libxml2 \
 	--without-misdn \
+	--without-mysqlclient \
 	--without-nbs \
 	--with-ncurses="$(STAGING_DIR)/usr" \
 	--without-netsnmp \
@@ -380,7 +373,6 @@ $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp
 $(eval $(call BuildAsterisk11Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
 $(eval $(call BuildAsterisk11Module,chan-skinny,Skinny channel,the channel chan_skinny,,/etc/asterisk/skinny.conf,skinny.conf,chan_skinny,))
 $(eval $(call BuildAsterisk11Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,/etc/asterisk/unistim.conf,unistim.conf,chan_unistim,))
-$(eval $(call BuildAsterisk11Module,mysql,MySQL,MySQL support,+libmysqlclient @BROKEN,/etc/asterisk/res_config_mysql.conf,res_config_mysql.conf,res_config_mysql,))
 $(eval $(call BuildAsterisk11Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,/etc/asterisk/cdr_adaptive_odbc.conf /etc/asterisk/cdr_odbc.conf /etc/asterisk/cel_odbc.conf /etc/asterisk/func_odbc.conf /etc/asterisk/res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_odbc,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,))
 $(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
 $(eval $(call BuildAsterisk11Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,,extensions.ael,pbx_ael,))
