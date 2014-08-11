@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.1.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -37,7 +37,7 @@ endef
 
 define Package/kamailio4
 $(call Package/kamailio4/Default)
-  TITLE:=Mature and flexible open source SIP server, v4.1.x
+  TITLE:=Mature and flexible open source SIP server, v$(PKG_VERSION)
   MENU:=1
 endef
 
@@ -116,22 +116,30 @@ define BuildPlugin
   KAM_MODULES+=kamailio4-mod-$(1)
 endef
 
+################################
+# Kamailio modules
+# Params:
+# 1 - Package subname
+# 2 - Module name
+# 3 - Module description
+# 4 - Dependencies to internal modules
+# 5 - Dependencies to external libs/apps
+################################
+
 $(eval $(call BuildPlugin,acc,acc,Accounting,tm,))
-#$(eval $(call BuildPlugin,acc-radius,acc_radius,Accounting for RADIUS backend,acc,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,alias-db,alias_db,Database-backend aliases,db-sqlite,))
 $(eval $(call BuildPlugin,auth,auth,Authentication Framework,,))
 $(eval $(call BuildPlugin,auth-db,auth_db,Database-backend authentication,auth db-sqlite,))
 $(eval $(call BuildPlugin,auth-diameter,auth_diameter,Diameter-backend authentication,sl,))
-#$(eval $(call BuildPlugin,auth-radius,auth_radius,RADIUS-backend authentication,auth,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,avpops,avpops,AVP operation,,))
 $(eval $(call BuildPlugin,benchmark,benchmark,Config benchmark,,))
 $(eval $(call BuildPlugin,cfgutils,cfgutils,Config utilities,,))
 $(eval $(call BuildPlugin,cfg-db,cfg_db,Load core and module parameters from database,db-sqlite,))
 $(eval $(call BuildPlugin,cfg-rpc,cfg_rpc,Update core and module parameters at runtime via RPC interface,,))
+$(eval $(call BuildPlugin,cnxcc,cnxcc,Limit call duration,dialog,))
 $(eval $(call BuildPlugin,corex,corex,Legacy functions,,))
 $(eval $(call BuildPlugin,ctl,ctl,BINRPC transport interface,,))
 $(eval $(call BuildPlugin,db-flatstore,db_flatstore,Fast writing-only text database-backed,,))
-#$(eval $(call BuildPlugin,db-mysql,db_mysql,MySQL database-backend,,+libmysqlclient @BROKEN))
 $(eval $(call BuildPlugin,db-postgres,db_postgres,PostgreSQL Database-backend,,+libpq))
 $(eval $(call BuildPlugin,db-sqlite,db_sqlite,Sqlite DB support,,+libsqlite3))
 $(eval $(call BuildPlugin,db-text,db_text,Text database-backend,,))
@@ -148,7 +156,6 @@ $(eval $(call BuildPlugin,exec,exec,External exec,,))
 $(eval $(call BuildPlugin,group,group,Database-backend user-groups,,))
 $(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap))
 $(eval $(call BuildPlugin,htable,htable,Hash Table,,))
-#$(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,))
 $(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations,,))
 $(eval $(call BuildPlugin,json,json,Access to JSON document attributes,,+libjson))
 $(eval $(call BuildPlugin,kex,kex,Core extensions,,))
@@ -159,13 +166,11 @@ $(eval $(call BuildPlugin,mediaproxy,mediaproxy,Automatic NAT traversal,dialog,)
 $(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Management Interface,,))
 $(eval $(call BuildPlugin,mi-fifo,mi_fifo,FIFO support for Management Interface,,))
 $(eval $(call BuildPlugin,mi-rpc,mi_rpc,RPC support for Management Interface,,))
-#$(eval $(call BuildPlugin,misc_radius,misc_radius,Generic RADIUS,,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,msilo,msilo,SIP message silo,tm,))
 $(eval $(call BuildPlugin,nat_traversal,nat_traversal,NAT traversal,dialog sl tm,))
 $(eval $(call BuildPlugin,nathelper,nathelper,NAT traversal helper,,+rtpproxy))
 $(eval $(call BuildPlugin,path,path,SIP path insertion,rr,))
 $(eval $(call BuildPlugin,pdt,pdt,Prefix-to-Domain translator,,))
-#$(eval $(call BuildPlugin,peering,peering,Perring,,+libradiusclient-ng @BROKEN))
 $(eval $(call BuildPlugin,permissions,permissions,Permissions control,,))
 $(eval $(call BuildPlugin,pike,pike,Flood detector,,))
 $(eval $(call BuildPlugin,presence,presence,Presence server,sl tm,+libxml2))
@@ -187,6 +192,7 @@ $(eval $(call BuildPlugin,rls,rls,Resource List Server,presence pua tm,+libxml2)
 $(eval $(call BuildPlugin,rr,rr,Record-Route and Route,,))
 $(eval $(call BuildPlugin,rtimer,rtimer,Routing Timer,,))
 $(eval $(call BuildPlugin,rtpproxy,rtpproxy,RTP proxy,tm,))
+$(eval $(call BuildPlugin,rtpproxy-ng,rtpproxy-ng,RTP proxy with new control protocol,tm,))
 $(eval $(call BuildPlugin,sanity,sanity,SIP sanity checks,sl,))
 $(eval $(call BuildPlugin,sipcapture,sipcapture,SIP capture,,))
 $(eval $(call BuildPlugin,siptrace,siptrace,SIP trace,,))
