@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
-PKG_VERSION:=4.1.4
-PKG_RELEASE:=4
+PKG_VERSION:=4.1.5
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_MD5SUM:=f4a939c5eaf80072a9239980d94cd8e1
+PKG_MD5SUM:=623b46e969445494655b1aa5ab5ad4b0
 PKG_USE_MIPS16:=0
 
 INCL_MODULES:=
