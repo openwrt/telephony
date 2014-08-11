@@ -13,7 +13,7 @@ RELEASEVER:=5.4.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
@@ -96,7 +96,7 @@ CONFIGURE_ARGS+= \
 	--disable-isac-fixed \
 	--enable-rtti \
 	--with-libpq="$(STAGING_DIR)/usr" \
-	--with-mysql="$(STAGING_DIR)/usr" \
+	--without-mysql \
 	--without-wphwec \
 	--without-libgsm \
 	--with-libspeex="$(STAGING_DIR)/usr/include" \
@@ -216,7 +216,6 @@ $(eval $(call BuildPlugin,extmodule,,External Module Handler,))
 $(eval $(call BuildPlugin,faxchan,,Spandsp Fax Channel,+libspandsp))
 $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,))
-$(eval $(call BuildPlugin,h323chan,,Open H.323 Channel,+libopenh323 @BROKEN)) # libopenh323 doesn't create package or stagin_dir includes or libs
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,))
 $(eval $(call BuildPlugin,ilbccodec,,iLBC Codec,))
 $(eval $(call BuildPlugin,ilbcwebrtc,,iLBC Codec from the WebRTC project,))
@@ -227,7 +226,6 @@ $(eval $(call BuildPlugin,jabberserver,jabber,Jabber Server,))
 $(eval $(call BuildPlugin,javascript,,Routing using the embedded Javascript language,))
 $(eval $(call BuildPlugin,jbfeatures,jabber,Jabber Server Features,))
 $(eval $(call BuildPlugin,lateroute,server,Last Chance Routing,))
-$(eval $(call BuildPlugin,lksctp,server,SCTP sockets using linux kernel,@BROKEN))
 $(eval $(call BuildPlugin,mgcpca,server,Media Gateway Control Protocol Agent,))
 $(eval $(call BuildPlugin,mgcpgw,server,Media Gateway Control Protocol Gateway,))
 $(eval $(call BuildPlugin,moh,,On Hold (music) Generator,))
@@ -235,7 +233,6 @@ $(eval $(call BuildPlugin,monitoring,server,Monitoring/gathering Information,))
 $(eval $(call BuildPlugin,mrcpspeech,server,MRCP v2 Voice/Tone Detector and Synthesizer,))
 $(eval $(call BuildPlugin,msgsniff,,Sample Message Sniffer,))
 $(eval $(call BuildPlugin,mux,,Data Multiplexor,))
-$(eval $(call BuildPlugin,mysqldb,server,MySQL Backend DB,+libmysqlclient-r @BROKEN))
 $(eval $(call BuildPlugin,openssl,,Encrypted transport (OpenSSL),+libopenssl))
 $(eval $(call BuildPlugin,osschan,client,OSS Sound Channel,))
 $(eval $(call BuildPlugin,park,server,Call Parking,))
