@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.4.11
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -25,7 +25,6 @@ baresip-mods:= \
 	g711 \
 	g722 \
 	oss \
-	sdl \
 	speex \
 	stdio \
 	uuid \
@@ -59,7 +58,6 @@ baresip-mod-evdev     := USE_EVDEV
 baresip-mod-g711      := USE_G711
 baresip-mod-g722      := USE_G722
 baresip-mod-oss       := USE_OSS
-baresip-mod-sdl       := USE_SDL
 baresip-mod-speex     := USE_SPEEX
 baresip-mod-stdio     := USE_STDIO
 baresip-mod-uuid      := USE_UUID
@@ -140,7 +138,6 @@ $(eval $(call BuildPlugin,cons,console UI,cons,))
 $(eval $(call BuildPlugin,evdev,input event device UI,evdev,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,g711,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+PACKAGE_baresip-mod-g722:libspandsp))
-$(eval $(call BuildPlugin,sdl,SDL video display,sdl,+libsdl @BROKEN))
 $(eval $(call BuildPlugin,oss,OSS audio driver,oss,))
 $(eval $(call BuildPlugin,speex,Speex audio codec,speex,+PACKAGE_baresip-mod-speex:libspeex))
 $(eval $(call BuildPlugin,stdio,standard I/O UI,stdio,))
