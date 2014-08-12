@@ -34,7 +34,7 @@ endef
 define Package/$(PKG_NAME)
   $(call Package/yate/Default)
   DEPENDS:=+libpthread $(CXX_DEPENDS)
-  TITLE:=Yet Another Telphony Engine
+  TITLE:=Yet Another Telephony Engine
   MENU:=1
 endef
 
