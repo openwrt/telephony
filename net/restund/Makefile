@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
 PKG_VERSION:=0.4.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -110,4 +110,4 @@ endef
 
 $(eval $(call BuildPackage,restund))
 
-#$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+PACKAGE_restund-mod-mysql:libmysqlclient @BROKEN))
+$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+PACKAGE_restund-mod-mysql:libmysqlclient))
