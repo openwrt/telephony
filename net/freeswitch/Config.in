@@ -181,7 +181,7 @@ menu "Configuration"
   config FS_WITH_SRTP_KERNEL_LINUX
     depends on FS_WITH_SRTP
     bool "Build library to run in Linux kernel context"
-    default y
+    default n
     help
 	Build library to run in Linux kernel context.
 
