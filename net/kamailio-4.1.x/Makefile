@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.1.5
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -140,6 +140,7 @@ $(eval $(call BuildPlugin,cnxcc,cnxcc,Limit call duration,dialog,))
 $(eval $(call BuildPlugin,corex,corex,Legacy functions,,))
 $(eval $(call BuildPlugin,ctl,ctl,BINRPC transport interface,,))
 $(eval $(call BuildPlugin,db-flatstore,db_flatstore,Fast writing-only text database-backed,,))
+$(eval $(call BuildPlugin,db-mysql,db_mysql,MySQL database-backend,,+libmysqlclient))
 $(eval $(call BuildPlugin,db-postgres,db_postgres,PostgreSQL Database-backend,,+libpq))
 $(eval $(call BuildPlugin,db-sqlite,db_sqlite,Sqlite DB support,,+libsqlite3))
 $(eval $(call BuildPlugin,db-text,db_text,Text database-backend,,))
@@ -156,6 +157,7 @@ $(eval $(call BuildPlugin,exec,exec,External exec,,))
 $(eval $(call BuildPlugin,group,group,Database-backend user-groups,,))
 $(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap))
 $(eval $(call BuildPlugin,htable,htable,Hash Table,,))
+$(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,))
 $(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations,,))
 $(eval $(call BuildPlugin,json,json,Access to JSON document attributes,,+libjson))
 $(eval $(call BuildPlugin,kex,kex,Core extensions,,))
@@ -167,6 +169,8 @@ $(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Managemen
 $(eval $(call BuildPlugin,mi-fifo,mi_fifo,FIFO support for Management Interface,,))
 $(eval $(call BuildPlugin,mi-rpc,mi_rpc,RPC support for Management Interface,,))
 $(eval $(call BuildPlugin,msilo,msilo,SIP message silo,tm,))
+$(eval $(call BuildPlugin,msrp,msrp,MSRP routing engine,tls,))
+$(eval $(call BuildPlugin,nathelper,nathelper,NAT helper,usrloc,))
 $(eval $(call BuildPlugin,nat_traversal,nat_traversal,NAT traversal,dialog sl tm,))
 $(eval $(call BuildPlugin,nathelper,nathelper,NAT traversal helper,,+rtpproxy))
 $(eval $(call BuildPlugin,path,path,SIP path insertion,rr,))
@@ -202,6 +206,7 @@ $(eval $(call BuildPlugin,sms,sms,SIP-to-SMS IM gateway,tm,))
 $(eval $(call BuildPlugin,speeddial,speeddial,Per-user speed-dial controller,,))
 $(eval $(call BuildPlugin,sqlops,sqlops,SQL operations,,))
 $(eval $(call BuildPlugin,statistics,statistics,Script statistics,,))
+$(eval $(call BuildPlugin,stun,stun,STUN server support,,))
 $(eval $(call BuildPlugin,sst,sst,SIP Session Timer,dialog sl,))
 $(eval $(call BuildPlugin,textops,textops,Text operations,,))
 $(eval $(call BuildPlugin,tls,tls,TLS operations,,+libopenssl))
