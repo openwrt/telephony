@@ -13,7 +13,7 @@ RELEASEVER:=5.4.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
@@ -96,7 +96,7 @@ CONFIGURE_ARGS+= \
 	--disable-isac-fixed \
 	--enable-rtti \
 	--with-libpq="$(STAGING_DIR)/usr" \
-	--without-mysql \
+	--with-mysql="$(STAGING_DIR)/usr" \
 	--without-wphwec \
 	--without-libgsm \
 	--with-libspeex="$(STAGING_DIR)/usr/include" \
@@ -233,6 +233,7 @@ $(eval $(call BuildPlugin,monitoring,server,Monitoring/gathering Information,))
 $(eval $(call BuildPlugin,mrcpspeech,server,MRCP v2 Voice/Tone Detector and Synthesizer,))
 $(eval $(call BuildPlugin,msgsniff,,Sample Message Sniffer,))
 $(eval $(call BuildPlugin,mux,,Data Multiplexor,))
+$(eval $(call BuildPlugin,mysqldb,server,MySQL Backend DB,+libmysqlclient-r))
 $(eval $(call BuildPlugin,openssl,,Encrypted transport (OpenSSL),+libopenssl))
 $(eval $(call BuildPlugin,osschan,client,OSS Sound Channel,))
 $(eval $(call BuildPlugin,park,server,Call Parking,))
