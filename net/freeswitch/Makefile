@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.13b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=e3e84a7820954195e8311be783a3e0cf9c1ba2ad
+FS_WITH_DEFAULT_HEAD:=5173471b06d88063ec7e2622c92c9674840ae4b1
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -238,7 +238,7 @@ endef
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
 
 
@@ -669,13 +669,13 @@ define Build/Prepare
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-32KHz),$(call Prepare/sounds-moh-32KHz))
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-48KHz),$(call Prepare/sounds-moh-48KHz))
 ifeq ($(CONFIG_FS_WITH_LOCAL_SOURCE),y)
-	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull; if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi))
+	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
 endif
 endef
 
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull; if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi))
+	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
 	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
@@ -1102,4 +1102,4 @@ $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NA
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml))
+$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml @BROKEN))
