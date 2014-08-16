@@ -17,6 +17,36 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
+@@ -1135,14 +1134,14 @@ case $host in
+        ;;
+ esac
+ 
+-if ! (test -x "$PKG_CONFIG" || test -x "$(which pkg-config)"); then
+-  AC_MSG_ERROR([You need to install pkg-config to configure FreeSWITCH.])
++if ! test -x "${STAGING_DIR}/../host/bin/pkg-config"; then
++  AC_MSG_ERROR([Missing tools/pkg-config package needed to configure FreeSWITCH.])
+ fi
+ 
+-# temporary workaround for Debian libldns-dev package bug
+-if test "$cross_compiling" != "yes" && test -f /usr/lib/pkg-config/libldns.pc; then
+-  path_push_unique PKG_CONFIG_PATH /usr/lib/pkg-config
+-fi
++#
++# Workaround for OpenWRT pkg-config
++#
++path_push_unique PKG_CONFIG_PATH ${STAGING_DIR}/usr/lib/pkg-config
+ 
+ module_enabled() {
+   grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
+@@ -1163,7 +1162,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+   AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
+   AS_IF([test -z "$LDNS_LIBS"],[
+     if module_enabled mod_enum; then
+-      AC_MSG_ERROR([You need to either install libldns-dev or disable mod_enum in modules.conf])
++      AC_MSG_ERROR([You need to install libldns or disable mod_enum in modules.conf])
+     else
+       AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
+     fi],[
 @@ -1241,36 +1240,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
