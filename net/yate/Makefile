@@ -13,7 +13,7 @@ RELEASEVER:=5.4.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
