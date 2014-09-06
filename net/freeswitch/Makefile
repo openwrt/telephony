@@ -11,14 +11,14 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.13b
+PKG_VERSION:=1.5.14b
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=5173471b06d88063ec7e2622c92c9674840ae4b1
+FS_WITH_DEFAULT_HEAD:=59cd3c77d84fac242683c5eb0b61c52f10bb2bb5
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -225,18 +225,24 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
 
+ifneq ($(CONFIG_CCACHE),)
+TARGET_CC=$(TARGET_CC_NOCACHE)
+TARGET_CXX=$(TARGET_CXX_NOCACHE)
+endif
+
+
 define Package/$(PKG_NAME)/Default
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.$(PKG_NAME).org/
   MAINTAINER:=Mazi Lo <openwrt.mazilo@recursor.net>
-  MENU:=1
 endef
 
 
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
+  MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
   DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
@@ -459,11 +465,6 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-flite),)
 endif
 
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-memcache),)
- $(eval $(call Download/files,memcache,libmemcached-0.32.tar.gz,2f06059803737b6bf6135edfc86db4b3,,downloads/libs/,libs/))
-endif
-
-
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-mongo),)
  $(eval $(call Download/files,mongo,mongo-c-driver-0.92.2.tar.gz,afab25a33abd3f1e0ba79c5a9da92651,,downloads/libs/,libs/))
 endif
@@ -657,7 +658,6 @@ define Build/Prepare
 	$(call Prepare/flite)
 	$(call Prepare/json-cdr)
 	$(call Prepare/ldap)
-	$(call Prepare/memcache)
 	$(call Prepare/mongo)
 	$(call Prepare/opus)
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),$(call Prepare/sounds-en-08KHz))
@@ -669,13 +669,13 @@ define Build/Prepare
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-32KHz),$(call Prepare/sounds-moh-32KHz))
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-48KHz),$(call Prepare/sounds-moh-48KHz))
 ifeq ($(CONFIG_FS_WITH_LOCAL_SOURCE),y)
-	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
+	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1 && [ -f $(PKG_BUILD_DIR)/patches/series ]; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
 endif
 endef
 
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
+	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1 && [ -f $(PKG_BUILD_DIR)/patches/series ]; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
 	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
@@ -1030,9 +1030,9 @@ $(eval $(call BuildPlugin,logfile,File Logger,vanilla,,,,))
 $(eval $(call BuildPlugin,loopback,Loopback to Dialplan Endpoint,vanilla,,,,))
 $(eval $(call BuildPlugin,lua,LUA Language Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,managed,Media Switching Software Library,vanilla,,,,+glib2 @BROKEN)) # needs Mono
-$(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req libmemcached
+$(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req host libmemcached
 $(eval $(call BuildPlugin,mongo,A Document-Oriented Database,vanilla,,,,@BROKEN))
-$(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROKEN)) # needs libmp4v2
+$(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROKEN)) # needs host libmp4v2
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))

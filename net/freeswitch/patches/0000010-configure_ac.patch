@@ -1,15 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -360,7 +360,7 @@ elif test "x${ax_cv_c_compiler_vendor}"
- elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
-     APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
-     APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
--    APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
-+#    APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
-     if test "${enable_64}" = "yes"; then
- 	case "$host" in
-              *darwin12.*|*darwin11.*|*darwin10.*|*darwin9.*|*darwin8.*)
-@@ -811,7 +811,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -834,7 +834,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -17,7 +8,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1135,14 +1134,14 @@ case $host in
+@@ -1158,14 +1157,14 @@ case $host in
         ;;
  esac
  
@@ -38,16 +29,16 @@
  
  module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
-@@ -1163,7 +1162,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+@@ -1186,7 +1185,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
    AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
    AS_IF([test -z "$LDNS_LIBS"],[
      if module_enabled mod_enum; then
 -      AC_MSG_ERROR([You need to either install libldns-dev or disable mod_enum in modules.conf])
-+      AC_MSG_ERROR([You need to install libldns or disable mod_enum in modules.conf])
++      AC_MSG_ERROR([You need to either install libldns or disable mod_enum in modules.conf])
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1241,36 +1240,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1264,36 +1263,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
