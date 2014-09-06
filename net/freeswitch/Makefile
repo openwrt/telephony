@@ -224,6 +224,7 @@ PKG_CONFIG_DEPENDS:= \
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
+
 ifneq ($(CONFIG_CCACHE),)
 TARGET_CC=$(TARGET_CC_NOCACHE)
 TARGET_CXX=$(TARGET_CXX_NOCACHE)
@@ -634,7 +635,7 @@ CONFIGURE_VARS+= \
 	CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
 	CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
 	CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS) -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\"" \
+	LDFLAGS="$(TARGET_LDFLAGS) -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\" -Wl,-rpath,/usr/lib/perl5/5.20/CORE" \
 	HOST_CC="/usr/bin/cc" \
 	HOST_CXX="/usr/bin/g++" \
 	CROSS_COMPILE="1" \
