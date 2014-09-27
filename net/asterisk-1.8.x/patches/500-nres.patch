@@ -1,7 +1,6 @@
-diff -rupN asterisk-1.8.29.0/configure asterisk-1.29.0-new/configure
---- asterisk-1.8.29.0/configure	2014-06-21 01:12:25.000000000 +0200
-+++ asterisk-1.29.0-new/configure	2014-07-17 20:29:27.122165674 +0200
-@@ -16925,8 +16925,6 @@ if ac_fn_c_try_link "$LINENO"; then :
+--- a/configure
++++ b/configure
+@@ -16902,8 +16902,6 @@ if ac_fn_c_try_link "$LINENO"; then :
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
  $as_echo "yes" >&6; }
  
