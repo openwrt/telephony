@@ -1,6 +1,6 @@
 --- a/configure
 +++ b/configure
-@@ -16488,7 +16488,6 @@ if ac_fn_c_try_link "$LINENO"; then :
+@@ -16464,7 +16464,6 @@ if ac_fn_c_try_link "$LINENO"; then :
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
  $as_echo "yes" >&6; }
  
