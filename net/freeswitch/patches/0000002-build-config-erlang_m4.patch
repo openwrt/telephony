@@ -39,7 +39,7 @@
  		AC_MSG_CHECKING([erlang libdir])
  		if test -z "`echo $ERLANG_LIBDIR`" ; then
  			AC_MSG_ERROR([failed])
-@@ -42,9 +43,14 @@ then
+@@ -42,9 +43,16 @@ then
  			ERLANG_LDFLAGS="-L$ERLANG_LIBDIR $ERLANG_LDFLAGS"
  			LIBS="-L$ERLANG_LIBDIR $LIBS"
  		fi
@@ -47,7 +47,9 @@
 +		#
 +		# Don't use the above ERLANG_LDFLAGS
 +		#
-+		ERLANG_LDFLAGS="-L${STAGING_DIR}/usr/lib"
++		ERLANG_LIBDIR="${STAGING_DIR}/usr/lib"
++		ERLANG_LDFLAGS="-L$ERLANG_LIBDIR"
++		LIBS="-L$ERLANG_LIBDIR $LIBS"
  		AC_MSG_RESULT([$ERLANG_LIBDIR])
  
 -		ERLANG_INCDIR=`$ERLANG -noshell -eval 'io:format("~n~s/include~n", [[code:lib_dir("erl_interface")]]).' -s erlang halt | tail -n 1`
@@ -55,7 +57,7 @@
  		AC_MSG_CHECKING([erlang incdir])
  		if test -z "`echo $ERLANG_INCDIR`" ; then
  			AC_MSG_ERROR([failed])
-@@ -58,10 +64,11 @@ then
+@@ -58,10 +66,11 @@ then
  
  		ERLANG_LIB="ei"
  
@@ -69,7 +71,7 @@
  
  		if test "$has_libei" = "no" ; then
  			AS_IF([test "$with_erlang" = "try"],
-@@ -75,7 +82,7 @@ then
+@@ -75,7 +84,7 @@ then
  			)
  		else
  			ERLANG_LDFLAGS="$ERLANG_LDFLAGS -lei"
@@ -78,7 +80,7 @@
  			AC_SUBST([ERLANG_CFLAGS],  [$ERLANG_CFLAGS])
  			AC_SUBST([ERLANG_LDFLAGS], [$ERLANG_LDFLAGS])
  		fi
-@@ -85,12 +92,12 @@ then
+@@ -85,12 +94,12 @@ then
  
  	else
  		AS_IF([test "$with_erlang" = "try"],

@@ -8,7 +8,7 @@
  EXTRA_DIST =
  SUBDIRS = . src build
  AUTOMAKE_OPTIONS = foreign subdir-objects
-@@ -171,7 +175,6 @@ ZRTP_LIBS = -lbn -lzrtp
+@@ -172,7 +176,6 @@ ZRTP_LIBS = -lbn -lzrtp
  libfreeswitch_la_LDFLAGS += $(ZRTP_LDFLAGS)
  libfreeswitch_la_LIBADD += $(ZRTP_LIBS)
  CORE_LIBS += libs/libzrtp/libzrtp.a
@@ -16,7 +16,7 @@
  endif
  
  library_includedir      = $(includedir)
-@@ -310,7 +313,7 @@ endif
+@@ -311,7 +314,7 @@ endif
  $(libfreeswitch_la_SOURCES): $(CORE_LIBS) $(switch_builddir)/modules.conf  
  
  src/include/switch_swigable_cpp.h: $(switch_srcdir)/src/include/switch_cpp.h
@@ -25,24 +25,33 @@
  #	$(CC) -E $(switch_srcdir)/src/include/switch_cpp.h \
  #		-I$(switch_srcdir)/src/include -I$(switch_srcdir)/libs/libteletone/src \
  #		-DSWITCH_DECLARE_CLASS= -DSWITCH_DECLARE\(x\)=x -DSWITCH_DECLARE_CONSTRUCTOR= \
-@@ -629,7 +632,9 @@ sndfile-reconf:
+@@ -374,7 +377,7 @@ fs_ivrd_LDFLAGS = $(AM_LDFLAGS) -lpthrea
+ nodist_freeswitch_SOURCES = src/include/switch_version.h
+ freeswitch_SOURCES = src/switch.c
+ freeswitch_CFLAGS  = $(AM_CFLAGS) $(CORE_CFLAGS)
+-freeswitch_LDFLAGS = $(AM_LDFLAGS) -lpthread -rpath $(libdir)
++freeswitch_LDFLAGS = $(AM_LDFLAGS) -lpthread
+ freeswitch_LDADD   = libfreeswitch.la libs/apr/libapr-1.la
+ 
+ if HAVE_ODBC
+@@ -633,7 +636,9 @@ sndfile-reconf:
  
  tiff-reconf:
  	cd libs/tiff-4.0.2 && autoreconf -fi
--	cd libs/tiff-4.0.2 && sh ./configure.gnu
-+	cd libs/tiff-4.0.2 && sh ./configure.gnu --host="$(GNU_TARGET_NAME)" --prefix="/usr"
+-	cd libs/tiff-4.0.2 && sh ./configure.gnu $(MY_DEFAULT_ARGS)
++	cd libs/tiff-4.0.2 && sh ./configure.gnu $(MY_DEFAULT_ARGS) --host="$(GNU_TARGET_NAME)" --prefix="/usr"
 +	cd libs/spandsp && autoreconf -fi
 +	cd libs/spandsp && sh ./configure.gnu --host="$(GNU_TARGET_NAME)" --prefix="/usr"
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:
-@@ -649,9 +654,6 @@ iks-reconf:
+@@ -653,9 +658,6 @@ iks-reconf:
  	$(MAKE) mod_dingaling-clean
  
  spandsp-reconf: tiff-reconf
 -	cd libs/spandsp && $(MAKE) clean || echo
 -	cd libs/spandsp && autoreconf -fi
--	cd libs/spandsp && sh ./configure.gnu --prefix=$(prefix)
+-	cd libs/spandsp && sh ./configure.gnu $(MY_DEFAULT_ARGS)
  	cd libs/spandsp && $(MAKE)
  
  sofia-reconf:

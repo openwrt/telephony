@@ -5,10 +5,10 @@ START=90
 DEFAULT=/etc/default/freeswitch
 OPTIONS=""
 
-boot() {
-	# Do nothing on boot
-	exit 0
-}
+#boot() {
+#	# Do nothing on boot
+#	exit 0
+#}
 
 start() {
 	[ -f $DEFAULT ] && . $DEFAULT

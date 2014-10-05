@@ -1,6 +1,15 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -834,7 +834,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -229,7 +229,7 @@ AX_COMPILER_VENDOR
+ if test "x${cross_compiling}" = "xyes"; then
+     CC_FOR_BUILD=${CC_FOR_BUILD-gcc}
+     case "$host" in
+-    	 arm*-linux-gnueabi*|arm*-*-linux-gnueabi*)
++    	 arm*-linux-gnueabi*|arm*-*-linux-*)
+ 		# spandsp modem
+ 		ac_cv_file__dev_ptmx=yes
+ 		# libjs
+@@ -839,7 +839,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -8,7 +17,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1158,14 +1157,14 @@ case $host in
+@@ -1163,14 +1162,14 @@ case $host in
         ;;
  esac
  
@@ -29,7 +38,7 @@
  
  module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
-@@ -1186,7 +1185,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+@@ -1191,7 +1190,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
    AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
    AS_IF([test -z "$LDNS_LIBS"],[
      if module_enabled mod_enum; then
@@ -38,7 +47,7 @@
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1264,36 +1263,43 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1269,36 +1268,39 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
@@ -56,18 +65,14 @@
 -   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
 -   PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
 +   PERL="${STAGING_DIR}/../host/usr/bin/perl"
-+   #PERL_SITEDIR="`${PERL} -MConfig -e 'print $Config{installarchlib}'`"
 +   PERL_SITELIB="/usr/lib/perl5/5.20"
 +   PERL_SITEDIR="${STAGING_DIR}${PERL_SITELIB}"
 +   PERL_COREDIR="${PERL_SITEDIR}/CORE"
 +   PERL_INC="-I${PERL_COREDIR}"
-+   #PERL_CFLAGS="-w -DMULTIPLICITY `${PERL} -MExtUtils::Embed -e ccopts` -DEMBED_PERL"
 +   PERL_CFLAGS="-w -DMULTIPLICITY -fwrapv -fno-strict-aliasing -pipe -fstack-protector ${PERL_INC} -DEMBED_PERL"
 +   PERL_LIBDIR="-L${PERL_COREDIR}"
-+   #PERL_LIBS="${PERL_LIBDIR} -lpthread `${PERL} -MConfig -e 'print $Config{libs}' | sed -e 's| -lgdbm_compat||g'` "
-+   #PERL_LDFLAGS="`${PERL} -MExtUtils::Embed -e ldopts | sed -e 's| -lgdbm_compat||g'` "
 +   PERL_LIBS="-lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc "
-+   PERL_LDFLAGS="${PERL_LIBDIR} -lpthread -lperl -lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc -lrt "
++   PERL_LDFLAGS="${LDFLAGS} -lpthread ${PERL_LIBS}"
  
     save_CFLAGS="$CFLAGS"
 -   CFLAGS="$PERL_CFLAGS"
@@ -80,8 +85,7 @@
 -   LDFLAGS="$PERL_LDFLAGS"
 +   LDFLAGS="${PERL_LDFLAGS}"
     AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
--   LDFLAGS="$save_LDFLAGS"
-+   LDFLAGS+="$save_LDFLAGS"
+    LDFLAGS="$save_LDFLAGS"
  
 -   AC_SUBST(PERL_SITEDIR)
 -   AC_SUBST(PERL_LIBDIR)

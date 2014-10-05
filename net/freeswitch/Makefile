@@ -43,7 +43,7 @@ PKG_BUILD_DEPENDS:= \
 	FS_WITH_MYSQL:libmysqlclient \
 	FS_WITH_POSTGRESQL:libpq \
 	FS_WITH_SQLITE3:libsqlite3 \
-	FS_WITH_SCTP:sctp \
+	FS_WITH_APR_SCTP:sctp \
 
 
 TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
@@ -56,6 +56,7 @@ FS_MOD_AVAILABLE:= \
 	amrwb \
 	avmd \
 	basic \
+	bert \
 	blacklist \
 	bv \
 	callcenter \
@@ -193,13 +194,16 @@ FS_MOD_AVAILABLE:= \
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_ALSA \
+	CONFIG_FS_WITH_APR_CONFIG_SWITCHES \
+	CONFIG_FS_WITH_APR_IPV6 \
+	CONFIG_FS_WITH_APR_SCTP \
+	CONFIG_FS_WITH_APR_THREADS \
 	CONFIG_FS_WITH_BUILTIN_ZRTP \
 	CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT \
 	CONFIG_FS_WITH_DEFAULT_HEAD \
 	CONFIG_FS_WITH_ERLANG \
 	CONFIG_FS_WITH_FHS \
 	CONFIG_FS_WITH_FIXED_POINT \
-	CONFIG_FS_WITH_IPV6 \
 	CONFIG_FS_WITH_LATEST_HEAD \
 	CONFIG_FS_WITH_LOCAL_SOURCE \
 	CONFIG_FS_WITH_LZMA \
@@ -211,12 +215,10 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_SQLITE3 \
-	CONFIG_FS_WITH_SCTP \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
 	CONFIG_FS_WITH_SRTP_KERNEL_LINUX \
 	CONFIG_FS_WITH_SRTP_OPENSSL \
-	CONFIG_FS_WITH_THREADS \
 	CONFIG_FS_WITH_VISIBILITY \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
 
@@ -487,49 +489,49 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),)
- $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.25.tar.gz,1140efad453ed1a72259d799f7fef0fc,,,))
+ $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.50.tar.gz,5742984287ec6f05b001fa53817b4c32,,,))
 	MAKE_INSTALL_TARGETS+= sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-16KHz),)
- $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.25.tar.gz,20b9bf1b1637be2abe838113fb675c41,,,))
+ $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.50.tar.gz,0c0bda571e61251a8b86121913543b36,,,))
 	MAKE_INSTALL_TARGETS+= hd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-32KHz),)
- $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.25.tar.gz,977d453d8ffa9a5b0fadee8408e84f60,,,))
+ $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.50.tar.gz,42e5dd920ed7454eadcad71d80ee8900,,,))
 	MAKE_INSTALL_TARGETS+= uhd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-48KHz),)
- $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.25.tar.gz,96ec0df908eb1c535063fdc8580626d2,,,))
+ $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.50.tar.gz,8776597979257d10009052df06251051,,,))
 	MAKE_INSTALL_TARGETS+= cd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-08KHz),)
- $(eval $(call Download/files,sounds-moh-08KHz,$(PKG_NAME)-sounds-music-8000-1.0.8.tar.gz,f63ef3cc3507af079ae5c7b8b8a01e42,,,))
+ $(eval $(call Download/files,sounds-moh-08KHz,$(PKG_NAME)-sounds-music-8000-1.0.50.tar.gz,c1f62dc26360f39f8eb442d5efd0a3aa,,,))
 	MAKE_INSTALL_TARGETS+= moh-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-16KHz),)
- $(eval $(call Download/files,sounds-moh-16KHz,$(PKG_NAME)-sounds-music-16000-1.0.8.tar.gz,7fd0ca9a9e3878783baa39b8187743bf,,,))
+ $(eval $(call Download/files,sounds-moh-16KHz,$(PKG_NAME)-sounds-music-16000-1.0.50.tar.gz,d253e26baa85e0e2e727a1cb1cca898e,,,))
 	MAKE_INSTALL_TARGETS+= hd-moh-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-32KHz),)
- $(eval $(call Download/files,sounds-moh-32KHz,$(PKG_NAME)-sounds-music-32000-1.0.8.tar.gz,7e03932ea81b8d0bf6d686f838b060b4,,,))
+ $(eval $(call Download/files,sounds-moh-32KHz,$(PKG_NAME)-sounds-music-32000-1.0.50.tar.gz,0e3ee69cb4ba2813ed0d3f7811332b63,,,))
 	MAKE_INSTALL_TARGETS+= uhd-moh-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-moh-48KHz),)
- $(eval $(call Download/files,sounds-moh-48KHz,$(PKG_NAME)-sounds-music-48000-1.0.8.tar.gz,d06cd2a80379f224affab21f5180e4c6,,,))
+ $(eval $(call Download/files,sounds-moh-48KHz,$(PKG_NAME)-sounds-music-48000-1.0.50.tar.gz,873a62df1ab3be4191eb2488156ec2c2,,,))
 	MAKE_INSTALL_TARGETS+= cd-moh-install
 endif
 
@@ -555,8 +557,8 @@ FS_TARGET_CXXFLAGS:= $(TARGET_CXXFLAGS)
 FS_TARGET_CPPFLAGS:= -I. -I./lua $(TARGET_CPPFLAGS) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) -I`ls -d $(PKG_BUILD_DIR)/libs/*|grep tiff`/libtiff -I$(PKG_BUILD_DIR)/libs/spandsp/src
 
 
-MAKE_FLAGS += \
-	OPT_FLAGS+="$(TARGET_CFLAGS)"
+#MAKE_FLAGS += \
+#	OPT_FLAGS+="$(TARGET_CFLAGS)"
 
 
 MAKE_VARS += \
@@ -580,7 +582,7 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
-	$(call autoconf_bool,CONFIG_FS_WITH_IPV6,ipv6) \
+	$(call autoconf_bool,CONFIG_FS_WITH_APR_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
 	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
@@ -590,22 +592,22 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_GENERIC_AESICM,generic-aesicm) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_KERNEL_LINUX,kernel-linux) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_OPENSSL,openssl) \
-	$(call autoconf_bool,CONFIG_FS_WITH_THREADS,threads) \
+	$(call autoconf_bool,CONFIG_FS_WITH_APR_THREADS,threads) \
 	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
-	$(if $(CONFIG_FS_WITH_MYSQL),--with,--without)-mysql \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_OGG),--with-ogg="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_WITH_OPENSSL),--with,--without)-openssl \
-	$(if $(CONFIG_FS_WITH_POSTGRESQL),--with,--without)-pgsql \
-	$(if $(CONFIG_FS_WITH_SQLITE3),--with,--without)-sqlite3 \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang="$(CONFIG_FS_WITH_ERLANG)",--without-erlang) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
+	--with$(if $(CONFIG_FS_WITH_MYSQL),,out)-mysql \
+	--with$(if $(CONFIG_FS_WITH_OPENSSL),,out)-openssl \
+	--with$(if $(CONFIG_FS_WITH_POSTGRESQL),,out)-pgsql \
+	--with$(if $(CONFIG_FS_WITH_SQLITE3),,out)-sqlite3 \
 
 
 ifeq ($(ARCH),arm)
@@ -621,13 +623,12 @@ CONFIGURE_VARS+= \
 	config_TARGET_CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
 	config_TARGET_CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
 	config_TARGET_READLINE_INC="$(FS_TARGET_CPPFLAGS)" \
-	config_TARGET_READLINE_LIBS="$(TARGET_LDFLAGS) -lreadline -lncurses" \
-	config_TARGET_LIBS="$(TARGET_LDFLAGS) -lpthread -ldl" \
+	config_TARGET_READLINE_LIBS="-lreadline -lncurses" \
+	config_TARGET_LIBS="-lpthread -ldl" \
 	config_BUILD_CC="$(HOSTCC)" \
 	CC_FOR_BUILD="$(HOSTCC)" \
 	BUILDTOOL_CC="$(HOSTCC)" \
 	BUILDTOOL_CCLD="$(HOSTCC)" \
-	LDFLAGS_FOR_BUILD="$(HOST_LDFLAGS)" \
 	CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
 	CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
 	AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar" \
@@ -635,26 +636,11 @@ CONFIGURE_VARS+= \
 	CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
 	CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
 	CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS) -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\" -Wl,-rpath,/usr/lib/perl5/5.20/CORE" \
+	LDFLAGS="-L$(STAGING_DIR)/usr/lib/perl5/5.20/CORE -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\" -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),/perl5/5.20/CORE)\" -Wl,-rpath,/usr/lib -Wl,-rpath,/usr/lib$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),/perl5/5.20/CORE -lperl -lpthread -lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc)" \
 	HOST_CC="/usr/bin/cc" \
 	HOST_CXX="/usr/bin/g++" \
 	CROSS_COMPILE="1" \
-	ax_cv_c_compiler_vendor="gnu" \
-	ac_cv_cflags_warn_all_ansi='-Wall -std=c99 -Wno-unused-variable' \
-	ac_cv_dev_urandom="yes" \
-	ac_cv_file_dbd_apr_dbd_mysql_c="no" \
-	ac_cv_file__dev_random="no" \
-	ac_cv_file__dev_urandom="yes" \
-	ac_cv_file___dev_urandom_="yes" \
-	ac_cv_func_mmap_fixed_mapped="yes" \
-	ac_cv_func_pthread_rwlock_init="yes" \
-	ac_cv_struct_rlimit="yes" \
-	apr_cv_mutex_recursive="yes" \
-	apr_cv_process_shared_works="no" \
-	apr_cv_tcp_nodelay_with_cork="yes" \
-	apr_cv_type_rwlock_t="yes" \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),ac_cv_path_PERL="yes") \
-	libzmq_cv_cxx_werror_flag="" \
+	$(if $(CONFIG_FS_WITH_APR_SCTP),ac_cv_header_netinet_sctp_h="yes") \
 
 
 define Build/Prepare
@@ -977,6 +963,7 @@ $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,basic,BASIC,vanilla,,,,))
+$(eval $(call BuildPlugin,bert,Naive Bit Error Rate Tester,vanilla,,,,))
 $(eval $(call BuildPlugin,blacklist,Blacklist,vanilla,,,,))
 $(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,callcenter,Call Center,vanilla,,,,))
@@ -1004,7 +991,7 @@ $(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns @BROKEN))
-$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang @BROKEN))
+$(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
@@ -1108,4 +1095,4 @@ $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NA
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml @BROKEN))
+$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml_hg))

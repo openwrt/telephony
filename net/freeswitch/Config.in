@@ -96,6 +96,34 @@ menu "Configuration"
     help
 	Compile with API visibility support.
 
+  config FS_WITH_APR_CONFIG_SWITCHES
+    bool "Enable APR configuration switches"
+    default y
+    help
+	Enable some configure switches in libs/apr.
+
+  config FS_WITH_APR_IPV6
+    depends on FS_WITH_APR_CONFIG_SWITCHES
+    bool "Enable IPV6 support in APR"
+    default y
+    help
+	Compile libs/apr package with IPV6 support.
+
+  config FS_WITH_APR_SCTP
+    depends on FS_WITH_APR_CONFIG_SWITCHES
+    bool "Enable SCTP support in APR"
+    default y
+    help
+	Compile with SCTP (Stream Control Transfer Protocol)
+	support in lib APR.
+
+  config FS_WITH_APR_THREADS
+    depends on FS_WITH_APR_CONFIG_SWITCHES
+    bool "Enable threading support in APR"
+    default y
+    help
+	Compile with threads support in libs/apr.
+
   config FS_WITH_BUILTIN_ZRTP
     bool "Enable built-in ZRTP"
     default y
@@ -121,13 +149,6 @@ menu "Configuration"
     help
 	Build FreeSWITCH to comply with FHS when placing 
 	files and directories.
-
-
-  config FS_WITH_IPV6
-    bool "Enable IPV6 support in APR"
-    default y
-    help
-	Compile libs/apr package with IPV6 support.
 
   config FS_WITH_LZMA
     bool "Enable liblzma usage in libtiff"
@@ -159,12 +180,6 @@ menu "Configuration"
 	Compile with optimization flag enabled. This
 	will add max optimising compiler flags
 
-  config FS_WITH_SCTP
-    bool "Enable SCTP (Stream Control Transfer Protocol) support in APR"
-    default y
-    help
-	Compile with SCTP support in lib APR.
-
   config FS_WITH_SRTP
     bool "Enable SRTP"
     default y
@@ -191,12 +206,6 @@ menu "Configuration"
     default y
     help
 	Use OpenSSL crypto primitives.
-
-  config FS_WITH_THREADS
-    bool "Enable threading support in APR"
-    default y
-    help
-	Compile with threads support in libs/apr.
 
   config FS_WITH_ERLANG
     depends on PACKAGE_freeswitch-mod-erlang-event
