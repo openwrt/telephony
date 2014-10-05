@@ -17,7 +17,6 @@ PKG_MD5SUM:=ef2783022bf4451c0bac4a64c8ec4a8b
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
-include $(INCLUDE_DIR)/ltqtapi.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk18/install/module
@@ -133,7 +132,7 @@ endef
 define Package/asterisk18-chan-lantiq
 $(call Package/asterisk18/Default)
   TITLE:=Lantiq TAPI support
-  DEPENDS:= asterisk18 $(LTQ_TAPI_DEPENDS)
+  DEPENDS:= asterisk18 +PACKAGE_asterisk18-chan-lantiq:kmod-ltq-vmmc
   URL:=http://git.nanl.de/?p=asterisk_channel_lantiq.git
 endef
 
