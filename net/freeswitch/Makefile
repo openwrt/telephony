@@ -11,14 +11,14 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.14b
+PKG_VERSION:=1.5.15b
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=59cd3c77d84fac242683c5eb0b61c52f10bb2bb5
+FS_WITH_DEFAULT_HEAD:=f7210b2402488ec8f9be97cc79921fa605bbb7a4
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -274,8 +274,8 @@ define Package/$(PKG_NAME)-mod-spandsp/config
     bool "Enable fixed point support for spandsp (may degrade performance)"
     default n
     help
-	Compile spandsp package with a fixed point support. ONLY enabled this option when
-	necessary, i.e. CPU doesn't support floating computation.
+	Compile spandsp package with a fixed point support. ONLY enabled this
+	option when necessary, i.e. CPU doesn't support floating computation.
 endef
 
 
@@ -315,7 +315,7 @@ endef
 
 
 define Package/$(PKG_NAME)-config-minimal/description
-  A minimal configuration of FreeSWITCH for OpenWRT devices.  Is what the UCI
+  A minimal configuration of FreeSWITCH for OpenWRT devices. Is what the UCI
   configuration began with.
 endef
 
@@ -489,7 +489,7 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),)
- $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.50.tar.gz,5742984287ec6f05b001fa53817b4c32,,,))
+ $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.50.tar.gz,ce887146f43acad89ab2b93f379ef12e,,,))
 	MAKE_INSTALL_TARGETS+= sounds-install
 endif
 
@@ -1095,4 +1095,4 @@ $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NA
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml_hg))
+$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml @BROKEN))
