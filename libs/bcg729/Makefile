@@ -1,0 +1,59 @@
+# 
+# Copyright (C) 2006-2014 OpenWrt.org
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
+
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=bcg729
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/
+PKG_MD5SUM:=45e127a9a309aff94d3262d97b5aeab0
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_INSTALL:=1
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/bcg729
+  SUBMENU:=Telephony
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=Software G729A encoder and decoder library written in C
+  URL:=http://www.linphone.org/technical-corner/bcg729.html
+  DEPENDS:=@BUILD_PATENTED
+  MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
+endef
+
+define Package/bcg729/description
+ Bcg729 is a software G729A encoder and decoder library written in C, developed
+ by Belledonne Communications, the company supporting the Linphone project.
+ It was written from scratch and is NOT a derivative work of ITU reference
+ source code in any kind.
+endef
+
+TARGET_CFLAGS += $(FPIC)
+CONFIGURE_ARGS += \
+	--enable-shared \
+	--enable-static
+
+define Package/bcg729/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib/
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) -R $(PKG_INSTALL_DIR)/usr/include/bcg729 $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.{a,so*} $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libbcg729.pc $(1)/usr/lib/pkgconfig/
+endef
+
+$(eval $(call BuildPackage,bcg729))
