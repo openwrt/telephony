@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.15b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=f7210b2402488ec8f9be97cc79921fa605bbb7a4
+FS_WITH_DEFAULT_HEAD:=66dafbde8ca0484141f044bcdf8132310742b443
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -495,19 +495,19 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-16KHz),)
- $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.50.tar.gz,0c0bda571e61251a8b86121913543b36,,,))
+ $(eval $(call Download/files,sounds-en-16KHz,$(PKG_NAME)-sounds-en-us-callie-16000-1.0.50.tar.gz,261f42e310baa97cc4dcfdc51971aff8,,,))
 	MAKE_INSTALL_TARGETS+= hd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-32KHz),)
- $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.50.tar.gz,42e5dd920ed7454eadcad71d80ee8900,,,))
+ $(eval $(call Download/files,sounds-en-32KHz,$(PKG_NAME)-sounds-en-us-callie-32000-1.0.50.tar.gz,f204512fadc49a3267ff4a5e899b77a5,,,))
 	MAKE_INSTALL_TARGETS+= uhd-sounds-install
 endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-48KHz),)
- $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.50.tar.gz,8776597979257d10009052df06251051,,,))
+ $(eval $(call Download/files,sounds-en-48KHz,$(PKG_NAME)-sounds-en-us-callie-48000-1.0.50.tar.gz,8622a77a5d6dcf5e47bdf30d6a33e27c,,,))
 	MAKE_INSTALL_TARGETS+= cd-sounds-install
 endif
 
@@ -1095,4 +1095,4 @@ $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NA
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML langunage,vanilla,,,,+libyaml @BROKEN))
+$(eval $(call BuildPlugin,yaml,YAML language,vanilla,,,,+libyaml @BROKEN))

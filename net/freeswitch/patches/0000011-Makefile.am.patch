@@ -21,7 +21,7 @@
  
  src/include/switch_swigable_cpp.h: $(switch_srcdir)/src/include/switch_cpp.h
 -	cat $(switch_srcdir)/src/include/switch_cpp.h | perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
-+	cat $(switch_srcdir)/src/include/switch_cpp.h | $(STAGING_DIR_HOST)/usr/bin/perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
++	cat $(switch_srcdir)/src/include/switch_cpp.h | $(STAGING_DIR)/../host/usr/bin/perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
  #	$(CC) -E $(switch_srcdir)/src/include/switch_cpp.h \
  #		-I$(switch_srcdir)/src/include -I$(switch_srcdir)/libs/libteletone/src \
  #		-DSWITCH_DECLARE_CLASS= -DSWITCH_DECLARE\(x\)=x -DSWITCH_DECLARE_CONSTRUCTOR= \
@@ -41,7 +41,7 @@
 -	cd libs/tiff-4.0.2 && sh ./configure.gnu $(MY_DEFAULT_ARGS)
 +	cd libs/tiff-4.0.2 && sh ./configure.gnu $(MY_DEFAULT_ARGS) --host="$(GNU_TARGET_NAME)" --prefix="/usr"
 +	cd libs/spandsp && autoreconf -fi
-+	cd libs/spandsp && sh ./configure.gnu --host="$(GNU_TARGET_NAME)" --prefix="/usr"
++	cd libs/spandsp && sh ./configure.gnu $(MY_DEFAULT_ARGS) --host="$(GNU_TARGET_NAME)" --prefix="/usr"
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:

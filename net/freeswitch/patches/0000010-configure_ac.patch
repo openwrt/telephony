@@ -47,7 +47,7 @@
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1269,36 +1268,39 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1269,21 +1268,21 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
@@ -80,12 +80,12 @@
     AC_CHECK_HEADER([EXTERN.h], [ac_cv_have_EXTERN_h=yes], [ac_cv_have_EXTERN_h=no], [[#include <EXTERN.h>
  # include <perl.h>]])
     CFLAGS="$save_CFLAGS"
- 
+@@ -1291,14 +1290,17 @@ if test "x$ac_cv_have_perl" != "xno"; th
     save_LDFLAGS="$LDFLAGS"
--   LDFLAGS="$PERL_LDFLAGS"
-+   LDFLAGS="${PERL_LDFLAGS}"
+    LDFLAGS="$PERL_LDFLAGS"
     AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
-    LDFLAGS="$save_LDFLAGS"
+-   LDFLAGS="$save_LDFLAGS"
++   LDFLAGS+="$save_LDFLAGS"
  
 -   AC_SUBST(PERL_SITEDIR)
 -   AC_SUBST(PERL_LIBDIR)
