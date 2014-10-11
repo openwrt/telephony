@@ -173,6 +173,12 @@ menu "Configuration"
     help
 	Compile with SSL support.
 
+  config FS_WITH_STUN
+    bool "Enable stun module"
+    default n
+    help
+	Enable stun module
+
   config FS_WITH_OPT
     bool "Enable optimization"
     default y

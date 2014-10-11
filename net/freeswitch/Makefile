@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.15b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=66dafbde8ca0484141f044bcdf8132310742b443
+FS_WITH_DEFAULT_HEAD:=e4e9b1b9f93f3b1c6e344519d52d3854520ba29a
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -219,6 +219,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
 	CONFIG_FS_WITH_SRTP_KERNEL_LINUX \
 	CONFIG_FS_WITH_SRTP_OPENSSL \
+	CONFIG_FS_WITH_STUN \
 	CONFIG_FS_WITH_VISIBILITY \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_MOD_AVAILABLE)) \
 
@@ -592,6 +593,7 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_GENERIC_AESICM,generic-aesicm) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_KERNEL_LINUX,kernel-linux) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_OPENSSL,openssl) \
+	$(call autoconf_bool,CONFIG_FS_WITH_STUN,stun) \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_THREADS,threads) \
 	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
