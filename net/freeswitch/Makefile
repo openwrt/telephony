@@ -214,6 +214,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_OPENWRT_SOURCE \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
+	CONFIG_FS_WITH_SILENT_RULES \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
@@ -589,6 +590,7 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-pkgconfig) \
 	$(call autoconf_bool,CONFIG_FS_WITH_POSTGRESQL,core-pgsql-support) \
+	$(call autoconf_bool,CONFIG_FS_WITH_SILENT_RULES,silent-rules) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_GENERIC_AESICM,generic-aesicm) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP_KERNEL_LINUX,kernel-linux) \
