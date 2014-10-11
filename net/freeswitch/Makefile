@@ -491,7 +491,7 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),)
- $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.50.tar.gz,ce887146f43acad89ab2b93f379ef12e,,,))
+ $(eval $(call Download/files,sounds-en-08KHz,$(PKG_NAME)-sounds-en-us-callie-8000-1.0.50.tar.gz,14cccba7b5c56f027fea391f1e0ee2d6,,,))
 	MAKE_INSTALL_TARGETS+= sounds-install
 endif
 
