@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.31.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -127,27 +127,6 @@ $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk18/install/module,$(1),$(m
 	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
-endef
-
-define Package/asterisk18-chan-lantiq
-$(call Package/asterisk18/Default)
-  TITLE:=Lantiq TAPI support
-  DEPENDS:= asterisk18 +PACKAGE_asterisk18-chan-lantiq:kmod-ltq-vmmc
-  URL:=http://git.nanl.de/?p=asterisk_channel_lantiq.git
-endef
-
-define Package/asterisk18-chan-lantiq/description
-$(call Package/asterisk18/Default/description)
- This package provides the channel chan_lantiq support to Asterisk.
-endef
-
-define Package/asterisk18-chan-lantiq/conffiles
-/etc/asterisk/lantiq.conf
-endef
-
-define Package/asterisk18-chan-lantiq/install
-$(call Package/asterisk18/install/conffile,lantiq.conf,$(m))
-$(call Package/asterisk18/install/module,chan_lantiq,$(m))
 endef
 
 define Package/asterisk18-sounds
@@ -295,7 +274,6 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk18))
-$(eval $(call BuildPackage,asterisk18-chan-lantiq))
 $(eval $(call BuildPackage,asterisk18-sounds))
 
 ################################
@@ -362,6 +340,7 @@ $(eval $(call BuildAsterisk18Module,func-vmcount,vmcount dialplan,a vmcount dial
 $(eval $(call BuildAsterisk18Module,chan-agent,Agents proxy channel,An implementation of agents proxy channel,,,,chan_agent,))
 $(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
 $(eval $(call BuildAsterisk18Module,chan-iax2,IAX2 channel,An implementation of IAX2 channel,+asterisk18-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
+$(eval $(call BuildAsterisk18Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk18Module,chan-local,Local proxy channel,An implementation of local proxy channel,,,,chan_local,))
 $(eval $(call BuildAsterisk18Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
 $(eval $(call BuildAsterisk18Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
