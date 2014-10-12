@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.30.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -147,8 +147,8 @@ define Package/asterisk18-chan-lantiq/conffiles
 endef
 
 define Package/asterisk18-chan-lantiq/install
-$(call Package/asterisk18/install/conffile,lantiq.conf,$(m))
-$(call Package/asterisk18/install/module,chan_lantiq,$(m))
+$(call Package/asterisk18/install/conffile,$(1),lantiq.conf)
+$(call Package/asterisk18/install/module,$(1),chan_lantiq)
 endef
 
 define Package/asterisk18-sounds
