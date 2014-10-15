@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -229,7 +229,7 @@ AX_COMPILER_VENDOR
+@@ -229,13 +229,16 @@ AX_COMPILER_VENDOR
  if test "x${cross_compiling}" = "xyes"; then
      CC_FOR_BUILD=${CC_FOR_BUILD-gcc}
      case "$host" in
@@ -9,7 +9,16 @@
  		# spandsp modem
  		ac_cv_file__dev_ptmx=yes
  		# libjs
-@@ -378,9 +378,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
+ 		export ac_cv_va_copy=yes
++		# sofia-sip
++		export ac_cv_dev_urandom=yes
+ 		# srtp
+ 		export ac_cv_file__dev_urandom=yes
++		export ac_cv_file___dev_urandom_=yes
+ 		# rpl_malloc
+ 		export ac_cv_func_realloc_0_nonnull=yes
+ 		export ac_cv_func_malloc_0_nonnull=yes
+@@ -378,9 +381,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
  elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
      APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
      APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
@@ -19,7 +28,7 @@
      if test "${enable_64}" = "yes"; then
  	case "$host" in
               *darwin12.*|*darwin11.*|*darwin10.*|*darwin9.*|*darwin8.*)
-@@ -839,7 +836,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -839,7 +839,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -27,7 +36,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1163,14 +1159,14 @@ case $host in
+@@ -1163,14 +1162,14 @@ case $host in
         ;;
  esac
  
@@ -48,7 +57,7 @@
  
  module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
-@@ -1191,7 +1187,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+@@ -1191,7 +1190,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
    AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
    AS_IF([test -z "$LDNS_LIBS"],[
      if module_enabled mod_enum; then
@@ -57,7 +66,7 @@
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1269,21 +1265,21 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1269,21 +1268,21 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
@@ -90,7 +99,7 @@
     AC_CHECK_HEADER([EXTERN.h], [ac_cv_have_EXTERN_h=yes], [ac_cv_have_EXTERN_h=no], [[#include <EXTERN.h>
  # include <perl.h>]])
     CFLAGS="$save_CFLAGS"
-@@ -1291,14 +1287,17 @@ if test "x$ac_cv_have_perl" != "xno"; th
+@@ -1291,14 +1290,17 @@ if test "x$ac_cv_have_perl" != "xno"; th
     save_LDFLAGS="$LDFLAGS"
     LDFLAGS="$PERL_LDFLAGS"
     AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
