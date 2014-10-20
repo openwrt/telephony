@@ -18,7 +18,7 @@ PKG_VERSION:=1.5.15b
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=e3e267f46249abf714dd596dc89e545fd844aaee
+FS_WITH_DEFAULT_HEAD:=7faf9f4c25420204b53b5bbda1d228536778b39b
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -129,6 +129,7 @@ FS_MOD_AVAILABLE:= \
 	portaudio \
 	portaudio-stream \
 	posix-timer \
+	python \
 	radius-cdr \
 	rayo \
 	redis \
@@ -1039,6 +1040,7 @@ $(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/5.20/$
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
+$(eval $(call BuildPlugin,python,Python Language Interface,vanilla,,,,python))
 $(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
 $(eval $(call BuildPlugin,rayo,Rayo server & node implementation,vanilla,,,,))
 $(eval $(call BuildPlugin,redis,Redis Limited Backend,vanilla,,,,))
