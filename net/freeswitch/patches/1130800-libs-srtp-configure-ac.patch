@@ -5,11 +5,13 @@
  AC_MSG_RESULT($enable_kernel_linux)
  
 -dnl Check for /dev/urandom
+-AC_CHECK_FILE(/dev/urandom, DEV_URANDOM=/dev/urandom,
+-   [AC_CHECK_FILE(/dev/random, DEV_URANDOM=/dev/random)])
 +
 +dnl Check for /dev/urandom ONLY when NOT cross compiling
 +if test "$cross_compiling" != yes; then
- AC_CHECK_FILE(/dev/urandom, DEV_URANDOM=/dev/urandom,
-    [AC_CHECK_FILE(/dev/random, DEV_URANDOM=/dev/random)])
++  AC_CHECK_FILE(/dev/urandom, DEV_URANDOM=/dev/urandom,
++     [AC_CHECK_FILE(/dev/random, DEV_URANDOM=/dev/random)])
 +fi
  
  dnl Checks for header files.
