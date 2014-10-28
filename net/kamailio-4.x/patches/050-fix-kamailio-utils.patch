@@ -4,11 +4,11 @@
 -#!/bin/bash
 +#!/bin/sh
  #
- # $Id$
+ # control tool for maintaining Kamailio
  #
 --- a/utils/kamctl/kamctlrc
 +++ b/utils/kamctl/kamctlrc
-@@ -141,3 +141,6 @@
+@@ -147,3 +147,6 @@
  ## Extra start options - default is: not set
  # example: start Kamailio with 64MB share memory: STARTOPTIONS="-m 64"
  # STARTOPTIONS=
@@ -21,7 +21,7 @@
 -#!/bin/bash 
 +#!/bin/sh 
  #
- # $Id$
+ # control tool for maintaining Kamailio databases
  #
 --- a/utils/kamctl/kamdbctl.base
 +++ b/utils/kamctl/kamdbctl.base

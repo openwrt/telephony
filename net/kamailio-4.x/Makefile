@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
-PKG_VERSION:=4.1.6
-PKG_RELEASE:=2
+PKG_VERSION:=4.2.0
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_MD5SUM:=000008e7a02e767956bf8fbe6df16e51
+PKG_MD5SUM:=6b5dc98be07a5d68b3701d7955102d34
 PKG_USE_MIPS16:=0
 
 INCL_MODULES:=
@@ -100,127 +100,134 @@ define Package/kamailio4-tools/install
 		$(1)/usr/lib/kamailio/
 endef
 
-define BuildPlugin
-  define Package/kamailio4-mod-$(1)
+define Package/kamailio4/install/module
+	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/*$(2).so* $(1)/usr/lib/kamailio/modules/
+endef
+
+define BuildKamailio4Module
+  define Package/kamailio4-mod-$(subst _,-,$(1))
     $$(call Package/kamailio4/Default)
-    TITLE:= kamailio4 $(3) module
-    DEPENDS:=kamailio4 $$(foreach m,$(4),+kamailio4-mod-$$m) $(5)
+    TITLE:= kamailio4 $(2) module
+    DEPENDS:=kamailio4 $(4)
   endef
 
-  define Package/kamailio4-mod-$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/lib/kamailio/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so $$(1)/usr/lib/kamailio/modules/
+  define Package/kamailio4-mod-$(subst _,-,$(1))/description
+This package provides support for $(3) in Kamailio.
   endef
 
-  INCL_MODULES+=$(2)
-  KAM_MODULES+=kamailio4-mod-$(1)
+  define Package/kamailio4-mod-$(subst _,-,$(1))/install
+$(call Package/kamailio4/install/module,$$(1),$(1))
+  endef
+
+  INCL_MODULES+=$(1)
+  KAM_MODULES+=kamailio4-mod-$(subst _,-,$(1))
 endef
 
 ################################
-# Kamailio modules
+# Kamailio module parameters
 # Params:
-# 1 - Package subname
-# 2 - Module name
+# 1 - Module name
+# 2 - Module title
 # 3 - Module description
-# 4 - Dependencies to internal modules
-# 5 - Dependencies to external libs/apps
+# 4 - Dependencies
 ################################
 
-$(eval $(call BuildPlugin,acc,acc,Accounting,tm,))
-$(eval $(call BuildPlugin,alias-db,alias_db,Database-backend aliases,db-sqlite,))
-$(eval $(call BuildPlugin,auth,auth,Authentication Framework,,))
-$(eval $(call BuildPlugin,auth-db,auth_db,Database-backend authentication,auth db-sqlite,))
-$(eval $(call BuildPlugin,auth-diameter,auth_diameter,Diameter-backend authentication,sl,))
-$(eval $(call BuildPlugin,avpops,avpops,AVP operation,,))
-$(eval $(call BuildPlugin,benchmark,benchmark,Config benchmark,,))
-$(eval $(call BuildPlugin,cfgutils,cfgutils,Config utilities,,))
-$(eval $(call BuildPlugin,cfg-db,cfg_db,Load core and module parameters from database,db-sqlite,))
-$(eval $(call BuildPlugin,cfg-rpc,cfg_rpc,Update core and module parameters at runtime via RPC interface,,))
-$(eval $(call BuildPlugin,cnxcc,cnxcc,Limit call duration,dialog,))
-$(eval $(call BuildPlugin,corex,corex,Legacy functions,,))
-$(eval $(call BuildPlugin,ctl,ctl,BINRPC transport interface,,))
-$(eval $(call BuildPlugin,db-flatstore,db_flatstore,Fast writing-only text database-backed,,))
-$(eval $(call BuildPlugin,db-mysql,db_mysql,MySQL database-backend,,+libmysqlclient))
-$(eval $(call BuildPlugin,db-postgres,db_postgres,PostgreSQL Database-backend,,+libpq))
-$(eval $(call BuildPlugin,db-sqlite,db_sqlite,Sqlite DB support,,+libsqlite3))
-$(eval $(call BuildPlugin,db-text,db_text,Text database-backend,,))
-$(eval $(call BuildPlugin,db-unixodbc,db_unixodbc,UnixODBC Database-backend,,+unixodbc))
-$(eval $(call BuildPlugin,dialog,dialog,Dialog support,rr tm,))
-$(eval $(call BuildPlugin,dialog_ng,dialog,Dialog support,rr tm,))
-$(eval $(call BuildPlugin,dialplan,dialplan,Dialplan management,,+libpcre))
-$(eval $(call BuildPlugin,dispatcher,dispatcher,Dispatcher,,))
-$(eval $(call BuildPlugin,diversion,diversion,Diversion header insertion,,))
-$(eval $(call BuildPlugin,domain,domain,Multi-domain support,,))
-$(eval $(call BuildPlugin,domainpolicy,domainpolicy,Domain policy,,))
-$(eval $(call BuildPlugin,enum,enum,ENUM lookup,,))
-$(eval $(call BuildPlugin,exec,exec,External exec,,))
-$(eval $(call BuildPlugin,group,group,Database-backend user-groups,,))
-$(eval $(call BuildPlugin,h350,h350,H.350,ldap,+libopenldap))
-$(eval $(call BuildPlugin,htable,htable,Hash Table,,))
-$(eval $(call BuildPlugin,imc,imc,IM conferencing,db-mysql tm,))
-$(eval $(call BuildPlugin,ipops,ipops,IP and IPv6 operations,,))
-$(eval $(call BuildPlugin,json,json,Access to JSON document attributes,,+libjson))
-$(eval $(call BuildPlugin,kex,kex,Core extensions,,))
-$(eval $(call BuildPlugin,lcr,lcr,Least Cost Routing,tm,+libpcre))
-$(eval $(call BuildPlugin,ldap,ldap,LDAP connector,,+libopenldap))
-$(eval $(call BuildPlugin,maxfwd,maxfwd,Max-Forward processor,,))
-$(eval $(call BuildPlugin,mediaproxy,mediaproxy,Automatic NAT traversal,dialog,))
-$(eval $(call BuildPlugin,mi-datagram,mi_datagram,Datagram support for Management Interface,,))
-$(eval $(call BuildPlugin,mi-fifo,mi_fifo,FIFO support for Management Interface,,))
-$(eval $(call BuildPlugin,mi-rpc,mi_rpc,RPC support for Management Interface,,))
-$(eval $(call BuildPlugin,msilo,msilo,SIP message silo,tm,))
-$(eval $(call BuildPlugin,msrp,msrp,MSRP routing engine,tls,))
-$(eval $(call BuildPlugin,nathelper,nathelper,NAT helper,usrloc,))
-$(eval $(call BuildPlugin,nat_traversal,nat_traversal,NAT traversal,dialog sl tm,))
-$(eval $(call BuildPlugin,path,path,SIP path insertion,rr,))
-$(eval $(call BuildPlugin,pdt,pdt,Prefix-to-Domain translator,,))
-$(eval $(call BuildPlugin,permissions,permissions,Permissions control,,))
-$(eval $(call BuildPlugin,pike,pike,Flood detector,,))
-$(eval $(call BuildPlugin,presence,presence,Presence server,sl tm,+libxml2))
-$(eval $(call BuildPlugin,presence-dialoginfo,presence_dialoginfo,Dialog Event presence,presence,))
-$(eval $(call BuildPlugin,presence-mwi,presence_mwi,Message Waiting Indication presence,presence,))
-$(eval $(call BuildPlugin,presence-xml,presence_xml,XCAP presence,presence xcap-client,))
-$(eval $(call BuildPlugin,pua,pua,Presence User Agent,tm,+libxml2))
-$(eval $(call BuildPlugin,pua-bla,pua_bla,Bridged Line Appearence PUA,presence pua usrloc,))
-$(eval $(call BuildPlugin,pua-dialoginfo,pua_dialoginfo,Dialog Event PUA,dialog pua,))
-$(eval $(call BuildPlugin,pua-mi,pua_mi,PUA Management Interface,pua,))
-$(eval $(call BuildPlugin,pua-usrloc,pua_usrloc,PUA User Location,pua usrloc,))
-$(eval $(call BuildPlugin,pua-xmpp,pua_xmpp,PUA XMPP,presence pua xmpp,))
-$(eval $(call BuildPlugin,pv,pv,Pseudo-Variables,,))
-$(eval $(call BuildPlugin,qos,qos,QoS control,dialog,))
-$(eval $(call BuildPlugin,ratelimit,ratelimit,Traffic shapping,,))
-$(eval $(call BuildPlugin,regex,regex,Regular Expression,,+libpcre))
-$(eval $(call BuildPlugin,registrar,registrar,SIP Registrar,usrloc,))
-$(eval $(call BuildPlugin,rls,rls,Resource List Server,presence pua tm,+libxml2))
-$(eval $(call BuildPlugin,rr,rr,Record-Route and Route,,))
-$(eval $(call BuildPlugin,rtimer,rtimer,Routing Timer,,))
-$(eval $(call BuildPlugin,rtpproxy,rtpproxy,RTP proxy,tm,))
-$(eval $(call BuildPlugin,rtpproxy-ng,rtpproxy-ng,RTP proxy with new control protocol,tm,))
-$(eval $(call BuildPlugin,sanity,sanity,SIP sanity checks,sl,))
-$(eval $(call BuildPlugin,sipcapture,sipcapture,SIP capture,,))
-$(eval $(call BuildPlugin,siptrace,siptrace,SIP trace,,))
-$(eval $(call BuildPlugin,siputils,siputils,SIP utilities,sl,))
-$(eval $(call BuildPlugin,sl,sl,Stateless replier,,))
-$(eval $(call BuildPlugin,sms,sms,SIP-to-SMS IM gateway,tm,))
-$(eval $(call BuildPlugin,speeddial,speeddial,Per-user speed-dial controller,,))
-$(eval $(call BuildPlugin,sqlops,sqlops,SQL operations,,))
-$(eval $(call BuildPlugin,statistics,statistics,Script statistics,,))
-$(eval $(call BuildPlugin,stun,stun,STUN server support,,))
-$(eval $(call BuildPlugin,sst,sst,SIP Session Timer,dialog sl,))
-$(eval $(call BuildPlugin,textops,textops,Text operations,,))
-$(eval $(call BuildPlugin,tls,tls,TLS operations,,+libopenssl))
-$(eval $(call BuildPlugin,topoh,topoh,Topology hiding,rr,))
-$(eval $(call BuildPlugin,tm,tm,Transaction,,))
-$(eval $(call BuildPlugin,tmx,tmx,Transaction module extensions,,))
-$(eval $(call BuildPlugin,uac,uac,User Agent Client,tm,))
-$(eval $(call BuildPlugin,uac-redirect,uac_redirect,User Agent Client redirection,tm,))
-$(eval $(call BuildPlugin,uri-db,uri_db,Database-backend SIP URI checking,,))
-$(eval $(call BuildPlugin,userblacklist,userblacklist,User blacklists,,))
-$(eval $(call BuildPlugin,usrloc,usrloc,User location,,))
-$(eval $(call BuildPlugin,utils,utils,Misc utilities,,+libcurl +libxml2))
-$(eval $(call BuildPlugin,xcap-client,xcap_client,XCAP Client,,+libcurl))
-$(eval $(call BuildPlugin,xlog,xlog,Advanced logger,,))
-$(eval $(call BuildPlugin,xmpp,xmpp,SIP-to-XMPP Gateway,tm,+libexpat))
+$(eval $(call BuildKamailio4Module,acc,Accounting,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,alias_db,Database-backend aliases,,+kamailio4-mod-db-sqlite))
+$(eval $(call BuildKamailio4Module,auth,Authentication Framework,,))
+$(eval $(call BuildKamailio4Module,auth_db,Database-backend authentication,,+kamailio4-mod-auth +kamailio4-mod-db-sqlite))
+$(eval $(call BuildKamailio4Module,auth_diameter,Diameter-backend authentication,,+kamailio4-mod-sl))
+$(eval $(call BuildKamailio4Module,avpops,AVP operation,,))
+$(eval $(call BuildKamailio4Module,benchmark,Config benchmark,,))
+$(eval $(call BuildKamailio4Module,cfgutils,Config utilities,,))
+$(eval $(call BuildKamailio4Module,cfg_db,Load core and module parameters from database,,+kamailio4-mod-db-sqlite))
+$(eval $(call BuildKamailio4Module,cfg_rpc,Update core and module parameters at runtime via RPC interface,,))
+$(eval $(call BuildKamailio4Module,cnxcc,Limit call duration,,+kamailio4-mod-dialog))
+$(eval $(call BuildKamailio4Module,corex,Legacy functions,,))
+$(eval $(call BuildKamailio4Module,ctl,BINRPC transport interface,,))
+$(eval $(call BuildKamailio4Module,db_flatstore,Fast writing-only text database-backed,,))
+$(eval $(call BuildKamailio4Module,db_mysql,MySQL database-backend,,+libmysqlclient))
+$(eval $(call BuildKamailio4Module,db_postgres,PostgreSQL Database-backend,,+libpq))
+$(eval $(call BuildKamailio4Module,db_sqlite,Sqlite DB support,,+libsqlite3))
+$(eval $(call BuildKamailio4Module,db_text,Text database-backend,,))
+$(eval $(call BuildKamailio4Module,db_unixodbc,UnixODBC Database-backend,,+unixodbc))
+$(eval $(call BuildKamailio4Module,dialog,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,dialog_ng,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,dialplan,Dialplan management,,))
+$(eval $(call BuildKamailio4Module,dispatcher,Dispatcher,,))
+$(eval $(call BuildKamailio4Module,diversion,Diversion header insertion,,))
+$(eval $(call BuildKamailio4Module,domain,Multi-domain support,,))
+$(eval $(call BuildKamailio4Module,domainpolicy,Domain policy,,))
+$(eval $(call BuildKamailio4Module,enum,ENUM lookup,,))
+$(eval $(call BuildKamailio4Module,exec,External exec,,))
+$(eval $(call BuildKamailio4Module,group,Database-backend user-groups,,))
+$(eval $(call BuildKamailio4Module,h350,H.350,,+kamailio4-mod-ldap +libopenldap))
+$(eval $(call BuildKamailio4Module,htable,Hash Table,,))
+$(eval $(call BuildKamailio4Module,imc,IM conferencing,,+kamailio4-mod-db-mysql +kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,ipops,IP and IPv6 operations,,))
+$(eval $(call BuildKamailio4Module,json,Access to JSON document attributes,,+libjson))
+$(eval $(call BuildKamailio4Module,kex,Core extensions,,))
+$(eval $(call BuildKamailio4Module,lcr,Least Cost Routing,,+kamailio4-mod-tm +libpcre))
+$(eval $(call BuildKamailio4Module,ldap,LDAP connector,,+libopenldap))
+$(eval $(call BuildKamailio4Module,maxfwd,Max-Forward processor,,))
+$(eval $(call BuildKamailio4Module,mediaproxy,Automatic NAT traversal,,+kamailio4-mod-dialog))
+$(eval $(call BuildKamailio4Module,mi_datagram,Datagram support for Management Interface,,))
+$(eval $(call BuildKamailio4Module,mi_fifo,FIFO support for Management Interface,,))
+$(eval $(call BuildKamailio4Module,mi_rpc,RPC support for Management Interface,,))
+$(eval $(call BuildKamailio4Module,msilo,SIP message silo,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,msrp,MSRP routing engine,,+kamailio4-mod-tls))
+$(eval $(call BuildKamailio4Module,nathelper,NAT helper,,+kamailio4-mod-usrloc))
+$(eval $(call BuildKamailio4Module,nat_traversal,NAT traversal,,+kamailio4-mod-dialog +kamailio4-mod-sl +kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,path,SIP path insertion,,+kamailio4-mod-rr))
+$(eval $(call BuildKamailio4Module,pdt,Prefix-to-Domain translator,,))
+$(eval $(call BuildKamailio4Module,permissions,Permissions control,,))
+$(eval $(call BuildKamailio4Module,pike,Flood detector,,))
+$(eval $(call BuildKamailio4Module,presence,Presence server,,+kamailio4-mod-sl +kamailio4-mod-tm +libxml2))
+$(eval $(call BuildKamailio4Module,presence_dialoginfo,Dialog Event presence,,+kamailio4-mod-presence))
+$(eval $(call BuildKamailio4Module,presence_mwi,Message Waiting Indication presence,,+kamailio4-mod-presence))
+$(eval $(call BuildKamailio4Module,presence_xml,XCAP presence,,+kamailio4-mod-presence +kamailio4-mod-xcap-client))
+$(eval $(call BuildKamailio4Module,pua,Presence User Agent,,+kamailio4-mod-tm +libxml2))
+$(eval $(call BuildKamailio4Module,pua_bla,Bridged Line Appearence PUA,,+kamailio4-mod-presence +kamailio4-mod-pua +kamailio4-mod-usrloc))
+$(eval $(call BuildKamailio4Module,pua_dialoginfo,Dialog Event PUA,,+kamailio4-mod-dialog +kamailio4-mod-pua))
+$(eval $(call BuildKamailio4Module,pua_mi,PUA Management Interface,,+kamailio4-mod-pua))
+$(eval $(call BuildKamailio4Module,pua_usrloc,PUA User Location,,+kamailio4-mod-pua +kamailio4-mod-usrloc))
+$(eval $(call BuildKamailio4Module,pua_xmpp,PUA XMPP,,+kamailio4-mod-presence +kamailio4-mod-pua +kamailio4-mod-xmpp))
+$(eval $(call BuildKamailio4Module,pv,Pseudo-Variables,,))
+$(eval $(call BuildKamailio4Module,qos,QoS control,,+kamailio4-mod-dialog))
+$(eval $(call BuildKamailio4Module,ratelimit,Traffic shapping,,))
+$(eval $(call BuildKamailio4Module,regex,Regular Expression,,+libpcre))
+$(eval $(call BuildKamailio4Module,registrar,SIP Registrar,,+kamailio4-mod-usrloc))
+$(eval $(call BuildKamailio4Module,rls,Resource List Server,,+kamailio4-mod-presence +kamailio4-mod-pua +kamailio4-mod-tm +libxml2))
+$(eval $(call BuildKamailio4Module,rr,Record-Route and Route,,))
+$(eval $(call BuildKamailio4Module,rtimer,Routing Timer,,))
+$(eval $(call BuildKamailio4Module,rtpengine,RTP engine,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,rtpproxy,RTP proxy,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,sanity,SIP sanity checks,,+kamailio4-mod-sl))
+$(eval $(call BuildKamailio4Module,sipcapture,SIP capture,,))
+$(eval $(call BuildKamailio4Module,siptrace,SIP trace,,))
+$(eval $(call BuildKamailio4Module,siputils,SIP utilities,,+kamailio4-mod-sl))
+$(eval $(call BuildKamailio4Module,sl,Stateless replier,,))
+$(eval $(call BuildKamailio4Module,sms,SIP-to-SMS IM gateway,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,speeddial,Per-user speed-dial controller,,))
+$(eval $(call BuildKamailio4Module,sqlops,SQL operations,,))
+$(eval $(call BuildKamailio4Module,statistics,Script statistics,,))
+$(eval $(call BuildKamailio4Module,stun,STUN server support,,))
+$(eval $(call BuildKamailio4Module,sst,SIP Session Timer,,+kamailio4-mod-dialog +kamailio4-mod-sl))
+$(eval $(call BuildKamailio4Module,textops,Text operations,,))
+$(eval $(call BuildKamailio4Module,tls,TLS operations,,+libopenssl))
+$(eval $(call BuildKamailio4Module,topoh,Topology hiding,,+kamailio4-mod-rr))
+$(eval $(call BuildKamailio4Module,tm,Transaction,,))
+$(eval $(call BuildKamailio4Module,tmx,Transaction module extensions,,))
+$(eval $(call BuildKamailio4Module,uac,User Agent Client,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,uac_redirect,User Agent Client redirection,,+kamailio4-mod-tm))
+$(eval $(call BuildKamailio4Module,uri_db,Database-backend SIP URI checking,,))
+$(eval $(call BuildKamailio4Module,userblacklist,User blacklists,,))
+$(eval $(call BuildKamailio4Module,usrloc,User location,,))
+$(eval $(call BuildKamailio4Module,utils,Misc utilities,,+libcurl +libxml2))
+$(eval $(call BuildKamailio4Module,xcap_client,XCAP Client,,+libcurl))
+$(eval $(call BuildKamailio4Module,xlog,Advanced logger,,))
+$(eval $(call BuildKamailio4Module,xmpp,SIP-to-XMPP Gateway,,+kamailio4-mod-tm +libexpat))
 
 PKG_MAKE_ARGS:= \
 	prefix=/ \
