@@ -47,8 +47,8 @@ define Package/baresip
 $(call Package/baresip/Default)
   TITLE:=Portable and modular SIP User-Agent with A/V support
   DEPENDS:=+libre +librem +libpthread
+  MENU:=1
 endef
-
 
 baresip-mod-alsa      := USE_ALSA
 baresip-mod-avcodec   := USE_FFMPEG
