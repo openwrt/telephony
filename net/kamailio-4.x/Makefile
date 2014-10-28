@@ -69,11 +69,7 @@ define Package/kamailio4/install
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(CP) \
-		$(PKG_INSTALL_DIR)/etc/kamailio/{kamailio-advanced.cfg,kamailio.cfg} \
-		$(1)/etc/kamailio/
-	$(INSTALL_DIR) $(1)/etc/kamailio
-	$(CP) \
-		$(PKG_INSTALL_DIR)/etc/kamailio/dictionary.kamailio \
+		$(PKG_INSTALL_DIR)/etc/kamailio/{dictionary.kamailio,kamailio-advanced.cfg,kamailio.cfg} \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(CP) \
