@@ -24,6 +24,7 @@ TARGET_CFLAGS += $(FPIC)
 CONFIGURE_ARGS += --disable-stdout --enable-syslog
 
 define Package/libsrtp
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Secure Real-time Transport Protocol (SRTP) library

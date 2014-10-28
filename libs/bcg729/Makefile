@@ -42,11 +42,6 @@ CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static
 
-define Package/bcg729/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib/
-endef
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) -R $(PKG_INSTALL_DIR)/usr/include/bcg729 $(1)/usr/include/
@@ -54,6 +49,11 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.{a,so*} $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libbcg729.pc $(1)/usr/lib/pkgconfig/
+endef
+
+define Package/bcg729/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,bcg729))

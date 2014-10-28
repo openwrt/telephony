@@ -22,6 +22,7 @@ PKG_FIXUP:=autoreconf
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libspandsp
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=spandsp library

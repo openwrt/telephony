@@ -19,6 +19,7 @@ PKG_MD5SUM:=888c3000aa002790cc7129fa72d39a58
 include $(INCLUDE_DIR)/package.mk
 
 define Package/librem
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   DEPENDS:=+libre +libpthread
