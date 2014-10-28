@@ -9,16 +9,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
-PKG_VERSION:=0.4.9
+PKG_VERSION:=0.4.10
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_MD5SUM:=0957b658fd19d15d0fa5c9390619fc1e
+PKG_MD5SUM:=2966ad3db2ca34ea865825533e7b7d55
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libre
+  SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   DEPENDS:=+libopenssl +libpthread
