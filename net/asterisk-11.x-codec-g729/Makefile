@@ -19,6 +19,10 @@ PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
+PKG_LICENSE:=GPL-3.0
+PKG_LICENSE_FILES:=README.md
+PKG_MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11-codec-g729
@@ -28,7 +32,6 @@ define Package/asterisk11-codec-g729
   URL:=http://asterisk.hosting.lv
   DEPENDS:= asterisk11 +bcg729
   TITLE:=G.729 codec for Asterisk open source PBX
-  MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
 endef
 
 define Package/asterisk11-codec-g729/description

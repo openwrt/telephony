@@ -16,6 +16,10 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
 PKG_MD5SUM:=dd58fc56c29f812fc14988412a3bf14a
 
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=docs/COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 restund-mods:= mysql
 
 PKG_CONFIG_DEPENDS:= $(patsubst %,CONFIG_PACKAGE_restund-mod-%,$(restund-mods))

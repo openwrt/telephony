@@ -20,6 +20,10 @@ PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
 PKG_MD5SUM:=427fd2ffde51116271534f398bf913e8
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk

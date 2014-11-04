@@ -16,6 +16,10 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
 PKG_MD5SUM:=bf25d14749ca286716c9b23108472c8a
 
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=docs/COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 baresip-mods:= \
 	alsa \
 	avcodec \

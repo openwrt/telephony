@@ -37,10 +37,6 @@ define Package/smap/description
  phones, softphones, PBX software, and PBX equipment.
 endef
 
-# define Package/smap/conffiles
-# /etc/config/smap
-# endef
-
 define Build/Configure
 endef
 

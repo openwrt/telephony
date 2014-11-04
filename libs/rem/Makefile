@@ -16,6 +16,10 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
 PKG_MD5SUM:=888c3000aa002790cc7129fa72d39a58
 
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=docs/COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/librem
