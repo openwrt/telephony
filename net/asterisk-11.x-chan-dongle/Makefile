@@ -22,6 +22,10 @@ PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
 
 PKG_FIXUP:=autoreconf
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYRIGHT.txt LICENSE.txt
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11-chan-dongle
@@ -31,7 +35,6 @@ define Package/asterisk11-chan-dongle
   URL:=https://code.google.com/p/asterisk-chan-dongle/
   DEPENDS:= asterisk11 +libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk11-chan-dongle/description

@@ -15,6 +15,10 @@ PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
 PKG_MD5SUM:=20995d419dace207f828a3a8463c22e1
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING LICENSE
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk

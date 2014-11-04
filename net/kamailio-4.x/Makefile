@@ -16,6 +16,10 @@ PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
 PKG_MD5SUM:=6b5dc98be07a5d68b3701d7955102d34
 PKG_USE_MIPS16:=0
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 INCL_MODULES:=
 KAM_MODULES:=
 
@@ -31,7 +35,6 @@ define Package/kamailio4/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.kamailio.org/
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
   DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2
 endef
 

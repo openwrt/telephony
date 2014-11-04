@@ -17,6 +17,10 @@ PKG_MD5SUM:=150a503e0c90031b978a4c264800a387
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING LICENSE
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk18/install/module
@@ -75,7 +79,6 @@ define Package/asterisk18/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=http://www.asterisk.org/
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk18/Default/description

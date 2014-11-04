@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -15,6 +15,9 @@ PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk-gui/release
 PKG_SOURCE:=asterisk-gui-$(PKG_VERSION).tar.gz
 PKG_MD5SUM:=055bf2aaba365e696198925d039ac3cb
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk18-gui-$(PKG_VERSION)
+
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 

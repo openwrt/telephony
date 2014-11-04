@@ -18,6 +18,10 @@ PKG_MD5SUM:=9b449edb011c934ca97009e7e0566d22
 PKG_BUILD_DIR:=$(BUILD_DIR)/srtp
 PKG_INSTALL:=1
 
+PKG_LICENSE:=BSD-3-clause
+PKG_LICENSE_FILES:=LICENSE
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 TARGET_CFLAGS += $(FPIC)
@@ -29,7 +33,6 @@ define Package/libsrtp
   CATEGORY:=Libraries
   TITLE:=Secure Real-time Transport Protocol (SRTP) library
   URL:=http://sourceforge.net/projects/srtp
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/libsrtp/description

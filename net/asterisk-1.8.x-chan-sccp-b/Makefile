@@ -20,6 +20,10 @@ PKG_SOURCE_PROTO:=svn
 
 PKG_FIXUP:=autoreconf -fi
 
+PKG_LICENSE:=GPL-1.0
+PKG_LICENSE_FILES:=COPYING LICENSE
+PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk18-chan-sccp-b
@@ -29,7 +33,6 @@ define Package/asterisk18-chan-sccp-b
   TITLE:=SCCP channel provider support
   URL:=http://chan-sccp-b.sourceforge.net/
   DEPENDS:=asterisk18 +libltdl
-  MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 endef
 
 define Package/asterisk18-chan-sccp-b/description

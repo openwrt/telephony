@@ -16,6 +16,9 @@ PKG_SOURCE:=asterisk-gui-$(PKG_VERSION).tar.gz
 PKG_MD5SUM:=055bf2aaba365e696198925d039ac3cb
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk11-gui-$(PKG_VERSION)
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING LICENSE
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/asterisk11-gui

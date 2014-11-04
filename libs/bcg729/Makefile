@@ -18,6 +18,10 @@ PKG_MD5SUM:=45e127a9a309aff94d3262d97b5aeab0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL:=1
 
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/bcg729
@@ -27,7 +31,6 @@ define Package/bcg729
   TITLE:=Software G729A encoder and decoder library written in C
   URL:=http://www.linphone.org/technical-corner/bcg729.html
   DEPENDS:=@BUILD_PATENTED
-  MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
 endef
 
 define Package/bcg729/description
