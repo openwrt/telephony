@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.2.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -49,22 +49,13 @@ define Package/kamailio4/conffiles
 /etc/kamailio/kamailio.cfg
 /etc/kamailio/kamailio-advanced.cfg
 /etc/kamailio/dictionary.kamailio
-endef
-
-define Package/kamailio4-tools
-$(call Package/kamailio4/Default)
-  TITLE:=Kamailio4 control tools
-  DEPENDS:=kamailio4
-endef
-
-define Package/kamailio4-tools/conffiles
 /etc/kamailio/kamctlrc
 endef
 
 define Package/kamailio4/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)/usr/sbin/{kamailio,kamcmd} \
+		$(PKG_INSTALL_DIR)/usr/sbin/kam{ailio,cmd,ctl,dbctl} \
 		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
 	$(INSTALL_BIN) \
@@ -72,7 +63,7 @@ define Package/kamailio4/install
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(CP) \
-		$(PKG_INSTALL_DIR)/etc/kamailio/{dictionary.kamailio,kamailio-advanced.cfg,kamailio.cfg} \
+		$(PKG_INSTALL_DIR)/etc/kamailio/{dictionary.kamailio,kamailio-advanced.cfg,kamailio.cfg,kamctlrc} \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(CP) \
@@ -82,21 +73,15 @@ define Package/kamailio4/install
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
 		$(1)/etc/init.d/kamailio
-endef
-
-define Package/kamailio4-tools/install
-	$(INSTALL_DIR) $(1)/etc/kamailio
-	$(CP) \
-		$(PKG_BUILD_DIR)/utils/kamctl/kamctlrc \
-		$(1)/etc/kamailio/
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)/usr/sbin/kam{ctl,dbctl} \
-		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/
+endef
+
+define Package/kamailio4/install/dbfiles
+	$(INSTALL_DIR) $(1)/usr/share/kamailio/$(2)
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/kamailio/$(2)/* $(1)/usr/share/kamailio/$(2)/
 endef
 
 define Package/kamailio4/install/module
@@ -117,6 +102,7 @@ This package provides support for $(3) in Kamailio.
 
   define Package/kamailio4-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio4/install/module,$$(1),$(1))
+$(foreach d,$(5),$(call Package/kamailio4/install/dbfiles,$$(1),$(d));)
   endef
 
   INCL_MODULES+=$(1)
@@ -130,6 +116,7 @@ endef
 # 2 - Module title
 # 3 - Module description
 # 4 - Dependencies
+# 5 - Kamailio DB files
 ################################
 
 $(eval $(call BuildKamailio4Module,acc,Accounting,,+kamailio4-mod-tm))
@@ -146,10 +133,10 @@ $(eval $(call BuildKamailio4Module,cnxcc,Limit call duration,,+kamailio4-mod-dia
 $(eval $(call BuildKamailio4Module,corex,Legacy functions,,))
 $(eval $(call BuildKamailio4Module,ctl,BINRPC transport interface,,))
 $(eval $(call BuildKamailio4Module,db_flatstore,Fast writing-only text database-backed,,))
-$(eval $(call BuildKamailio4Module,db_mysql,MySQL database-backend,,+libmysqlclient))
-$(eval $(call BuildKamailio4Module,db_postgres,PostgreSQL Database-backend,,+libpq))
-$(eval $(call BuildKamailio4Module,db_sqlite,Sqlite DB support,,+libsqlite3))
-$(eval $(call BuildKamailio4Module,db_text,Text database-backend,,))
+$(eval $(call BuildKamailio4Module,db_mysql,MySQL database-backend,,+libmysqlclient,mysql))
+$(eval $(call BuildKamailio4Module,db_postgres,PostgreSQL Database-backend,,+libpq,postgres))
+$(eval $(call BuildKamailio4Module,db_sqlite,Sqlite DB support,,+libsqlite3,db_sqlite))
+$(eval $(call BuildKamailio4Module,db_text,Text database-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio4Module,db_unixodbc,UnixODBC Database-backend,,+unixodbc))
 $(eval $(call BuildKamailio4Module,dialog,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
 $(eval $(call BuildKamailio4Module,dialog_ng,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
@@ -232,7 +219,7 @@ PKG_MAKE_ARGS:= \
 	prefix=/ \
 	cfg_dir=/etc/kamailio/ \
 	bin_dir=/usr/sbin/ \
-	data_dir=/var/lib/kamailio/ \
+	data_dir=/usr/share/kamailio/ \
 	lib_dir=/usr/lib/kamailio/ \
 	modules_dir=/usr/lib/kamailio/ \
 	include_modules="$(INCL_MODULES)" \
@@ -259,5 +246,4 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,kamailio4))
-$(eval $(call BuildPackage,kamailio4-tools))
 $(foreach m,$(KAM_MODULES),$(eval $(call BuildPackage,$(m))))
