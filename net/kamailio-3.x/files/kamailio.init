@@ -3,14 +3,28 @@
 
 START=99
 
-BIN_FILE=/usr/sbin/kamailio
-PID_FILE=/var/run/kamailio.pid
+BINFILE=/usr/sbin/kamailio
+PIDFILE=/var/run/kamailio.pid
+DEFAULTS=/etc/default/kamailio
+CFGFILE=/etc/kamailio/kamailio.cfg
+SHM_MEMORY=8
+PKG_MEMORY=2
+RUN_KAMAILIO=no
 
 start() {
-	start-stop-daemon -S -x $BIN_FILE -b -- -P $PID_FILE
+	# Load startup options if available
+	if [ -f $DEFAULTS ]; then
+		. $DEFAULTS
+	fi
+
+	if [ "$RUN_KAMAILIO" != "yes" ]; then
+		echo "[WARNING] Kamailio not yet configured. Edit /etc/default/kamailio first."
+	else
+		start-stop-daemon -S -x $BINFILE -b -- -P $PIDFILE -f $CFGFILE -m $SHM_MEMORY -M $PKG_MEMORY
+	fi
 }
 
 stop() {
-	start-stop-daemon -K -x $BIN_FILE -p $PID_FILE -q
+	start-stop-daemon -K -x $BINFILE -p $PIDFILE -q
 	rm -rf $PID_FILE
 }
