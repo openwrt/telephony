@@ -40,7 +40,7 @@ endef
 
 define Package/kamailio3
 $(call Package/kamailio3/Default)
-  TITLE:=Mature and flexible open source SIP server, v$(PKG_NAME)
+  TITLE:=Mature and flexible open source SIP server, v$(PKG_VERSION)
   MENU:=1
 endef
 
