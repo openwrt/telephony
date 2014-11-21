@@ -1,34 +1,30 @@
-diff -rupN kamailio4-4.1.4/utils/kamctl/kamctl kamailio4-new/utils/kamctl/kamctl
---- kamailio4-4.1.4/utils/kamctl/kamctl	2014-06-12 16:17:28.000000000 +0200
-+++ kamailio4-new/utils/kamctl/kamctl	2014-08-07 16:35:34.858892154 +0200
+--- a/utils/kamctl/kamctl
++++ b/utils/kamctl/kamctl
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  #
- # $Id$
+ # control tool for maintaining Kamailio
  #
-diff -rupN kamailio4-4.1.4/utils/kamctl/kamctlrc kamailio4-new/utils/kamctl/kamctlrc
---- kamailio4-4.1.4/utils/kamctl/kamctlrc	2014-06-12 16:17:28.000000000 +0200
-+++ kamailio4-new/utils/kamctl/kamctlrc	2014-08-07 16:42:44.190909497 +0200
-@@ -145,3 +145,6 @@
+--- a/utils/kamctl/kamctlrc
++++ b/utils/kamctl/kamctlrc
+@@ -147,3 +147,6 @@
  ## Extra start options - default is: not set
  # example: start Kamailio with 64MB share memory: STARTOPTIONS="-m 64"
  # STARTOPTIONS=
 +
 +# Disable colour printing in terminal
 +NOHLPRINT=1
-diff -rupN kamailio4-4.1.4/utils/kamctl/kamdbctl kamailio4-new/utils/kamctl/kamdbctl
---- kamailio4-4.1.4/utils/kamctl/kamdbctl	2014-06-12 16:17:28.000000000 +0200
-+++ kamailio4-new/utils/kamctl/kamdbctl	2014-08-07 16:35:42.986892483 +0200
+--- a/utils/kamctl/kamdbctl
++++ b/utils/kamctl/kamdbctl
 @@ -1,4 +1,4 @@
 -#!/bin/bash 
 +#!/bin/sh 
  #
- # $Id$
+ # control tool for maintaining Kamailio databases
  #
-diff -rupN kamailio4-4.1.4/utils/kamctl/kamdbctl.base kamailio4-new/utils/kamctl/kamdbctl.base
---- kamailio4-4.1.4/utils/kamctl/kamdbctl.base	2014-06-12 16:17:28.000000000 +0200
-+++ kamailio4-new/utils/kamctl/kamdbctl.base	2014-08-07 16:37:25.962896642 +0200
+--- a/utils/kamctl/kamdbctl.base
++++ b/utils/kamctl/kamdbctl.base
 @@ -33,18 +33,18 @@ INSTALL_DBUID_TABLES=${INSTALL_DBUID_TAB
  
  # Used by dbtext and db_berkeley to define tables to be created, used by
@@ -57,7 +53,7 @@ diff -rupN kamailio4-4.1.4/utils/kamctl/kamdbctl.base kamailio4-new/utils/kamctl
  		uid_global_attrs uid_uri uid_uri_attrs uid_user_attrs}
  
  # SQL definitions
-@@ -74,17 +74,17 @@ GREP=${GREP:-grep}
+@@ -68,17 +68,17 @@ GREP=${GREP:-grep}
  SED=${SED:-sed}
  
  # define what modules should be installed
