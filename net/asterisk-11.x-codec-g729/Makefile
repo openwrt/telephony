@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11-codec-g729
-PKG_VERSION:=1.2
+PKG_VERSION:=1.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-g72x-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://asterisk.hosting.lv/src/
-PKG_MD5SUM:=a830aefa27634787f41ff8b209ba585b
+PKG_MD5SUM:=05825dfbe4959dc5c90b2f7b91e3d4e3
 
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)
 PKG_FIXUP:=autoreconf
