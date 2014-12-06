@@ -1,9 +1,10 @@
 Description: Update Doxyfile and header template
 Author: Jonas Smedegaard <dr@jones.dk>
-Last-Update: 2010-02-28
+Last-Update: 2013-07-22
+
 --- a/doc/Makefile.in
 +++ b/doc/Makefile.in
-@@ -25,6 +25,7 @@ libsrtpdoc: 
+@@ -25,6 +25,7 @@
  		echo "*** Sorry, can't build doc outside source dir"; exit 1; \
  	fi
  	sed 's/LIBSRTPVERSION/$(version)/' header.template > header.tex
@@ -11,7 +12,7 @@ Last-Update: 2010-02-28
  	doxygen
  	sed 's/\subsection/\section/' latex/index.tex > latex/index.tmp
  	mv latex/index.tmp latex/index.tex
-@@ -38,7 +39,7 @@ cryptodoc: clean
+@@ -38,7 +39,7 @@
  	cp latex/refman.pdf crypto.pdf
  
  clean:
@@ -22,11 +23,7 @@ Last-Update: 2010-02-28
          done;
 --- a/doc/header.template
 +++ b/doc/header.template
-@@ -6,28 +6,40 @@
- % 
- \documentclass[letterpaper]{book}
- \usepackage{makeidx}
--\usepackage{fancyhdr}
+@@ -10,28 +10,47 @@
  \usepackage{graphicx}
  \usepackage{multicol}
  \usepackage{float}
@@ -71,7 +68,17 @@ Last-Update: 2010-02-28
  \makeindex
  \setcounter{tocdepth}{1}
  \renewcommand{\footrulewidth}{0.4pt}
-@@ -59,7 +71,9 @@
+ 
++\let\origdoublepage\cleardoublepage
++\providecommand{\clearemptydoublepage}{%
++  \clearpage
++  {\pagestyle{empty}\origdoublepage}%
++}
++
+ % these lengths are from DAM
+ \textwidth = 6.5 in
+ %\textheight = 9 in
+@@ -59,7 +78,9 @@
  \selectfont
  
  
@@ -81,7 +88,7 @@ Last-Update: 2010-02-28
  \begin{titlepage}
  \vspace*{4cm}
  %\begin{center}
-@@ -107,9 +121,6 @@ This reference material in this documena
+@@ -107,9 +128,6 @@
  \clearemptydoublepage
  \pagenumbering{roman}
  \tableofcontents
