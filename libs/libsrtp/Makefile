@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
 PKG_VERSION:=1.5.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/cisco/libsrtp.git
@@ -26,7 +26,7 @@ PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 
 include $(INCLUDE_DIR)/package.mk
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS += $(FPIC) -DDEV_URANDOM
 CONFIGURE_ARGS += \
 	--disable-kernel-linux \
 	--disable-debug \
