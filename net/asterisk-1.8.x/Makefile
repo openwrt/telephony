@@ -343,7 +343,7 @@ $(eval $(call BuildAsterisk18Module,func-vmcount,vmcount dialplan,a vmcount dial
 $(eval $(call BuildAsterisk18Module,chan-agent,Agents proxy channel,An implementation of agents proxy channel,,,,chan_agent,))
 $(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
 $(eval $(call BuildAsterisk18Module,chan-iax2,IAX2 channel,An implementation of IAX2 channel,+asterisk18-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
-$(eval $(call BuildAsterisk18Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
+$(eval $(call BuildAsterisk18Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk18Module,chan-local,Local proxy channel,An implementation of local proxy channel,,,,chan_local,))
 $(eval $(call BuildAsterisk18Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
 $(eval $(call BuildAsterisk18Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
