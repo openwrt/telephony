@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio3
 PKG_VERSION:=3.3.7
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -144,6 +144,7 @@ $(eval $(call BuildKamailio3Module,dispatcher,Dispatcher,,,modules_s))
 $(eval $(call BuildKamailio3Module,diversion,Diversion header insertion,,,modules_s))
 $(eval $(call BuildKamailio3Module,domain,Multi-domain support,,,modules_k))
 $(eval $(call BuildKamailio3Module,domainpolicy,Domain policy,,,modules_k))
+$(eval $(call BuildKamailio3Module,drouting,Dynamic routing module,,,modules_k))
 $(eval $(call BuildKamailio3Module,enum,ENUM lookup,,,modules))
 $(eval $(call BuildKamailio3Module,exec,External exec,,,modules_k))
 $(eval $(call BuildKamailio3Module,group,Database-backend user-groups,,,modules_k))
@@ -207,6 +208,7 @@ $(eval $(call BuildKamailio3Module,usrloc,User location,,+libxml2,modules_k))
 $(eval $(call BuildKamailio3Module,utils,Misc utilities,,+libcurl +libxml2,modules))
 $(eval $(call BuildKamailio3Module,xcap_client,XCAP Client,,+libcurl,modules_k))
 $(eval $(call BuildKamailio3Module,xlog,Advanced logger,,,modules_k))
+$(eval $(call BuildKamailio3Module,xmlrpc,XML RPC module,,+libxml2,modules))
 $(eval $(call BuildKamailio3Module,xmpp,SIP-to-XMPP Gateway,,+kamailio3-mod-tm +libexpat +libxml2,modules_k))
 
 PKG_MAKE_ARGS:= \

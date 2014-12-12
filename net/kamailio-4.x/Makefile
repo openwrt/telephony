@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.2.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -145,6 +145,7 @@ $(eval $(call BuildKamailio4Module,dispatcher,Dispatcher,,))
 $(eval $(call BuildKamailio4Module,diversion,Diversion header insertion,,))
 $(eval $(call BuildKamailio4Module,domain,Multi-domain support,,))
 $(eval $(call BuildKamailio4Module,domainpolicy,Domain policy,,))
+$(eval $(call BuildKamailio4Module,drouting,Dynamic routing module,,))
 $(eval $(call BuildKamailio4Module,enum,ENUM lookup,,))
 $(eval $(call BuildKamailio4Module,exec,External exec,,))
 $(eval $(call BuildKamailio4Module,group,Database-backend user-groups,,))
@@ -213,6 +214,7 @@ $(eval $(call BuildKamailio4Module,usrloc,User location,,))
 $(eval $(call BuildKamailio4Module,utils,Misc utilities,,+libcurl +libxml2))
 $(eval $(call BuildKamailio4Module,xcap_client,XCAP Client,,+libcurl))
 $(eval $(call BuildKamailio4Module,xlog,Advanced logger,,))
+$(eval $(call BuildKamailio4Module,xmlrpc,XML RPC module,,+libxml2))
 $(eval $(call BuildKamailio4Module,xmpp,SIP-to-XMPP Gateway,,+kamailio4-mod-tm +libexpat))
 
 PKG_MAKE_ARGS:= \
