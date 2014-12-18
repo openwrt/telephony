@@ -34,7 +34,7 @@ define Package/asterisk18-codec-g729
   TITLE:=G.729 codec for Asterisk open source PBX
 endef
 
-define Package/asterisk11-codec-g729/description
+define Package/asterisk18-codec-g729/description
  Asterisk G.729 codec based on bcg729 implementation.
 endef
 
@@ -46,7 +46,7 @@ MAKE_ARGS:= \
 	DESTDIR="$(PKG_INSTALL_DIR)"
 
 CONFIGURE_ARGS+=\
-	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-11/include \
+	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-1.8/include \
 	--with-asterisk18 \
 	--with-bcg729 \
 	--enable-shared \
