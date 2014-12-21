@@ -1,5 +1,5 @@
---- asterisk-11.4.0/res/Makefile	2013-02-04 20:50:52.000000000 +0100
-+++ asterisk11-new/res/Makefile	2013-06-02 13:51:22.269684111 +0200
+--- a/res/Makefile
++++ b/res/Makefile
 @@ -75,7 +75,7 @@ dist-clean::
  	rm -f pjproject/build.mak
  
