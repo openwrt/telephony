@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
 PKG_VERSION:=1.2.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://b2bua.org/chrome/site/
@@ -31,11 +31,15 @@ define Package/rtpproxy
   URL:=http://www.rtpproxy.org/
 endef
 
-# uses GNU configure
-
 define Package/rtpproxy/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rtpproxy $(1)/usr/bin/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/rtpproxy.init $(1)/etc/init.d/rtpproxy
+
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_BIN) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
 endef
 
 $(eval $(call BuildPackage,rtpproxy))
