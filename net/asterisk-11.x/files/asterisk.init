@@ -5,12 +5,10 @@ START=99
 APP=asterisk
 OPTIONS=
 DEST=
-DEFAULT=$DEST/etc/default/$APP
 BIN_FILE=$DEST/usr/sbin/$APP
 PID_FILE=$DEST/var/run/$APP/$APP.pid
 
 start() {
-       [ -f $DEFAULT ] && . $DEFAULT
        [ -d $DEST/var/run/asterisk ] || mkdir -p $DEST/var/run/asterisk
        [ -d $DEST/var/log/asterisk ] || mkdir -p $DEST/var/log/asterisk
        [ -d $DEST/var/spool/asterisk ] || mkdir -p $DEST/var/spool/asterisk

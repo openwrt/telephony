@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.12.0
+PKG_VERSION:=11.15.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=4bca7a1688f0e28fe3707994421899fe
+PKG_MD5SUM:=71e8c2e207255f7ef12b81b7f0da30ea
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -113,7 +113,6 @@ define Package/asterisk11/conffiles
 /etc/asterisk/sip_notify.conf
 /etc/asterisk/udptl.conf
 /etc/asterisk/users.conf
-/etc/default/asterisk
 /etc/init.d/asterisk
 endef
 
@@ -131,8 +130,6 @@ $(call Package/asterisk11/install/sbin,$(1),safe_asterisk)
 $(call Package/asterisk11/install/sbin,$(1),astgenkey)
 $(foreach m,$(AST_CFG_FILES),$(call Package/asterisk11/install/conffile,$(1),$(m));)
 $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk11/install/module,$(1),$(m));)
-	$(INSTALL_DIR) $(1)/etc/default
-	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
 endef
