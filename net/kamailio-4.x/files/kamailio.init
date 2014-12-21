@@ -21,10 +21,18 @@ start() {
 		echo "[WARNING] Kamailio not yet configured. Edit /etc/default/kamailio first."
 	else
 		start-stop-daemon -S -x $BINFILE -b -- -P $PIDFILE -f $CFGFILE -m $SHM_MEMORY -M $PKG_MEMORY
-	fi
+                echo "[INFO] Kamailio has succesfully started."
+        fi
 }
 
 stop() {
-	start-stop-daemon -K -x $BINFILE -p $PIDFILE -q
-	rm -rf $PID_FILE
+        start-stop-daemon -K -x $BINFILE -p $PIDFILE -q
+        rm -rf $PID_FILE
+}
+
+restart(){
+        echo "[INFO] Restarting kamailio. Waiting 5 seconds before start."
+        stop
+        sleep 5
+        start
 }
