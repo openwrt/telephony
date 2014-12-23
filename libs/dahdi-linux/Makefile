@@ -25,30 +25,30 @@ DAHDI_MODULES_EXTRA:=
 include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/dahdi
-	SUBMENU:=Voice over IP
-	TITLE:=DAHDI basic infrastructure
-	DEPENDS:=@USB_SUPPORT +kmod-lib-crc-ccitt
-	URL:=http://www.asterisk.org/
-	FILES:= $(PKG_BUILD_DIR)/drivers/dahdi/dahdi.$(LINUX_KMOD_SUFFIX)
-	AUTOLOAD:=$(call AutoProbe,dahdi)
+  SUBMENU:=Voice over IP
+  TITLE:=DAHDI basic infrastructure
+  DEPENDS:=@USB_SUPPORT +kmod-lib-crc-ccitt
+  URL:=http://www.asterisk.org/
+  FILES:= $(PKG_BUILD_DIR)/drivers/dahdi/dahdi.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoProbe,dahdi)
 endef
 
 define KernelPackage/dahdi/description
-	This package contains DAHDI basic infrastructure.
+  This package contains DAHDI basic infrastructure.
 endef
 
 define KernelPackage/dahdi-echocan-oslec
-	SUBMENU:=Voice over IP
-	TITLE:=DAHDI OSLEC echo canceller support
-	DEPENDS:=kmod-dahdi
-	URL:=http://www.asterisk.org/
-	FILES:=	$(PKG_BUILD_DIR)/drivers/staging/echo/echo.$(LINUX_KMOD_SUFFIX) \
-		$(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
-	AUTOLOAD:=$(call AutoProbe,echo dahdi_echocan_oslec)
+  SUBMENU:=Voice over IP
+  TITLE:=DAHDI OSLEC echo canceller support
+  DEPENDS:=kmod-dahdi
+  URL:=http://www.asterisk.org/
+  FILES:= $(PKG_BUILD_DIR)/drivers/staging/echo/echo.$(LINUX_KMOD_SUFFIX) \
+          $(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoProbe,echo dahdi_echocan_oslec)
 endef
 
 define KernelPackage/dahdi-echocan-oslec/description
-	This package contains DAHDI OSLEC echo canceller support.
+  This package contains DAHDI OSLEC echo canceller support.
 endef
 
 define Build/Configure

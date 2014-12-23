@@ -22,33 +22,33 @@ PKG_MAINTAINER:=Vittorio Gambaletta <openwrt@vittgam.net>
 include $(INCLUDE_DIR)/package.mk
 
 define Package/dahdi-cfg/Default
-	SECTION:=utils
-	CATEGORY:=Utilities
-	SUBMENU:=Telephony
-	DEPENDS=+kmod-dahdi
+  SECTION:=utils
+  CATEGORY:=Utilities
+  SUBMENU:=Telephony
+  DEPENDS=+kmod-dahdi
 endef
 
 define Package/dahdi-cfg
-	$(call Package/dahdi-cfg/Default)
-	DEPENDS+=+libpthread
-	TITLE:=DAHDI tools dahdi_cfg and dahdi_scan
+  $(call Package/dahdi-cfg/Default)
+  DEPENDS+=+libpthread
+  TITLE:=DAHDI tools dahdi_cfg and dahdi_scan
 endef
 
 define Package/dahdi-monitor
-	$(call Package/dahdi-cfg/Default)
-	TITLE:=DAHDI tools dahdi_monitor, dahdi_speed and dahdi_test
+  $(call Package/dahdi-cfg/Default)
+  TITLE:=DAHDI tools dahdi_monitor, dahdi_speed and dahdi_test
 endef
 
 define Package/dahdi-tool
-	$(call Package/dahdi-cfg/Default)
-	TITLE:=DAHDI tools dahdi_tool
+  $(call Package/dahdi-cfg/Default)
+  TITLE:=DAHDI tools dahdi_tool
 endef
 
 define Package/dahdi-tools-libtonezone
-	$(call Package/dahdi-cfg/Default)
-	SECTION:=libs
-	CATEGORY:=Libraries
-	TITLE:=DAHDI tonezone library
+  $(call Package/dahdi-cfg/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  TITLE:=DAHDI tonezone library
 endef
 
 TARGET_CFLAGS += $(FPIC)
