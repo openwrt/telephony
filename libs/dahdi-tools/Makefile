@@ -39,6 +39,11 @@ define Package/dahdi-monitor
 	TITLE:=DAHDI tools dahdi_monitor, dahdi_speed and dahdi_test
 endef
 
+define Package/dahdi-tool
+	$(call Package/dahdi-cfg/Default)
+	TITLE:=DAHDI tools dahdi_tool
+endef
+
 define Package/dahdi-tools-libtonezone
 	$(call Package/dahdi-cfg/Default)
 	SECTION:=libs
@@ -49,7 +54,13 @@ endef
 TARGET_CFLAGS += $(FPIC)
 EXTRA_CFLAGS:= $(TARGET_CPPFLAGS)
 
-# dahdi_tool build not included => need libnewt
+CONFIGURE_ARGS+= \
+	--with-dahdi="$(STAGING_DIR)/usr" \
+	--without-newt \
+	--without-usb \
+	--without-selinux \
+	--without-ppp
+
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		$(TARGET_CONFIGURE_OPTS) \
@@ -61,7 +72,7 @@ define Build/Compile
 		INSTALL_PREFIX="$(PKG_INSTALL_DIR)" \
 		DAHDI_INCLUDE="$(STAGING_DIR)/usr/include" \
 		CONFIGURE_SILENT="--silent" \
-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune libs
+		dahdi_cfg dahdi_monitor dahdi_tool dahdi_scan dahdi_speed dahdi_test fxotune libs
 endef
 
 define Build/InstallDev
@@ -86,6 +97,11 @@ define Package/dahdi-monitor/install
 	$(CP) $(PKG_BUILD_DIR)/dahdi_test $(1)/usr/sbin/
 endef
 
+define Package/dahdi-tool/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_BUILD_DIR)/dahdi_tool $(1)/usr/sbin/
+endef
+
 define Package/dahdi-tools-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
@@ -94,4 +110,5 @@ endef
 
 $(eval $(call BuildPackage,dahdi-cfg))
 $(eval $(call BuildPackage,dahdi-monitor))
+$(eval $(call BuildPackage,dahdi-tool))
 $(eval $(call BuildPackage,dahdi-tools-libtonezone))
