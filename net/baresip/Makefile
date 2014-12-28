@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.4.11
-PKG_RELEASE:=3
+PKG_VERSION:=0.4.12
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=bf25d14749ca286716c9b23108472c8a
+PKG_MD5SUM:=93c0ea33ec0e96b89b1c3e0f78b72c5b
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -105,13 +105,14 @@ define Package/baresip/install
 	$(INSTALL_BIN) ./files/baresip.init $(1)/etc/init.d/baresip
 endef
 
-
-#
+##################
+# Baresip modules
 # 1. Name
 # 2. Title
 # 3. Files
-# 4. Depends
-#
+# 4. Dependencies
+##################
+
 define BuildPlugin
 
   define Package/baresip-mod-$(1)
@@ -131,7 +132,6 @@ define BuildPlugin
 
   $$(eval $$(call BuildPackage,baresip-mod-$(1)))
 endef
-
 
 $(eval $(call BuildPackage,baresip))
 
