@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.4.12
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -55,8 +55,8 @@ $(call Package/baresip/Default)
 endef
 
 baresip-mod-alsa      := USE_ALSA
-baresip-mod-avcodec   := USE_FFMPEG
-baresip-mod-avformat  := USE_FFMPEG_AVFORMAT
+baresip-mod-avcodec   := USE_AVCODEC
+baresip-mod-avformat  := USE_AVFORMAT
 baresip-mod-cons      := USE_CONS
 baresip-mod-evdev     := USE_EVDEV
 baresip-mod-g711      := USE_G711
