@@ -8,20 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
-PKG_VERSION:=4.2.1
-PKG_RELEASE:=3
+PKG_VERSION:=4.2.2
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_MD5SUM:=c2bccebd88156bf02957468e36dda648
+PKG_MD5SUM:=844e6d44ffb374763eb395d8f1477ec7
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
-
-INCL_MODULES:=
-KAM_MODULES:=
 
 include $(INCLUDE_DIR)/nls.mk
 include $(INCLUDE_DIR)/package.mk
@@ -96,16 +93,15 @@ define BuildKamailio4Module
     DEPENDS:=kamailio4 $(4)
   endef
 
-  define Package/kamailio4-mod-$(subst _,-,$(1))/description
-This package provides support for $(3) in Kamailio.
-  endef
-
   define Package/kamailio4-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio4/install/module,$$(1),$(1))
 $(foreach d,$(5),$(call Package/kamailio4/install/dbfiles,$$(1),$(d));)
   endef
 
+ifneq ($(CONFIG_PACKAGE_kamailio4-mod-$(1)),)
   INCL_MODULES+=$(1)
+endif
+
   KAM_MODULES+=kamailio4-mod-$(subst _,-,$(1))
 endef
 
