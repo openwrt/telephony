@@ -98,10 +98,7 @@ $(call Package/kamailio4/install/module,$$(1),$(1))
 $(foreach d,$(5),$(call Package/kamailio4/install/dbfiles,$$(1),$(d));)
   endef
 
-ifneq ($(CONFIG_PACKAGE_kamailio4-mod-$(1)),)
   INCL_MODULES+=$(1)
-endif
-
   KAM_MODULES+=kamailio4-mod-$(subst _,-,$(1))
 endef
 
