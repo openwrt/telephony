@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.2.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -83,7 +83,7 @@ endef
 
 define Package/kamailio4/install/module
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/*$(2).so* $(1)/usr/lib/kamailio/modules/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so* $(1)/usr/lib/kamailio/modules/
 endef
 
 define BuildKamailio4Module
