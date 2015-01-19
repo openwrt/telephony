@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.2.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -44,7 +44,6 @@ endef
 define Package/kamailio4/conffiles
 /etc/default/kamailio
 /etc/kamailio/kamailio.cfg
-/etc/kamailio/kamailio-advanced.cfg
 /etc/kamailio/dictionary.kamailio
 /etc/kamailio/kamctlrc
 endef
@@ -60,7 +59,10 @@ define Package/kamailio4/install
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(CP) \
-		$(PKG_INSTALL_DIR)/etc/kamailio/{dictionary.kamailio,kamailio-advanced.cfg,kamailio.cfg,kamctlrc} \
+		$(PKG_BUILD_DIR)/etc/{dictionary.kamailio,kamailio.cfg,kamailio-basic.cfg} \
+		$(1)/etc/kamailio/
+	$(CP) \
+		$(PKG_BUILD_DIR)/utils/kamctl/kamctlrc \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(CP) \
