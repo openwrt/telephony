@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2015 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -44,6 +44,7 @@ endef
 define Package/kamailio4/conffiles
 /etc/default/kamailio
 /etc/kamailio/kamailio.cfg
+/etc/kamailio/kamailio-advanced.cfg
 /etc/kamailio/dictionary.kamailio
 /etc/kamailio/kamctlrc
 endef
@@ -59,10 +60,7 @@ define Package/kamailio4/install
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(CP) \
-		$(PKG_BUILD_DIR)/etc/{dictionary.kamailio,kamailio.cfg,kamailio-basic.cfg} \
-		$(1)/etc/kamailio/
-	$(CP) \
-		$(PKG_BUILD_DIR)/utils/kamctl/kamctlrc \
+		$(PKG_INSTALL_DIR)/etc/{dictionary.kamailio,kamailio-advanced.cfg,kamailio.cfg,kamctlrc} \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(CP) \
@@ -133,6 +131,7 @@ $(eval $(call BuildKamailio4Module,db_postgres,PostgreSQL Database-backend,,+lib
 $(eval $(call BuildKamailio4Module,db_sqlite,Sqlite DB support,,+libsqlite3,db_sqlite))
 $(eval $(call BuildKamailio4Module,db_text,Text database-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio4Module,db_unixodbc,UnixODBC Database-backend,,+unixodbc))
+$(eval $(call BuildKamailio4Module,debugger,Interactive config file debugger,,))
 $(eval $(call BuildKamailio4Module,dialog,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
 $(eval $(call BuildKamailio4Module,dialog_ng,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
 $(eval $(call BuildKamailio4Module,dialplan,Dialplan management,,))
