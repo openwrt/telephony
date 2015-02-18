@@ -51,6 +51,20 @@ define KernelPackage/dahdi-echocan-oslec/description
   This package contains DAHDI OSLEC echo canceller support.
 endef
 
+define KernelPackage/dahdi-hfcs
+  SUBMENU:=Voice over IP
+  TITLE:=DAHDI driver for HFC-S PCI
+  DEPENDS:=@PCI_SUPPORT kmod-dahdi
+  URL:=http://sourceforge.net/projects/dahdi-hfcs/
+  FILES:= $(PKG_BUILD_DIR)/drivers/dahdi/hfcs/dahdi_hfcs.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoProbe,dahdi_hfcs)
+endef
+
+define KernelPackage/dahdi-hfcs/description
+  This package contains DAHDI driver for HFC-S based PCI BRI adapters.
+endef
+
+
 define Build/Configure
 endef
 
@@ -89,3 +103,4 @@ endef
 
 $(eval $(call KernelPackage,dahdi))
 $(eval $(call KernelPackage,dahdi-echocan-oslec))
+$(eval $(call KernelPackage,dahdi-hfcs))
