@@ -7,6 +7,7 @@
 # People listed here are managing the OpenWrt telephony feed. Use
 # alphabetical order when updating the list.
 
+Daniel Golle <daniel@makrotopia.org>
 Jiri Slachta <slachta@cesnet.cz>
 Luka Perkov <luka@openwrt.org>
 Mazi Lo <openwrt.mazilo@recursor.net>
