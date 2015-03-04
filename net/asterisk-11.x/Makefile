@@ -377,7 +377,6 @@ $(eval $(call BuildAsterisk11Module,func-base64,base64 support,support of base64
 $(eval $(call BuildAsterisk11Module,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,,func_blacklist,))
 $(eval $(call BuildAsterisk11Module,func-cut,CUT function,CUT function,,,,func_cut,))
 $(eval $(call BuildAsterisk11Module,func-db,Database interaction,functions for interaction with the database,,,,func_db app_db,))
-$(eval $(call BuildAsterisk11Module,func-db,Database interaction,functions for interaction with the database,,,,func_db,))
 $(eval $(call BuildAsterisk11Module,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,,func_devstate,))
 $(eval $(call BuildAsterisk11Module,func-enum,ENUM,ENUM,,/etc/asterisk/enum.conf,enum.conf,func_enum,))
 $(eval $(call BuildAsterisk11Module,func-env,Environment functions,Environment dialplan functions,,,,func_env,))
