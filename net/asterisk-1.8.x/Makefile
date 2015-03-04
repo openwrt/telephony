@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2015 OpenWrt.org
+# Copyright (C) 2015 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.32.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -316,8 +317,8 @@ $(eval $(call BuildAsterisk18Module,app-talkdetect,File playback with audio dete
 $(eval $(call BuildAsterisk18Module,app-verbose,Verbose logging,Verbose logging application,,,,app_verbose,))
 $(eval $(call BuildAsterisk18Module,app-waituntil,Sleep,support sleeping until the given epoch,,,,app_waituntil,))
 $(eval $(call BuildAsterisk18Module,app-while,While loop,a while loop implementation,,,,app_while,))
-$(eval $(call BuildAsterisk18Module,cdr,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
 $(eval $(call BuildAsterisk18Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,,cdr_csv,))
+$(eval $(call BuildAsterisk18Module,cdr,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
 $(eval $(call BuildAsterisk18Module,codec-a-mu,Alaw to ulaw translation,translation between alaw and ulaw codecs,,,,codec_a_mu,))
 $(eval $(call BuildAsterisk18Module,codec-alaw,Signed linear to alaw translation,translation between signed linear and alaw codecs,,,,codec_alaw,))
 $(eval $(call BuildAsterisk18Module,codec-g722,G.722,a high bit rate 48/56/64Kbps ITU standard codec,,,,codec_g722,))
@@ -327,15 +328,19 @@ $(eval $(call BuildAsterisk18Module,format-g726,G.726,support for headerless G.7
 $(eval $(call BuildAsterisk18Module,format-g729,G.729,support for raw headerless G729 data,,,,format_g729,))
 $(eval $(call BuildAsterisk18Module,format-sln,Raw slinear format,support for raw slinear format,,,,format_sln,))
 $(eval $(call BuildAsterisk18Module,format-sln16,Raw slinear 16 format,support for raw slinear 16 format,,,,format_sln16,))
-$(eval $(call BuildAsterisk18Module,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,,func_blacklist,))
 $(eval $(call BuildAsterisk18Module,func-base64,base64 support,support of base64 function,,,,func_base64,))
+$(eval $(call BuildAsterisk18Module,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,,func_blacklist,))
 $(eval $(call BuildAsterisk18Module,func-cut,CUT function,CUT function,,,,func_cut,))
-$(eval $(call BuildAsterisk18Module,func-db,Database interaction,functions for interaction with the database,,,,func_db,))
+$(eval $(call BuildAsterisk18Module,func-db,Database interaction,functions for interaction with the database,,,,func_db app_db,))
 $(eval $(call BuildAsterisk18Module,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,,func_devstate,))
+$(eval $(call BuildAsterisk18Module,func-enum,ENUM,ENUM,,/etc/asterisk/enum.conf,enum.conf,func_enum,))
+$(eval $(call BuildAsterisk18Module,func-env,Environment functions,Environment dialplan functions,,,,func_env,))
 $(eval $(call BuildAsterisk18Module,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,,func_extstate,))
 $(eval $(call BuildAsterisk18Module,func-global,Global variable,global variable dialplan functions,,,,func_global,))
 $(eval $(call BuildAsterisk18Module,func-groupcount,Group count,for counting number of channels in the specified group,,,,func_groupcount,))
 $(eval $(call BuildAsterisk18Module,func-channel,Channel info,Channel info dialplan function,,,,func_channel,))
+$(eval $(call BuildAsterisk18Module,func-math,Math functions,Math functions,,,,func_math,))
+$(eval $(call BuildAsterisk18Module,func-module,Simple module check function,Simple module check function,,,,func_module,))
 $(eval $(call BuildAsterisk18Module,func-shell,Shell,support for shell execution,,,,func_shell,))
 $(eval $(call BuildAsterisk18Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,,func_uri,))
 $(eval $(call BuildAsterisk18Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,,func_vmcount,))
@@ -349,22 +354,23 @@ $(eval $(call BuildAsterisk18Module,chan-ooh323,ooH323 channel,the channel chan_
 $(eval $(call BuildAsterisk18Module,chan-skinny,Skinny channel,the channel chan_skinny,,/etc/asterisk/skinny.conf,skinny.conf,chan_skinny,))
 $(eval $(call BuildAsterisk18Module,mysql,MySQL,MySQL support,+libmysqlclient,/etc/asterisk/res_config_mysql.conf,res_config_mysql.conf,res_config_mysql,))
 $(eval $(call BuildAsterisk18Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,/etc/asterisk/cdr_adaptive_odbc.conf /etc/asterisk/cdr_odbc.conf /etc/asterisk/cel_odbc.conf /etc/asterisk/func_odbc.conf /etc/asterisk/res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_odbc,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,))
-$(eval $(call BuildAsterisk18Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
 $(eval $(call BuildAsterisk18Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,,extensions.ael,pbx_ael,))
-$(eval $(call BuildAsterisk18Module,pbx-spool,Call Spool,Outgoing call spool support,,,,pbx_spool,))
 $(eval $(call BuildAsterisk18Module,pbx-lua,Lua,provides Lua resources for Asterisk,+libpthread +libc +liblua,/etc/asterisk/extensions.lua,extensions.lua,pbx_lua,))
+$(eval $(call BuildAsterisk18Module,pbx-spool,Call Spool,Outgoing call spool support,,,,pbx_spool,))
+$(eval $(call BuildAsterisk18Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
 $(eval $(call BuildAsterisk18Module,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,,res_ael_share,))
 $(eval $(call BuildAsterisk18Module,res-agi,Asterisk Gateway Interface,support for the Asterisk Gateway Interface extension,,,,res_agi,))
 $(eval $(call BuildAsterisk18Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,,res_clioriginate,))
 $(eval $(call BuildAsterisk18Module,res-crypto,Provides Crypto,Cryptographic Signature capability,,,,res_crypto,))
+$(eval $(call BuildAsterisk18Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk18-res-fax +libspandsp +libtiff,,,res_fax_spandsp,))
+$(eval $(call BuildAsterisk18Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk18-res-timing-pthread,/etc/asterisk/res_fax.conf /etc/asterisk/udptl.conf,udptl.conf res_fax.conf,res_fax,))
 $(eval $(call BuildAsterisk18Module,res-monitor,Provides Monitor,Cryptographic Signature capability,,,,res_monitor,))
+$(eval $(call BuildAsterisk18Module,res-musiconhold,MOH,Music On Hold support,,/etc/asterisk/musiconhold.conf,musiconhold.conf,res_musiconhold,))
 $(eval $(call BuildAsterisk18Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,/etc/asterisk/phoneprov.conf,phoneprov.conf,res_phoneprov,))
 $(eval $(call BuildAsterisk18Module,res-pktccops,Provide PacketCable COPS,simple client/server model for supporting policy control over QoS signaling protocols,,/etc/asterisk/res_pktccops.conf,res_pktccops.conf,res_pktccops,))
 $(eval $(call BuildAsterisk18Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,/etc/asterisk/smdi.conf,smdi.conf,res_smdi,))
-$(eval $(call BuildAsterisk18Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk18-res-timing-pthread,/etc/asterisk/res_fax.conf /etc/asterisk/udptl.conf,udptl.conf res_fax.conf,res_fax,))
-$(eval $(call BuildAsterisk18Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk18-res-fax +libspandsp +libtiff,,,res_fax_spandsp,))
-$(eval $(call BuildAsterisk18Module,res-musiconhold,MOH,Music On Hold support,,/etc/asterisk/musiconhold.conf,musiconhold.conf,res_musiconhold,))
 $(eval $(call BuildAsterisk18Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp,))
 $(eval $(call BuildAsterisk18Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk18Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
 $(eval $(call BuildAsterisk18Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*))
+
