@@ -213,6 +213,9 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--enable-xmldoc
 
+CONFIGURE_VARS += \
+	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
