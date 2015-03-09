@@ -176,6 +176,8 @@ else
 endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
+  CONFIGURE_VARS+= \
+	ac_cv_path_ac_pt_CONFIG_MYSQLCLIENT=$(STAGING_DIR)/usr/bin/mysql_config
   CONFIGURE_ARGS+= \
 	--with-mysqlclient
 else
