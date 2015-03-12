@@ -62,7 +62,6 @@ $(foreach c,$(5),/etc/asterisk/$(c))
   endef
 
   define Package/asterisk13-$(1)/description
-  $$(call Package/asterisk13/Default/description)
 This package provides support $(3) in Asterisk.
   endef
 

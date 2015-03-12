@@ -61,7 +61,6 @@ $(5)
   endef
 
   define Package/asterisk18-$(1)/description
-  $$(call Package/asterisk18/Default/description)
 This package provides support $(3) in Asterisk.
   endef
 
