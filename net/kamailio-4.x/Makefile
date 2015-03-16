@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.2.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -149,7 +149,7 @@ $(eval $(call BuildKamailio4Module,h350,H.350,,+kamailio4-mod-ldap +libopenldap)
 $(eval $(call BuildKamailio4Module,htable,Hash Table,,))
 $(eval $(call BuildKamailio4Module,imc,IM conferencing,,+kamailio4-mod-db-mysql +kamailio4-mod-tm))
 $(eval $(call BuildKamailio4Module,ipops,IP and IPv6 operations,,))
-$(eval $(call BuildKamailio4Module,json,Access to JSON document attributes,,+libjson))
+$(eval $(call BuildKamailio4Module,json,Access to JSON document attributes,,+libjson-c))
 $(eval $(call BuildKamailio4Module,kex,Core extensions,,))
 $(eval $(call BuildKamailio4Module,lcr,Least Cost Routing,,+kamailio4-mod-tm +libpcre))
 $(eval $(call BuildKamailio4Module,ldap,LDAP connector,,+libopenldap))
