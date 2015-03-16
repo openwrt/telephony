@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.2.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -278,7 +278,6 @@ $(eval $(call BuildPackage,asterisk13))
 # 7 - sound files
 # 8 - binary files
 ################################
-
 #$(eval $(call BuildAsterisk13Module,subname,title,module description,module dependencies,conf files,module files,sound files,binary files))
 
 $(eval $(call BuildAsterisk13Module,app-alarmreceiver,Alarm receiver,Central Station Alarm receiver for Ademco Contact ID,,,app_alarmreceiver,,))
@@ -351,6 +350,7 @@ $(eval $(call BuildAsterisk13Module,chan-skinny,Skinny channel,the channel chan_
 $(eval $(call BuildAsterisk13Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,unistim.conf,chan_unistim,,))
 $(eval $(call BuildAsterisk13Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,,))
 $(eval $(call BuildAsterisk13Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,extensions.ael,pbx_ael,,))
+$(eval $(call BuildAsterisk13Module,pbx-dundi,Dundi,provides Dundi Lookup service for Asterisk,,dundi.conf,pbx_dundi,,))
 $(eval $(call BuildAsterisk13Module,pbx-spool,Call Spool,outgoing call spool support,,,pbx_spool,,))
 $(eval $(call BuildAsterisk13Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
 $(eval $(call BuildAsterisk13Module,pjsip,pjsip channel,the channel pjsip,+asterisk13-res-sorcery +libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,pjsip.conf pjsip_notify.conf,func_pjsip_endpoint chan_pjsip res_pjsip_acl res_pjsip_authenticator_digest res_pjsip_caller_id res_pjsip_dialog_info_body_generator res_pjsip_diversion res_pjsip_dtmf_info res_pjsip_endpoint_identifier_anonymous res_pjsip_endpoint_identifier_ip res_pjsip_endpoint_identifier_user res_pjsip_exten_state res_pjsip_header_funcs res_pjsip_log_forwarder res_pjsip_logger res_pjsip_messaging res_pjsip_multihomed res_pjsip_mwi_body_generator res_pjsip_mwi res_pjsip_nat res_pjsip_notify res_pjsip_one_touch_record_info res_pjsip_outbound_authenticator_digest res_pjsip_outbound_publish res_pjsip_outbound_registration res_pjsip_path res_pjsip_pidf_body_generator res_pjsip_pidf_digium_body_supplement res_pjsip_pidf_eyebeam_body_supplement res_pjsip_publish_asterisk res_pjsip_pubsub res_pjsip_refer res_pjsip_registrar_expire res_pjsip_registrar res_pjsip_rfc3326 res_pjsip_sdp_rtp res_pjsip_send_to_voicemail res_pjsip_session res_pjsip res_pjsip_transport_websocket res_pjsip_t38 res_pjsip_xpidf_body_generator,,))

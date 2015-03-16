@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.16.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -401,6 +401,7 @@ $(eval $(call BuildAsterisk11Module,chan-unistim,Unistim channel,channel driver 
 $(eval $(call BuildAsterisk11Module,mysql,MySQL,MySQL support,+libmysqlclient,/etc/asterisk/res_config_mysql.conf,res_config_mysql.conf,res_config_mysql,))
 $(eval $(call BuildAsterisk11Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,/etc/asterisk/cdr_adaptive_odbc.conf /etc/asterisk/cdr_odbc.conf /etc/asterisk/cel_odbc.conf /etc/asterisk/func_odbc.conf /etc/asterisk/res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_odbc,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,))
 $(eval $(call BuildAsterisk11Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,,extensions.ael,pbx_ael,))
+$(eval $(call BuildAsterisk11Module,pbx-dundi,Dundi,provides Dundi Lookup service for Asterisk,,/etc/asterisk/dundi.conf,dundi.conf,pbx_dundi,))
 $(eval $(call BuildAsterisk11Module,pbx-lua,Lua,provides Lua resources for Asterisk,+libpthread +libc +liblua,/etc/asterisk/extensions.lua,extensions.lua,pbx_lua,))
 $(eval $(call BuildAsterisk11Module,pbx-spool,Call Spool,outgoing call spool support,,,,pbx_spool,))
 $(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
