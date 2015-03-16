@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.16.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -112,6 +112,7 @@ define Package/asterisk11/conffiles
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
 /etc/asterisk/modules.conf
+/etc/asterisk/res_config_sqlite3.conf
 /etc/asterisk/rtp.conf
 /etc/asterisk/sip.conf
 /etc/asterisk/sip_notify.conf
@@ -121,11 +122,14 @@ define Package/asterisk11/conffiles
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf ccss.conf extconfig.conf extensions.conf features.conf indications.conf logger.conf manager.conf modules.conf \
+	asterisk.conf acl.conf ccss.conf extconfig.conf \
+	extensions.conf features.conf indications.conf \
+	logger.conf manager.conf modules.conf res_config_sqlite3.conf \
 	rtp.conf sip_notify.conf sip.conf udptl.conf users.conf
 AST_EMB_MODULES:=\
 	app_dial app_echo app_macro app_playback codec_ulaw format_pcm func_callerid \
-	func_logic func_strings func_timeout chan_sip chan_local pbx_config res_crypto res_http_websocket res_rtp_asterisk res_rtp_multicast
+	func_logic func_strings func_timeout chan_sip chan_local pbx_config \
+	res_crypto res_http_websocket res_rtp_asterisk res_rtp_multicast
 
 define Package/asterisk11/install
 $(call Package/asterisk11/install/lib,$(1),libasteriskssl)

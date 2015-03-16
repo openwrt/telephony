@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.2.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -112,6 +112,7 @@ define Package/asterisk13/conffiles
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
 /etc/asterisk/modules.conf
+/etc/asterisk/res_config_sqlite3.conf
 /etc/asterisk/rtp.conf
 /etc/asterisk/udptl.conf
 /etc/asterisk/users.conf
@@ -123,7 +124,7 @@ AST_CFG_FILES:= \
 	asterisk.conf acl.conf ccss.conf extconfig.conf \
 	extensions.conf features.conf indications.conf \
 	logger.conf manager.conf modules.conf udptl.conf \
-	users.conf
+	users.conf res_config_sqlite3.conf
 
 AST_EMB_MODULES:=\
 	app_dial app_echo app_macro app_playback \
