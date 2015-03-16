@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.4.0
+RELEASEVER:=5.4.2
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
@@ -17,7 +17,7 @@ PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=427fd2ffde51116271534f398bf913e8
+PKG_MD5SUM:=50ffb5a9d3a7105a8776e56783d309ed
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_LICENSE:=GPL-2.0
@@ -108,7 +108,7 @@ CONFIGURE_ARGS+= \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
 	--without-pwlib \
 	--without-openh323 \
-	--with-openssl="$(STAGING_DIR)/usr" \
+	--with-openssl \
 	--with-zlib="$(STAGING_DIR)/usr" \
 	--without-libqt4 \
 	--without-qtstatic \
