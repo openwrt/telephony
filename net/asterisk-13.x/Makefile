@@ -62,7 +62,7 @@ $(foreach c,$(5),/etc/asterisk/$(c))
   endef
 
   define Package/asterisk13-$(1)/description
-This package provides support $(3) in Asterisk.
+This package provides support for '$(3)' in Asterisk.
   endef
 
   define Package/asterisk13-$(1)/install
@@ -152,8 +152,7 @@ $(call Package/asterisk13/Default)
 endef
 
 define Package/asterisk13-sounds/description
-$(call Package/asterisk13/Default/description)
-This package provides sounds for Asterisk.
+This package provides the sound-files for Asterisk-13.
 endef
 
 define Package/asterisk13-sounds/install
