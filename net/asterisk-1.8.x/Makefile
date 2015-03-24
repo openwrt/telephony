@@ -61,7 +61,7 @@ $(5)
   endef
 
   define Package/asterisk18-$(1)/description
-This package provides support $(3) in Asterisk.
+This package provides support for '$(3)' in Asterisk.
   endef
 
   define Package/asterisk18-$(1)/install
@@ -136,8 +136,7 @@ $(call Package/asterisk18/Default)
 endef
 
 define Package/asterisk18-sounds/description
-$(call Package/asterisk18/Default/description)
-This package provides sounds for Asterisk.
+This package provides sound-files for Asterisk-1.8.x.
 endef
 
 define Package/asterisk18-sounds/install
