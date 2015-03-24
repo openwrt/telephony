@@ -61,7 +61,7 @@ $(5)
   endef
 
   define Package/asterisk11-$(1)/description
-This package provides support $(3) in Asterisk.
+This package provides support for '$(3)' in Asterisk11.
   endef
 
   define Package/asterisk11-$(1)/install
@@ -149,8 +149,7 @@ $(call Package/asterisk11/Default)
 endef
 
 define Package/asterisk11-sounds/description
-$(call Package/asterisk11/Default/description)
-This package provides sounds for Asterisk.
+This package provides sounds for Asterisk11.
 endef
 
 define Package/asterisk11-sounds/install
