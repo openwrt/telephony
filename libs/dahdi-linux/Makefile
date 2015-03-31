@@ -63,6 +63,20 @@ define KernelPackage/dahdi-hfcs/description
   This package contains DAHDI driver for HFC-S based PCI BRI adapters.
 endef
 
+define KernelPackage/dahdi-dummy
+  SUBMENU:=Voice over IP
+  TITLE:=dummy DAHDI driver
+  DEPENDS:=kmod-dahdi
+  URL:=http://www.asterisk.org/
+  FILES:= $(PKG_BUILD_DIR)/drivers/dahdi/dahdi_dummy.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoProbe,dahdi_dummy)
+endef
+
+define KernelPackage/dahdi-dummy/description
+  This package contains the dummy DAHDI driver providing only DAHDI timing
+  without any real telephony hardware.
+endef
+
 
 define Build/Configure
 endef
@@ -102,4 +116,5 @@ endef
 
 $(eval $(call KernelPackage,dahdi))
 $(eval $(call KernelPackage,dahdi-echocan-oslec))
+$(eval $(call KernelPackage,dahdi-dummy))
 $(eval $(call KernelPackage,dahdi-hfcs))
