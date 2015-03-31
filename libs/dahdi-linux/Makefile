@@ -40,10 +40,9 @@ endef
 define KernelPackage/dahdi-echocan-oslec
   SUBMENU:=Voice over IP
   TITLE:=DAHDI OSLEC echo canceller support
-  DEPENDS:=kmod-dahdi
+  DEPENDS:=kmod-dahdi +kmod-echo
   URL:=http://www.asterisk.org/
-  FILES:= $(PKG_BUILD_DIR)/drivers/staging/echo/echo.$(LINUX_KMOD_SUFFIX) \
-          $(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
+  FILES:=$(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoProbe,echo dahdi_echocan_oslec)
 endef
 
@@ -73,7 +72,7 @@ TARGET_CFLAGS += $(FPIC)
 define Build/Prepare
 	$(Build/Prepare/Default)
 	mkdir -p $(PKG_BUILD_DIR)/drivers/staging/echo/
-	$(CP) $(PKG_BUILD_DIR)/../linux-$(LINUX_VERSION)/drivers/misc/echo/* $(PKG_BUILD_DIR)/drivers/staging/echo/ || $(CP) $(PKG_BUILD_DIR)/../linux-$(LINUX_VERSION)/drivers/staging/echo/* $(PKG_BUILD_DIR)/drivers/staging/echo/
+	$(CP) ./files/oslec.h $(PKG_BUILD_DIR)/drivers/staging/echo/
 endef
 
 define Build/Compile
