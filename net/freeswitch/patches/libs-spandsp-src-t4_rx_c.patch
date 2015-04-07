@@ -1,0 +1,11 @@
+--- a/libs/spandsp/src/t4_rx.c
++++ b/libs/spandsp/src/t4_rx.c
+@@ -50,7 +50,7 @@
+ #include "spandsp/stdbool.h"
+ #endif
+ #include "floating_fudge.h"
+-#include <tiffio.h>
++#include <tiffiop.h>
+ 
+ #include "spandsp/telephony.h"
+ #include "spandsp/alloc.h"

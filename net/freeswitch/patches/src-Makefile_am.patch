@@ -1,0 +1,15 @@
+--- a/libs/libcodec2/src/Makefile.am
++++ b/libs/libcodec2/src/Makefile.am
+@@ -88,6 +88,12 @@ codebookge.$(OBJEXT): codebookge.c
+ 
+ codebook.lo: codebook.c
+ 
++generate_codebook:
++	$(CC_FOR_BUILD) -o generate_codebook generate_codebook.c -lm
++
++genlspdtcb:
++	$(CC_FOR_BUILD) -o genlspdtcb genlspdtcb.c -lm
++
+ codebook.c: generate_codebook $(CODEBOOKS)
+ 	./generate_codebook lsp_cb $(CODEBOOKS) > codebook.c
+ 

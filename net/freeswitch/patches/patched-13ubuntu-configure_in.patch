@@ -1,0 +1,24 @@
+--- a/src/mod/endpoints/mod_gsmopen/gsmlib/gsmlib-1.10-patched-13ubuntu/configure.in
++++ b/src/mod/endpoints/mod_gsmopen/gsmlib/gsmlib-1.10-patched-13ubuntu/configure.in
+@@ -56,21 +56,6 @@ dnl Checks for programs.
+ AC_PROG_CPP
+ AC_PROG_CXX
+ 
+-dnl check for gcc 2.95.x
+-AC_TRY_RUN([
+-#include <unistd.h>
+-main()
+-{
+-#if defined(__GNUC__) && \
+-    ! (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95))
+-    return 1;
+-#endif
+-  return 0;
+-}
+-],,
+-[echo "need at least gcc 2.95 to compile correctly"
+-exit 1])
+-
+ dnl check for alloca
+ AC_FUNC_ALLOCA
+ 

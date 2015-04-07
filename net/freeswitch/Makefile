@@ -11,14 +11,14 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.15b
+PKG_VERSION:=1.5.14
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=12b6940644a68ea444c0e430412d419ae368d4a8
+FS_WITH_DEFAULT_HEAD:=6eb59c711989774fb797d1c447e3d63aac84826b
 PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -217,6 +217,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_OPENWRT_SOURCE \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
+	CONFIG_FS_WITH_PYTHON \
 	CONFIG_FS_WITH_SILENT_RULES \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SRTP \
@@ -257,7 +258,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp_git +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
 
 
@@ -474,7 +475,7 @@ endif
 
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-flite),)
- $(eval $(call Download/files,flite,flite-1.5.4-current.tar.bz2,f3a2d88b1059f6f4ff3c20a8169bc0f4,,downloads/libs/,libs/))
+ $(eval $(call Download/files,flite,flite-2.0.0-release.tar.bz2,645db96ffc296cbb6d37f231cc1cc6b2,,downloads/libs/,libs/))
 endif
 
 
@@ -607,12 +608,13 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_OGG),--with-ogg="$(STAGING_DIR)/usr") \
+	$(if $(CONFIG_FS_WITH_OPENSSL),--with-openssl="pkg-config") \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang="$(CONFIG_FS_WITH_ERLANG)",--without-erlang) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),--with-python="$(CONFIG_FS_WITH_PYTHON)",--without-python) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	--with$(if $(CONFIG_FS_WITH_MYSQL),,out)-mysql \
-	--with$(if $(CONFIG_FS_WITH_OPENSSL),,out)-openssl \
 	--with$(if $(CONFIG_FS_WITH_POSTGRESQL),,out)-pgsql \
 	--with$(if $(CONFIG_FS_WITH_SQLITE3),,out)-sqlite3 \
 
@@ -863,6 +865,7 @@ define Package/$(PKG_NAME)-tools/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/fsxs $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gentls_cert $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/tone2wav $(1)/usr/bin/
+	$(STAGING_DIR_HOST)/bin/sed -i -re 's|$(ICONV_LDFLAGS)||g;s|$(INTL_LDFLAGS)||g;s|$(PKG_BUILD_DIR)|/usr|g;s|$(STAGING_DIR)||g;s|$(STAGING_DIR_HOST)|/usr|g;s|$(TOOLCHAIN_DIR)||g;s|$(TARGET_CROSS)|usr|g;s|$(REAL_GNU_TARGET_NAME)|usr|g;:a;s|((-[IL]/\S+\s).*)[ ,\n]\1|\1|;ta' $(1)/usr/bin/fsxs
 endef
 
 
@@ -978,7 +981,7 @@ $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,cdr-mongodb,MongoDB CDR logger,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-pg-csv,PostgreSQL CDR Handler,vanilla,,,,+coreutils +FS_WITH_POSTGRESQL:libpq @FS_WITH_POSTGRESQL))
 $(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,@FS_WITH_SQLITE3))
-$(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+libogg))
+$(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+ogg_svn))
 $(eval $(call BuildPlugin,cepstral,Cepstral Interface,vanilla,,,,@BROKEN)) # needs <swift.h>
 $(eval $(call BuildPlugin,cidlookup,Data Query For CID->NAME Services,mod,,,,+libcurl)) # ~/conf
 $(eval $(call BuildPlugin,cluechoo,Framework Demo,vanilla,,,,))
@@ -1038,7 +1041,7 @@ $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
-$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/5.20/$(PKG_NAME).la lib/perl5/5.20/$(PKG_NAME).pm lib/perl5/5.20/$(PKG_NAME).so,,+perl +libdb47 +libgdbm))
+$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/5.20/$(PKG_NAME).la lib/perl5/5.20/$(PKG_NAME).pm lib/perl5/5.20/$(PKG_NAME).so,,+perl +libdb47 +libgdbm @ROKEN))
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
@@ -1092,7 +1095,7 @@ $(eval $(call BuildPlugin,tone-stream,Tone Generation Stream,vanilla,,,,))
 $(eval $(call BuildPlugin,tts-commandline,ASR TTS Command Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,unimrcp,UniMRCP (MRCP Client),vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,valet-parking,Valet Parking Application,vanilla,,,,))
-$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/5.20/MCAST.so lib/perl5/5.20/MCAST.la lib/perl5/5.20/MCAST.pm,perl rtc,))
+$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/5.20/MCAST.so lib/perl5/5.20/MCAST.la lib/perl5/5.20/MCAST.pm,perl rtc,@BROKEN))
 $(eval $(call BuildPlugin,vmd,VoiceMail Beep Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail,VoiceMail,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail-ivr,VoiceMail IVR,vanilla,,,,))

@@ -1,0 +1,20 @@
+--- a/libs/libzrtp/include/zrtp_config.h
++++ b/libs/libzrtp/include/zrtp_config.h
+@@ -68,8 +68,16 @@
+  * If the byte order is not specified manually in zrtp_config_user.h - try to detect it automatically
+  */
+ #if !defined(ZRTP_BYTE_ORDER)
++#if defined(linux) || defined(__linux)
+ 
+-#if defined(_i386_) || defined(i_386_) || defined(_X86_) || defined(x86) || defined(__i386__) || \
++#include <endian.h>
++#if __BYTE_ORDER == __LITTLE_ENDIAN
++#define ZRTP_BYTE_ORDER ZBO_LITTLE_ENDIAN
++#elif __BYTE_ORDER == __BIG_ENDIAN
++#define ZRTP_BYTE_ORDER ZBO_BIG_ENDIAN
++#endif
++
++#elif defined(_i386_) || defined(i_386_) || defined(_X86_) || defined(x86) || defined(__i386__) || \
+ 	defined(__i386) || defined(_M_IX86) || defined(__I86__)
+ /*
+  * Generic i386 processor family, little-endian
