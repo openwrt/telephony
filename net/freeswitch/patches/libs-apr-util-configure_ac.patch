@@ -1,0 +1,18 @@
+--- a/libs/apr-util/configure.ac
++++ b/libs/apr-util/configure.ac
+@@ -123,9 +123,12 @@ dnl Find an iconv library
+ APU_FIND_LDAP
+ APU_CHECK_DBM
+ APU_CHECK_DBD
+-APU_CHECK_DBD_MYSQL
+-APU_CHECK_DBD_SQLITE3
+-APU_CHECK_DBD_SQLITE2
++dnl Check databases ONLY when NOT cross compiling
++if test "$cross_compiling" != yes; then
++  APU_CHECK_DBD_MYSQL
++  APU_CHECK_DBD_SQLITE3
++  APU_CHECK_DBD_SQLITE2
++fi
+ APU_FIND_EXPAT
+ APU_FIND_ICONV
+ 
