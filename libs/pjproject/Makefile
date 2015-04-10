@@ -83,7 +83,7 @@ CONFIGURE_ARGS += \
 	--disable-ffmpeg \
 	--disable-v4l2
 
-TARGET_LDFLAGS+=-lc $(LIBGCC_S) -lm
+TARGET_LDFLAGS+=-lc $(LIBGCC) -lm
 TARGET_CFLAGS+=$(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)
 
 define Build/Compile
