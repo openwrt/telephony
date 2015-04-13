@@ -258,7 +258,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp_git +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
 
 
