@@ -1,11 +1,18 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -229,13 +229,16 @@ AX_COMPILER_VENDOR
+@@ -228,14 +228,22 @@ AX_COMPILER_VENDOR
+ # Set CC_FOR_BUILD
  if test "x${cross_compiling}" = "xyes"; then
      CC_FOR_BUILD=${CC_FOR_BUILD-gcc}
-     case "$host" in
+-    case "$host" in
 -    	 arm*-linux-gnueabi*|arm*-*-linux-gnueabi*)
-+    	 arm*-linux-gnueabi*|arm*-*-linux-*)
++
++# Tests for 'apr_cv_tcp_nodelay_with_cork' and 'ac_cv_file_dbd_apr_dbd_mysql_c'
++# are generally not allowed for cross-compiling so we set them manually.
++# Other overrides work ok so far so i'll keep them for now.
++
++#    case "$host" in
++#    	 arm*-linux-gnueabi*|arm*-*-linux-*)
  		# spandsp modem
  		ac_cv_file__dev_ptmx=yes
  		# libjs
@@ -18,16 +25,21 @@
  		# rpl_malloc
  		export ac_cv_func_realloc_0_nonnull=yes
  		export ac_cv_func_malloc_0_nonnull=yes
-@@ -248,7 +251,7 @@ if test "x${cross_compiling}" = "xyes";
+@@ -248,10 +256,10 @@ if test "x${cross_compiling}" = "xyes";
  		export apr_cv_mutex_recursive=yes
  		export ac_cv_func_pthread_rwlock_init=yes
  		export apr_cv_type_rwlock_t=yes
 -		export apr_cv_process_shared_works=yes
 +		export apr_cv_process_shared_works=no
  		export apr_cv_mutex_robust_shared=yes
- 	 ;;
-     esac
-@@ -379,9 +382,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
+-	 ;;
+-    esac
++#	 ;;
++#    esac
+ else
+     CC_FOR_BUILD='$(CC)'
+ fi
+@@ -379,9 +387,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
  elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
      APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
      APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
@@ -37,7 +49,7 @@
      if test "${enable_64}" = "yes"; then
  	case "$host" in
               *darwin*)
-@@ -861,7 +861,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+@@ -861,7 +866,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -45,7 +57,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1177,14 +1176,14 @@ case $host in
+@@ -1177,14 +1181,14 @@ case $host in
         ;;
  esac
  
@@ -66,7 +78,7 @@
  
  module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
-@@ -1205,7 +1204,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+@@ -1205,7 +1209,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
    AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
    AS_IF([test -z "$LDNS_LIBS"],[
      if module_enabled mod_enum; then
@@ -75,7 +87,7 @@
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1287,18 +1286,18 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1287,18 +1291,18 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
@@ -104,7 +116,7 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1311,12 +1310,15 @@ if test "x$ac_cv_have_perl" != "xno"; th
+@@ -1311,12 +1315,15 @@ if test "x$ac_cv_have_perl" != "xno"; th
     AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
     LDFLAGS="$save_LDFLAGS"
  
@@ -124,7 +136,7 @@
  fi
  
  AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_have_perl" != "xno" -a "x$ac_cv_have_EXTERN_h" != "xno" -a "x$ac_cv_use_libperl" != "xno"])
-@@ -1325,17 +1327,19 @@ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_c
+@@ -1325,17 +1332,19 @@ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_c
  # php checks
  #
  
@@ -150,7 +162,7 @@
     PHP_INI_DIR="`$PHP_CONFIG --configure-options | tr " " "\n" | grep -- --with-config-file-scan-dir | cut -f2 -d=`"
     PHP_CFLAGS="`$PHP_CONFIG --includes`"
     AC_SUBST(PHP_LDFLAGS)
-@@ -1443,6 +1447,7 @@ then
+@@ -1443,6 +1452,7 @@ then
  				AC_MSG_NOTICE([Your python seems OK, do not forget to enable mod_python in modules.conf])
  				AC_SUBST([PYTHON_CFLAGS],  [$PYTHON_CFLAGS])
  				AC_SUBST([PYTHON_LDFLAGS], [$PYTHON_LDFLAGS])
