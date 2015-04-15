@@ -2,24 +2,6 @@ menu "Configuration"
   depends on PACKAGE_freeswitch
 
   choice
-    prompt "Version to use"
-    default FS_WITH_VERSION_RELEASE
-    help
-	Specify version to use: [devel|release]
-
-    config FS_WITH_VERSION_DEVEL
-      bool "devel"
-      help
-	Selected version: devel
-
-    config FS_WITH_VERSION_RELEASE
-      bool "release"
-      help
-	Selected version: release
-
-  endchoice
-
-  choice
     depends on DEVEL
     prompt "Git HEAD version to use"
     default FS_WITH_DEFAULT_HEAD
