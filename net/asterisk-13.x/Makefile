@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.2.0
-PKG_RELEASE:=4
+PKG_VERSION:=13.3.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=36033a5faa2f0f9ac3bc34b799e823a2
+PKG_MD5SUM:=afc8a5b7fc239c7aa5692b563d7e6ed2
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -265,6 +265,7 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk13))
+$(eval $(call BuildPackage,asterisk13-sounds))
 
 ################################
 # AST modules
