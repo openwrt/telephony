@@ -375,4 +375,4 @@ $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,,,,res_sorcer
 $(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
-$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
+$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+res_adsi +res_smdi,voicemail.conf,app_voicemail,vm-*,))
