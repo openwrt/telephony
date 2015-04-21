@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.16.0
-PKG_RELEASE:=4
+PKG_VERSION:=11.17.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=de06d4ac0d1ba531c4c18805a9d5a18d
+PKG_MD5SUM:=2c6cd0f499152d0d5ff32f36e274fc2e
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE
@@ -230,9 +230,9 @@ else
 	--without-iksemel
 endif
 
-EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
-CONFIGURE_ARGS+= \
+EXTRA_CFLAGS += $(TARGET_CPPFLAGS)
+EXTRA_LDFLAGS += $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+CONFIGURE_ARGS += \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
@@ -269,24 +269,30 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc 
 
-define Build/Prepare
-	$(call Build/Prepare/Default)
-endef
+CONFIGURE_VARS += \
+	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
+AST_MENUSELECT_OPTS = \
+	--without-newt \
+	--without-ncurses \
+	--with-libxml2="$(STAGING_DIR_HOST)/usr"
 
 define Build/Configure
-	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export LDLAGS += $(TARGET_LDFLAGS) $(EXTRA_LDFLAGS)"\
-		" -lc $(LIBGCC_S) -lm"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export CXXFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
+	(cd $(PKG_BUILD_DIR)/menuselect; \
+		./bootstrap.sh; \
+		./configure \
+		$(HOST_CONFIGURE_ARGS) \
+		$(AST_MENUSELECT_OPTS) \
+		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
+	);
 endef
 
 define Build/Compile
+        $(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
+                CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
+                LDFLAGS="$(HOST_LDFLAGS) -lxml2"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
