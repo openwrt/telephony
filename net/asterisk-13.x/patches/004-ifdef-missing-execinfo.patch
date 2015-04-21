@@ -111,7 +111,7 @@
  #include <time.h>	/* we want to override localtime_r */
  #include <unistd.h>
  #include <string.h>
-@@ -514,13 +516,17 @@ extern void *_ast_mem_backtrace_buffer[_
+@@ -540,13 +542,17 @@ extern void *_ast_mem_backtrace_buffer[_
   * Ok, this sucks. But if we're already out of mem, we don't
   * want the logger to create infinite recursion (and a crash).
   */
