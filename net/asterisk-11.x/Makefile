@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.17.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -428,6 +428,6 @@ $(eval $(call BuildAsterisk11Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp
 $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk11-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
-$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
+#$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
 $(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*)) 
 
