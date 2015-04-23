@@ -650,6 +650,7 @@ CONFIGURE_VARS+= \
 	HOST_CXX="/usr/bin/g++" \
 	CROSS_COMPILE="1" \
 	$(if $(CONFIG_FS_WITH_APR_SCTP),ac_cv_header_netinet_sctp_h="yes") \
+	ac_cv_file_dbd_apr_dbd_mysql_c="no" \
 
 
 define Build/Prepare
