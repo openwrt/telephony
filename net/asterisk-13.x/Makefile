@@ -369,4 +369,4 @@ $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk In
 $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
-$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
+$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-smdi +asterisk13-res-adsi,voicemail.conf,app_voicemail,vm-*,))
