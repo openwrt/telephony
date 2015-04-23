@@ -367,6 +367,7 @@ $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,,+libpjsip +libpj
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
 $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
+$(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp,,res_srtp,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
 $(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
