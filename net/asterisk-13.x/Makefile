@@ -265,6 +265,7 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk13))
+$(eval $(call BuildPackage,asterisk13-sounds))
 
 ################################
 # AST modules
