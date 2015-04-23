@@ -363,6 +363,7 @@ $(eval $(call BuildAsterisk13Module,res-http-websocket,HTTP websocket support,,,
 $(eval $(call BuildAsterisk13Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,res_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
 $(eval $(call BuildAsterisk13Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
+$(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application ,,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
