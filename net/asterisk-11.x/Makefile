@@ -429,5 +429,5 @@ $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+as
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
 #$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
-$(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*)) 
+$(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,+asterisk11-res-adsi +asterisk11-res-smdi,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail,vm-*)) 
 
