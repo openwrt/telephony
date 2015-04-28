@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.3
+PKG_VERSION:=2.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)/
-PKG_MD5SUM:=8440e43242c439ae5ec30b5b85005fce
+PKG_MD5SUM:=39629ca3fcedbdc7dbd8c5a707060095
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
@@ -30,7 +30,7 @@ define Package/pjproject/Default
   SECTION:=lib
   CATEGORY:=Libraries
   SUBMENU:=Telephony
-  URL:=http://www.pjproject.org/
+  URL:=http://www.pjsip.org/
   DEPENDS:=+libuuid +libstdcpp +libpthread
 endef
 
