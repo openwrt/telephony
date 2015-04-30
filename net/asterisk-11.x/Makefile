@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.17.1
-PKG_RELEASE:=3
+PKG_VERSION:=11.16.0
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=2c6cd0f499152d0d5ff32f36e274fc2e
+PKG_MD5SUM:=de06d4ac0d1ba531c4c18805a9d5a18d
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE
@@ -230,9 +230,9 @@ else
 	--without-iksemel
 endif
 
-EXTRA_CFLAGS += $(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS += $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
-CONFIGURE_ARGS += \
+EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
+EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
@@ -269,30 +269,24 @@ CONFIGURE_ARGS += \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc 
 
-CONFIGURE_VARS += \
-	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
-
-AST_MENUSELECT_OPTS = \
-	--without-newt \
-	--without-ncurses \
-	--with-libxml2="$(STAGING_DIR_HOST)/usr"
+define Build/Prepare
+	$(call Build/Prepare/Default)
+endef
 
 define Build/Configure
+	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
+		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
+		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
+	echo "export LDLAGS += $(TARGET_LDFLAGS) $(EXTRA_LDFLAGS)"\
+		" -lc $(LIBGCC_S) -lm"\
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
+	echo "export CXXFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
+		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
-	(cd $(PKG_BUILD_DIR)/menuselect; \
-		./bootstrap.sh; \
-		./configure \
-		$(HOST_CONFIGURE_ARGS) \
-		$(AST_MENUSELECT_OPTS) \
-		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
-	);
 endef
 
 define Build/Compile
-        $(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
-                CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
-                LDFLAGS="$(HOST_LDFLAGS) -lxml2"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
@@ -403,7 +397,6 @@ $(eval $(call BuildAsterisk11Module,chan-agent,Agents proxy channel,an implement
 $(eval $(call BuildAsterisk11Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
 $(eval $(call BuildAsterisk11Module,chan-iax2,IAX2 channel,IAX support,+asterisk11-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
-#$(eval $(call BuildAsterisk11Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsterisk11Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
 $(eval $(call BuildAsterisk11Module,chan-skinny,Skinny channel,the channel chan_skinny,,/etc/asterisk/skinny.conf,skinny.conf,chan_skinny,))
 $(eval $(call BuildAsterisk11Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,/etc/asterisk/unistim.conf,unistim.conf,chan_unistim,))
@@ -428,6 +421,5 @@ $(eval $(call BuildAsterisk11Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp
 $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk11-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
-#$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
 $(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*)) 
 
