@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1202,7 +1202,6 @@ AC_LINK_IFELSE(
+@@ -1177,7 +1177,6 @@ AC_LINK_IFELSE(
  			#include <resolv.h>],
  			[int foo = res_ninit(NULL);])],
  	AC_MSG_RESULT(yes)
