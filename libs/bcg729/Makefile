@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/
-PKG_MD5SUM:=45e127a9a309aff94d3262d97b5aeab0
+PKG_MD5SUM:=5d0c160129c0850c43dd66c78efe429b
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_INSTALL:=1

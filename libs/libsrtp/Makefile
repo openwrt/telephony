@@ -41,6 +41,11 @@ Protocol (SRTP) originally authored by Cisco Systems, Inc.
 It is available under a BSD-style license.
 endef
 
+define Build/Install
+	$(MAKE) -C $(PKG_BUILD_DIR) DESTDIR=$(PKG_INSTALL_DIR) uninstall
+	$(call Build/Install/Default)
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/srtp $(1)/usr/include/

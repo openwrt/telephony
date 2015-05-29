@@ -195,7 +195,7 @@ CONFIGURE_ARGS+= \
 	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),--with-iksemel="$(STAGING_DIR)/usr",--without-iksemel) \
+	--without-iksemel \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
@@ -265,6 +265,7 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk13))
+$(eval $(call BuildPackage,asterisk13-sounds))
 
 ################################
 # AST modules
@@ -287,6 +288,7 @@ $(eval $(call BuildAsterisk13Module,app-disa,Direct Inward System Access,Direct 
 $(eval $(call BuildAsterisk13Module,app-exec,Exec application,support for application execution,,,app_exec,,))
 $(eval $(call BuildAsterisk13Module,app-chanisavail,Channel availability check,support for checking if a channel is available,,,app_chanisavail,,))
 $(eval $(call BuildAsterisk13Module,app-chanspy,Channel listen in,support for listening in on any channel,,,app_chanspy,,))
+$(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,,confbridge.conf,app_confbridge bridge_builtin_features bridge_multiplexed bridge_simple bridge_softmix,,))
 $(eval $(call BuildAsterisk13Module,app-minivm,Minimal voicemail system,a voicemail system in small building blocks working together based on the Comedian Mail voicemail,,extensions_minivm.conf minivm.conf,app_minivm,,))
 $(eval $(call BuildAsterisk13Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
 $(eval $(call BuildAsterisk13Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
@@ -346,7 +348,7 @@ $(eval $(call BuildAsterisk13Module,func-uri,URI encoding and decoding,Encodes a
 $(eval $(call BuildAsterisk13Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,func_vmcount,,))
 $(eval $(call BuildAsterisk13Module,func-realtime,realtime,the realtime dialplan function,,,func_realtime,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
-$(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,,sip.conf sip_notify.conf,chan_sip,,))
+$(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,+asterisk13-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsterisk13Module,chan-skinny,Skinny channel,the channel chan_skinny,,skinny.conf,chan_skinny,,))
 $(eval $(call BuildAsterisk13Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,unistim.conf,chan_unistim,,))
 $(eval $(call BuildAsterisk13Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,,))

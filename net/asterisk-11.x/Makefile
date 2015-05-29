@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.16.0
-PKG_RELEASE:=4
+PKG_VERSION:=11.17.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=de06d4ac0d1ba531c4c18805a9d5a18d
+PKG_MD5SUM:=2c6cd0f499152d0d5ff32f36e274fc2e
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE
@@ -61,7 +61,7 @@ $(5)
   endef
 
   define Package/asterisk11-$(1)/description
-This package provides support $(3) in Asterisk.
+This package provides support for '$(3)' in Asterisk11.
   endef
 
   define Package/asterisk11-$(1)/install
@@ -149,8 +149,7 @@ $(call Package/asterisk11/Default)
 endef
 
 define Package/asterisk11-sounds/description
-$(call Package/asterisk11/Default/description)
-This package provides sounds for Asterisk.
+This package provides sounds for Asterisk11.
 endef
 
 define Package/asterisk11-sounds/install
@@ -399,7 +398,6 @@ $(eval $(call BuildAsterisk11Module,chan-agent,Agents proxy channel,an implement
 $(eval $(call BuildAsterisk11Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
 $(eval $(call BuildAsterisk11Module,chan-iax2,IAX2 channel,IAX support,+asterisk11-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
-$(eval $(call BuildAsterisk11Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsterisk11Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
 $(eval $(call BuildAsterisk11Module,chan-skinny,Skinny channel,the channel chan_skinny,,/etc/asterisk/skinny.conf,skinny.conf,chan_skinny,))
 $(eval $(call BuildAsterisk11Module,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,/etc/asterisk/unistim.conf,unistim.conf,chan_unistim,))
@@ -425,7 +423,6 @@ $(eval $(call BuildAsterisk11Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp
 $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk11-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
-$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,/etc/asterisk/xmpp.conf,xmpp.conf,res_xmpp,))
 $(eval $(call BuildAsterisk11Module,res-realtime,Realtime Interface,,,,,res_realtime,))
 $(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*)) 
 

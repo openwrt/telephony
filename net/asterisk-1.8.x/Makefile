@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
-PKG_VERSION:=1.8.32.2
-PKG_RELEASE:=3
+PKG_VERSION:=1.8.32.3
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=424dbe7024b75cfe78a3aea70780d84d
+PKG_MD5SUM:=f13f126e7730710223f2fbbc8832966f
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 
@@ -343,7 +343,7 @@ $(eval $(call BuildAsterisk18Module,func-shell,Shell,support for shell execution
 $(eval $(call BuildAsterisk18Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,,func_uri,))
 $(eval $(call BuildAsterisk18Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,,func_vmcount,))
 $(eval $(call BuildAsterisk18Module,chan-agent,Agents proxy channel,An implementation of agents proxy channel,,,,chan_agent,))
-$(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
+#$(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
 $(eval $(call BuildAsterisk18Module,chan-iax2,IAX2 channel,An implementation of IAX2 channel,+asterisk18-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk18Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq @!TARGET_lantiq_xrx200 +kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk18Module,chan-local,Local proxy channel,An implementation of local proxy channel,,,,chan_local,))

@@ -40,10 +40,9 @@ endef
 define KernelPackage/dahdi-echocan-oslec
   SUBMENU:=Voice over IP
   TITLE:=DAHDI OSLEC echo canceller support
-  DEPENDS:=kmod-dahdi
+  DEPENDS:=kmod-dahdi +kmod-echo
   URL:=http://www.asterisk.org/
-  FILES:= $(PKG_BUILD_DIR)/drivers/staging/echo/echo.$(LINUX_KMOD_SUFFIX) \
-          $(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
+  FILES:=$(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoProbe,echo dahdi_echocan_oslec)
 endef
 
@@ -64,6 +63,20 @@ define KernelPackage/dahdi-hfcs/description
   This package contains DAHDI driver for HFC-S based PCI BRI adapters.
 endef
 
+define KernelPackage/dahdi-dummy
+  SUBMENU:=Voice over IP
+  TITLE:=dummy DAHDI driver
+  DEPENDS:=kmod-dahdi
+  URL:=http://www.asterisk.org/
+  FILES:= $(PKG_BUILD_DIR)/drivers/dahdi/dahdi_dummy.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoProbe,dahdi_dummy)
+endef
+
+define KernelPackage/dahdi-dummy/description
+  This package contains the dummy DAHDI driver providing only DAHDI timing
+  without any real telephony hardware.
+endef
+
 
 define Build/Configure
 endef
@@ -73,7 +86,7 @@ TARGET_CFLAGS += $(FPIC)
 define Build/Prepare
 	$(Build/Prepare/Default)
 	mkdir -p $(PKG_BUILD_DIR)/drivers/staging/echo/
-	$(CP) $(PKG_BUILD_DIR)/../linux-$(LINUX_VERSION)/drivers/misc/echo/* $(PKG_BUILD_DIR)/drivers/staging/echo/ || $(CP) $(PKG_BUILD_DIR)/../linux-$(LINUX_VERSION)/drivers/staging/echo/* $(PKG_BUILD_DIR)/drivers/staging/echo/
+	$(CP) ./files/oslec.h $(PKG_BUILD_DIR)/drivers/staging/echo/
 endef
 
 define Build/Compile
@@ -103,4 +116,5 @@ endef
 
 $(eval $(call KernelPackage,dahdi))
 $(eval $(call KernelPackage,dahdi-echocan-oslec))
+$(eval $(call KernelPackage,dahdi-dummy))
 $(eval $(call KernelPackage,dahdi-hfcs))

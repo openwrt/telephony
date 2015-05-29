@@ -45,7 +45,7 @@
  	cd libs/tiff-4.0.2 && make
  
  python-reconf:
-@@ -653,9 +658,6 @@ iks-reconf:
+@@ -658,9 +663,6 @@ iks-reconf:
  	$(MAKE) mod_dingaling-clean
  
  spandsp-reconf: tiff-reconf

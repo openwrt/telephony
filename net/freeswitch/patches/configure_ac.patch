@@ -27,7 +27,7 @@
  		export apr_cv_mutex_robust_shared=yes
  	 ;;
      esac
-@@ -378,9 +381,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
+@@ -379,9 +382,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
  elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
      APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
      APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
@@ -36,8 +36,8 @@
 -    fi
      if test "${enable_64}" = "yes"; then
  	case "$host" in
-              *darwin12.*|*darwin11.*|*darwin10.*|*darwin9.*|*darwin8.*)
-@@ -839,7 +839,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+              *darwin*)
+@@ -861,7 +861,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -45,7 +45,7 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1163,14 +1162,14 @@ case $host in
+@@ -1177,14 +1176,14 @@ case $host in
         ;;
  esac
  
@@ -66,7 +66,7 @@
  
  module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
-@@ -1191,7 +1190,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
+@@ -1205,7 +1204,7 @@ PKG_CHECK_MODULES([LDNS], [libldns >= 1.
    AC_CHECK_LIB([ldns], [ldns_str2rdf_a], [LDNS_LIBS=-lldns])
    AS_IF([test -z "$LDNS_LIBS"],[
      if module_enabled mod_enum; then
@@ -75,7 +75,7 @@
      else
        AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_LDNS],[false])
      fi],[
-@@ -1269,18 +1268,18 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1287,18 +1286,18 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
@@ -104,7 +104,7 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1293,12 +1292,15 @@ if test "x$ac_cv_have_perl" != "xno"; th
+@@ -1311,12 +1310,15 @@ if test "x$ac_cv_have_perl" != "xno"; th
     AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
     LDFLAGS="$save_LDFLAGS"
  
@@ -124,7 +124,7 @@
  fi
  
  AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_have_perl" != "xno" -a "x$ac_cv_have_EXTERN_h" != "xno" -a "x$ac_cv_use_libperl" != "xno"])
-@@ -1307,17 +1309,19 @@ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_c
+@@ -1325,17 +1327,19 @@ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_c
  # php checks
  #
  
@@ -150,7 +150,7 @@
     PHP_INI_DIR="`$PHP_CONFIG --configure-options | tr " " "\n" | grep -- --with-config-file-scan-dir | cut -f2 -d=`"
     PHP_CFLAGS="`$PHP_CONFIG --includes`"
     AC_SUBST(PHP_LDFLAGS)
-@@ -1425,6 +1429,7 @@ then
+@@ -1443,6 +1447,7 @@ then
  				AC_MSG_NOTICE([Your python seems OK, do not forget to enable mod_python in modules.conf])
  				AC_SUBST([PYTHON_CFLAGS],  [$PYTHON_CFLAGS])
  				AC_SUBST([PYTHON_LDFLAGS], [$PYTHON_LDFLAGS])

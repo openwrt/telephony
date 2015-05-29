@@ -8,12 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
-PKG_VERSION:=1.2.1
-PKG_RELEASE:=2
+PKG_VERSION:=2.0.0
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://b2bua.org/chrome/site/
-PKG_MD5SUM:=b0b5d6cdce3f17cdbbac473c11a2d0e5
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=git://github.com/sippy/rtpproxy.git
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=d5926892630139bcbe55d1f3fa36764c881648bc
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_CHECK_FORMAT_SECURITY:=0
 PKG_INSTALL:=1
 
@@ -26,7 +30,7 @@ define Package/rtpproxy
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=+libpthread
+  DEPENDS:=+libpthread +librt
   TITLE:=RTP (Realtime Transport Protocol) proxy
   URL:=http://www.rtpproxy.org/
 endef

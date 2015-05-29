@@ -214,11 +214,18 @@ menu "Configuration"
     help
 	Use OpenSSL crypto primitives.
 
+  config FS_WITH_PYTHON
+    depends on PACKAGE_freeswitch-mod-python
+    bool "Enable to use system provided version of python"
+    default n
+    help
+	Enable to use system provided version of python.
+
   config FS_WITH_STUN
     bool "Enable stun module"
     default n
     help
-	Enable stun module
+	Enable stun module.
 
   config FS_WITH_ERLANG
     depends on PACKAGE_freeswitch-mod-erlang-event
