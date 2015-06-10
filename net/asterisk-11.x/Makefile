@@ -248,6 +248,8 @@ CONFIGURE_ARGS+= \
 	--without-nbs \
 	--with-ncurses="$(STAGING_DIR)/usr" \
 	--without-netsnmp \
+	--without-neon \
+	--without-neon29 \
 	--without-newt \
 	--without-ogg \
 	--without-osptk \
