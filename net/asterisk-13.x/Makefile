@@ -181,6 +181,8 @@ CONFIGURE_ARGS+= \
 	--without-isdnnet \
 	--without-misdn \
 	--without-nbs \
+	--without-neon \
+	--without-neon29 \
 	--with-libxml2 \
 	--with-ncurses="$(STAGING_DIR)/usr" \
 	--without-netsnmp \
