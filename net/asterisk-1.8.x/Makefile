@@ -146,15 +146,15 @@ define Package/asterisk18-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
-  CONFIGURE_ARGS+= \
-	--with-iksemel="$(STAGING_DIR)/usr"
-  SITE_VARS+= \
-	ac_cv_lib_iksemel_iks_start_sasl=yes
-else
+#ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
+#  CONFIGURE_ARGS+= \
+#	--with-iksemel="$(STAGING_DIR)/usr"
+#  SITE_VARS+= \
+#	ac_cv_lib_iksemel_iks_start_sasl=yes
+#else
   CONFIGURE_ARGS+= \
 	--without-iksemel
-endif
+#endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-curl),)
   CONFIGURE_ARGS+= \
