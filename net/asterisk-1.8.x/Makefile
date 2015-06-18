@@ -166,7 +166,7 @@ endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-mysql),)
   CONFIGURE_ARGS+= \
-	--with-mysqlclient
+	--with-mysqlclient="$(STAGING_DIR)/usr"
 else
   CONFIGURE_ARGS+= \
 	--without-mysqlclient

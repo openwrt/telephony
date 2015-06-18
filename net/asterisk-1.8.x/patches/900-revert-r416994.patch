@@ -1,0 +1,162 @@
+Index: asterisk-1.8.32.3/autoconf/ast_ext_tool_check.m4
+===================================================================
+--- asterisk-1.8.32.3.orig/autoconf/ast_ext_tool_check.m4
++++ asterisk-1.8.32.3/autoconf/ast_ext_tool_check.m4
+@@ -5,37 +5,39 @@
+ # AST_EXT_TOOL_CHECK([package], [tool name], [--cflags], [--libs], [includes], [expression])
+ AC_DEFUN([AST_EXT_TOOL_CHECK],
+ [
+-	if test "x${PBX_$1}" != "x1" -a "${USE_$1}" != "no"; then
+-		PBX_$1=0
+-		AC_PATH_TOOL(CONFIG_$1, $2, No, [${$1_DIR}/bin:$PATH])
+-		if test ! "x${CONFIG_$1}" = xNo; then
+-			if test x"$3" = x ; then A=--cflags ; else A="$3" ; fi
+-			$1_INCLUDE=$(${CONFIG_$1} $A)
+-			$1_INCLUDE=$(echo ${$1_INCLUDE} | $SED -e "s|-I|-I${$1_DIR}|g")
+-
+-			if test x"$4" = x ; then A=--libs ; else A="$4" ; fi
+-			$1_LIB=$(${CONFIG_$1} $A)
+-			$1_LIB=$(echo ${$1_LIB} | $SED -e "s|-L|-L${$1_DIR}|g")
+-
+-			if test x"$5" != x ; then
+-				saved_cppflags="${CPPFLAGS}"
+-				CPPFLAGS="${CPPFLAGS} ${$1_INCLUDE}"
++    if test "x${PBX_$1}" != "x1" -a "${USE_$1}" != "no"; then
++	PBX_$1=0
++	AC_PATH_TOOL(CONFIG_$1, $2, No, [${$1_DIR}/bin:$PATH])
++	if test ! "x${CONFIG_$1}" = xNo; then
++	    if test x"$3" = x ; then A=--cflags ; else A="$3" ; fi
++	    $1_INCLUDE=$(${CONFIG_$1} $A)
++	    if test x"$4" = x ; then A=--libs ; else A="$4" ; fi
++	    $1_LIB=$(${CONFIG_$1} $A)
++	    if test x"$5" != x ; then
++		saved_cppflags="${CPPFLAGS}"
++		if test "x${$1_DIR}" != "x"; then
++		    $1_INCLUDE="-I${$1_DIR}/include"
++		fi
++		CPPFLAGS="${CPPFLAGS} ${$1_INCLUDE}"
+ 
+-				saved_libs="${LIBS}"
+-				LIBS=${$1_LIB}
++		saved_libs="${LIBS}"
++		LIBS="${$1_LIB}"
+ 
+-				AC_LINK_IFELSE(
+-					[ AC_LANG_PROGRAM( [ $5 ], [ $6; ])],
+-					[ PBX_$1=1 AC_DEFINE([HAVE_$1], 1,
+-						[Define if your system has the $1 headers.])],
+-					[]
+-				)
+-				CPPFLAGS="${saved_cppflags}"
+-				LIBS="${saved_libs}"
+-			else
+-				PBX_$1=1
+-				AC_DEFINE([HAVE_$1], 1, [Define if your system has the $1 libraries.])
+-			fi
+-		fi
++		AC_LINK_IFELSE(
++		    [ AC_LANG_PROGRAM( [ $5 ],
++				       [ $6; ]
++				       )],
++		    [   PBX_$1=1
++			AC_DEFINE([HAVE_$1], 1, [Define if your system has the $1 headers.])
++		    ],
++		    []
++		)
++		CPPFLAGS="${saved_cppflags}"
++		LIBS="${saved_libs}"
++	    else
++		PBX_$1=1
++		AC_DEFINE([HAVE_$1], 1, [Define if your system has the $1 libraries.])
++	    fi
+ 	fi
++    fi
+ ])
+Index: asterisk-1.8.32.3/configure
+===================================================================
+--- asterisk-1.8.32.3.orig/configure
++++ asterisk-1.8.32.3/configure
+@@ -12663,11 +12663,9 @@ fi
+ 		if test ! "x${CONFIG_LIBXML2}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			LIBXML2_INCLUDE=$(${CONFIG_LIBXML2} $A)
+-			LIBXML2_INCLUDE=$(echo ${LIBXML2_INCLUDE} | $SED -e "s|-I|-I${LIBXML2_DIR}|g")
+ 
+ 			if test x"" = x ; then A=--libs ; else A="" ; fi
+ 			LIBXML2_LIB=$(${CONFIG_LIBXML2} $A)
+-			LIBXML2_LIB=$(echo ${LIBXML2_LIB} | $SED -e "s|-L|-L${LIBXML2_DIR}|g")
+ 
+ 			if test x"#include <libxml/tree.h>
+ 	#include <libxml/parser.h>" != x ; then
+@@ -21027,11 +21025,9 @@ fi
+ 		if test ! "x${CONFIG_MYSQLCLIENT}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			MYSQLCLIENT_INCLUDE=$(${CONFIG_MYSQLCLIENT} $A)
+-			MYSQLCLIENT_INCLUDE=$(echo ${MYSQLCLIENT_INCLUDE} | $SED -e "s|-I|-I${MYSQLCLIENT_DIR}|g")
+ 
+ 			if test x"" = x ; then A=--libs ; else A="" ; fi
+ 			MYSQLCLIENT_LIB=$(${CONFIG_MYSQLCLIENT} $A)
+-			MYSQLCLIENT_LIB=$(echo ${MYSQLCLIENT_LIB} | $SED -e "s|-L|-L${MYSQLCLIENT_DIR}|g")
+ 
+ 			if test x"" != x ; then
+ 				saved_cppflags="${CPPFLAGS}"
+@@ -21281,11 +21277,9 @@ fi
+ 		if test ! "x${CONFIG_NEON}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			NEON_INCLUDE=$(${CONFIG_NEON} $A)
+-			NEON_INCLUDE=$(echo ${NEON_INCLUDE} | $SED -e "s|-I|-I${NEON_DIR}|g")
+ 
+ 			if test x"" = x ; then A=--libs ; else A="" ; fi
+ 			NEON_LIB=$(${CONFIG_NEON} $A)
+-			NEON_LIB=$(echo ${NEON_LIB} | $SED -e "s|-L|-L${NEON_DIR}|g")
+ 
+ 			if test x"" != x ; then
+ 				saved_cppflags="${CPPFLAGS}"
+@@ -21430,11 +21424,9 @@ fi
+ 		if test ! "x${CONFIG_NEON29}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			NEON29_INCLUDE=$(${CONFIG_NEON29} $A)
+-			NEON29_INCLUDE=$(echo ${NEON29_INCLUDE} | $SED -e "s|-I|-I${NEON29_DIR}|g")
+ 
+ 			if test x"--libs" = x ; then A=--libs ; else A="--libs" ; fi
+ 			NEON29_LIB=$(${CONFIG_NEON29} $A)
+-			NEON29_LIB=$(echo ${NEON29_LIB} | $SED -e "s|-L|-L${NEON29_DIR}|g")
+ 
+ 			if test x"#include <ne_auth.h>" != x ; then
+ 				saved_cppflags="${CPPFLAGS}"
+@@ -21581,11 +21573,9 @@ fi
+ 		if test ! "x${CONFIG_NETSNMP}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			NETSNMP_INCLUDE=$(${CONFIG_NETSNMP} $A)
+-			NETSNMP_INCLUDE=$(echo ${NETSNMP_INCLUDE} | $SED -e "s|-I|-I${NETSNMP_DIR}|g")
+ 
+ 			if test x"--agent-libs" = x ; then A=--libs ; else A="--agent-libs" ; fi
+ 			NETSNMP_LIB=$(${CONFIG_NETSNMP} $A)
+-			NETSNMP_LIB=$(echo ${NETSNMP_LIB} | $SED -e "s|-L|-L${NETSNMP_DIR}|g")
+ 
+ 			if test x"#include <net-snmp/net-snmp-config.h>
+ #include <net-snmp/net-snmp-includes.h>
+@@ -28255,11 +28245,9 @@ fi
+ 		if test ! "x${CONFIG_GMIME}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			GMIME_INCLUDE=$(${CONFIG_GMIME} $A)
+-			GMIME_INCLUDE=$(echo ${GMIME_INCLUDE} | $SED -e "s|-I|-I${GMIME_DIR}|g")
+ 
+ 			if test x"" = x ; then A=--libs ; else A="" ; fi
+ 			GMIME_LIB=$(${CONFIG_GMIME} $A)
+-			GMIME_LIB=$(echo ${GMIME_LIB} | $SED -e "s|-L|-L${GMIME_DIR}|g")
+ 
+ 			if test x"#include <gmime/gmime.h>" != x ; then
+ 				saved_cppflags="${CPPFLAGS}"
+@@ -29377,11 +29365,9 @@ fi
+ 		if test ! "x${CONFIG_SDL}" = xNo; then
+ 			if test x"" = x ; then A=--cflags ; else A="" ; fi
+ 			SDL_INCLUDE=$(${CONFIG_SDL} $A)
+-			SDL_INCLUDE=$(echo ${SDL_INCLUDE} | $SED -e "s|-I|-I${SDL_DIR}|g")
+ 
+ 			if test x"" = x ; then A=--libs ; else A="" ; fi
+ 			SDL_LIB=$(${CONFIG_SDL} $A)
+-			SDL_LIB=$(echo ${SDL_LIB} | $SED -e "s|-L|-L${SDL_DIR}|g")
+ 
+ 			if test x"" != x ; then
+ 				saved_cppflags="${CPPFLAGS}"
