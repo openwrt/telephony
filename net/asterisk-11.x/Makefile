@@ -220,15 +220,15 @@ else
 	--without-srtp
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
-  CONFIGURE_ARGS+= \
-	--with-iksemel="$(STAGING_DIR)/usr"
-  SITE_VARS+= \
-	ac_cv_lib_iksemel_iks_start_sasl=yes
-else
+#ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
+#  CONFIGURE_ARGS+= \
+#	--with-iksemel="$(STAGING_DIR)/usr"
+#  SITE_VARS+= \
+#	ac_cv_lib_iksemel_iks_start_sasl=yes
+#else
   CONFIGURE_ARGS+= \
 	--without-iksemel
-endif
+#endif
 
 EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
 EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
@@ -423,5 +423,5 @@ $(eval $(call BuildAsterisk11Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp
 $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk11-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
+#$(eval $(call BuildAsterisk11Module,res-xmpp,XMPP,XMPP/Jabber support,+libiksemel,,,res_xmpp,))
 $(eval $(call BuildAsterisk11Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*)) 
-
