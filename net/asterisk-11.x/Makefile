@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.17.1
+PKG_VERSION:=11.18.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=2c6cd0f499152d0d5ff32f36e274fc2e
+PKG_MD5SUM:=3ddb42b54db200faccd68906df210a40
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE
@@ -289,13 +289,13 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
+	( retry=""; while [ ! "$$$$retry" ] && ! $(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
-		makeopts.embed_rules
+		makeopts.embed_rules; do retry=1; done )
 	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY"
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)"
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
+	( retry=""; while [ ! "$$$$retry" ] && ! $(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
 		ASTDATADIR="/usr/lib/asterisk" \
 		ASTKEYDIR="/usr/lib/asterisk" \
@@ -304,7 +304,7 @@ define Build/Compile
 		DEBUG="" \
 		OPTIMIZE="" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install samples
+		all install samples; do retry=1; done )
 endef
 
 define Build/InstallDev
