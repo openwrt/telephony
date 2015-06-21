@@ -272,11 +272,19 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--disable-xmldoc 
 
-define Build/Prepare
-	$(call Build/Prepare/Default)
-endef
+CONFIGURE_VARS += \
+	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
+AST_MENUSELECT_OPTS = \
+	--without-newt \
+	--without-curses \
+	--with-ncurses="$(STAGING_DIR_HOST)/usr" \
+	--with-libxml2="$(STAGING_DIR_HOST)/usr"
 
 define Build/Configure
+	(cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh; \
+	);
 	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
 		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
 		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
@@ -287,16 +295,26 @@ define Build/Configure
 		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
 		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
+	(cd $(PKG_BUILD_DIR)/menuselect; \
+		./bootstrap.sh; \
+		./configure \
+		$(HOST_CONFIGURE_ARGS) \
+		$(AST_MENUSELECT_OPTS) \
+		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
+	);
 endef
 
 define Build/Compile
-	( retry=""; while [ ! "$$$$retry" ] && ! $(MAKE) -C "$(PKG_BUILD_DIR)" \
-		include/asterisk/version.h \
+	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
+		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
+	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
-		makeopts.embed_rules; do retry=1; done )
+		makeopts.embed_rules
 	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY"
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)"
-	( retry=""; while [ ! "$$$$retry" ] && ! $(MAKE) -C "$(PKG_BUILD_DIR)" \
+	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
 		ASTDATADIR="/usr/lib/asterisk" \
 		ASTKEYDIR="/usr/lib/asterisk" \
@@ -305,7 +323,7 @@ define Build/Compile
 		DEBUG="" \
 		OPTIMIZE="" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install samples; do retry=1; done )
+		all install samples
 endef
 
 define Build/InstallDev
