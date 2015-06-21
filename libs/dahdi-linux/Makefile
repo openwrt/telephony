@@ -43,7 +43,7 @@ define KernelPackage/dahdi-echocan-oslec
   DEPENDS:=kmod-dahdi +kmod-echo
   URL:=http://www.asterisk.org/
   FILES:=$(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
-  AUTOLOAD:=$(call AutoProbe,echo dahdi_echocan_oslec)
+  AUTOLOAD:=$(call AutoProbe,dahdi_echocan_oslec)
 endef
 
 define KernelPackage/dahdi-echocan-oslec/description
