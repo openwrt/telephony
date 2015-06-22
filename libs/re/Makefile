@@ -33,7 +33,7 @@ endef
 
 TARGET_CFLAGS += $(FPIC)
 
-ifneq ($(CONFIG_USE_EGLIBC),)
+ifneq ($(CONFIG_USE_GLIBC)$(CONFIG_USE_MUSL),)
 TARGET_CFLAGS += -D_GNU_SOURCE
 endif
 
