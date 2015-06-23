@@ -296,7 +296,6 @@ define Build/Configure
 		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
 	(cd $(PKG_BUILD_DIR)/menuselect; \
-		./bootstrap.sh; \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS) \
