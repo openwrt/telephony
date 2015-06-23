@@ -49,6 +49,7 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision: xxx $")
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <signal.h>
 #ifdef HAVE_LINUX_COMPILER_H
 #include <linux/compiler.h>
