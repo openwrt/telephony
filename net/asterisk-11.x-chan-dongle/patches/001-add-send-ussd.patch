@@ -1,6 +1,6 @@
 --- a/app.c
 +++ b/app.c
-@@ -114,7 +114,44 @@
+@@ -114,7 +114,44 @@ static int app_send_sms_exec (attribute_
  	return !status;
  }
  
@@ -45,7 +45,7 @@
  
  static const struct dongle_application
  {
-@@ -144,7 +181,15 @@
+@@ -144,7 +181,15 @@ static const struct dongle_application
  		"  Message  - text of the message\n"
  		"  Validity - Validity period in minutes\n"
  		"  Report   - Boolean flag for report request\n"

@@ -1,7 +1,5 @@
-Index: asterisk11-chan-dongle-1.1r35/channel.c
-===================================================================
---- asterisk11-chan-dongle-1.1r35.orig/channel.c
-+++ asterisk11-chan-dongle-1.1r35/channel.c
+--- a/channel.c
++++ b/channel.c
 @@ -495,6 +495,19 @@ again:
  	}
  }
