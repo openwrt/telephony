@@ -1,0 +1,19 @@
+From da5cd41e8554eaf1133f85282c253da2c74ff7eb Mon Sep 17 00:00:00 2001
+From: "bg_one@mail.ru" <bg111@users.noreply.github.com>
+Date: Fri, 6 Sep 2013 19:37:05 +0000
+Subject: [PATCH] added E1752 to seven_bit_modems
+
+---
+ at_response.c | 1 +
+ 1 files changed, 1 insertions(+), 0 deletion(-)
+
+--- a/at_response.c
++++ b/at_response.c
+@@ -1590,6 +1590,7 @@ static int at_response_cgmm (struct pvt*
+ 		"E171",
+ 		"E153",
+ 		"E156B",
++		"E1752",
+ 	};
+ 
+ 	ast_copy_string (pvt->model, str, sizeof (pvt->model));

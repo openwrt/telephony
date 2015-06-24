@@ -1,0 +1,20 @@
+From da5cd41e8554eaf1133f85282c253da2c74ff7eb Mon Sep 17 00:00:00 2001
+From: "bg_one@mail.ru" <bg111@users.noreply.github.com>
+Date: Fri, 6 Sep 2013 19:37:05 +0000
+Subject: [PATCH] added E1752 to seven_bit_modems
+
+---
+ configure.in  | 2 +-
+ 1 files changed, 1 insertions(+), 1 deletion(-)
+
+--- a/configure.in
++++ b/configure.in
+@@ -2,7 +2,7 @@ dnl init
+ dnl AC_REVISION($Revision: 1.30 $)
+ AC_PREREQ([2.60])
+ AC_INIT([chan_dongle],[1.1],[http://code.google.com/p/asterisk-chan-dongle/issues/list],[chan_dongle],[http://code.google.com/p/asterisk-chan-dongle])
+-PACKAGE_REVISION="34"
++PACKAGE_REVISION="35"
+ AC_CANONICAL_TARGET
+ AM_INIT_AUTOMAKE
+ AC_CONFIG_HEADERS([config.h])
