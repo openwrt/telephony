@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=5845
+PKG_REV:=6139
 PKG_VERSION:=v4.2-r$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/tags/openwrt
+PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/V4.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
@@ -77,6 +77,10 @@ endif
 
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
+/etc/asterisk/extconfig.conf.sccp_sample
+/etc/asterisk/res_config_sqlite3.conf.sccp_sample
+/etc/asterisk/sccp_sqlite3.sql
+/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk18-chan-sccp-b/conffiles = $(Package/conffiles/Default)
@@ -95,6 +99,13 @@ define Package/Install/Default
 	$(CP) ./files/sccp.conf $(1)/etc/asterisk/sccp.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
+	if [ -f /usr/bin/sqlite3 ]; then
+		$(CP) ./files/extconfig.conf.sccp_sample $(1)/etc/asterisk/extconfig.conf.sccp_sample
+		$(CP) ./files/res_config_sqlite3.conf.sccp_sample $(1)/etc/asterisk/res_config_sqlite3.conf.sccp_sample
+		$(CP) ./files/sccp_sqlite3.sql $(1)/etc/asterisk/sccp_sqlite3.sql
+		$(CP) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
+		/usr/bin/sqlite3 /usr/lib/asterisk/realtime.sqlite3 < /etc/asterisk/sccp_sqlite3.sql
+	fi
 endef
 
 Package/asterisk18-chan-sccp-b/install = $(Package/Install/Default)
