@@ -98,14 +98,11 @@ define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
 	$(CP) ./files/sccp.conf $(1)/etc/asterisk/sccp.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
-	if [ -f /usr/bin/sqlite3 ]; then
-		$(CP) ./files/extconfig.conf.sccp_sample $(1)/etc/asterisk/extconfig.conf.sccp_sample
-		$(CP) ./files/res_config_sqlite3.conf.sccp_sample $(1)/etc/asterisk/res_config_sqlite3.conf.sccp_sample
-		$(CP) ./files/sccp_sqlite3.sql $(1)/etc/asterisk/sccp_sqlite3.sql
-		$(CP) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
-		/usr/bin/sqlite3 /usr/lib/asterisk/realtime.sqlite3 < /etc/asterisk/sccp_sqlite3.sql
-	fi
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_DATA) ./files/extconfig.conf.sccp_sample $(1)/etc/asterisk/extconfig.conf.sccp_sample
+	$(INSTALL_DATA) ./files/res_config_sqlite3.conf.sccp_sample $(1)/etc/asterisk/res_config_sqlite3.conf.sccp_sample
+	$(INSTALL_DATA) ./files/sccp_sqlite3.sql $(1)/etc/asterisk/sccp_sqlite3.sql
+	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk18-chan-sccp-b/install = $(Package/Install/Default)
