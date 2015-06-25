@@ -1,0 +1,12 @@
+--- a/src/auth.c
++++ b/src/auth.c
+@@ -22,9 +22,7 @@
+  *           Frederique Aurouet
+  */
+ 
+-#if defined( __FreeBSD__) || defined(__DARWIN) || defined(__SUNOS)
+ #include <sys/types.h>
+-#endif
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
