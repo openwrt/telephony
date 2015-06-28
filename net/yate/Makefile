@@ -7,13 +7,12 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/uclibc++.mk
 
 RELEASEVER:=5.4.2
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
@@ -24,8 +23,11 @@ PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
 
+PKG_FIXUP:=autoreconf
+
 PKG_INSTALL:=1
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -78,7 +80,13 @@ define Package/$(PKG_NAME)-collection-basic
    TITLE := Basic Yate Server
 endef
 
-TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,)
+ifneq ($(CONFIG_USE_MUSL),)
+  LIBNSL:=
+else
+  LIBNSL:=-lnsl
+endif
+
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,) $(LIBNSL)
 
 CONFIGURE_ARGS+= \
 	--enable-strings \
