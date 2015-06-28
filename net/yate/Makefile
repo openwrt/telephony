@@ -8,15 +8,15 @@
 
 include $(TOPDIR)/rules.mk
 
-RELEASEVER:=5.4.2
+RELEASEVER:=5.5.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=5
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=50ffb5a9d3a7105a8776e56783d309ed
+PKG_MD5SUM:=c433b3df08a5993e16fadaac279e39a0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_LICENSE:=GPL-2.0
@@ -86,7 +86,7 @@ else
   LIBNSL:=-lnsl
 endif
 
-TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,) $(LIBNSL)
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,)
 
 CONFIGURE_ARGS+= \
 	--enable-strings \
@@ -126,12 +126,12 @@ CONFIGURE_ARGS+= \
 
 CONFIGURE_VARS+= \
 	LDFLAGS="$$$$LDFLAGS -nodefaultlibs" \
-	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S)"
+	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S) $(LIBNSL)"
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	
-	for yatelib in "" sig mgcp jabber script; do \
+	for yatelib in "" asn sig mgcp jabber script; do \
 		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib ;\
 		$(LN) ./libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib/libyate$$$${yatelib}.so ;\
 	done
