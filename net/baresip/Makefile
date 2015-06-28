@@ -72,7 +72,7 @@ BARESIP_MOD_OPTIONS:= \
 	MOD_AUTODETECT= \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS += $(FPIC) -D_GNU_SOURCE
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
