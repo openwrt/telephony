@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.4.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -290,7 +290,7 @@ $(eval $(call BuildAsterisk13Module,app-disa,Direct Inward System Access,Direct 
 $(eval $(call BuildAsterisk13Module,app-exec,Exec application,support for application execution,,,app_exec,,))
 $(eval $(call BuildAsterisk13Module,app-chanisavail,Channel availability check,support for checking if a channel is available,,,app_chanisavail,,))
 $(eval $(call BuildAsterisk13Module,app-chanspy,Channel listen in,support for listening in on any channel,,,app_chanspy,,))
-$(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,,confbridge.conf,app_confbridge bridge_builtin_features bridge_multiplexed bridge_simple bridge_softmix,,))
+$(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,+asterisk13-bridge-builtin-features +asterisk13-bridge-multiplexed +asterisk13-bridge-simple +asterisk13-bridge-softmix,confbridge.conf,app_confbridge,,))
 $(eval $(call BuildAsterisk13Module,app-minivm,Minimal voicemail system,a voicemail system in small building blocks working together based on the Comedian Mail voicemail,,extensions_minivm.conf minivm.conf,app_minivm,,))
 $(eval $(call BuildAsterisk13Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
 $(eval $(call BuildAsterisk13Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
@@ -307,6 +307,12 @@ $(eval $(call BuildAsterisk13Module,app-talkdetect,File playback with audio dete
 $(eval $(call BuildAsterisk13Module,app-verbose,Verbose logging,Verbose logging application,,,app_verbose,,))
 $(eval $(call BuildAsterisk13Module,app-waituntil,Sleep,support sleeping until the given epoch,,,app_waituntil,,))
 $(eval $(call BuildAsterisk13Module,app-while,While loop,a while loop implementation,,,app_while,,))
+$(eval $(call BuildAsterisk13Module,bridge-native-rtp,Native RTP bridging technology module,native RTP bridging technology module,,,bridge_native_rtp))
+$(eval $(call BuildAsterisk13Module,bridge-holding,Bridging for storing channels in a bridge,Bridging technology for storing channels in a bridge for the purpose of holding, parking, queues, and other such states where a channel may need to be in a bridge but not actually communicating with anything.,,,bridge_holding))
+$(eval $(call BuildAsterisk13Module,bridge-builtin-interval-features,Built in bridging interval features,built in bridging interval features,,,bridge_builtin_interval_features))
+$(eval $(call BuildAsterisk13Module,bridge-simple,Simple two channel bridging module,simple two channel bridging module,,,bridge_simple))
+$(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based channel mixing,multi-party software based channel mixing,,,bridge_softmix))
+$(eval $(call BuildAsterisk13Module,bridge-builtin-features,Bridging features,built in bridging features,,,bridge_builtin_features))
 $(eval $(call BuildAsterisk13Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
 $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
 $(eval $(call BuildAsterisk13Module,cdr,Provides CDR,Call Detail Record,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
@@ -360,19 +366,23 @@ $(eval $(call BuildAsterisk13Module,pbx-spool,Call Spool,outgoing call spool sup
 $(eval $(call BuildAsterisk13Module,pbx-realtime,Realtime Switch,realtime switch support,,,pbx_realtime,,))
 $(eval $(call BuildAsterisk13Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
 $(eval $(call BuildAsterisk13Module,pjsip,pjsip channel,the channel pjsip,+asterisk13-res-sorcery +libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,pjsip.conf pjsip_notify.conf,func_pjsip_endpoint chan_pjsip res_pjsip_acl res_pjsip_authenticator_digest res_pjsip_caller_id res_pjsip_dialog_info_body_generator res_pjsip_diversion res_pjsip_dtmf_info res_pjsip_endpoint_identifier_anonymous res_pjsip_endpoint_identifier_ip res_pjsip_endpoint_identifier_user res_pjsip_exten_state res_pjsip_header_funcs res_pjsip_log_forwarder res_pjsip_logger res_pjsip_messaging res_pjsip_multihomed res_pjsip_mwi_body_generator res_pjsip_mwi res_pjsip_nat res_pjsip_notify res_pjsip_one_touch_record_info res_pjsip_outbound_authenticator_digest res_pjsip_outbound_publish res_pjsip_outbound_registration res_pjsip_path res_pjsip_pidf_body_generator res_pjsip_pidf_digium_body_supplement res_pjsip_pidf_eyebeam_body_supplement res_pjsip_publish_asterisk res_pjsip_pubsub res_pjsip_refer res_pjsip_registrar_expire res_pjsip_registrar res_pjsip_rfc3326 res_pjsip_sdp_rtp res_pjsip_send_to_voicemail res_pjsip_session res_pjsip res_pjsip_transport_websocket res_pjsip_t38 res_pjsip_xpidf_body_generator,,))
+$(eval $(call BuildAsterisk13Module,res-adsi,Provide ADSI,Analog Display Services Interface capability,,,res_adsi,,))
 $(eval $(call BuildAsterisk13Module,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,res_ael_share,,))
 $(eval $(call BuildAsterisk13Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,,,res_agi,,))
+$(eval $(call BuildAsterisk13Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,calendar.conf,res_calendar,,))
 $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
 $(eval $(call BuildAsterisk13Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk13-res-timing-pthread,udptl.conf res_fax.conf,res_fax,,))
 $(eval $(call BuildAsterisk13Module,res-http-websocket,HTTP websocket support,,,,res_http_websocket,,))
 $(eval $(call BuildAsterisk13Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,res_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
+$(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application,,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsterisk13Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
+$(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp,,res_srtp,,))
 $(eval $(call BuildAsterisk13Module,res-realtime,Realtime,Realtime Interface,,,res_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
-$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
+$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
