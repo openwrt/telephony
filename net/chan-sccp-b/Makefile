@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=5845
+PKG_REV:=6139
 PKG_VERSION:=v4.2-r$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/tags/openwrt
+PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/V4.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
@@ -77,6 +77,10 @@ endif
 
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
+/etc/asterisk/extconfig.conf.sccp_sample
+/etc/asterisk/res_config_sqlite3.conf.sccp_sample
+/etc/asterisk/sccp_sqlite3.sql
+/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk18-chan-sccp-b/conffiles = $(Package/conffiles/Default)
@@ -85,7 +89,7 @@ Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 
 define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		CFLAGS="$(CFLAGS) -I$(PKG_BUILD_DIR)/src -DLOW_MEMORY" \
+		CFLAGS="$(CFLAGS) -I$(PKG_BUILD_DIR)/src -DLOW_MEMORY -fno-stack-protector" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		all install
 endef
@@ -94,7 +98,11 @@ define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
 	$(CP) ./files/sccp.conf $(1)/etc/asterisk/sccp.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_DATA) ./files/extconfig.conf.sccp_sample $(1)/etc/asterisk/extconfig.conf.sccp_sample
+	$(INSTALL_DATA) ./files/res_config_sqlite3.conf.sccp_sample $(1)/etc/asterisk/res_config_sqlite3.conf.sccp_sample
+	$(INSTALL_DATA) ./files/sccp_sqlite3.sql $(1)/etc/asterisk/sccp_sqlite3.sql
+	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk18-chan-sccp-b/install = $(Package/Install/Default)
