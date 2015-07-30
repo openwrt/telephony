@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.4.0
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -287,7 +287,7 @@ $(eval $(call BuildAsterisk13Module,app-alarmreceiver,Alarm receiver,Central Sta
 $(eval $(call BuildAsterisk13Module,app-authenticate,Authenticate commands,Execute arbitrary authenticate commands,,,app_authenticate,,))
 $(eval $(call BuildAsterisk13Module,app-chanisavail,Channel availability check,support for checking if a channel is available,,,app_chanisavail,,))
 $(eval $(call BuildAsterisk13Module,app-chanspy,Channel listen in,support for listening in on any channel,,,app_chanspy,,))
-$(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,+asterisk13-bridge-builtin-features +asterisk13-bridge-multiplexed +asterisk13-bridge-simple +asterisk13-bridge-softmix,confbridge.conf,app_confbridge,,))
+$(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,+asterisk13-bridge-builtin-features +asterisk13-bridge-simple +asterisk13-bridge-softmix,confbridge.conf,app_confbridge,,))
 $(eval $(call BuildAsterisk13Module,app-directed_pickup,Directed call pickup,support for directed call pickup,,,app_directed_pickup,,))
 $(eval $(call BuildAsterisk13Module,app-disa,Direct Inward System Access,Direct Inward System Access,,,app_disa,,))
 $(eval $(call BuildAsterisk13Module,app-exec,Exec application,support for application execution,,,app_exec,,))
@@ -309,7 +309,7 @@ $(eval $(call BuildAsterisk13Module,app-waituntil,Sleep,support sleeping until t
 $(eval $(call BuildAsterisk13Module,app-while,While loop,a while loop implementation,,,app_while,,))
 $(eval $(call BuildAsterisk13Module,bridge-builtin-features,Bridging features,built in bridging features,,,bridge_builtin_features))
 $(eval $(call BuildAsterisk13Module,bridge-builtin-interval-features,Built in bridging interval features,built in bridging interval features,,,bridge_builtin_interval_features))
-$(eval $(call BuildAsterisk13Module,bridge-holding,Bridging for storing channels in a bridge,Bridging technology for storing channels in a bridge for the purpose of holding, parking, queues, and other such states where a channel may need to be in a bridge but not actually communicating with anything.,,,bridge_holding))
+$(eval $(call BuildAsterisk13Module,bridge-holding,Bridging for storing channels in a bridge,bridging technology for storing channels in a bridge,,,bridge_holding))
 $(eval $(call BuildAsterisk13Module,bridge-native-rtp,Native RTP bridging technology module,native RTP bridging technology module,,,bridge_native_rtp))
 $(eval $(call BuildAsterisk13Module,bridge-simple,Simple two channel bridging module,simple two channel bridging module,,,bridge_simple))
 $(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based channel mixing,multi-party software based channel mixing,,,bridge_softmix))
