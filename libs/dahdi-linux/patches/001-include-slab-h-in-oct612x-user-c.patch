@@ -1,7 +1,5 @@
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/oct612x/oct612x-user.c
-===================================================================
---- dahdi-linux-2.10.0.1.orig/drivers/dahdi/oct612x/oct612x-user.c
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/oct612x/oct612x-user.c
+--- a/drivers/dahdi/oct612x/oct612x-user.c
++++ b/drivers/dahdi/oct612x/oct612x-user.c
 @@ -22,6 +22,7 @@
  
  #include <linux/kernel.h>
