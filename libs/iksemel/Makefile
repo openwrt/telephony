@@ -31,7 +31,7 @@ define Package/libiksemel
   CATEGORY:=Libraries
   TITLE:=Iksemel Jabber Library
   URL:=http://code.google.com/p/iksemel/
-  DEPENDS:= +libgnutls +libtasn1 +libgcrypt +libgpg-error @BROKEN
+  DEPENDS:= +libgnutls +libtasn1 +libgcrypt +libgpg-error
 endef
 
 define Package/libiksemel/description
