@@ -1,10 +1,10 @@
 --- a/build/modules.conf.in
 +++ b/build/modules.conf.in
-@@ -35,6 +35,7 @@ applications/mod_httapi
+@@ -39,6 +39,7 @@ applications/mod_httapi
  #applications/mod_rad_auth
  #applications/mod_redis
  #applications/mod_rss
 +#applications/mod_skel
- #applications/mod_sonar
  applications/mod_sms
  #applications/mod_snapshot
+ #applications/mod_snom

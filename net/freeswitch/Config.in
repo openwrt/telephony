@@ -77,6 +77,11 @@ menu "Configuration"
       help
 	Compile libs/apr-util with PostgreSQL support.
 
+    config FS_WITH_SQLITE2
+      bool "SQLITE2"
+      help
+	Compile libs/apr-util with SQLITE2 support.
+
     config FS_WITH_SQLITE3
       bool "SQLITE3"
       help
@@ -223,7 +228,7 @@ menu "Configuration"
 
   config FS_WITH_STUN
     bool "Enable stun module"
-    default n
+    default y
     help
 	Enable stun module.
 

@@ -1,0 +1,65 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -254,7 +254,7 @@ AX_COMPILER_VENDOR
+ if test "x${cross_compiling}" = "xyes"; then
+     CC_FOR_BUILD=${CC_FOR_BUILD-gcc}
+     case "$host" in
+-    	 arm*-linux-gnueabi*|arm*-*-linux-gnueabi*)
++    	 arm*-linux-gnueabi*|arm*-*-linux-*)
+ 		# spandsp modem
+ 		ac_cv_file__dev_ptmx=yes
+ 		# libjs
+@@ -273,7 +273,7 @@ if test "x${cross_compiling}" = "xyes";
+ 		export apr_cv_mutex_recursive=yes
+ 		export ac_cv_func_pthread_rwlock_init=yes
+ 		export apr_cv_type_rwlock_t=yes
+-		export apr_cv_process_shared_works=yes
++		export apr_cv_process_shared_works=no
+ 		export apr_cv_mutex_robust_shared=yes
+ 	 ;;
+     esac
+@@ -405,9 +405,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
+ elif test "x${ax_cv_c_compiler_vendor}" = "xgnu" ; then
+     APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
+     APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
+-    if test "$ac_cv_gcc_supports_w_no_unused_result" = yes; then
+-      APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
+-    fi
+     if test "${enable_64}" = "yes"; then
+ 	case "$host" in
+              *darwin*)
+@@ -901,7 +898,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+ 
+ AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
+ 
+-AC_CHECK_FILE(/dev/ptmx, [AC_DEFINE(HAVE_DEV_PTMX, 1, [Define if you have /dev/ptmx])])
+ AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
+ 
+ AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
+@@ -1478,14 +1474,14 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+ # perl checks
+ #
+ 
+-AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl=yes],[ac_cv_have_perl=no])
++AC_CHECK_PROG(PERL,[perl],[ac_cv_have_perl=yes],[ac_cv_have_perl=no],[${STAGING_DIR}/../host/usr/bin])
++PERL=$as_dir/$ac_word$ac_exec_ext
+ 
+ # -a "x$ac_cv_have_EXTERN_h" != "xno"
+ 
+ if test "x$ac_cv_have_perl" != "xno"; then
+-   PERL=perl
+-   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlib}'`"
+-   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlib}'`/CORE"
++   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlibexp}'`"
++   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlibexp}'`/CORE"
+    PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
+    PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's|-arch x86_64 -arch i386||'` -DEMBED_PERL"
+    PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
+@@ -1502,6 +1498,7 @@ if test "x$ac_cv_have_perl" != "xno"; th
+    AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
+    LDFLAGS="$save_LDFLAGS"
+ 
++   AC_SUBST(PERL)
+    AC_SUBST(PERL_SITEDIR)
+    AC_SUBST(PERL_LIBDIR)
+    AC_SUBST(PERL_LIBS)
