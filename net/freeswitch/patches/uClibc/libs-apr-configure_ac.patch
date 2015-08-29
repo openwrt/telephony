@@ -1,0 +1,15 @@
+--- a/libs/apr/configure.ac
++++ b/libs/apr/configure.ac
+@@ -1956,7 +1956,11 @@ fi
+ 
+ APR_CHECK_TCP_NODELAY_INHERITED
+ APR_CHECK_O_NONBLOCK_INHERITED
+-APR_CHECK_TCP_NODELAY_WITH_CORK
++
++dnl Check TCP_NODELAY_WITH_CORK ONLY when NOT cross compiling
++if test "$cross_compiling" != yes; then
++	APR_CHECK_TCP_NODELAY_WITH_CORK
++fi
+ 
+ # Look for a way of corking TCP...
+ APR_CHECK_DEFINE(TCP_CORK, netinet/tcp.h)
