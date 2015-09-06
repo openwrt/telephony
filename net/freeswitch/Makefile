@@ -19,7 +19,7 @@ PKG_VERSION:=1.5.final
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=bff9aab850a911e27b316b016c62f91f657719cd
+FS_WITH_DEFAULT_HEAD:=16d600c0350a79c2532c739dd1432f7ed318ea09
 PKG_SOURCE_URL:=https://$(PKG_NAME).org/stash/scm/fs/$(PKG_NAME).git
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
@@ -61,6 +61,7 @@ FS_MOD_AVAILABLE:= \
 	alsa \
 	amr \
 	amrwb \
+	av \
 	avmd \
 	basic \
 	bert \
@@ -71,7 +72,6 @@ FS_MOD_AVAILABLE:= \
 	cdr-mongodb \
 	cdr-pg-csv \
 	cdr-sqlite \
-	celt \
 	cepstral \
 	cidlookup \
 	cluechoo \
@@ -94,6 +94,7 @@ FS_MOD_AVAILABLE:= \
 	enum \
 	erlang-event \
 	esf \
+	esl \
 	event-multicast \
 	event-socket \
 	event-zmq \
@@ -958,6 +959,7 @@ $(eval $(call BuildPlugin,abstraction,An Abstraction To API Call,vanilla,,,,))
 $(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
+$(eval $(call BuildPlugin,av,FS Video Codec / File Format,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,basic,BASIC,vanilla,,,,))
 $(eval $(call BuildPlugin,bert,Naive Bit Error Rate Tester,vanilla,,,,))
@@ -968,7 +970,6 @@ $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,cdr-mongodb,MongoDB CDR logger,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-pg-csv,PostgreSQL CDR Handler,vanilla,,,,+coreutils +FS_WITH_POSTGRESQL:libpq @FS_WITH_POSTGRESQL))
 $(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,@FS_WITH_SQLITE3))
-$(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+libogg))
 $(eval $(call BuildPlugin,cepstral,Cepstral Interface,vanilla,,,,@BROKEN)) # needs <swift.h>
 $(eval $(call BuildPlugin,cidlookup,Data Query For CID->NAME Services,mod,,,,+libcurl)) # ~/conf
 $(eval $(call BuildPlugin,cluechoo,Framework Demo,vanilla,,,,))
@@ -991,13 +992,14 @@ $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns))
 $(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
+$(eval $(call BuildPlugin,esl,Allow to generate remote ESL commands,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-zmq,Socket Event Handler By Zero MQ,vanilla,,,,+libuuid))
 $(eval $(call BuildPlugin,expr,Expression Evaluation,vanilla,,,,))
 $(eval $(call BuildPlugin,fifo,FIFO,vanilla,,,,))
 $(eval $(call BuildPlugin,file-string,Streaming Multiple Sound Files Sequentially,vanilla,,,,@OBSOLETE)) # merged into dptools
-$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @(!(armeb||avr32)||BROKEN))) # flite is from old package repo
+$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package and/or qi repo
 $(eval $(call BuildPlugin,format-cdr,XML CDR Module to files or curl,vanilla,,,,))
 $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 $(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,+libyuv @BROKEN)) # Requires unsupported libyuv.

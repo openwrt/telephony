@@ -14,7 +14,7 @@
  		export ac_cv_func_pthread_rwlock_init=yes
  		export apr_cv_type_rwlock_t=yes
 -		export apr_cv_process_shared_works=yes
-+		export apr_cv_process_shared_works=no
++		#export apr_cv_process_shared_works=no
  		export apr_cv_mutex_robust_shared=yes
  	 ;;
      esac
