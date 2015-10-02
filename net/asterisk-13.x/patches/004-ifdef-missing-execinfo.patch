@@ -1,7 +1,5 @@
-Index: asterisk-13.4.0/include/asterisk/lock.h
-===================================================================
---- asterisk-13.4.0.orig/include/asterisk/lock.h
-+++ asterisk-13.4.0/include/asterisk/lock.h
+--- a/include/asterisk/lock.h
++++ b/include/asterisk/lock.h
 @@ -51,9 +51,11 @@
  #include <pthread.h>
  #include <time.h>
