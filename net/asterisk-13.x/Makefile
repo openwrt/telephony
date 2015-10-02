@@ -398,4 +398,4 @@ $(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,
 $(eval $(call BuildAsterisk13Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk13-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
-$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
+$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail,vm-*,))
