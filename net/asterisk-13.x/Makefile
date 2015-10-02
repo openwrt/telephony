@@ -159,7 +159,6 @@ define Package/asterisk13-sounds/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
 	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
-	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
