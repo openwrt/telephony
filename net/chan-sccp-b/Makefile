@@ -40,18 +40,21 @@ define Package/asterisk18-chan-sccp-b
 $(call Package/chan-sccp-b/Default)
   DEPENDS+= asterisk18
   VARIANT:=asterisk18
+  CONFLICTS:=asterisk18-chan-skinny
 endef
 
 define Package/asterisk13-chan-sccp-b
 $(call Package/chan-sccp-b/Default)
   DEPENDS+= asterisk13
   VARIANT:=asterisk13
+  CONFLICTS:=asterisk13-chan-skinny
 endef
 
 define Package/asterisk11-chan-sccp-b
 $(call Package/chan-sccp-b/Default)
   DEPENDS+= asterisk11 
   VARIANT:=asterisk11
+  CONFLICTS:=asterisk11-chan-skinny
 endef
 
 define Package/description/Default
