@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=asterisk11-chan-dongle
 PKG_VERSION:=1.1r35
 PKG_REV:=28a46567a88cebdc365db6f294e682246fd2dd7b
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_SOURCE_SUBDIR:=asterisk11-chan-dongle-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz

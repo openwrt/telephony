@@ -1,10 +1,10 @@
---- a/configure
-+++ b/configure
-@@ -16464,7 +16464,6 @@ if ac_fn_c_try_link "$LINENO"; then :
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
- 
--$as_echo "#define HAVE_RES_NINIT 1" >>confdefs.h
- 
- 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing res_9_ndestroy" >&5
- $as_echo_n "checking for library containing res_9_ndestroy... " >&6; }
+--- a/configure.ac
++++ b/configure.ac
+@@ -1111,7 +1111,6 @@ AC_LINK_IFELSE(
+ 			#include <resolv.h>],
+ 			[int foo = res_ninit(NULL);])],
+ 	AC_MSG_RESULT(yes)
+-	AC_DEFINE([HAVE_RES_NINIT], 1, [Define to 1 if your system has the re-entrant resolver functions.])
+ 	AC_SEARCH_LIBS(res_9_ndestroy, resolv)
+ 	AC_MSG_CHECKING(for res_ndestroy)
+ 	AC_LINK_IFELSE(

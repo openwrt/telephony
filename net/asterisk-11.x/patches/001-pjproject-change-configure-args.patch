@@ -1,6 +1,6 @@
 --- a/res/Makefile
 +++ b/res/Makefile
-@@ -75,7 +75,7 @@ dist-clean::
+@@ -78,7 +78,7 @@ distclean::
  	rm -f pjproject/build.mak
  
  pjproject/build.mak: pjproject/aconfigure

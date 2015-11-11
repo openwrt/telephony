@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.4.0
-PKG_RELEASE:=3
+PKG_VERSION:=13.6.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=8cd729d481f0b3d9aadcf5a607c25803
+PKG_MD5SUM:=66355aec4336c068f25e7df739786e72
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -159,8 +159,19 @@ define Package/asterisk13-sounds/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
 	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
-	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
+  CONFIGURE_ARGS+= \
+	--with-dahdi="$(STAGING_DIR)/usr" \
+	--with-pri="$(STAGING_DIR)/usr" \
+	--with-tonezone="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-dahdi \
+	--without-pri \
+	--without-tonezone
+endif
 
 TARGET_LDFLAGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),-ldl -lcrypt)
@@ -174,7 +185,6 @@ CONFIGURE_ARGS+= \
 	--without-cap \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr",--without-curl) \
 	--without-curses \
-	--without-dahdi \
 	--with-gsm=internal \
 	--without-gtk2 \
 	--with-ilbc=internal \
@@ -193,11 +203,10 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pjsip),--with-pjproject,--without-pjproject) \
 	--with-popt="$(STAGING_DIR)/usr" \
-	--without-pri \
 	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
-	--without-iksemel \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),--with-iksemel="$(STAGING_DIR)/usr",--without-iksemel) \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
@@ -206,7 +215,6 @@ CONFIGURE_ARGS+= \
 	--without-tds \
 	--without-termcap \
 	--without-tinfo \
-	--without-tonezone \
 	--with-uuid="$(STAGING_DIR)/usr" \
 	--without-vorbis \
 	--without-vpb \
@@ -288,6 +296,7 @@ $(eval $(call BuildAsterisk13Module,app-authenticate,Authenticate commands,Execu
 $(eval $(call BuildAsterisk13Module,app-chanisavail,Channel availability check,support for checking if a channel is available,,,app_chanisavail,,))
 $(eval $(call BuildAsterisk13Module,app-chanspy,Channel listen in,support for listening in on any channel,,,app_chanspy,,))
 $(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,+asterisk13-bridge-builtin-features +asterisk13-bridge-simple +asterisk13-bridge-softmix,confbridge.conf,app_confbridge,,))
+$(eval $(call BuildAsterisk13Module,app-dahdiras,Execute an ISDN RAS,support for executing an ISDN RAS using DAHDI,+asterisk13-chan-dahdi,,app_dahdiras,,))
 $(eval $(call BuildAsterisk13Module,app-directed_pickup,Directed call pickup,support for directed call pickup,,,app_directed_pickup,,))
 $(eval $(call BuildAsterisk13Module,app-disa,Direct Inward System Access,Direct Inward System Access,,,app_disa,,))
 $(eval $(call BuildAsterisk13Module,app-exec,Exec application,support for application execution,,,app_exec,,))
@@ -316,6 +325,7 @@ $(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based ch
 $(eval $(call BuildAsterisk13Module,cdr,Provides CDR,Call Detail Record,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
 $(eval $(call BuildAsterisk13Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
 $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
+$(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
 $(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,+asterisk13-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsterisk13Module,chan-skinny,Skinny channel,the channel chan_skinny,,skinny.conf,chan_skinny,,))
@@ -323,6 +333,7 @@ $(eval $(call BuildAsterisk13Module,chan-unistim,Unistim channel,channel driver 
 $(eval $(call BuildAsterisk13Module,codec-a-mu,Alaw to ulaw translation,translation between alaw and ulaw codecs,,,codec_a_mu,,))
 $(eval $(call BuildAsterisk13Module,codec-adpcm,ADPCM text,ADPCM text ,,,codec_adpcm,,))
 $(eval $(call BuildAsterisk13Module,codec-alaw,Signed linear to alaw translation,translation between signed linear and alaw codecs,,,codec_alaw,,))
+$(eval $(call BuildAsterisk13Module,codec-dahdi,DAHDI codec,DAHDI native transcoding support,+asterisk13-chan-dahdi,,codec_dahdi,,))
 $(eval $(call BuildAsterisk13Module,codec-g722,G.722,a high bit rate 48/56/64Kbps ITU standard codec,,,codec_g722,,))
 $(eval $(call BuildAsterisk13Module,codec-g726,Signed linear to G.726 translation,translation between signed linear and ITU G.726-32kbps codecs,,,codec_g726,,))
 $(eval $(call BuildAsterisk13Module,codec-gsm,linear to GSM translation,translate between signed linear and GSM,,,codec_gsm,,))
@@ -383,6 +394,7 @@ $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,,,,re
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
 $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp,,res_srtp,,))
+$(eval $(call BuildAsterisk13Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk13-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
-$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail res_adsi res_smdi,vm-*,))
+$(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail,vm-*,))

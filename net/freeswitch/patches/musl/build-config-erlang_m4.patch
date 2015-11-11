@@ -8,7 +8,7 @@
  #
  AC_ARG_WITH(
  	[erlang],
-@@ -19,22 +19,23 @@ then
+@@ -20,22 +20,23 @@ then
  		if test ! -x "$with_erlang" ; then
  			AC_MSG_ERROR([Specified erlang does not exist or is not executable: $with_erlang])
  		fi
@@ -39,7 +39,7 @@
  		AC_MSG_CHECKING([erlang libdir])
  		if test -z "`echo $ERLANG_LIBDIR`" ; then
  			AC_MSG_ERROR([failed])
-@@ -42,9 +43,16 @@ then
+@@ -43,9 +44,16 @@ then
  			ERLANG_LDFLAGS="-L$ERLANG_LIBDIR $ERLANG_LDFLAGS"
  			LIBS="-L$ERLANG_LIBDIR $LIBS"
  		fi
@@ -57,7 +57,7 @@
  		AC_MSG_CHECKING([erlang incdir])
  		if test -z "`echo $ERLANG_INCDIR`" ; then
  			AC_MSG_ERROR([failed])
-@@ -58,10 +66,11 @@ then
+@@ -59,10 +67,11 @@ then
  
  		ERLANG_LIB="ei"
  
@@ -71,7 +71,7 @@
  
  		if test "$has_libei" = "no" ; then
  			AS_IF([test "$with_erlang" = "try"],
-@@ -75,7 +84,7 @@ then
+@@ -76,7 +85,7 @@ then
  			)
  		else
  			ERLANG_LDFLAGS="$ERLANG_LDFLAGS -lei"
@@ -79,8 +79,8 @@
 +			AC_MSG_NOTICE([Your erlang seems OK. You can now use ErLang in your codes.])
  			AC_SUBST([ERLANG_CFLAGS],  [$ERLANG_CFLAGS])
  			AC_SUBST([ERLANG_LDFLAGS], [$ERLANG_LDFLAGS])
- 		fi
-@@ -85,12 +94,12 @@ then
+ 			AM_CONDITIONAL([HAVE_ERLANG],[true])
+@@ -87,12 +96,12 @@ then
  
  	else
  		AS_IF([test "$with_erlang" = "try"],

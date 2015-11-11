@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk18
 PKG_VERSION:=1.8.32.3
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -146,15 +146,27 @@ define Package/asterisk18-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
-#ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
-#  CONFIGURE_ARGS+= \
-#	--with-iksemel="$(STAGING_DIR)/usr"
-#  SITE_VARS+= \
-#	ac_cv_lib_iksemel_iks_start_sasl=yes
-#else
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-dahdi),)
+  CONFIGURE_ARGS+= \
+	--with-dahdi="$(STAGING_DIR)/usr" \
+	--with-pri="$(STAGING_DIR)/usr" \
+	--with-tonezone="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-dahdi \
+	--without-pri \
+	--without-tonezone
+endif
+
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-chan-gtalk),)
+  CONFIGURE_ARGS+= \
+	--with-iksemel="$(STAGING_DIR)/usr"
+  SITE_VARS+= \
+	ac_cv_lib_iksemel_iks_start_sasl=yes
+else
   CONFIGURE_ARGS+= \
 	--without-iksemel
-#endif
+endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk18-curl),)
   CONFIGURE_ARGS+= \
@@ -212,7 +224,6 @@ CONFIGURE_ARGS+= \
 	--with-gsm=internal \
 	--without-bluetooth \
 	--without-cap \
-	--without-dahdi \
 	--without-gtk2 \
 	--without-isdnnet \
 	--without-misdn \
@@ -225,7 +236,6 @@ CONFIGURE_ARGS+= \
 	--without-ogg \
 	--without-osptk \
 	--with-popt="$(STAGING_DIR)/usr" \
-	--without-pri \
 	--without-radius \
 	--without-sdl \
 	--without-suppserv \
@@ -295,6 +305,7 @@ $(eval $(call BuildPackage,asterisk18-sounds))
 
 $(eval $(call BuildAsterisk18Module,app-alarmreceiver,Alarm receiver,Central Station Alarm receiver for Ademco Contact ID,,,,app_alarmreceiver,))
 $(eval $(call BuildAsterisk18Module,app-authenticate,Authenticate commands,Execute arbitrary authenticate commands,,,,app_authenticate,))
+$(eval $(call BuildAsterisk18Module,app-dahdiras,Execute an ISDN RAS,support for executing an ISDN RAS using DAHDI,+asterisk18-chan-dahdi,,,app_dahdiras,))
 $(eval $(call BuildAsterisk18Module,app-directed_pickup,Directed call pickup,support for directed call pickup,,,,app_directed_pickup,))
 $(eval $(call BuildAsterisk18Module,app-disa,Direct Inward System Access,Direct Inward System Access,,,,app_disa,))
 $(eval $(call BuildAsterisk18Module,app-exec,Exec application,support for application execution,,,,app_exec,))
@@ -321,6 +332,7 @@ $(eval $(call BuildAsterisk18Module,cdr-csv,Provides CDR CSV,Call Detail Record 
 $(eval $(call BuildAsterisk18Module,cdr,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
 $(eval $(call BuildAsterisk18Module,codec-a-mu,Alaw to ulaw translation,translation between alaw and ulaw codecs,,,,codec_a_mu,))
 $(eval $(call BuildAsterisk18Module,codec-alaw,Signed linear to alaw translation,translation between signed linear and alaw codecs,,,,codec_alaw,))
+$(eval $(call BuildAsterisk18Module,codec-dahdi,DAHDI codec,DAHDI native transcoding support,+asterisk18-chan-dahdi,,,codec_dahdi,))
 $(eval $(call BuildAsterisk18Module,codec-g722,G.722,a high bit rate 48/56/64Kbps ITU standard codec,,,,codec_g722,))
 $(eval $(call BuildAsterisk18Module,codec-g726,Signed linear to G.726 translation,translation between signed linear and ITU G.726-32kbps codecs,,,,codec_g726,))
 $(eval $(call BuildAsterisk18Module,curl,CURL,CURL support,+libcurl,,,func_curl res_curl,))
@@ -345,7 +357,8 @@ $(eval $(call BuildAsterisk18Module,func-shell,Shell,support for shell execution
 $(eval $(call BuildAsterisk18Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,,func_uri,))
 $(eval $(call BuildAsterisk18Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,,func_vmcount,))
 $(eval $(call BuildAsterisk18Module,chan-agent,Agents proxy channel,An implementation of agents proxy channel,,,,chan_agent,))
-#$(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
+$(eval $(call BuildAsterisk18Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
+$(eval $(call BuildAsterisk18Module,chan-gtalk,GTalk,An implementation of chan_gtalk and res_jabber for GTalk support,+libiksemel,/etc/asterisk/gtalk.conf /etc/asterisk/jabber.conf,gtalk.conf jabber.conf,chan_gtalk res_jabber,))
 $(eval $(call BuildAsterisk18Module,chan-iax2,IAX2 channel,An implementation of IAX2 channel,+asterisk18-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk18Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq @!TARGET_lantiq_xrx200 +kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk18Module,chan-local,Local proxy channel,An implementation of local proxy channel,,,,chan_local,))
@@ -371,6 +384,7 @@ $(eval $(call BuildAsterisk18Module,res-phoneprov,Phone Provisioning,Phone provi
 $(eval $(call BuildAsterisk18Module,res-pktccops,Provide PacketCable COPS,simple client/server model for supporting policy control over QoS signaling protocols,,/etc/asterisk/res_pktccops.conf,res_pktccops.conf,res_pktccops,))
 $(eval $(call BuildAsterisk18Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,/etc/asterisk/smdi.conf,smdi.conf,res_smdi,))
 $(eval $(call BuildAsterisk18Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp,))
+$(eval $(call BuildAsterisk18Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk18-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk18Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk18Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
 $(eval $(call BuildAsterisk18Module,voicemail,Voicemail,voicemail related modules,,/etc/asterisk/voicemail.conf,voicemail.conf,*voicemail res_adsi res_smdi,vm-*))
