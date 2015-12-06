@@ -14,7 +14,7 @@ PKG_VERSION:=v4.2-r$(PKG_REV)
 PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/V4.2
+PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
