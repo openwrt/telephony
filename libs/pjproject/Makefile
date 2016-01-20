@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.4
+PKG_VERSION:=2.4.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)/
-PKG_MD5SUM:=39629ca3fcedbdc7dbd8c5a707060095
+PKG_MD5SUM:=f58b3485977b3a700256203a554b3869
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
