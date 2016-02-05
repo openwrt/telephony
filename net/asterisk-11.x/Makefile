@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.20.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -105,10 +105,12 @@ define Package/asterisk11/conffiles
 /etc/asterisk/asterisk.conf
 /etc/asterisk/acl.conf
 /etc/asterisk/ccss.conf
+/etc/asterisk/cel.conf
 /etc/asterisk/modules.conf
 /etc/asterisk/extconfig.conf
 /etc/asterisk/extensions.conf
 /etc/asterisk/features.conf
+/etc/asterisk/http.conf
 /etc/asterisk/indications.conf
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
@@ -123,8 +125,8 @@ define Package/asterisk11/conffiles
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf ccss.conf extconfig.conf \
-	extensions.conf features.conf indications.conf \
+	asterisk.conf acl.conf cel.conf ccss.conf extconfig.conf \
+	extensions.conf features.conf http.conf indications.conf \
 	logger.conf manager.conf modules.conf res_config_sqlite3.conf \
 	rtp.conf sip_notify.conf sip.conf udptl.conf users.conf
 AST_EMB_MODULES:=\
@@ -363,6 +365,7 @@ $(eval $(call BuildAsterisk11Module,app-minivm,Minimal voicemail system,a voicem
 $(eval $(call BuildAsterisk11Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,,app_mixmonitor,))
 $(eval $(call BuildAsterisk11Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,,app_originate,))
 $(eval $(call BuildAsterisk11Module,app-playtones,Playtones application,play a tone list,,,,app_playtones,))
+$(eval $(call BuildAsterisk11Module,app-queue,True Call Queueing,support for ACD,,/etc/asterisk/queues.conf /etc/asterisk/queuerules.conf,queues.conf queuerules.conf,app_queue,))
 $(eval $(call BuildAsterisk11Module,app-read,Variable read,a trivial application to read a variable,,,,app_read,))
 $(eval $(call BuildAsterisk11Module,app-readexten,Extension to variable,a trivial application to read an extension into a variable,,,,app_readexten,))
 $(eval $(call BuildAsterisk11Module,app-record,Record sound file,to record a sound file,,,,app_record,))
