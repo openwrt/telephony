@@ -409,6 +409,7 @@ $(eval $(call BuildAsterisk11Module,func-db,Database interaction,functions for i
 $(eval $(call BuildAsterisk11Module,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,,func_devstate,))
 $(eval $(call BuildAsterisk11Module,func-enum,ENUM,ENUM,,/etc/asterisk/enum.conf,enum.conf,func_enum,))
 $(eval $(call BuildAsterisk11Module,func-env,Environment functions,Environment dialplan functions,,,,func_env,))
+$(eval $(call BuildAsterisk11Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,,func_presencestate,))
 $(eval $(call BuildAsterisk11Module,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,,func_extstate,))
 $(eval $(call BuildAsterisk11Module,func-global,Global variable,global variable dialplan functions,,,,func_global,))
 $(eval $(call BuildAsterisk11Module,func-groupcount,Group count,for counting number of channels in the specified group,,,,func_groupcount,))
