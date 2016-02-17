@@ -9,9 +9,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=6139
-PKG_VERSION:=v4.2-r$(PKG_REV)
-PKG_RELEASE:=3
+PKG_REV:=6642
+PKG_VERSION:=v4.2.3-r$(PKG_REV)
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
