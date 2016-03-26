@@ -41,7 +41,7 @@
  #
  
 -AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl=yes],[ac_cv_have_perl=no])
-+AC_CHECK_PROG(PERL,[perl],[ac_cv_have_perl=yes],[ac_cv_have_perl=no],[${STAGING_DIR}/host/usr/bin])
++AC_CHECK_PROG(PERL,[perl],[ac_cv_have_perl=yes],[ac_cv_have_perl=no],[${STAGING_DIR}/../host/usr/bin])
 +PERL=$as_dir/$ac_word$ac_exec_ext
  
  # -a "x$ac_cv_have_EXTERN_h" != "xno"

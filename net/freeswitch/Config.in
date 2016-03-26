@@ -31,13 +31,13 @@ menu "Configuration"
   endchoice
 
   choice
-    depends on FS_WITH_LATEST_HEAD
     prompt "FS TARRED archive to use"
     default FS_WITH_OPENWRT_SOURCE
     help
 	Select which tarred to use: local or OpenWRT
-	local: FS tarred from local archive
-	OpenWRT: FS tarred download from source by OpenWRT
+	local: Manually downloaded from FS git repo
+	OpenWRT: FS tarred-file downloaded from source by OpenWRT
+	FS git repo: https://freeswitch.org/stash/scm/fs/freeswitch.git
 
    config FS_WITH_LOCAL_SOURCE
       bool "local"
@@ -155,6 +155,18 @@ menu "Configuration"
 	Build FreeSWITCH to comply with FHS when placing 
 	files and directories.
 
+  config FS_WITH_LIBVPX
+    bool "Enable building libvpx"
+    default y
+    help
+	Compile to build libs/libvpx.
+
+  config FS_WITH_LIBYUV
+    bool "Enable building libyuv"
+    default y
+    help
+	Compile to build libs/libyuv.
+
   config FS_WITH_LZMA
     bool "Enable liblzma usage in libtiff"
     default y
@@ -219,13 +231,6 @@ menu "Configuration"
     help
 	Use OpenSSL crypto primitives.
 
-  config FS_WITH_PYTHON
-    depends on PACKAGE_freeswitch-mod-python
-    bool "Enable to use system provided version of python"
-    default n
-    help
-	Enable to use system provided version of python.
-
   config FS_WITH_STUN
     bool "Enable stun module"
     default y
@@ -236,7 +241,7 @@ menu "Configuration"
     depends on PACKAGE_freeswitch-mod-erlang-event
     string
     prompt "path to erlang installed directory"
-    default "$$(STAGING_DIR_HOST)/lib/erlang"
+    default "$$(STAGING_DIR)/host/lib/erlang"
     help
 	Specify the path to erlang libraries.
 
@@ -246,5 +251,19 @@ menu "Configuration"
 #    default "$$(STAGING_DIR)/usr/include"
 #    help
 #	Specify the include header path for OGG library.
+
+  config FS_WITH_PYTHON
+    bool "Enable to use system provided version of python"
+    default y
+    help
+	Enable to use system provided version of python.
+
+  config FS_WITH_PYTHON_PATH
+    depends on FS_WITH_PYTHON
+    string
+    prompt "full path to binary python$(PYTHON3_VERSION)"
+    default "$$(STAGING_DIR)/host/bin/python$(PYTHON3_VERSION)"
+    help
+        Specify the full path to binary python$(PYTHON3-VERSION).
 
 endmenu
