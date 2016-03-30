@@ -27,7 +27,7 @@ PKG_SOURCE_URL:=https://$(PKG_NAME).org/stash/scm/fs/$(PKG_NAME).git
 PATCH_DIR:=./patches/$(CONFIG_LIBC)
 
 
-FS_WITH_DEFAULT_HEAD:=bb258288801b50e8fb673a620a6c2b4855e11daf
+FS_WITH_DEFAULT_HEAD:=cc0a062204cb51311619cd37f51b32b2f266729f
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1),$(FS_WITH_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -1003,7 +1003,7 @@ $(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROK
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
-$(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,+opus))
+$(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,+libopus))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,png,play a png as video with audio,vanilla,,,,+libpng))
 $(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/$(PERL_VERSION)/$(PKG_NAME).la lib/perl5/$(PERL_VERSION)/$(PKG_NAME).pm lib/perl5/$(PERL_VERSION)/$(PKG_NAME).so,,+perl +libdb47 +libgdbm @BROKEN))
