@@ -37,7 +37,7 @@ endef
 
 define Package/asterisk13/install/lib
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
 endef
 
 define Package/asterisk13/install/sbin
@@ -103,11 +103,13 @@ endef
 define Package/asterisk13/conffiles
 /etc/asterisk/asterisk.conf
 /etc/asterisk/acl.conf
+/etc/asterisk/cel.conf
 /etc/asterisk/ccss.conf
 /etc/asterisk/modules.conf
 /etc/asterisk/extconfig.conf
 /etc/asterisk/extensions.conf
 /etc/asterisk/features.conf
+/etc/asterisk/http.conf
 /etc/asterisk/indications.conf
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
@@ -121,8 +123,8 @@ define Package/asterisk13/conffiles
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf ccss.conf extconfig.conf \
-	extensions.conf features.conf indications.conf \
+	asterisk.conf acl.conf cel.conf ccss.conf extconfig.conf \
+	extensions.conf features.conf http.conf indications.conf \
 	logger.conf manager.conf modules.conf udptl.conf \
 	users.conf res_config_sqlite3.conf
 
@@ -304,6 +306,7 @@ $(eval $(call BuildAsterisk13Module,app-minivm,Minimal voicemail system,a voicem
 $(eval $(call BuildAsterisk13Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
 $(eval $(call BuildAsterisk13Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
 $(eval $(call BuildAsterisk13Module,app-playtones,Playtones application,play a tone list,,,app_playtones,,))
+$(eval $(call BuildAsterisk13Module,app-queue,True Call Queueing,support for ACD,,queues.conf queuerules.conf,app_queue,))
 $(eval $(call BuildAsterisk13Module,app-read,Variable read,a trivial application to read a variable,,,app_read,,))
 $(eval $(call BuildAsterisk13Module,app-readexten,Extension to variable,a trivial application to read an extension into a variable,,,app_readexten,,))
 $(eval $(call BuildAsterisk13Module,app-record,Record sound file,to record a sound file,,,app_record,,))
@@ -325,7 +328,7 @@ $(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based ch
 $(eval $(call BuildAsterisk13Module,cdr,Provides CDR,Call Detail Record,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
 $(eval $(call BuildAsterisk13Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
 $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
-$(eval $(call BuildAsterisk13Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,,chan_alsa,,))
+$(eval $(call BuildAsterisk13Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,alsa.conf,chan_alsa,,))
 $(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
 $(eval $(call BuildAsterisk13Module,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
@@ -368,6 +371,7 @@ $(eval $(call BuildAsterisk13Module,func-global,Global variable,global variable 
 $(eval $(call BuildAsterisk13Module,func-groupcount,Group count,for counting number of channels in the specified group,,,func_groupcount,,))
 $(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,))
 $(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,))
+$(eval $(call BuildAsterisk13Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
 $(eval $(call BuildAsterisk13Module,func-realtime,realtime,the realtime dialplan function,,,func_realtime,,))
 $(eval $(call BuildAsterisk13Module,func-shell,Shell,support for shell execution,,,func_shell,,))
 $(eval $(call BuildAsterisk13Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,func_uri,,))
