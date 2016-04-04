@@ -9,9 +9,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=6139
-PKG_VERSION:=v4.2-r$(PKG_REV)
-PKG_RELEASE:=3
+PKG_REV:=6647
+PKG_VERSION:=v4.2.3-r$(PKG_REV)
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
@@ -65,6 +65,10 @@ endef
 Package/asterisk18-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
+
+CONFIGURE_ARGS += --enable-conference
+CONFIGURE_ARGS += --enable-advanced-functions
+CONFIGURE_ARGS += --enable-video
 
 ifeq ($(BUILD_VARIANT),asterisk13)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-13
