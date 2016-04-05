@@ -282,8 +282,8 @@ CONFIGURE_VARS += \
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
-	--with-ncurses="$(STAGING_DIR)/host/usr" \
-	--with-libxml2="$(STAGING_DIR)/host/usr"
+	--with-ncurses="$(STAGING_DIR_HOST)/usr" \
+	--with-libxml2="$(STAGING_DIR_HOST)/usr"
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
@@ -304,13 +304,13 @@ define Build/Configure
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS) \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
 	);
 endef
 
 define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
