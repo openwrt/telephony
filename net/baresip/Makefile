@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010-2014 OpenWrt.org
+# Copyright (C) 2010-2016 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.4.14
+PKG_VERSION:=0.4.18
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=06e0aea9ba3dbbbe834285a8c7e7df83
+PKG_MD5SUM:=981bd32c46ee0185750288d51e1b057b
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -35,7 +35,7 @@ baresip-mods:= \
 	speex-pp \
 	stdio \
 	v4l \
-	v4l2 \
+	v4l2
 
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(baresip-mods)) \
