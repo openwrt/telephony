@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.4.18
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -144,6 +144,7 @@ $(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+PACKAGE_baresip-mod-alsa:
 $(eval $(call BuildPlugin,avcodec,FFmpeg video codecs,avcodec,+PACKAGE_baresip-mod-avcodec:libffmpeg-full))
 $(eval $(call BuildPlugin,avformat,FFmpeg video source,avformat,+PACKAGE_baresip-mod-avformat:libffmpeg-full))
 $(eval $(call BuildPlugin,cons,console UI,cons,))
+$(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
 $(eval $(call BuildPlugin,evdev,input event device UI,evdev,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,g711,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+PACKAGE_baresip-mod-g722:libspandsp))
