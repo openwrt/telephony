@@ -94,7 +94,6 @@ $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
   DEPENDS:=+jansson +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
-  CONFLICTS:=asterisk11
 endef
 
 define Package/asterisk13/description
