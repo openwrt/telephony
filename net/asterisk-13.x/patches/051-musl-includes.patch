@@ -1,6 +1,5 @@
-diff -ru asterisk-13.0.0.orig/include/asterisk/compat.h asterisk-13.0.0/include/asterisk/compat.h
---- asterisk-13.0.0.orig/include/asterisk/compat.h	2014-10-31 08:48:56.000000000 -0200
-+++ asterisk-13.0.0/include/asterisk/compat.h	2014-10-31 08:49:10.163808393 -0200
+--- a/include/asterisk/compat.h
++++ b/include/asterisk/compat.h
 @@ -68,7 +68,7 @@
  #endif
  
@@ -10,9 +9,8 @@ diff -ru asterisk-13.0.0.orig/include/asterisk/compat.h asterisk-13.0.0/include/
  #else
  #include "asterisk/poll-compat.h"
  #endif
-diff -ru asterisk-13.0.0.orig/include/asterisk/poll-compat.h asterisk-13.0.0/include/asterisk/poll-compat.h
---- asterisk-13.0.0.orig/include/asterisk/poll-compat.h	2014-10-31 08:48:56.000000000 -0200
-+++ asterisk-13.0.0/include/asterisk/poll-compat.h	2014-10-31 08:49:10.163808393 -0200
+--- a/include/asterisk/poll-compat.h
++++ b/include/asterisk/poll-compat.h
 @@ -83,7 +83,7 @@
  
  #ifndef AST_POLL_COMPAT
@@ -22,9 +20,8 @@ diff -ru asterisk-13.0.0.orig/include/asterisk/poll-compat.h asterisk-13.0.0/inc
  
  #define ast_poll(a, b, c) poll(a, b, c)
  
-diff -ru asterisk-13.0.0.orig/main/ast_expr2.c asterisk-13.0.0/main/ast_expr2.c
---- asterisk-13.0.0.orig/main/ast_expr2.c	2014-10-31 08:48:56.000000000 -0200
-+++ asterisk-13.0.0/main/ast_expr2.c	2014-10-31 08:49:10.163808393 -0200
+--- a/main/ast_expr2.c
++++ b/main/ast_expr2.c
 @@ -93,6 +93,7 @@
  
  #include "asterisk.h"
@@ -33,9 +30,8 @@ diff -ru asterisk-13.0.0.orig/main/ast_expr2.c asterisk-13.0.0/main/ast_expr2.c
  #include <sys/types.h>
  #include <stdio.h>
  
-diff -ru asterisk-13.0.0.orig/main/ast_expr2.y asterisk-13.0.0/main/ast_expr2.y
---- asterisk-13.0.0.orig/main/ast_expr2.y	2014-10-31 08:48:56.000000000 -0200
-+++ asterisk-13.0.0/main/ast_expr2.y	2014-10-31 08:49:10.163808393 -0200
+--- a/main/ast_expr2.y
++++ b/main/ast_expr2.y
 @@ -14,6 +14,7 @@
  
  #include "asterisk.h"

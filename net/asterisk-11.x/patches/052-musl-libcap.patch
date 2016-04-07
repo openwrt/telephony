@@ -1,6 +1,5 @@
-diff -rupN asterisk-11.22.0/configure.ac ast11/configure.ac
---- asterisk-11.22.0/configure.ac	2016-04-04 14:23:46.141373501 +0200
-+++ ast11/configure.ac	2016-04-04 14:22:35.168787508 +0200
+--- a/configure.ac
++++ b/configure.ac
 @@ -181,6 +181,9 @@ case "${host_os}" in
       linux-gnueabi* |  linux-gnuspe)
       OSARCH=linux-gnu
@@ -25,9 +24,8 @@ diff -rupN asterisk-11.22.0/configure.ac ast11/configure.ac
  
  AST_C_DEFINE_CHECK([DAHDI], [DAHDI_RESET_COUNTERS], [dahdi/user.h], [230])
  AST_C_DEFINE_CHECK([DAHDI], [DAHDI_DEFAULT_MTU_MRU], [dahdi/user.h], [220])
-diff -rupN asterisk-11.22.0/main/Makefile ast11/main/Makefile
---- asterisk-11.22.0/main/Makefile	2016-03-29 21:25:17.000000000 +0200
-+++ ast11/main/Makefile	2016-04-04 14:22:35.164787476 +0200
+--- a/main/Makefile
++++ b/main/Makefile
 @@ -37,7 +37,7 @@ AST_LIBS+=$(SQLITE3_LIB)
  AST_LIBS+=$(ASTSSL_LIBS)
  AST_LIBS+=$(AST_CLANG_BLOCKS_LIBS)

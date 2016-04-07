@@ -1,6 +1,5 @@
-diff -rupN kamailio4-4.4.0/modules/cnxcc/Makefile kam4/modules/cnxcc/Makefile
---- kamailio4-4.4.0/modules/cnxcc/Makefile	2016-04-07 11:26:01.186927107 +0200
-+++ kam4/modules/cnxcc/Makefile	2016-04-07 11:25:28.370655776 +0200
+--- a/modules/cnxcc/Makefile
++++ b/modules/cnxcc/Makefile
 @@ -45,7 +45,7 @@ else
  endif
  
@@ -10,9 +9,8 @@ diff -rupN kamailio4-4.4.0/modules/cnxcc/Makefile kam4/modules/cnxcc/Makefile
  
  DEFS+=-DOPENSER_MOD_INTERFACE
  SERLIBPATH=../../lib
-diff -rupN kamailio4-4.4.0/modules/janssonrpc-c/netstring.h kam4/modules/janssonrpc-c/netstring.h
---- kamailio4-4.4.0/modules/janssonrpc-c/netstring.h	2016-04-07 11:26:24.163117016 +0200
-+++ kam4/modules/janssonrpc-c/netstring.h	2016-04-07 11:25:28.070653295 +0200
+--- a/modules/janssonrpc-c/netstring.h
++++ b/modules/janssonrpc-c/netstring.h
 @@ -24,6 +24,7 @@
  #define __NETSTRING_STREAM_H
  

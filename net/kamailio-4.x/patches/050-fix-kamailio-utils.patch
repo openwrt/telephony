@@ -1,15 +1,13 @@
-diff -rupN kamailio4-4.4.0/utils/kamctl/kamctl kam4/utils/kamctl/kamctl
---- kamailio4-4.4.0/utils/kamctl/kamctl	2016-03-30 15:56:42.000000000 +0200
-+++ kam4/utils/kamctl/kamctl	2016-04-07 14:41:45.108118138 +0200
+--- a/utils/kamctl/kamctl
++++ b/utils/kamctl/kamctl
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  #
  # control tool for maintaining Kamailio
  #
-diff -rupN kamailio4-4.4.0/utils/kamctl/kamctlrc kam4/utils/kamctl/kamctlrc
---- kamailio4-4.4.0/utils/kamctl/kamctlrc	2016-03-30 15:56:42.000000000 +0200
-+++ kam4/utils/kamctl/kamctlrc	2016-04-07 14:42:20.348404015 +0200
+--- a/utils/kamctl/kamctlrc
++++ b/utils/kamctl/kamctlrc
 @@ -147,3 +147,6 @@
  ## Extra start options - default is: not set
  # example: start Kamailio with 64MB share memory: STARTOPTIONS="-m 64"
@@ -17,18 +15,16 @@ diff -rupN kamailio4-4.4.0/utils/kamctl/kamctlrc kam4/utils/kamctl/kamctlrc
 +
 +# Disable colour printing in terminal
 +NOHLPRINT=1
-diff -rupN kamailio4-4.4.0/utils/kamctl/kamdbctl kam4/utils/kamctl/kamdbctl
---- kamailio4-4.4.0/utils/kamctl/kamdbctl	2016-03-30 15:56:42.000000000 +0200
-+++ kam4/utils/kamctl/kamdbctl	2016-04-07 14:42:36.204532677 +0200
+--- a/utils/kamctl/kamdbctl
++++ b/utils/kamctl/kamdbctl
 @@ -1,4 +1,4 @@
 -#!/bin/bash 
 +#!/bin/sh
  #
  # control tool for maintaining Kamailio databases
  #
-diff -rupN kamailio4-4.4.0/utils/kamctl/kamdbctl.base kam4/utils/kamctl/kamdbctl.base
---- kamailio4-4.4.0/utils/kamctl/kamdbctl.base	2016-03-30 15:56:42.000000000 +0200
-+++ kam4/utils/kamctl/kamdbctl.base	2016-04-07 14:43:18.180873383 +0200
+--- a/utils/kamctl/kamdbctl.base
++++ b/utils/kamctl/kamdbctl.base
 @@ -33,18 +33,18 @@ INSTALL_DBUID_TABLES=${INSTALL_DBUID_TAB
  
  # Used by dbtext and db_berkeley to define tables to be created, used by
