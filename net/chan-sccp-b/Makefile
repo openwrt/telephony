@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2015 OpenWrt.org
-# Copyright (C) 2015 Cesnet, z.s.p.o.
+# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=chan-sccp-b
 PKG_REV:=6647
 PKG_VERSION:=v4.2.3-r$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
@@ -36,13 +36,6 @@ define Package/chan-sccp-b/Default
   DEPENDS:= +libltdl
 endef
 
-define Package/asterisk18-chan-sccp-b
-$(call Package/chan-sccp-b/Default)
-  DEPENDS+= asterisk18
-  VARIANT:=asterisk18
-  CONFLICTS:=asterisk18-chan-skinny
-endef
-
 define Package/asterisk13-chan-sccp-b
 $(call Package/chan-sccp-b/Default)
   DEPENDS+= asterisk13
@@ -52,7 +45,7 @@ endef
 
 define Package/asterisk11-chan-sccp-b
 $(call Package/chan-sccp-b/Default)
-  DEPENDS+= asterisk11 
+  DEPENDS+= asterisk11
   VARIANT:=asterisk11
   CONFLICTS:=asterisk11-chan-skinny
 endef
@@ -62,13 +55,13 @@ define Package/description/Default
  by asterisk by default.
 endef
 
-Package/asterisk18-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
 
-CONFIGURE_ARGS += --enable-conference
-CONFIGURE_ARGS += --enable-advanced-functions
-CONFIGURE_ARGS += --enable-video
+CONFIGURE_ARGS += \
+	--enable-conference \
+	--enable-advanced-functions \
+	--enable-video
 
 ifeq ($(BUILD_VARIANT),asterisk13)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-13
@@ -76,10 +69,6 @@ endif
 
 ifeq ($(BUILD_VARIANT),asterisk11)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-11
-endif
-
-ifeq ($(BUILD_VARIANT),asterisk18)
-  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-1.8
 endif
 
 define Package/conffiles/Default
@@ -90,7 +79,6 @@ define Package/conffiles/Default
 /etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk18-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 Package/asterisk11-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 
@@ -112,10 +100,8 @@ define Package/Install/Default
 	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk18-chan-sccp-b/install = $(Package/Install/Default)
 Package/asterisk11-chan-sccp-b/install = $(Package/Install/Default)
 Package/asterisk13-chan-sccp-b/install = $(Package/Install/Default)
 
-$(eval $(call BuildPackage,asterisk18-chan-sccp-b))
 $(eval $(call BuildPackage,asterisk11-chan-sccp-b))
 $(eval $(call BuildPackage,asterisk13-chan-sccp-b))
