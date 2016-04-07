@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.8.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -207,7 +207,7 @@ CONFIGURE_ARGS+= \
 	--with-popt="$(STAGING_DIR)/usr" \
 	--without-pwlib \
 	--without-radius \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
+	--without-spandsp \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),--with-iksemel="$(STAGING_DIR)/usr",--without-iksemel) \
 	--without-sdl \
 	--without-sqlite \
@@ -388,7 +388,6 @@ $(eval $(call BuildAsterisk13Module,res-ael-share,Shareable AEL code,support for
 $(eval $(call BuildAsterisk13Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,,,res_agi,,))
 $(eval $(call BuildAsterisk13Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,calendar.conf,res_calendar,,))
 $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
-$(eval $(call BuildAsterisk13Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk13-res-timing-pthread,udptl.conf res_fax.conf,res_fax,,))
 $(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,,,,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-pjsip,PJSIP HEPv3 Logger,,+asterisk13-res-hep +asterisk13-pjsip,,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-rtcp,RTCP HEPv3 Logger,,+asterisk13-res-hep,,res_hep,,))
