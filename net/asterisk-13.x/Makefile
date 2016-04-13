@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2015 OpenWrt.org
-# Copyright (C) 2015 Cesnet, z.s.p.o.
+# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,14 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.6.0
+PKG_VERSION:=13.8.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=66355aec4336c068f25e7df739786e72
+PKG_MD5SUM:=ad48eb4a01df72c8e30d3aec524b1a02
 
-PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
 
 PKG_LICENSE:=GPL-2.0
@@ -37,7 +37,7 @@ endef
 
 define Package/asterisk13/install/lib
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
 endef
 
 define Package/asterisk13/install/sbin
@@ -80,6 +80,7 @@ define Package/asterisk13/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=http://www.asterisk.org/
+  CONFLICTS:=asterisk11 asterisk18
 endef
 
 define Package/asterisk13/Default/description
@@ -104,10 +105,12 @@ define Package/asterisk13/conffiles
 /etc/asterisk/asterisk.conf
 /etc/asterisk/acl.conf
 /etc/asterisk/ccss.conf
+/etc/asterisk/cel.conf
 /etc/asterisk/modules.conf
 /etc/asterisk/extconfig.conf
 /etc/asterisk/extensions.conf
 /etc/asterisk/features.conf
+/etc/asterisk/http.conf
 /etc/asterisk/indications.conf
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
@@ -121,8 +124,8 @@ define Package/asterisk13/conffiles
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf ccss.conf extconfig.conf \
-	extensions.conf features.conf indications.conf \
+	asterisk.conf acl.conf ccss.conf cel.conf extconfig.conf \
+	extensions.conf features.conf http.conf indications.conf \
 	logger.conf manager.conf modules.conf udptl.conf \
 	users.conf res_config_sqlite3.conf
 
@@ -304,6 +307,7 @@ $(eval $(call BuildAsterisk13Module,app-minivm,Minimal voicemail system,a voicem
 $(eval $(call BuildAsterisk13Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
 $(eval $(call BuildAsterisk13Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
 $(eval $(call BuildAsterisk13Module,app-playtones,Playtones application,play a tone list,,,app_playtones,,))
+$(eval $(call BuildAsterisk13Module,app-queue,True Call Queueing,support for ACD,,queues.conf queuerules.conf,app_queue,))
 $(eval $(call BuildAsterisk13Module,app-read,Variable read,a trivial application to read a variable,,,app_read,,))
 $(eval $(call BuildAsterisk13Module,app-readexten,Extension to variable,a trivial application to read an extension into a variable,,,app_readexten,,))
 $(eval $(call BuildAsterisk13Module,app-record,Record sound file,to record a sound file,,,app_record,,))
@@ -383,6 +387,9 @@ $(eval $(call BuildAsterisk13Module,res-agi,Asterisk Gateway Interface,Support f
 $(eval $(call BuildAsterisk13Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,calendar.conf,res_calendar,,))
 $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
 $(eval $(call BuildAsterisk13Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk13-res-timing-pthread,udptl.conf res_fax.conf,res_fax,,))
+$(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,,,,res_hep,,))
+$(eval $(call BuildAsterisk13Module,res-hep-pjsip,PJSIP HEPv3 Logger,,+asterisk13-res-hep +asterisk13-pjsip,,res_hep_pjsip,,))
+$(eval $(call BuildAsterisk13Module,res-hep-rtcp,RTCP HEPv3 Logger,,+asterisk13-res-hep,,res_hep_rtcp,,))
 $(eval $(call BuildAsterisk13Module,res-http-websocket,HTTP websocket support,,,,res_http_websocket,,))
 $(eval $(call BuildAsterisk13Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,res_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
