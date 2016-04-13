@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2015 OpenWrt.org
-# Copyright (C) 2015 Cesnet, z.s.p.o.
+# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,14 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.20.0
+PKG_VERSION:=11.22.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=d15759b05862250073e2708394ad2f4c
+PKG_MD5SUM:=35870c34fadbd2bcb284bd8521c6e689
 
-PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
 
 PKG_LICENSE:=GPL-2.0
@@ -271,7 +271,7 @@ CONFIGURE_ARGS+= \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
 	--with-sounds-cache="$(DL_DIR)" \
-	--disable-xmldoc 
+	--disable-xmldoc
 
 CONFIGURE_VARS += \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
