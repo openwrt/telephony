@@ -45,10 +45,8 @@ endif
 
 
 PKG_BUILD_DEPENDS:= \
-	FS_WITH_CORE_LIBEDIT_SUPPORT:libedit \
 	FS_WITH_MYSQL:libmysqlclient \
 	FS_WITH_POSTGRESQL:libpq \
-	FS_WITH_SQLITE2:libsqlite2 \
 	FS_WITH_SQLITE3:libsqlite3 \
 	FS_WITH_APR_SCTP:sctp \
 
@@ -210,7 +208,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_APR_SCTP \
 	CONFIG_FS_WITH_APR_THREADS \
 	CONFIG_FS_WITH_BUILTIN_ZRTP \
-	CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT \
 	CONFIG_FS_WITH_DEFAULT_HEAD \
 	CONFIG_FS_WITH_ERLANG \
 	CONFIG_FS_WITH_FHS \
@@ -227,7 +224,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_PYTHON \
 	CONFIG_FS_WITH_SILENT_RULES \
-	CONFIG_FS_WITH_SQLITE2 \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
@@ -267,7 +263,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libfreetype +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpng +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE2:libsqlite2 +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl +libvpx
+  DEPENDS:=+FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libfreetype +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpng +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl +libvpx
 endef
 
 
@@ -578,7 +574,6 @@ CONFIGURE_ARGS+= \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
 	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
-	$(call autoconf_bool,CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
@@ -607,7 +602,6 @@ CONFIGURE_ARGS+= \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	--with$(if $(CONFIG_FS_WITH_MYSQL),,out)-mysql \
 	--with$(if $(CONFIG_FS_WITH_POSTGRESQL),,out)-pgsql \
-	--with$(if $(CONFIG_FS_WITH_SQLITE2),,out)-sqlite2 \
 	--with$(if $(CONFIG_FS_WITH_SQLITE3),,out)-sqlite3 \
 
 
