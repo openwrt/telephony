@@ -18,7 +18,7 @@ PKG_MD5SUM:=18260d41b608dcc9c637a18749c8759c
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 baresip-mods:= \
 	alsa \
