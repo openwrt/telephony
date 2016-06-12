@@ -8,14 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpri
-PKG_VERSION:=1.4.15
-PKG_RELEASE:=3
+PKG_VERSION:=1.5.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:= \
-	http://downloads.asterisk.org/pub/telephony/libpri/ \
-	http://downloads.asterisk.org/pub/telephony/libpri/old/
-PKG_MD5SUM:=206fbcf014ad85bf6613f169ca425e7f
+PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/libpri/releases
+PKG_MD5SUM:=d32bf834861d3b0d24f26b0ffb52e971
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 
 PKG_INSTALL:=1
