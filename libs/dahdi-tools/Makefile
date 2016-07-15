@@ -60,13 +60,13 @@ define Build/Compile
 		INSTALL_PREFIX="$(PKG_INSTALL_DIR)" \
 		DAHDI_INCLUDE="$(STAGING_DIR)/usr/include" \
 		CONFIGURE_SILENT="--silent" \
-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune libs
+		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/.libs/*.a $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/include/dahdi
 	$(CP) $(PKG_BUILD_DIR)/tonezone.h $(1)/usr/include/dahdi/
@@ -88,8 +88,8 @@ endef
 
 define Package/dahdi-tools-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
-	cd $(1)/usr/lib/; ln -s libtonezone.so libtonezone.so.2.0
+	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so.2.0.0 $(1)/usr/lib/
+	cd $(1)/usr/lib/; ln -s libtonezone.so.2.0.0 libtonezone.so; ln -s libtonezone.so.2.0.0 libtonezone.so.2
 endef
 
 $(eval $(call BuildPackage,dahdi-cfg))
