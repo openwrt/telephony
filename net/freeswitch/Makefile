@@ -573,6 +573,7 @@ CONFIGURE_ARGS+= \
 	--sysconfdir="/etc" \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
+	--disable-core-libedit-support \
 	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_IPV6,ipv6) \
