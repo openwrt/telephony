@@ -27,14 +27,14 @@ start_service() {
 		find $FS_DIR_ETC -type f -exec chmod 640 {} \;
 	}
 
-        procd_open_instance
+	procd_open_instance
 	procd_set_param limits stack 240
 	#procd_set_param stdout 1 # forward stdout of the command to logd
 	#procd_set_param stderr 1 # same for stderr
 	procd_set_param command freeswitch
 	procd_append_param command -c -np -u freeswitch -g freeswitch
 	procd_append_param command $OPTIONS
-        procd_close_instance
+	procd_close_instance
 }
 
 stop_service() {
