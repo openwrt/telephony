@@ -1,0 +1,45 @@
+menu "Advanced configuration"
+	depends on PACKAGE_freeswitch-stable
+
+config FS_STABLE_WITH_DEBUG
+	bool "Compile with debug information"
+	default n
+	help
+	  Enable extra debug codepaths, like asserts and extra output. If you
+	  want to get meaningful backtraces see
+	  https://wiki.openwrt.org/doc/devel/debugging for starting points.
+
+config FS_STABLE_WITH_LIBEDIT
+	bool "Compile with libedit support"
+	default y
+	help
+	  Compile with libedit support to enable command-line history editing
+	  and curses functionality. Of course this feels nicer when interacting
+	  with FreeSWITCH (without it it doesn't feel very interactive at all),
+	  but it adds additional dependencies (libedit, libncursesw, terminfo).
+
+config FS_STABLE_WITH_ODBC
+	bool "Compile with ODBC support"
+	default n
+	help
+	  Enable ODBC support.
+
+config FS_STABLE_WITH_PGSQL
+	bool "Compile with PGSQL support"
+	default n
+	help
+	  Enable PostgreSQL support.
+
+config FS_STABLE_WITH_SRTP
+	bool "Enable SRTP"
+	default y
+	help
+	  Compile with SRTP support.
+
+config FS_STABLE_WITH_ZRTP
+	bool "Enable ZRTP"
+	default n
+	help
+	  Compile with ZRTP support.
+
+endmenu

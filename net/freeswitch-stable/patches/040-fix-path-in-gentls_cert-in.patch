@@ -1,0 +1,10 @@
+--- a/scripts/gentls_cert.in
++++ b/scripts/gentls_cert.in
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+-CONFDIR=@prefix@/conf/ssl
++CONFDIR=@certsdir@
+ DAYS=2190
+ KEY_SIZE=2048
+ export KEY_SIZE=${KEY_SIZE}
