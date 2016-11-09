@@ -161,7 +161,7 @@ endef
 
 define BuildFreeSWITCHStableModule
 define Package/$(PKG_NAME)-$(1)
-	$$(call Package/$(PKG_NAME)/Default)
+	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(2) support
 	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4))
 endef
@@ -169,7 +169,7 @@ define Package/$(PKG_NAME)-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-$(1)/install
-	$(foreach m,$(1),$(call Package/$(PKG_NAME)/install/module,$$(1),$(m));)
+	$(foreach m,$(1),$(call Package/$(PKG_NAME)/install/module,$$(1),$(m)))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
@@ -231,7 +231,7 @@ endef
 
 define BuildFreeSWITCHStableConfig
 define Package/$(PKG_NAME)-config-$(1)
-	$$(call Package/$(PKG_NAME)/Default)
+	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(2) configuration
 	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-config-$(1):%,$(4))
 	CONFLICTS:=$(7)
@@ -308,10 +308,9 @@ CONFIGURE_ARGS+=\
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support) \
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR););
 	$(SED) '/^#/!s/^/#/g' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod_$(m)),
-		$(SED) '/mod_$(m)/s/^#//g' $(PKG_BUILD_DIR)/modules.conf,))
+		$(SED) '/mod_$(m)/s/^#//g' $(PKG_BUILD_DIR)/modules.conf))
 	$(call Build/Configure/Default,,$(SITE_VARS))
 endef
 
