@@ -151,14 +151,6 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
-define Package/$(PKG_NAME)/install/configdirs
-	$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)/$(2)
-endef
-
-define Package/$(PKG_NAME)/install/configfiles
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(1)/$(2) $(3)/etc/$(PRG_NAME)/$(4)
-endef
-
 define BuildFreeSWITCHStableModule
 define Package/$(PKG_NAME)-$(1)
 	$(call Package/$(PKG_NAME)/Default)
@@ -234,14 +226,20 @@ define Package/$(PKG_NAME)-config-$(1)
 	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(2) configuration
 	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-config-$(1):%,$(4))
-	CONFLICTS:=$(7)
+	CONFLICTS:=$(5)
 endef
 define Package/$(PKG_NAME)-config-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-config-$(1)/install
-	$(foreach d,$(5),$(call Package/$(PKG_NAME)/install/configdirs,$$(1),$(d));)
-	$(foreach c,$(6),$(call Package/$(PKG_NAME)/install/configfiles,$(1),$(c),$$(1),$(c));)
+	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); find -type d -print | sed 's|^./\?||'); \
+	do \
+		$(INSTALL_DIR) $$(1)/etc/$(PRG_NAME)/$$$$$$$$dir; \
+	done
+	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); find -type f -print | sed 's|^./||'); \
+	do \
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(1)/$$$$$$$$file $$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
+	done
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-config-$(1)))
 endef
@@ -385,10 +383,8 @@ $(eval $(call BuildFreeSWITCHStableModule,mod_xml_scgi,XML SCGI,Simple Common Ga
 # 2 - Package title
 # 3 - Package description
 # 4 - Package dependencies
-# 5 - Package dirs
-# 6 - Package files
-# 7 - Package conflicts
+# 5 - Package conflicts
 ################################
 
-$(eval $(call BuildFreeSWITCHStableConfig,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,  sip_profiles/external autoload_configs dialplan/public, freeswitch.xml sip_profiles/external/stub.xml sip_profiles/external.xml sip_profiles/internal.xml autoload_configs/console.conf.xml autoload_configs/conference.conf.xml autoload_configs/xml_rpc.conf.xml autoload_configs/modules.conf.xml autoload_configs/cdr_csv.conf.xml autoload_configs/db.conf.xml autoload_configs/switch.conf.xml autoload_configs/event_socket.conf.xml autoload_configs/logfile.conf.xml autoload_configs/sofia.conf.xml autoload_configs/acl.conf.xml autoload_configs/timezones.conf.xml modules.conf README.md vars.xml dialplan/public/00_stub.xml dialplan/default.xml dialplan/public.xml,))
+$(eval $(call BuildFreeSWITCHStableConfig,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,))
 
