@@ -171,13 +171,18 @@ to route and interconnect popular communication protocols using audio, video,
 text or any other form of media.
 endef
 
+define Package/$(PKG_NAME)/conffiles
+/etc/default/$(PRG_NAME)
+/etc/init.d/$(PRG_NAME)
+endef
+
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
 $(call Package/$(PKG_NAME)/install/bin,$(1),fs_cli)
 $(call Package/$(PKG_NAME)/install/bin,$(1),gentls_cert)
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)/etc/default
-	$(INSTALL_DATA) ./files/$(PRG_NAME).default $(1)/etc/default/$(PRG_NAME)
+	$(INSTALL_CONF) ./files/$(PRG_NAME).default $(1)/etc/default/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
 endef
@@ -191,6 +196,9 @@ $(call Package/$(PKG_NAME)/Default)
 endef
 define Package/$(PKG_NAME)-config-$(1)/description
 $(3)
+endef
+define Package/$(PKG_NAME)-config-$(1)/conffiles
+/etc/$(PRG_NAME)/
 endef
 define Package/$(PKG_NAME)-config-$(1)/install
 	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
