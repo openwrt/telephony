@@ -158,12 +158,6 @@ define Package/$(PKG_NAME)/config
 	source "$(SOURCE)/Config.in"
 endef
 
-define Package/$(PKG_NAME)/Default/description
-FreeSWITCH is a scalable open source cross-platform telephony platform designed
-to route and interconnect popular communication protocols using audio, video,
-text or any other form of media.
-endef
-
 define Package/$(PKG_NAME)
 	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
@@ -187,7 +181,9 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-	$(call Package/$(PKG_NAME)/Default/description)
+FreeSWITCH is a scalable open source cross-platform telephony platform designed
+to route and interconnect popular communication protocols using audio, video,
+text or any other form of media.
 endef
 
 define Package/$(PKG_NAME)/install
