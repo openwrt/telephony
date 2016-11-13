@@ -25,7 +25,6 @@
 # - I won't bother with sound file packages - too big for small routers plus I
 #   don't think we're gonna play many audio files on them anyway.
 # - minimal configuration is available as optional package with deps. 
-# - Not sure if a got the CONFLICTS right.
 
 include $(TOPDIR)/rules.mk
 
@@ -52,7 +51,7 @@ PKG_LICENSE:= \
 	libtiff \
 	LGPL-2.0+ (sofia-sip), \
 	LGPL-2.1, GPL-2.0 (spandsp), \
-	MPL-1.1 \
+	MPL-1.1
 
 PKG_LICENSE_FILES:= \
 	COPYING \
@@ -63,7 +62,7 @@ PKG_LICENSE_FILES:= \
 	libs/sofia-sip/COPYRIGHTS \
 	libs/spandsp/COPYING \
 	libs/srtp/LICENSE \
-	libs/tiff-4.0.2/COPYRIGHT \
+	libs/tiff-4.0.2/COPYRIGHT
 
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
@@ -132,7 +131,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	voicemail \
 	xml_cdr \
 	xml_rpc \
-	xml_scgi \
+	xml_scgi
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -202,7 +201,7 @@ define Package/$(PKG_NAME)
 		+libstdcpp \
 		+libsqlite3 \
 		+libuuid \
-		+zlib \
+		+zlib
 	CONFLICTS:=$(PRG_NAME)
 endef
 
@@ -251,7 +250,7 @@ SITE_VARS+= \
 	ac_cv_prog_PHP=false \
 	ac_cv_have_php=no \
 	ac_cv_prog_PHP_CONFIG=false \
-	ac_cv_have_php_config=no \
+	ac_cv_have_php_config=no
 
 # build breaks with -Werror enabled
 SITE_VARS+= \
@@ -303,7 +302,7 @@ CONFIGURE_ARGS+=\
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support) \
+	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
 
 define Build/Configure
 	$(SED) '/^#/!s/^/#/g' $(PKG_BUILD_DIR)/modules.conf
