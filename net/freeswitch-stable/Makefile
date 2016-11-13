@@ -136,33 +136,33 @@ define Package/$(PKG_NAME)/config
 endef
 
 define Package/$(PKG_NAME)/Default
-	SUBMENU:=Telephony
-	SECTION:=net
-	CATEGORY:=Network
-	URL:=https://www.$(PRG_NAME).org/
+  SUBMENU:=Telephony
+  SECTION:=net
+  CATEGORY:=Network
+  URL:=https://www.$(PRG_NAME).org/
 endef
 
 define Package/$(PKG_NAME)
-	$(call Package/$(PKG_NAME)/Default)
-	TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
-	MENU:=1
-	USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
-	DEPENDS:=\
-		+FS_STABLE_WITH_LIBEDIT:libedit \
-		+FS_STABLE_WITH_ODBC:unixodbc \
-		+FS_STABLE_WITH_PGSQL:libpq \
-		+libcurl \
-		+libopenssl \
-		+libpcre \
-		+libpthread \
-		+librt \
-		+libspeex \
-		+libspeexdsp \
-		+libstdcpp \
-		+libsqlite3 \
-		+libuuid \
-		+zlib
-	CONFLICTS:=$(PRG_NAME)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
+  MENU:=1
+  USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
+  DEPENDS:=\
+	+FS_STABLE_WITH_LIBEDIT:libedit \
+	+FS_STABLE_WITH_ODBC:unixodbc \
+	+FS_STABLE_WITH_PGSQL:libpq \
+	+libcurl \
+	+libopenssl \
+	+libpcre \
+	+libpthread \
+	+librt \
+	+libspeex \
+	+libspeexdsp \
+	+libstdcpp \
+	+libsqlite3 \
+	+libuuid \
+	+zlib
+  CONFLICTS:=$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
@@ -184,10 +184,10 @@ endef
 
 define Package/$(PKG_NAME)/Configuration
 define Package/$(PKG_NAME)-config-$(1)
-	$(call Package/$(PKG_NAME)/Default)
-	TITLE:=$(2) configuration
-	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-config-$(1):%,$(4))
-	CONFLICTS:=$(5)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2) configuration
+  DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-config-$(1):%,$(4))
+  CONFLICTS:=$(5)
 endef
 define Package/$(PKG_NAME)-config-$(1)/description
 $(3)
@@ -210,15 +210,15 @@ endef
 
 define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-$(1)
-	$(call Package/$(PKG_NAME)/Default)
-	TITLE:=$(2) support
-	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4))
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2) support
+  DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4))
 endef
 define Package/$(PKG_NAME)-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-$(1)/install
-	$(foreach m,$(1),$(call Package/$(PKG_NAME)/Module/install,$$(1),$(m)))
+$(foreach m,$(1),$(call Package/$(PKG_NAME)/Module/install,$$(1),$(m)))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
