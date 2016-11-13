@@ -116,7 +116,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)/install/module
+define Package/$(PKG_NAME)/Module/install
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so $(1)/usr/lib/$(PRG_NAME)/mod
 endef
@@ -131,7 +131,7 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
-define BuildFreeSWITCHStableModule
+define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-$(1)
 	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(2) support
@@ -141,7 +141,7 @@ define Package/$(PKG_NAME)-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-$(1)/install
-	$(foreach m,$(1),$(call Package/$(PKG_NAME)/install/module,$$(1),$(m)))
+	$(foreach m,$(1),$(call Package/$(PKG_NAME)/Module/install,$$(1),$(m)))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
@@ -201,7 +201,7 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
 endef
 
-define BuildFreeSWITCHStableConfig
+define Package/$(PKG_NAME)/Configuration
 define Package/$(PKG_NAME)-config-$(1)
 	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=$(2) configuration
@@ -309,52 +309,52 @@ $(eval $(call BuildPackage,$(PKG_NAME)))
 # 4 - Module dependencies
 ################################
 
-$(eval $(call BuildFreeSWITCHStableModule,mod_commands,API command,A plethora of API interface commands.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_alsa,ALSA,Sound card endpoint.,+alsa-lib))
-$(eval $(call BuildFreeSWITCHStableModule,mod_blacklist,Blacklist,Blacklist module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_callcenter,Call center,Call queuing application that can be used for call center needs.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_conference,Conference room,Conference room module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_curl,cURL,Allows scripts to make HTTP requests and receive responses as plain text or JSON.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_db,Database,Database key/value store functionality for group dialing and for use as a limit backend.,+libdb47))
-$(eval $(call BuildFreeSWITCHStableModule,mod_directory,Directory,Dial by name directory.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_dptools,Dialplan tools,The Dialplan Tools provide a number of apps and utilities for the dialplan.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_easyroute,DID routing,A simple DID routing engine that uses a database lookup to determine how to route an incoming call.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_esf,SIP multicast paging,Holds the multi cast paging application for SIP.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_esl,Remote ESL command,Allows to generate remote ESL commands.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_expr,Expression evaluation,Brian Allen Vanderburgs expression evaluation library.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_fifo,FIFO,FIFO module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_fsk,FSK decoder,Frequency-Shift Keying data transfer.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_hash,Hash table,Hashtable key/value store functionality and limit backend.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_httapi,HT-TAPI,HT-TAPI Hypertext Telephony API.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_lcr,LCR,Implements Least Cost Routing.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_sndfile,Soundfile,Adds sound format support via libsndfile.,+libsndfile))
-$(eval $(call BuildFreeSWITCHStableModule,mod_snom,SNOM,Controlling softkeys on Snom phones.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_spandsp,Spandsp,Spandsp tone and DTMF detectors. A combination of mod_fax and mod_voipcodecs and mod_t38gateway.,+libjpeg +liblzma))
-$(eval $(call BuildFreeSWITCHStableModule,mod_spy,Spy,User spy module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_valet_parking,Parking,Allows calls to be parked and picked up easily.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_voicemail,Voice mail,Full-featured voicemail module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_g723_1,G.723.1 codec,G.723.1 codec.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_g729,G.729 codec,G.729 codec.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_dialplan_asterisk,Asterisk dialplan,Allows you to create dialplans the old-fashioned way.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_dialplan_xml,XML dialplan,Allows you to program dialplans in XML format.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_loopback,Loopback,A loopback channel driver to make an outbound call as an inbound call.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_rtc,Media streaming,mod_rtc supports media streaming used by WebRTC and mod_verto.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_rtmp,RTMP,Real Time Media Protocol endpoint for FreeSWITCH.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_sofia,Sofia SIP,SIP module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_verto,Verto,Verto RTC is a FreeSWITCH endpoint that implements a subset of a JSON-RPC connection designed for use over secure websockets. mod_verto is the signaling protocol. It depends on mod_rtc for secure media streaming services.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_cdr_csv,CDR CSV,CSV call detail record handler.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_cdr_sqlite,CDR SQLite,SQLite CDR module.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_event_socket,Event socket,Sends events via a single socket. Needed for fs_cli to be able to connect to FreeSWITCH.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_local_stream,Local stream,Multiple channels connected to same looped file stream.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_native_file,Native file,File interface for codec specific file formats.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_tone_stream,Tone stream,Tone generation stream.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_translate,Number translation,Formats numbers into a specified format using regular expressions.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_console,Console logger,Console logger.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_logfile,File logger,File logger.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_syslog,Syslog logger,Syslog logger.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_xml_cdr,XML CDR,XML-based call detail record handler.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_xml_rpc,XML RPC,XML Remote Procedure Calls. Issue commands from your web application.,))
-$(eval $(call BuildFreeSWITCHStableModule,mod_xml_scgi,XML SCGI,Simple Common Gateway Interface.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_commands,API command,A plethora of API interface commands.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_alsa,ALSA,Sound card endpoint.,+alsa-lib))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_blacklist,Blacklist,Blacklist module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_callcenter,Call center,Call queuing application that can be used for call center needs.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_conference,Conference room,Conference room module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_curl,cURL,Allows scripts to make HTTP requests and receive responses as plain text or JSON.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_db,Database,Database key/value store functionality for group dialing and for use as a limit backend.,+libdb47))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_directory,Directory,Dial by name directory.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_dptools,Dialplan tools,The Dialplan Tools provide a number of apps and utilities for the dialplan.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_easyroute,DID routing,A simple DID routing engine that uses a database lookup to determine how to route an incoming call.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_esf,SIP multicast paging,Holds the multi cast paging application for SIP.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_esl,Remote ESL command,Allows to generate remote ESL commands.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_expr,Expression evaluation,Brian Allen Vanderburgs expression evaluation library.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_fifo,FIFO,FIFO module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_fsk,FSK decoder,Frequency-Shift Keying data transfer.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_hash,Hash table,Hashtable key/value store functionality and limit backend.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_httapi,HT-TAPI,HT-TAPI Hypertext Telephony API.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_lcr,LCR,Implements Least Cost Routing.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_sndfile,Soundfile,Adds sound format support via libsndfile.,+libsndfile))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_snom,SNOM,Controlling softkeys on Snom phones.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_spandsp,Spandsp,Spandsp tone and DTMF detectors. A combination of mod_fax and mod_voipcodecs and mod_t38gateway.,+libjpeg +liblzma))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_spy,Spy,User spy module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_valet_parking,Parking,Allows calls to be parked and picked up easily.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_voicemail,Voice mail,Full-featured voicemail module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_g723_1,G.723.1 codec,G.723.1 codec.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_g729,G.729 codec,G.729 codec.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_dialplan_asterisk,Asterisk dialplan,Allows you to create dialplans the old-fashioned way.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_dialplan_xml,XML dialplan,Allows you to program dialplans in XML format.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_loopback,Loopback,A loopback channel driver to make an outbound call as an inbound call.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_rtc,Media streaming,mod_rtc supports media streaming used by WebRTC and mod_verto.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_rtmp,RTMP,Real Time Media Protocol endpoint for FreeSWITCH.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_sofia,Sofia SIP,SIP module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_verto,Verto,Verto RTC is a FreeSWITCH endpoint that implements a subset of a JSON-RPC connection designed for use over secure websockets. mod_verto is the signaling protocol. It depends on mod_rtc for secure media streaming services.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_cdr_csv,CDR CSV,CSV call detail record handler.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_cdr_sqlite,CDR SQLite,SQLite CDR module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_event_socket,Event socket,Sends events via a single socket. Needed for fs_cli to be able to connect to FreeSWITCH.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_local_stream,Local stream,Multiple channels connected to same looped file stream.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_native_file,Native file,File interface for codec specific file formats.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_tone_stream,Tone stream,Tone generation stream.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_translate,Number translation,Formats numbers into a specified format using regular expressions.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_console,Console logger,Console logger.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_logfile,File logger,File logger.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_syslog,Syslog logger,Syslog logger.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_xml_cdr,XML CDR,XML-based call detail record handler.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_xml_rpc,XML RPC,XML Remote Procedure Calls. Issue commands from your web application.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_xml_scgi,XML SCGI,Simple Common Gateway Interface.,))
 
 ################################
 # FreeSWITCH configuration
@@ -366,5 +366,5 @@ $(eval $(call BuildFreeSWITCHStableModule,mod_xml_scgi,XML SCGI,Simple Common Ga
 # 5 - Package conflicts
 ################################
 
-$(eval $(call BuildFreeSWITCHStableConfig,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,))
+$(eval $(call Package/$(PKG_NAME)/Configuration,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,))
 
