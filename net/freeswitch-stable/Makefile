@@ -127,7 +127,8 @@ endef
 
 define Package/$(PKG_NAME)/Module/install
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so $(1)/usr/lib/$(PRG_NAME)/mod
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so \
+						$(1)/usr/lib/$(PRG_NAME)/mod
 endef
 
 define Package/$(PKG_NAME)/config
@@ -192,13 +193,16 @@ define Package/$(PKG_NAME)-config-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-config-$(1)/install
-	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); find -type d -print | sed 's|^./\?||'); \
+	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
+		find -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) $$(1)/etc/$(PRG_NAME)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
+		find -type f -print | sed 's|^./||'); \
 	do \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(1)/$$$$$$$$file $$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(1)/$$$$$$$$file \
+				$$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
 	done
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-config-$(1)))
@@ -282,15 +286,14 @@ CONFIGURE_ARGS+=\
 
 define Build/Configure
 	$(SED) '/^#/!s/^/#/g' $(PKG_BUILD_DIR)/modules.conf
-	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod_$(m)),
+	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
+		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod_$(m)),
 		$(SED) '/mod_$(m)/s/^#//g' $(PKG_BUILD_DIR)/modules.conf))
 	$(call Build/Configure/Default,,$(SITE_VARS))
 endef
 
 define Build/Compile
-	$(call Build/Compile/Default, \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install)
+	$(call Build/Compile/Default, DESTDIR="$(PKG_INSTALL_DIR)" all install)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
