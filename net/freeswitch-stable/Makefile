@@ -32,6 +32,7 @@ PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.12
 PKG_RELEASE:=0
+PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)/
@@ -63,8 +64,6 @@ PKG_LICENSE_FILES:= \
 	libs/spandsp/COPYING \
 	libs/srtp/LICENSE \
 	libs/tiff-4.0.2/COPYRIGHT
-
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 FS_STABLE_MOD_AVAILABLE:= \
 	alsa \
@@ -116,11 +115,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)/Module/install
-	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so $(1)/usr/lib/$(PRG_NAME)/mod
-endef
-
 define Package/$(PKG_NAME)/install/lib
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib
@@ -131,19 +125,13 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
-define Package/$(PKG_NAME)/Module
-define Package/$(PKG_NAME)-$(1)
-	$(call Package/$(PKG_NAME)/Default)
-	TITLE:=$(2) support
-	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4))
+define Package/$(PKG_NAME)/Module/install
+	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so $(1)/usr/lib/$(PRG_NAME)/mod
 endef
-define Package/$(PKG_NAME)-$(1)/description
-$(3)
-endef
-define Package/$(PKG_NAME)-$(1)/install
-	$(foreach m,$(1),$(call Package/$(PKG_NAME)/Module/install,$$(1),$(m)))
-endef
-$$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
+
+define Package/$(PKG_NAME)/config
+	source "$(SOURCE)/Config.in"
 endef
 
 define Package/$(PKG_NAME)/Default
@@ -152,10 +140,6 @@ define Package/$(PKG_NAME)/Default
 	CATEGORY:=Network
 	URL:=https://www.$(PRG_NAME).org/
 	USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
-endef
-
-define Package/$(PKG_NAME)/config
-	source "$(SOURCE)/Config.in"
 endef
 
 define Package/$(PKG_NAME)
@@ -218,6 +202,21 @@ define Package/$(PKG_NAME)-config-$(1)/install
 	done
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-config-$(1)))
+endef
+
+define Package/$(PKG_NAME)/Module
+define Package/$(PKG_NAME)-$(1)
+	$(call Package/$(PKG_NAME)/Default)
+	TITLE:=$(2) support
+	DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4))
+endef
+define Package/$(PKG_NAME)-$(1)/description
+$(3)
+endef
+define Package/$(PKG_NAME)-$(1)/install
+	$(foreach m,$(1),$(call Package/$(PKG_NAME)/Module/install,$$(1),$(m)))
+endef
+$$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
 
 # we neither need host-perl nor host-php
