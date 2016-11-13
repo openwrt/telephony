@@ -139,13 +139,13 @@ define Package/$(PKG_NAME)/Default
 	SECTION:=net
 	CATEGORY:=Network
 	URL:=https://www.$(PRG_NAME).org/
-	USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
 endef
 
 define Package/$(PKG_NAME)
 	$(call Package/$(PKG_NAME)/Default)
 	TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
 	MENU:=1
+	USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
 	DEPENDS:=\
 		+FS_STABLE_WITH_LIBEDIT:libedit \
 		+FS_STABLE_WITH_ODBC:unixodbc \
