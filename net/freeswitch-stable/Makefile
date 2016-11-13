@@ -147,7 +147,7 @@ $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
-  DEPENDS:=\
+  DEPENDS:= \
 	+FS_STABLE_WITH_LIBEDIT:libedit \
 	+FS_STABLE_WITH_ODBC:unixodbc \
 	+FS_STABLE_WITH_PGSQL:libpq \
@@ -238,12 +238,12 @@ SITE_VARS+= \
 
 # even without --with-core-pgsql-support libpq will be used if installed
 # (by apr-util), so we need to put the brakes on
-ifneq ($(SDK)$(CONFIG_FS_STABLE_WITH_PGSQL),)
+ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),y)
 else
 	SITE_VARS+=ac_cv_lib_pq_PQsendQueryPrepared=no
 endif
 
-CONFIGURE_ARGS+=\
+CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
@@ -365,4 +365,3 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_scgi,XML SCGI,Simple Common Gat
 ################################
 
 $(eval $(call Package/$(PKG_NAME)/Configuration,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,))
-
