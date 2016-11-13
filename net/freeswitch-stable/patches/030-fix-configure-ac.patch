@@ -9,6 +9,15 @@
  		# spandsp modem
  		ac_cv_file__dev_ptmx=yes
  		# libjs
+@@ -667,7 +667,7 @@ AC_ARG_ENABLE(core-pgsql-pkgconfig,
+ 	[AS_HELP_STRING([--disable-core-pgsql-pkgconfig], [Use pg_config to get PGQSL build options])],[enable_core_pgsql_pkgconfig="$enableval"],[enable_core_pgsql_pkgconfig="yes"])
+ 
+ if test x"$enable_core_pgsql_support" = x"yes" ; then
+-  AC_PATH_PROG([PG_CONFIG], [pg_config], [no])
++  AC_PATH_PROG([PG_CONFIG], [pg_config], [no], ["$PATH:${STAGING_DIR}/usr/bin"])
+   AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+     if test "$PKG_CONFIG" = "no" \
+        || test x"$enable_core_pgsql_pkgconfig" = x"no" \
 @@ -1273,17 +1273,38 @@ module_enabled() {
    grep -v -e "\#" -e "^\$" modules.conf | sed -e "s|^.*/||" | grep "^${1}\$" >/dev/null
  }
