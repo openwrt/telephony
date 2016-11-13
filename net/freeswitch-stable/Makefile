@@ -68,7 +68,6 @@ PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 FS_STABLE_MOD_AVAILABLE:= \
 	alsa \
-	avmd \
 	blacklist \
 	callcenter \
 	cdr_csv \
@@ -100,24 +99,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	native_file \
 	rtc \
 	rtmp \
-	say_de \
-	say_en \
-	say_es \
-	say_es_ar \
-	say_fa \
-	say_fr \
-	say_he \
-	say_hr \
-	say_hu \
-	say_it \
-	say_ja \
-	say_nl \
-	say_pl \
-	say_pt \
-	say_ru \
-	say_sv \
-	say_th \
-	say_zh \
 	sndfile \
 	snom \
 	sofia \
