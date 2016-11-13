@@ -248,7 +248,7 @@ SITE_VARS+= \
 # (by apr-util), so we need to put the brakes on
 ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),y)
 else
-	SITE_VARS+=ac_cv_lib_pq_PQsendQueryPrepared=no
+SITE_VARS+=ac_cv_lib_pq_PQsendQueryPrepared=no
 endif
 
 CONFIGURE_ARGS+= \
