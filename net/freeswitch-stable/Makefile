@@ -44,6 +44,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libjpeg
 
 PKG_FIXUP:=autoreconf
+PKG_INSTALL:=1
 
 PKG_LICENSE:= \
 	Apache-2.0 (apr, apr-util), \
@@ -232,7 +233,7 @@ $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
 
 # we neither need host-perl nor host-php
-SITE_VARS+= \
+CONFIGURE_VARS+= \
 	ac_cv_prog_PERL=false \
 	ac_cv_have_perl=no \
 	ac_cv_prog_PHP=false \
@@ -241,14 +242,14 @@ SITE_VARS+= \
 	ac_cv_have_php_config=no
 
 # build breaks with -Werror enabled
-SITE_VARS+= \
+CONFIGURE_VARS+= \
 	ac_cv_gcc_supports_w_no_unused_result=no
 
 # even without --with-core-pgsql-support libpq will be used if installed
 # (by apr-util), so we need to put the brakes on
 ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),y)
 else
-SITE_VARS+= \
+CONFIGURE_VARS+= \
 	ac_cv_lib_pq_PQsendQueryPrepared=no
 endif
 
@@ -293,16 +294,12 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
 
-define Build/Configure
+define Build/Prepare
+	$(Build/Prepare/Default)
 	$(SED) '/^#/!s/^/#/g' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod_$(m)),
 		$(SED) '/mod_$(m)/s/^#//g' $(PKG_BUILD_DIR)/modules.conf))
-	$(call Build/Configure/Default,,$(SITE_VARS))
-endef
-
-define Build/Compile
-	$(call Build/Compile/Default, DESTDIR="$(PKG_INSTALL_DIR)" all install)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
