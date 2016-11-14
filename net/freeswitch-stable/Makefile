@@ -295,11 +295,11 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
 
 define Build/Prepare
-	$(Build/Prepare/Default)
-	$(SED) '/^#/!s/^/#/g' $(PKG_BUILD_DIR)/modules.conf
+	$(call Build/Prepare/Default)
+	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod_$(m)),
-		$(SED) '/mod_$(m)/s/^#//g' $(PKG_BUILD_DIR)/modules.conf))
+		$(SED) '/mod_$(m)/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
