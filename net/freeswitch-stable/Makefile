@@ -35,7 +35,7 @@ PKG_RELEASE:=0
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)/
+PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
 PKG_MD5SUM:=ae20b9887e936a889b35032f8b01ae2f
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
@@ -140,7 +140,7 @@ define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  URL:=https://www.$(PRG_NAME).org/
+  URL:=https://www.$(PRG_NAME).org
 endef
 
 define Package/$(PKG_NAME)
@@ -199,7 +199,7 @@ define Package/$(PKG_NAME)-config-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-config-$(1)/conffiles
-/etc/$(PRG_NAME)/
+/etc/$(PRG_NAME)
 endef
 define Package/$(PKG_NAME)-config-$(1)/install
 	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
