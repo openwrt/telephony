@@ -126,6 +126,20 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
+define Package/$(PKG_NAME)/Configuration/install/conf
+	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
+		find -type d -print | sed 's|^./\?||'); \
+	do \
+		$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)/$$$$$$$$dir; \
+	done
+	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
+		find -type f -print | sed 's|^./||'); \
+	do \
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(2)/$$$$$$$$file \
+				$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
+	done
+endef
+
 define Package/$(PKG_NAME)/Module/install/mod
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so \
@@ -204,17 +218,7 @@ define Package/$(PKG_NAME)-config-$(1)/conffiles
 /etc/$(PRG_NAME)
 endef
 define Package/$(PKG_NAME)-config-$(1)/install
-	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
-		find -type d -print | sed 's|^./\?||'); \
-	do \
-		$(INSTALL_DIR) $$(1)/etc/$(PRG_NAME)/$$$$$$$$dir; \
-	done
-	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(1); \
-		find -type f -print | sed 's|^./||'); \
-	do \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(1)/$$$$$$$$file \
-				$$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
-	done
+$(call Package/$(PKG_NAME)/Configuration/install/conf,$$(1),$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-config-$(1)))
 endef
