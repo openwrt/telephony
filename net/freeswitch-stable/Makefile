@@ -173,6 +173,7 @@ text or any other form of media.
 endef
 
 define Package/$(PKG_NAME)/conffiles
+/etc/$(PRG_NAME)
 /etc/default/$(PRG_NAME)
 /etc/init.d/$(PRG_NAME)
 endef
@@ -182,6 +183,7 @@ $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
 $(call Package/$(PKG_NAME)/install/bin,$(1),fs_cli)
 $(call Package/$(PKG_NAME)/install/bin,$(1),gentls_cert)
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
+	$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_CONF) ./files/$(PRG_NAME).default $(1)/etc/default/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
