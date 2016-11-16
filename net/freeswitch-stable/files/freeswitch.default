@@ -1,5 +1,7 @@
 #FS_DIR="/opt"
 PRG_NAME=freeswitch
+FS_USER=freeswitch
+FS_GROUP=freeswitch
 FS_DIR_ETC="$FS_DIR/etc/$PRG_NAME"
 FS_DIR_MOD="$FS_DIR/usr/lib/$PRG_NAME/mod"
 FS_DIR_DB="$FS_DIR/tmp/$PRG_NAME/db"

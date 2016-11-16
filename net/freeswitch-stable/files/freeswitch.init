@@ -5,26 +5,25 @@ START=90
 
 USE_PROCD=1
 
-DEFAULT=/etc/default/freeswitch                                                                                      
+DEFAULT=/etc/default/freeswitch
 OPTIONS=""
 
 start_service() {
 	[ -f $DEFAULT ] && . $DEFAULT
-	[ -n $FS_DIR_DB ] && {
-		mkdir -p $FS_DIR_DB
-		chown freeswitch:freeswitch $FS_DIR_DB
-	}
-	[ -n $FS_DIR_LOG ] && {
-		mkdir -p $FS_DIR_LOG
-		chown freeswitch:freeswitch $FS_DIR_LOG
-	}
-	[ -n $FS_DIR_RUN ] && {
-		mkdir -p $FS_DIR_RUN
-		chown freeswitch:freeswitch $FS_DIR_RUN
-	}
-	[ -n $FS_DIR_ETC ] && {
-		find $FS_DIR_ETC -type f -exec chown root:freeswitch {} \;
-		find $FS_DIR_ETC -type f -exec chmod 640 {} \;
+
+	local fs_user=${FS_USER:-freeswitch}
+	local fs_group=${FS_GROUP:-freeswitch}
+
+	for dir in "$FS_DIR_DB" "$FS_DIR_LOG" "$FS_DIR_RUN"; do
+		[ -n "$dir" ] && {
+			mkdir -p "$dir"
+			chown $fs_user:$fs_group "$dir"
+		}
+	done
+
+	[ -n "$FS_DIR_ETC" ] && {
+		find "$FS_DIR_ETC" -type f -exec chown root:$fs_group {} \;
+		find "$FS_DIR_ETC" -type f -exec chmod 640 {} \;
 	}
 
 	procd_open_instance
@@ -41,9 +40,9 @@ stop_service() {
 	local retval
 	local mypid
 	[ -f $DEFAULT ] && . $DEFAULT
-	[ -f $FS_DIR_RUN/freeswitch.pid ] || exit 0
-	mypid=$(cat $FS_DIR_RUN/freeswitch.pid)
-	$FS_DIR/usr/bin/freeswitch $OPTIONS -stop
+	[ -f "$FS_DIR_RUN"/freeswitch.pid ] || exit 0
+	mypid=$(cat "$FS_DIR_RUN"/freeswitch.pid)
+	"$FS_DIR"/usr/bin/freeswitch $OPTIONS -stop
 	pidof freeswitch | grep $mypid &>/dev/null
 	retval="$?"
 	while [ $retval -ne 1 ]; do
