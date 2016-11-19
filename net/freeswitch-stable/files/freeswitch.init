@@ -16,7 +16,6 @@ fs_user="${FS_USER:-freeswitch}"
 fs_group="${FS_GROUP:-freeswitch}"
 
 fs_dir_etc="/etc/freeswitch"
-fs_dir_mod="/usr/lib/freeswitch/mod"
 
 fs_dir_db="${FS_DIR_DB:-/tmp/freeswitch/db}"
 fs_dir_log="${FS_DIR_LOG:-/tmp/freeswitch/log}"
@@ -37,15 +36,16 @@ start_service() {
 
   procd_open_instance
   procd_set_param command freeswitch
-  procd_append_param command -c -conf "$fs_dir_etc" -mod "$fs_dir_mod" \
-       -db "$fs_dir_db" -log "$fs_dir_log" -run "$fs_dir_run" $OPTIONS
+  # wiki says: "If you set the file locations of any one of -conf, -log, or -db
+  # you must set all three."
+  # https://freeswitch.org/confluence/display/FREESWITCH/Command+Line+Switches
+  procd_append_param command -c -conf "$fs_dir_etc" -db "$fs_dir_db" \
+                      -log "$fs_dir_log" -run "$fs_dir_run" $OPTIONS
   procd_set_param user "$fs_user"
   # forward stdout of the command to logd
   #procd_set_param stdout 1
   # same for stderr
   procd_set_param stderr 1
-  # it looks like procd needs input in bytes, so 240 * 1024
-  procd_set_param limits stack=245760
   procd_close_instance
 }
 
@@ -54,14 +54,14 @@ stop_service() {
   local mypid
   [ -f "$fs_dir_run"/freeswitch.pid ] || exit 0
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
-  freeswitch -c -conf "$fs_dir_etc" -mod "$fs_dir_mod" \
-                   -db "$fs_dir_db" -log "$fs_dir_log" \
-                     -run "$fs_dir_run" $OPTIONS -stop
+  freeswitch -c -conf "$fs_dir_etc" -db "$fs_dir_db" \
+               -log "$fs_dir_log" -run "$fs_dir_run" \
+                                      $OPTIONS -stop
   pidof freeswitch | grep $mypid &>/dev/null
   retval="$?"
   while [ $retval -ne 1 ]; do
     sleep 1
-    pidof freeswitch | grep $mypid &> /dev/null
+    pidof freeswitch | grep $mypid &>/dev/null
     retval=$?
   done
 }
