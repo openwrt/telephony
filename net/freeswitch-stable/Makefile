@@ -359,7 +359,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_local_stream,Local stream,Multiple 
 $(eval $(call Package/$(PKG_NAME)/Module,mod_native_file,Native file,File interface for codec specific file formats.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_tone_stream,Tone stream,Tone generation stream.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_translate,Number translation,Formats numbers into a specified format using regular expressions.,))
-$(eval $(call Package/$(PKG_NAME)/Module,mod_console,Console logger,Console logger.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_console,Console configuration,Allows control over what messages get logged to the console. A bit messy as the settings do not take hold immediately after starting FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_logfile,File logger,File logger.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_syslog,Syslog logger,Syslog logger.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_cdr,XML CDR,XML-based call detail record handler.,))
