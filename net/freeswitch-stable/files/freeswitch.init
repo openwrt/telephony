@@ -17,15 +17,23 @@ fs_group="${FS_GROUP:-freeswitch}"
 
 fs_dir_etc="/etc/freeswitch"
 
+fs_dir_cache="${FS_DIR_CACHE:-/tmp/freeswitch/cache}"
 fs_dir_db="${FS_DIR_DB:-/tmp/freeswitch/db}"
 fs_dir_log="${FS_DIR_LOG:-/tmp/freeswitch/log}"
+fs_dir_recordings="${FS_DIR_RECORDINGS:-/tmp/freeswitch/recordings}"
 fs_dir_run="${FS_DIR_RUN:-/var/run/freeswitch}"
+fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
+fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
 
 start_service() {
-  for dir in "$fs_dir_db" "$fs_dir_log" "$fs_dir_run"; do
+  for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_log" \
+    "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
+    "$fs_dir_temp"
+  do
     [ -n "$dir" ] && {
       mkdir -p "$dir"
       chown "$fs_user":"$fs_group" "$dir"
+      chmod 750 "$dir"
     }
   done
 
@@ -39,8 +47,10 @@ start_service() {
   # wiki says: "If you set the file locations of any one of -conf, -log, or -db
   # you must set all three."
   # https://freeswitch.org/confluence/display/FREESWITCH/Command+Line+Switches
-  procd_append_param command -c -conf "$fs_dir_etc" -db "$fs_dir_db" \
-                      -log "$fs_dir_log" -run "$fs_dir_run" $OPTIONS
+  procd_append_param command -c -cache "$fs_dir_cache" \
+    -conf "$fs_dir_etc" -db "$fs_dir_db" -log "$fs_dir_log" \
+    -recordings "$fs_dir_recordings" -run "$fs_dir_run" \
+    -storage "$fs_dir_storage" -temp "$fs_dir_temp" $OPTIONS
   procd_set_param user "$fs_user"
   # forward stdout of the command to logd
   #procd_set_param stdout 1
@@ -54,9 +64,10 @@ stop_service() {
   local mypid
   [ -f "$fs_dir_run"/freeswitch.pid ] || exit 0
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
-  freeswitch -c -conf "$fs_dir_etc" -db "$fs_dir_db" \
-               -log "$fs_dir_log" -run "$fs_dir_run" \
-                                      $OPTIONS -stop
+  freeswitch -c -cache "$fs_dir_cache" -conf "$fs_dir_etc" \
+    -db "$fs_dir_db" -log "$fs_dir_log" \
+    -recordings "$fs_dir_recordings" -run "$fs_dir_run" \
+    -storage "$fs_dir_storage" -temp "$fs_dir_temp" $OPTIONS -stop
   pidof freeswitch | grep $mypid &>/dev/null
   retval="$?"
   while [ $retval -ne 1 ]; do

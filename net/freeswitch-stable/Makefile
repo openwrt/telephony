@@ -289,11 +289,11 @@ CONFIGURE_ARGS+= \
 	--with-imagesdir=/usr/share/$(PRG_NAME)/images \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
 	--with-modinstdir=/usr/lib/$(PRG_NAME)/mod \
-	--with-recordingsdir=/var/run/$(PRG_NAME)/recordings \
+	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-rundir=/var/run/$(PRG_NAME) \
 	--with-scriptdir=/usr/share/$(PRG_NAME)/scripts \
 	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
-	--with-storagedir=/var/run/$(PRG_NAME)/storage \
+	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	--without-erlang \
 	--without-freetype \
 	--without-png \

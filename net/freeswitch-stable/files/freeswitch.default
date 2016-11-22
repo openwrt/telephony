@@ -1,8 +1,12 @@
 #FS_USER=freeswitch
 #FS_GROUP=freeswitch
 
+#FS_DIR_CACHE="/tmp/freeswitch/cache"
 #FS_DIR_DB="/tmp/freeswitch/db"
 #FS_DIR_LOG="/tmp/freeswitch/log"
+#FS_DIR_RECORDINGS="/tmp/freeswitch/recordings"
 #FS_DIR_RUN="/var/run/freeswitch"
+#FS_DIR_STORAGE="/tmp/freeswitch/storage"
+#FS_DIR_TEMP="/tmp/freeswitch/temp"
 
 OPTIONS="-np -nonat"
