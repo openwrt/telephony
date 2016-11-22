@@ -44,8 +44,8 @@ start_service() {
 
   procd_open_instance
   procd_set_param command freeswitch
-  # wiki says: "If you set the file locations of any one of -conf, -log, or -db
-  # you must set all three."
+  # wiki says: "If you set the file locations of any one of -conf, -log,
+  # or -db you must set all three."
   # https://freeswitch.org/confluence/display/FREESWITCH/Command+Line+Switches
   procd_append_param command -c -cache "$fs_dir_cache" \
     -conf "$fs_dir_etc" -db "$fs_dir_db" -log "$fs_dir_log" \
