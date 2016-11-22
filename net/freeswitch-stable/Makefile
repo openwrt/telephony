@@ -198,6 +198,12 @@ $(call Package/$(PKG_NAME)/install/bin,$(1),fs_cli)
 $(call Package/$(PKG_NAME)/install/bin,$(1),gentls_cert)
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/fonts
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/grammar
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/htdocs
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/images
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/scripts
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/sounds
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_CONF) ./files/$(PRG_NAME).default $(1)/etc/default/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
