@@ -16,6 +16,7 @@ fs_user="${FS_USER:-freeswitch}"
 fs_group="${FS_GROUP:-freeswitch}"
 
 fs_dir_etc="/etc/freeswitch"
+fs_dir_localstate="/var/lib/freeswitch"
 
 fs_dir_cache="${FS_DIR_CACHE:-/tmp/freeswitch/cache}"
 fs_dir_db="${FS_DIR_DB:-/tmp/freeswitch/db}"
@@ -26,8 +27,8 @@ fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
 fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
 
 start_service() {
-  for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_log" \
-    "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
+  for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_localstate" \
+    "$fs_dir_log" "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
     "$fs_dir_temp"
   do
     [ -n "$dir" ] && {
