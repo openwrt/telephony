@@ -82,6 +82,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	directory \
 	dptools \
 	easyroute \
+	enum \
 	esf \
 	esl \
 	event_socket \
@@ -340,6 +341,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_dialplan_xml,XML dialplan,Allows yo
 $(eval $(call Package/$(PKG_NAME)/Module,mod_directory,Directory,Dial by name directory.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_dptools,Dialplan tools,The Dialplan Tools provide a number of apps and utilities for the dialplan.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_easyroute,DID routing,A simple DID routing engine that uses a database lookup to determine how to route an incoming call.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_enum,ENUM routing,Adds support for the Electronic Number Mapping System.,+libldns))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_esf,SIP multicast paging,Holds the multi cast paging application for SIP.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_esl,Remote ESL command,Allows to generate remote ESL commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_event_socket,Event socket,Sends events via a single socket. Needed for fs_cli to be able to connect to FreeSWITCH.,))
