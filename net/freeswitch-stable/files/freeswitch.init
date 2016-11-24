@@ -65,10 +65,7 @@ stop_service() {
   local mypid
   [ -f "$fs_dir_run"/freeswitch.pid ] || exit 0
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
-  freeswitch -c -cache "$fs_dir_cache" -conf "$fs_dir_etc" \
-    -db "$fs_dir_db" -log "$fs_dir_log" \
-    -recordings "$fs_dir_recordings" -run "$fs_dir_run" \
-    -storage "$fs_dir_storage" -temp "$fs_dir_temp" $OPTIONS -stop
+  kill $mypid
   pidof freeswitch | grep $mypid &>/dev/null
   retval="$?"
   while [ $retval -ne 1 ]; do
