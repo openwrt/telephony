@@ -258,6 +258,26 @@ CONFIGURE_VARS+= \
 CONFIGURE_VARS+= \
 	ac_cv_gcc_supports_w_no_unused_result=no
 
+# autoconf vars from configure.ac for cross compilation.
+# ac_cv_sizeof_ssize_t will be taken care of by build system (see
+# OpenWRT/include/site/*), so not included here.
+
+CONFIGURE_VARS+= \
+	ac_cv_file__dev_ptmx=yes \
+	ac_cv_va_copy=yes \
+	ac_cv_file__dev_urandom=yes \
+	ac_cv_func_realloc_0_nonnull=yes \
+	ac_cv_func_malloc_0_nonnull=yes \
+	ac_cv_func_setpgrp_void=yes \
+	ac_cv_file__dev_zero=yes \
+	apr_cv_tcp_nodelay_with_cork=yes \
+	ac_cv_file_dbd_apr_dbd_mysql_c=no \
+	apr_cv_mutex_recursive=yes \
+	ac_cv_func_pthread_rwlock_init=yes \
+	apr_cv_type_rwlock_t=yes \
+	apr_cv_process_shared_works=yes \
+	apr_cv_mutex_robust_shared=yes
+
 # even without --with-core-pgsql-support libpq will be used if installed
 # (by apr-util), so we need to put the brakes on
 ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),y)
