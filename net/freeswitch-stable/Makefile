@@ -258,9 +258,12 @@ CONFIGURE_VARS+= \
 CONFIGURE_VARS+= \
 	ac_cv_gcc_supports_w_no_unused_result=no
 
-# autoconf vars from configure.ac for cross compilation.
-# ac_cv_sizeof_ssize_t will be taken care of by build system (see
-# OpenWRT/include/site/*), so not included here.
+# autoconf vars from configure.ac for cross compilation. Some were left out:
+# ac_cv_va_copy as it is not used, ac_cv_sizeof_ssize_t as it will be taken
+# care of by the build system (see ../../../../include/site/*).
+# apr_cv_mutex_robust_shared is set to "no" for now because apr is not yet
+# POSIX compliant as far as robust shared mutexes are concerned, see
+# http://www.openwall.com/lists/musl/2016/11/26/1.
 
 CONFIGURE_VARS+= \
 	ac_cv_file__dev_ptmx=yes \
