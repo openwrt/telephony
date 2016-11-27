@@ -274,7 +274,6 @@ CONFIGURE_VARS+= \
 	ac_cv_func_pthread_rwlock_init=yes \
 	ac_cv_func_realloc_0_nonnull=yes \
 	ac_cv_func_setpgrp_void=yes \
-	ac_cv_va_copy=yes \
 	apr_cv_mutex_recursive=yes \
 	apr_cv_mutex_robust_shared=no \
 	apr_cv_process_shared_works=yes \
