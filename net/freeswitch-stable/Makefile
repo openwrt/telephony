@@ -271,6 +271,7 @@ CONFIGURE_VARS+= \
 	ac_cv_file_dbd_apr_dbd_mysql_c=no \
 	ac_cv_func_pthread_rwlock_init=yes \
 	ac_cv_func_sem_open=yes \
+	ac_cv_have_working_memmove=yes \
 	ac_cv_negative_eai=yes \
 	ac_cv_o_nonblock_inherited=no \
 	ac_cv_struct_rlimit=yes \
