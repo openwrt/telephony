@@ -270,10 +270,16 @@ CONFIGURE_VARS+= \
 	ac_cv_file__dev_urandom=yes \
 	ac_cv_file_dbd_apr_dbd_mysql_c=no \
 	ac_cv_func_pthread_rwlock_init=yes \
+	ac_cv_func_sem_open=yes \
+	ac_cv_negative_eai=yes \
+	ac_cv_o_nonblock_inherited=no \
+	ac_cv_struct_rlimit=yes \
 	apr_cv_epoll=yes \
+	apr_cv_gai_addrconfig=yes \
 	apr_cv_mutex_recursive=yes \
 	apr_cv_mutex_robust_shared=no \
 	apr_cv_process_shared_works=yes \
+	apr_cv_pthreads_lib=-lpthread \
 	apr_cv_tcp_nodelay_with_cork=yes \
 	apr_cv_type_rwlock_t=yes
 
