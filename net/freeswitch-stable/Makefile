@@ -258,11 +258,7 @@ CONFIGURE_VARS+= \
 CONFIGURE_VARS+= \
 	ac_cv_gcc_supports_w_no_unused_result=no
 
-# Some cross-compile hints, mostly for apr. apr_cv_mutex_robust_shared
-# is set to "no" because the apr included in FreeSWITCH is not POSIX
-# compliant as far as robust shared mutexes are concerned, see
-# http://www.openwall.com/lists/musl/2016/11/26/1.
-
+# The autoconf variables in this block are OK for both musl and glibc
 CONFIGURE_VARS+= \
 	ac_cv_file__dev_ptmx=yes \
 	ac_cv_file__dev_urandom=yes \
@@ -276,11 +272,20 @@ CONFIGURE_VARS+= \
 	apr_cv_epoll=yes \
 	apr_cv_gai_addrconfig=yes \
 	apr_cv_mutex_recursive=yes \
-	apr_cv_mutex_robust_shared=no \
 	apr_cv_process_shared_works=yes \
 	apr_cv_pthreads_lib=-lpthread \
 	apr_cv_tcp_nodelay_with_cork=yes \
 	apr_cv_type_rwlock_t=yes
+
+# http://www.openwall.com/lists/musl/2016/11/26/1
+# _Don't_ remove quotes below!
+ifeq ($(CONFIG_LIBC),"musl")
+CONFIGURE_VARS+= \
+	apr_cv_mutex_robust_shared=no
+else
+CONFIGURE_VARS+= \
+	apr_cv_mutex_robust_shared=yes
+endif
 
 # even without --with-core-pgsql-support libpq will be used if installed
 # (by apr-util), so we need to put the brakes on
