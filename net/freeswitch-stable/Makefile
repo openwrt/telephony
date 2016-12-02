@@ -100,6 +100,24 @@ FS_STABLE_MOD_AVAILABLE:= \
 	native_file \
 	rtc \
 	rtmp \
+	say_de \
+	say_en \
+	say_es \
+	say_es_ar \
+	say_fa \
+	say_fr \
+	say_he \
+	say_hr \
+	say_hu \
+	say_it \
+	say_ja \
+	say_nl \
+	say_pl \
+	say_pt \
+	say_ru \
+	say_sv \
+	say_th \
+	say_zh \
 	sndfile \
 	snom \
 	sofia \
@@ -388,6 +406,24 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_loopback,Loopback,A loopback channe
 $(eval $(call Package/$(PKG_NAME)/Module,mod_native_file,Native file,File interface for codec specific file formats.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_rtc,Media streaming,mod_rtc supports media streaming used by WebRTC and mod_verto.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_rtmp,RTMP,Real Time Media Protocol endpoint for FreeSWITCH.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_de,Say for German,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_en,Say for English,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_es,Say for Spanish,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_es_ar,Say for Spanish in Argentina,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_fa,Say for Persian,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_fr,Say for French,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_he,Say for Hebrew,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_hr,Say for Croatian,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_hu,Say for Hungarian,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_it,Say for Italian,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_ja,Say for Japanese,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_nl,Say for Dutch,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_pl,Say for Polish,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_pt,Say for Portuguese,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_ru,Say for Russian,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_sv,Say for Swedish,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_th,Say for Thai,Uses prerecorded sounds to read or say various things.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_say_zh,Say for Chinese dialects,Uses prerecorded sounds to read or say various things.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_sndfile,Soundfile,Adds sound format support via libsndfile.,+libsndfile))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_snom,SNOM,Controlling softkeys on Snom phones.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_sofia,Sofia SIP,SIP module.,))
