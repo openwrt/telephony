@@ -66,10 +66,12 @@ PKG_LICENSE_FILES:= \
 
 FS_STABLE_MOD_AVAILABLE:= \
 	alsa \
+	avmd \
 	blacklist \
 	callcenter \
 	cdr_csv \
 	cdr_sqlite \
+	cidlookup \
 	commands \
 	conference \
 	console \
@@ -77,20 +79,26 @@ FS_STABLE_MOD_AVAILABLE:= \
 	db \
 	dialplan_asterisk \
 	dialplan_xml \
+	dingaling \
 	directory \
+	distributor \
 	dptools \
 	easyroute \
 	enum \
 	esf \
 	esl \
+	event_multicast \
 	event_socket \
 	expr \
 	fifo \
+	format_cdr \
 	fsk \
 	g723_1 \
 	g729 \
 	hash \
 	httapi \
+	http_cache \
+	json_cdr \
 	lcr \
 	local_stream \
 	logfile \
@@ -372,10 +380,12 @@ $(eval $(call BuildPackage,$(PKG_NAME)))
 ################################
 
 $(eval $(call Package/$(PKG_NAME)/Module,mod_alsa,ALSA,Sound card endpoint.,+alsa-lib))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_avmd,Advanced Voice Mail Detection,The Advanced Voice Mail Detection module is designed to detect single-frequency constant-amplitude tones in audio signals.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_blacklist,Blacklist,Blacklist module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_callcenter,Call center,Call queuing application that can be used for call center needs.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_cdr_csv,CDR CSV,CSV call detail record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_cdr_sqlite,CDR SQLite,SQLite CDR module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_cidlookup,CID lookup,Lookup number to name mappings.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_commands,API command,A plethora of API interface commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_conference,Conference room,Conference room module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_console,Console configuration,Allows control over what messages get logged to the console. A bit messy as the settings do not take hold immediately after starting FreeSWITCH.,))
@@ -383,20 +393,26 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_curl,cURL,Allows scripts to make HT
 $(eval $(call Package/$(PKG_NAME)/Module,mod_db,Database,Database key/value store functionality for group dialing and for use as a limit backend.,+libdb47))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_dialplan_asterisk,Asterisk dialplan,Allows you to create dialplans the old-fashioned way.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_dialplan_xml,XML dialplan,Allows you to program dialplans in XML format.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_dingaling,XMPP registration,mod_dingaling provides a generic XMPP registration API that can be used for XMPP integration.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_directory,Directory,Dial by name directory.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_distributor,Round Robin,This module distributes calls to gateways in a weighted round-robin fashion.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_dptools,Dialplan tools,The Dialplan Tools provide a number of apps and utilities for the dialplan.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_easyroute,DID routing,A simple DID routing engine that uses a database lookup to determine how to route an incoming call.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_enum,ENUM routing,Adds support for the Electronic Number Mapping System.,+libldns))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_esf,SIP multicast paging,Holds the multi cast paging application for SIP.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_esl,Remote ESL command,Allows to generate remote ESL commands.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_event_multicast,Event Multicast,This module sends out FreeSWITCH events as multicasts.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_event_socket,Event socket,Sends events via a single socket. Needed for fs_cli to be able to connect to FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_expr,Expression evaluation,Brian Allen Vanderburgs expression evaluation library.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_fifo,FIFO,FIFO module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_format_cdr,Multiformat CDR,This module is a superset of mod_json_cdr and mod_xml_cdr.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_fsk,FSK decoder,Frequency-Shift Keying data transfer.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_g723_1,G.723.1 codec,G.723.1 codec.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_g729,G.729 codec,G.729 codec.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_hash,Hash table,Hashtable key/value store functionality and limit backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_httapi,HT-TAPI,HT-TAPI Hypertext Telephony API.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_http_cache,HTTP Cache,This module allows one to make a HTTP GET request to cache a document and a HTTP PUT to store a document.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_json_cdr,JSON CDR,JSON-based call detail record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_lcr,LCR,Implements Least Cost Routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_local_stream,Local stream,Multiple channels connected to same looped file stream.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_logfile,File logger,File logger.,))
