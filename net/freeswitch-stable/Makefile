@@ -22,8 +22,6 @@
 #   to say no to libpng and freetype and added a workaround for libpq to this
 #   Makefile. But there's more of that stuff, so in case of errors in the end
 #   due to missing depends we'll need to poke around some more.
-# - I won't bother with sound file packages - too big for small routers plus I
-#   don't think we're gonna play many audio files on them anyway.
 # - minimal configuration is available as optional package with deps. 
 
 include $(TOPDIR)/rules.mk
