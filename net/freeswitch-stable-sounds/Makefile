@@ -44,9 +44,11 @@ $(3)
 endef
 define Package/$(PKG_NAME)-$(1)/install
 	$(INSTALL_DIR) $$(1)$(SOUNDS_DIR)
-	$(TAR) -xzf  $(DL_DIR)/freeswitch-sounds-$(1)-$(4).tar.gz -C $$(1)$(SOUNDS_DIR)
-	find $$(1)$(SOUNDS_DIR) -type d -exec chmod 755 {} \;
-	find $$(1)$(SOUNDS_DIR) -type f -exec chmod 644 {} \;
+	$(TAR) --extract --no-same-owner --no-same-permissions --gzip \
+		--file=$(DL_DIR)/freeswitch-sounds-$(1)-$(4).tar.gz \
+		--directory=$$(1)$(SOUNDS_DIR)
+	$(FIND) $$(1)$(SOUNDS_DIR) -type d -exec chmod 755 {} \;
+	$(FIND) $$(1)$(SOUNDS_DIR) -type f -exec chmod 644 {} \;
 endef
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-$(1)),)
 $$(eval $$(call Download,$(PKG_NAME)-$(1)))
