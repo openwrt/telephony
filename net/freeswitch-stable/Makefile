@@ -65,6 +65,7 @@ PKG_LICENSE_FILES:= \
 	libs/tiff-4.0.2/COPYRIGHT
 
 FS_STABLE_MOD_AVAILABLE:= \
+	abstraction \
 	alsa \
 	avmd \
 	blacklist \
@@ -379,6 +380,7 @@ $(eval $(call BuildPackage,$(PKG_NAME)))
 # 4 - Module dependencies
 ################################
 
+$(eval $(call Package/$(PKG_NAME)/Module,mod_abstraction,API abstraction,API abstraction.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_alsa,ALSA,Sound card endpoint.,+alsa-lib))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_avmd,Advanced Voice Mail Detection,The Advanced Voice Mail Detection module is designed to detect single-frequency constant-amplitude tones in audio signals.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_blacklist,Blacklist,Blacklist module.,))
