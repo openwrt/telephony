@@ -38,10 +38,10 @@ start_service() {
     }
   done
 
-  [ -d "$fs_dir_etc" ] && {
-    find "$fs_dir_etc" -type f -exec chown root:"$fs_group" {} \;
-    find "$fs_dir_etc" -type f -exec chmod 640 {} \;
-  }
+  #[ -d "$fs_dir_etc" ] && {
+  #  find "$fs_dir_etc" -type f -exec chown root:"$fs_group" {} \;
+  #  find "$fs_dir_etc" -type f -exec chmod 640 {} \;
+  #}
 
   procd_open_instance
   procd_set_param command freeswitch
