@@ -156,7 +156,7 @@ define Package/$(PKG_NAME)/Example/install/example
 		find -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) \
-		$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$dir; \
+			$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$dir; \
 	done
 	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
 		find -type f -print | sed 's|^./||'); \
