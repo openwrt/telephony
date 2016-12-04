@@ -22,7 +22,6 @@
 #   to say no to libpng and freetype and added a workaround for libpq to this
 #   Makefile. But there's more of that stuff, so in case of errors in the end
 #   due to missing depends we'll need to poke around some more.
-# - minimal configuration is available as optional package with deps. 
 
 include $(TOPDIR)/rules.mk
 
@@ -152,17 +151,18 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
-define Package/$(PKG_NAME)/Configuration/install/conf
+define Package/$(PKG_NAME)/Example/install/example
 	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
 		find -type d -print | sed 's|^./\?||'); \
 	do \
-		$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)/$$$$$$$$dir; \
+		$(INSTALL_DIR) \
+		$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$dir; \
 	done
 	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
 		find -type f -print | sed 's|^./||'); \
 	do \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/conf/$(2)/$$$$$$$$file \
-				$(1)/etc/$(PRG_NAME)/$$$$$$$$file; \
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/conf/$(2)/$$$$$$$$file \
+			$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$file; \
 	done
 endef
 
@@ -236,23 +236,24 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
 endef
 
-define Package/$(PKG_NAME)/Configuration
-define Package/$(PKG_NAME)-config-$(1)
+define Package/$(PKG_NAME)/Example
+define Package/$(PKG_NAME)-example-$(1)
 $(call Package/$(PKG_NAME)/Default)
-  TITLE:=$(2) configuration
-  DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-config-$(1):%,$(4))
-  CONFLICTS:=$(5)
+  TITLE:=Example configuration
+  DEPENDS:=$(PKG_NAME)
+  PKGARCH:=all
 endef
-define Package/$(PKG_NAME)-config-$(1)/description
-$(3)
+define Package/$(PKG_NAME)-example-$(1)/description
+This package does not install any configuration for FreeSWITCH into
+/etc/freeswitch. The system administrator is completely responsible for that
+directory. If you install one of the example configuration packages, it will
+install the corresponding sample configuration to /usr/share/freeswitch/conf
+where you can take a look at it.
 endef
-define Package/$(PKG_NAME)-config-$(1)/conffiles
-/etc/$(PRG_NAME)
+define Package/$(PKG_NAME)-example-$(1)/install
+$(call Package/$(PKG_NAME)/Example/install/example,$$(1),$(1))
 endef
-define Package/$(PKG_NAME)-config-$(1)/install
-$(call Package/$(PKG_NAME)/Configuration/install/conf,$$(1),$(1))
-endef
-$$(eval $$(call BuildPackage,$(PKG_NAME)-config-$(1)))
+$$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
 
 define Package/$(PKG_NAME)/Module
@@ -456,13 +457,16 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_rpc,XML RPC,XML Remote Procedur
 $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_scgi,XML SCGI,Simple Common Gateway Interface.,))
 
 ################################
-# FreeSWITCH configuration
+# FreeSWITCH example configs
 # Params:
 # 1 - Package subname
-# 2 - Package title
-# 3 - Package description
-# 4 - Package dependencies
-# 5 - Package conflicts
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Configuration,minimal,Minimal,The FreeSwitch minimal configuration aims to be a starting point for configuring a new system. It still has a lot of dependencies so maybe you are better off without it.,+freeswitch-stable-mod_console +freeswitch-stable-mod_logfile +freeswitch-stable-mod_xml_rpc +freeswitch-stable-mod_cdr_csv +freeswitch-stable-mod_event_socket +freeswitch-stable-mod_sofia +freeswitch-stable-mod_loopback +freeswitch-stable-mod_commands +freeswitch-stable-mod_conference +freeswitch-stable-mod_db +freeswitch-stable-mod_sndfile +freeswitch-stable-mod_dptools +freeswitch-stable-mod_expr +freeswitch-stable-mod_hash +freeswitch-stable-mod_esf +freeswitch-stable-mod_dialplan_xml +freeswitch-stable-mod_native_file,))
+$(eval $(call Package/$(PKG_NAME)/Example,curl))
+$(eval $(call Package/$(PKG_NAME)/Example,insideout))
+$(eval $(call Package/$(PKG_NAME)/Example,minimal))
+$(eval $(call Package/$(PKG_NAME)/Example,rayo))
+$(eval $(call Package/$(PKG_NAME)/Example,sbc))
+$(eval $(call Package/$(PKG_NAME)/Example,softphone))
+$(eval $(call Package/$(PKG_NAME)/Example,testing))
+$(eval $(call Package/$(PKG_NAME)/Example,vanilla))
