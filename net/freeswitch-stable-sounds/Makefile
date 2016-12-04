@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch-stable-sounds
 PKG_VERSION:=1.0.52
-PKG_RELEASE:=0
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_LICENSE:=MPL-1.1
