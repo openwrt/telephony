@@ -44,24 +44,28 @@ PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
-	Apache-2.0 (apr, apr-util), \
-	BSD-3-Clause (libsrtp), \
-	GPL-3.0+ with font exception (fonts), \
-	libtiff \
-	LGPL-2.0+ (sofia-sip), \
-	LGPL-2.1, GPL-2.0 (spandsp), \
-	MPL-1.1
+	AGPL-3.0 \
+	Apache-2.0 \
+	BSD-2-Clause \
+	BSD-3-Clause \
+	BSD-4-Clause \
+	BSD-like \
+	Beerware \
+	GPL-1.0+ \
+	GPL-2.0 \
+	GPL-2.0+ \
+	GPL-3.0 \
+	ISC \
+	LGPL-2.0+ \
+	LGPL-2.1 \
+	LGPL-2.1+ \
+	MIT/X11 (BSD like) \
+	MPL-1.1 \
+	OpenLDAP \
+	RSA-MD \
+	zlib-acknowledgement
 
-PKG_LICENSE_FILES:= \
-	COPYING \
-	libs/apr/LICENSE \
-	libs/apr-util/LICENSE \
-	libs/libzrtp/src/zrtp_legal.c \
-	libs/sofia-sip/COPYING \
-	libs/sofia-sip/COPYRIGHTS \
-	libs/spandsp/COPYING \
-	libs/srtp/LICENSE \
-	libs/tiff-4.0.2/COPYRIGHT
+PKG_LICENSE_FILES:=debian/copyright
 
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
