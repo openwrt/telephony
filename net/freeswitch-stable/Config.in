@@ -24,13 +24,13 @@ config FS_STABLE_WITH_PGSQL
 
 config FS_STABLE_WITH_SRTP
 	bool "Enable SRTP"
-	default y
+	default n
 	help
 	  Compile with SRTP support.
 
 config FS_STABLE_WITH_ZRTP
 	bool "Enable ZRTP"
-	default y
+	default n
 	help
 	  Compile with ZRTP support.
 
