@@ -256,6 +256,22 @@ endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
 
+define Package/$(PKG_NAME)/Language
+define Package/$(PKG_NAME)-lang-$(1)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2) language files
+  DEPENDS:=$(PKG_NAME)
+  PKGARCH:=all
+endef
+define Package/$(PKG_NAME)-lang-$(1)/description
+This package includes the $(2) language files for FreeSWITCH.
+endef
+define Package/$(PKG_NAME)-lang-$(1)/install
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/lang/$(1),$(PKG_BUILD_DIR)/conf/vanilla/lang/$(1))
+endef
+$$(eval $$(call BuildPackage,$(PKG_NAME)-lang-$(1)))
+endef
+
 define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-$(1)
 $(call Package/$(PKG_NAME)/Default)
@@ -386,6 +402,22 @@ $(eval $(call Package/$(PKG_NAME)/Example,sbc))
 $(eval $(call Package/$(PKG_NAME)/Example,softphone))
 $(eval $(call Package/$(PKG_NAME)/Example,testing))
 $(eval $(call Package/$(PKG_NAME)/Example,vanilla))
+
+################################
+# FreeSWITCH language files
+# Params:
+# 1 - Language code
+# 2 - Language
+################################
+
+$(eval $(call Package/$(PKG_NAME)/Language,de,German))
+$(eval $(call Package/$(PKG_NAME)/Language,en,English))
+$(eval $(call Package/$(PKG_NAME)/Language,es,Spanish))
+$(eval $(call Package/$(PKG_NAME)/Language,fr,French))
+$(eval $(call Package/$(PKG_NAME)/Language,he,Hebrew))
+$(eval $(call Package/$(PKG_NAME)/Language,pt,Portuguese))
+$(eval $(call Package/$(PKG_NAME)/Language,ru,Russian))
+$(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 
 ################################
 # FreeSWITCH modules
