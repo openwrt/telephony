@@ -145,11 +145,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/$(PKG_NAME)/install/lib
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib
-endef
-
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
@@ -164,6 +159,11 @@ define Package/$(PKG_NAME)/install/dir
 	do \
 		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
+endef
+
+define Package/$(PKG_NAME)/install/lib
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib
 endef
 
 define Package/$(PKG_NAME)/install/mod
@@ -373,6 +373,21 @@ endef
 $(eval $(call BuildPackage,$(PKG_NAME)))
 
 ################################
+# FreeSWITCH example configs
+# Params:
+# 1 - Package subname
+################################
+
+$(eval $(call Package/$(PKG_NAME)/Example,curl))
+$(eval $(call Package/$(PKG_NAME)/Example,insideout))
+$(eval $(call Package/$(PKG_NAME)/Example,minimal))
+$(eval $(call Package/$(PKG_NAME)/Example,rayo))
+$(eval $(call Package/$(PKG_NAME)/Example,sbc))
+$(eval $(call Package/$(PKG_NAME)/Example,softphone))
+$(eval $(call Package/$(PKG_NAME)/Example,testing))
+$(eval $(call Package/$(PKG_NAME)/Example,vanilla))
+
+################################
 # FreeSWITCH modules
 # Params:
 # 1 - Package subname
@@ -455,18 +470,3 @@ $(eval $(call Package/$(PKG_NAME)/Module,mod_voicemail,Voicemail,This module pro
 $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_cdr,XML CDR,XML Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_rpc,XML RPC,Allows using the webapi to control FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_xml_scgi,XML SCGI,SCGI XML Gateway.,))
-
-################################
-# FreeSWITCH example configs
-# Params:
-# 1 - Package subname
-################################
-
-$(eval $(call Package/$(PKG_NAME)/Example,curl))
-$(eval $(call Package/$(PKG_NAME)/Example,insideout))
-$(eval $(call Package/$(PKG_NAME)/Example,minimal))
-$(eval $(call Package/$(PKG_NAME)/Example,rayo))
-$(eval $(call Package/$(PKG_NAME)/Example,sbc))
-$(eval $(call Package/$(PKG_NAME)/Example,softphone))
-$(eval $(call Package/$(PKG_NAME)/Example,testing))
-$(eval $(call Package/$(PKG_NAME)/Example,vanilla))
