@@ -166,7 +166,7 @@ define Package/$(PKG_NAME)/install/dir
 	done
 endef
 
-define Package/$(PKG_NAME)/Module/install/mod
+define Package/$(PKG_NAME)/install/mod
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/$(2).so \
 						$(1)/usr/lib/$(PRG_NAME)/mod
@@ -266,7 +266,7 @@ define Package/$(PKG_NAME)-$(1)/description
 $(3)
 endef
 define Package/$(PKG_NAME)-$(1)/install
-$(call Package/$(PKG_NAME)/Module/install/mod,$$(1),$(1))
+$(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
