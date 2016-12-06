@@ -155,18 +155,14 @@ define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
 endef
 
-define Package/$(PKG_NAME)/Example/install/example
-	for dir in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
-		find -type d -print | sed 's|^./\?||'); \
+define Package/$(PKG_NAME)/install/dir
+	for dir in $$$$(shell cd $(2); find -type d -print | sed 's|^./\?||'); \
 	do \
-		$(INSTALL_DIR) \
-			$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$dir; \
+		$(INSTALL_DIR) $(1)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell cd $(PKG_BUILD_DIR)/conf/$(2); \
-		find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell cd $(2); find -type f -print | sed 's|^./||'); \
 	do \
-		$(INSTALL_DATA) $(PKG_BUILD_DIR)/conf/$(2)/$$$$$$$$file \
-			$(1)/usr/share/$(PRG_NAME)/conf/$(2)/$$$$$$$$file; \
+		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
 endef
 
@@ -255,7 +251,7 @@ install the corresponding sample configuration to /usr/share/freeswitch/conf
 where you can take a look at it.
 endef
 define Package/$(PKG_NAME)-example-$(1)/install
-$(call Package/$(PKG_NAME)/Example/install/example,$$(1),$(1))
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/conf/$(1),$(PKG_BUILD_DIR)/conf/$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
