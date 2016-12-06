@@ -8,6 +8,7 @@
 # TODO
 #
 # - try to use system xmlrpc-c once it compiles again :)
+# - fs_ivrd?
 
 # NOTES
 #
@@ -225,8 +226,6 @@ endef
 
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
-$(call Package/$(PKG_NAME)/install/bin,$(1),fs_cli)
-$(call Package/$(PKG_NAME)/install/bin,$(1),gentls_cert)
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)/tls
 	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/fonts
@@ -290,6 +289,24 @@ define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
+endef
+
+define Package/$(PKG_NAME)/Util
+define Package/$(PKG_NAME)-util-$(1)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2) utility
+  DEPENDS:=$(PKG_NAME) $(4)
+  ifeq ($(5),y)
+  PKGARCH:=all
+  endif
+endef
+define Package/$(PKG_NAME)-util-$(1)/description
+$(3)
+endef
+define Package/$(PKG_NAME)-util-$(1)/install
+$(call Package/$(PKG_NAME)/install/bin,$$(1),$(1))
+endef
+$$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
 # we neither need host-perl nor host-php
@@ -507,3 +524,17 @@ $(eval $(call Package/$(PKG_NAME)/Module,voicemail,Voicemail,This module provide
 $(eval $(call Package/$(PKG_NAME)/Module,xml_cdr,XML CDR,XML Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,xml_rpc,XML RPC,Allows using the webapi to control FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,xml_scgi,XML SCGI,SCGI XML Gateway.,))
+
+################################
+# FreeSWITCH utilities
+# Params:
+# 1 - Package subname
+# 2 - Package title
+# 3 - Utility description
+# 4 - Utility dependencies
+# 5 - Utility is a script (y/n)
+################################
+$(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to connect to a FreeSWITCH instance running on the local or a remote system.,$(FS_STABLE_DEPS_BASE) +FS_STABLE_WITH_LIBEDIT:libedit,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by mod_native_file.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
+$(eval $(call Package/$(PKG_NAME)/Util,gentls_cert,TLS certificate,Can be used to create TLS certificates and setup CAs.,+openssl-util,y))
+$(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in any format that is supported by libsndfile.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-sndfile,n))
