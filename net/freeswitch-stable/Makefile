@@ -428,7 +428,7 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 4 - Module dependencies
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Module,mod_abstraction,API abstraction,This module provides a way to create new API functions via regex.,))
+$(eval $(call Package/$(PKG_NAME)/Module,mod_abstraction,API abstraction,This module provides a way to create new API functions via regex rewriting.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_alsa,ALSA,ALSA endpoint module.,+alsa-lib))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_avmd,Advanced voicemail detection,This module attempts to determine when a voicemail system has answered the call.,))
 $(eval $(call Package/$(PKG_NAME)/Module,mod_blacklist,Blacklist helper,This module provides tools to blacklist callers.,))
