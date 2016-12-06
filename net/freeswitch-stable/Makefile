@@ -67,6 +67,25 @@ PKG_LICENSE:= \
 
 PKG_LICENSE_FILES:=debian/copyright
 
+FS_STABLE_DEPS_BASE:= \
+	+FS_STABLE_WITH_PGSQL:libpq \
+	+libopenssl \
+	+libuuid
+
+FS_STABLE_DEPS:= \
+	$(FS_STABLE_DEPS_BASE) \
+	+FS_STABLE_WITH_LIBEDIT:libedit \
+	+FS_STABLE_WITH_ODBC:unixodbc \
+	+libcurl \
+	+libpcre \
+	+libpthread \
+	+librt \
+	+libspeex \
+	+libspeexdsp \
+	+libstdcpp \
+	+libsqlite3 \
+	+zlib
+
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -188,21 +207,7 @@ $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
-  DEPENDS:= \
-	+FS_STABLE_WITH_LIBEDIT:libedit \
-	+FS_STABLE_WITH_ODBC:unixodbc \
-	+FS_STABLE_WITH_PGSQL:libpq \
-	+libcurl \
-	+libopenssl \
-	+libpcre \
-	+libpthread \
-	+librt \
-	+libspeex \
-	+libspeexdsp \
-	+libstdcpp \
-	+libsqlite3 \
-	+libuuid \
-	+zlib
+  DEPENDS:=$(FS_STABLE_DEPS)
   CONFLICTS:=$(PRG_NAME)
 endef
 
