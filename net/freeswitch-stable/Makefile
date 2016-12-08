@@ -389,6 +389,7 @@ CONFIGURE_ARGS+= \
 	--libdir=/usr/lib \
 	--srcdir=$(PKG_BUILD_DIR) \
 	--sysconfdir=/etc \
+	--disable-dependency-tracking \
 	--disable-libvpx \
 	--disable-libyuv \
 	--disable-static \
