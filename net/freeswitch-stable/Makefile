@@ -7,22 +7,17 @@
 
 # TODO
 #
-# - try to use system xmlrpc-c once it compiles again :)
-# - fs_ivrd?
+# - try to use system xmlrpc-c once it compiles again :-)
+# - include fs_ivrd?
 
 # NOTES
 #
-# - --disable-cpp sounds like a good idea - it sounds like we could get rid of
-#   the dep on libstdcpp. Unfortunately that's not the case. The result of
-#   --disable-cpp is that switch_cpp.cpp is not compiled. But there is other
-#   stuff that depends on libstdcpp.
-# - the FreeSWITCH build system is greedy - if it finds a software on your
-#   system (or in your staging area) that it likes, it'll most likely link to
-#   it. That's of course bad when you want to keep deps to a minimum (think
-#   embedded device with limited storage). I've patched configure.ac to be able
-#   to say no to libpng and freetype and added a workaround for libpq to this
-#   Makefile. But there's more of that stuff, so in case of errors in the end
-#   due to missing depends we'll need to poke around some more.
+# - --disable-cpp sounds like we could get rid of the dep on libstdcpp, but it
+#   only results in switch_cpp.cpp not being compiled and there is other stuff
+#   that depends on libstdcpp.
+# - I have patched configure.ac to be able to say no to libpng and freetype and
+#   added a workaround for libpq to this Makefile. If there are errors in the
+#   future due to missing depends we'll need to poke around some more.
 
 include $(TOPDIR)/rules.mk
 
