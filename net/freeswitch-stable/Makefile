@@ -368,7 +368,6 @@ CONFIGURE_ARGS+= \
 	--libdir=/usr/lib \
 	--srcdir=$(PKG_BUILD_DIR) \
 	--sysconfdir=/etc \
-	--disable-debug \
 	--disable-libvpx \
 	--disable-libyuv \
 	--disable-static \
@@ -399,6 +398,10 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
+
+ifeq ($(CONFIG_FS_STABLE_WITH_DEBUG),)
+CONFIGURE_ARGS+=--disable-debug
+endif
 
 define Build/Prepare
 	$(call Build/Prepare/Default)

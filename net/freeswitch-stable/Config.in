@@ -1,6 +1,14 @@
 menu "Advanced configuration"
 	depends on PACKAGE_freeswitch-stable
 
+config FS_STABLE_WITH_DEBUG
+	bool "Compile with debug information"
+	default n
+	help
+	  Enable extra debug codepaths, like asserts and extra output. If you
+	  want to get meaningful backtraces see
+	  https://wiki.openwrt.org/doc/devel/debugging for starting points.
+
 config FS_STABLE_WITH_LIBEDIT
 	bool "Compile with libedit support"
 	default n
