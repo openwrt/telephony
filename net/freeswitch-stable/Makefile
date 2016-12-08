@@ -375,8 +375,7 @@ endif
 
 # even without --with-core-pgsql-support libpq will be used if installed
 # (by apr-util), so we need to put the brakes on
-ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),y)
-else
+ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),)
 CONFIGURE_VARS+= \
 	ac_cv_lib_pq_PQsendQueryPrepared=no
 endif
