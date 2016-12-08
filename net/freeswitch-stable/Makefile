@@ -417,7 +417,8 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
 
 ifeq ($(CONFIG_FS_STABLE_WITH_DEBUG),)
-CONFIGURE_ARGS+=--disable-debug
+CONFIGURE_ARGS+= \
+	--disable-debug
 endif
 
 define Build/Prepare
