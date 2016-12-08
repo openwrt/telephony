@@ -244,6 +244,24 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
 endef
 
+define Package/$(PKG_NAME)-timezones
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Timezones file
+  DEPENDS:=$(PKG_NAME)
+  PKGARCH:=all
+endef
+
+define Package/$(PKG_NAME)-timezones/description
+This package includes a timezones file for FreeSWITCH.
+endef
+
+define Package/$(PKG_NAME)-timezones/install
+	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/tz
+	$(INSTALL_DATA) \
+	$(PKG_BUILD_DIR)/conf/vanilla/autoload_configs/timezones.conf.xml \
+						$(1)/usr/share/$(PRG_NAME)/tz
+endef
+
 define Package/$(PKG_NAME)/Example
 define Package/$(PKG_NAME)-example-$(1)
 $(call Package/$(PKG_NAME)/Default)
@@ -416,6 +434,7 @@ define Build/Prepare
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)-timezones))
 
 ################################
 # FreeSWITCH example configs
