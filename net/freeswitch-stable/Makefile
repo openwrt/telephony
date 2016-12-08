@@ -120,6 +120,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	g723_1 \
 	g729 \
 	hash \
+	hiredis \
 	httapi \
 	http_cache \
 	json_cdr \
@@ -127,7 +128,10 @@ FS_STABLE_MOD_AVAILABLE:= \
 	local_stream \
 	logfile \
 	loopback \
+	lua \
 	native_file \
+	odbc_cdr \
+	redis \
 	rtc \
 	rtmp \
 	say_de \
@@ -485,6 +489,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,fsk,FSK,This module adds frequency-shif
 $(eval $(call Package/$(PKG_NAME)/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g729,G.729 passthrough,G.729 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a limit backend.,))
+$(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,libhiredis))
 $(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an API for controlling the switch by responding to HTTP requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the result is cached.,))
 $(eval $(call Package/$(PKG_NAME)/Module,json_cdr,JSON CDR,JSON-based call detail record handler.,))
@@ -492,7 +497,10 @@ $(eval $(call Package/$(PKG_NAME)/Module,lcr,LCR,This module adds a facility for
 $(eval $(call Package/$(PKG_NAME)/Module,local_stream,Local stream,Connects multiple channels to a looped stream.,))
 $(eval $(call Package/$(PKG_NAME)/Module,logfile,File logger,Logs FreeSWITCH output to a file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,loopback,Loopback,A loopback channel driver.,))
+$(eval $(call Package/$(PKG_NAME)/Module,lua,Lua,Lua language interface for FreeSWITCH.,+liblua))
 $(eval $(call Package/$(PKG_NAME)/Module,native_file,Native file,Plays files that are already encoded in the right format.,))
+$(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
+$(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data store.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtc,Media streaming,Media streaming as used by WebRTC and mod_verto.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtmp,RTMP,RTMP endpoint support. Allows FreeSWITCH to be used from RTMP clients.,))
 $(eval $(call Package/$(PKG_NAME)/Module,say_de,Say for German,Uses prerecorded sounds to read or say various things.,))
