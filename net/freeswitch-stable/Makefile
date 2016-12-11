@@ -375,6 +375,10 @@ CONFIGURE_VARS+= \
 	ac_cv_lib_pq_PQsendQueryPrepared=no
 endif
 
+# fs_cli
+CONFIGURE_VARS+= \
+	disable_cc=yes
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
