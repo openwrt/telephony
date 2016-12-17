@@ -15,9 +15,9 @@
 # - --disable-cpp sounds like we could get rid of the dep on libstdcpp, but it
 #   only results in switch_cpp.cpp not being compiled and there is other stuff
 #   that depends on libstdcpp.
-# - I have patched configure.ac to be able to say no to libpng and freetype and
-#   added a workaround for libpq to this Makefile. If there are errors in the
-#   future due to missing depends we'll need to poke around some more.
+# - I have patched configure.ac to be able to say no to libpng and freetype. If
+#   there are errors in the future due to missing depends we'll need to poke
+#   around some more.
 
 include $(TOPDIR)/rules.mk
 
@@ -368,13 +368,6 @@ CONFIGURE_VARS+= \
 	apr_cv_mutex_robust_shared=yes
 endif
 
-# even without --with-core-pgsql-support libpq will be used if installed
-# (by apr-util), so we need to put the brakes on
-ifeq ($(CONFIG_FS_STABLE_WITH_PGSQL),)
-CONFIGURE_VARS+= \
-	ac_cv_lib_pq_PQsendQueryPrepared=no
-endif
-
 # fs_cli
 CONFIGURE_VARS+= \
 	disable_cc=yes
@@ -418,7 +411,7 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support)
+	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql)
 
 ifeq ($(CONFIG_FS_STABLE_WITH_DEBUG),)
 CONFIGURE_ARGS+= \
