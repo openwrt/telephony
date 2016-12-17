@@ -409,14 +409,10 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
+        $(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql)
-
-ifeq ($(CONFIG_FS_STABLE_WITH_DEBUG),)
-CONFIGURE_ARGS+= \
-	--disable-debug
-endif
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
