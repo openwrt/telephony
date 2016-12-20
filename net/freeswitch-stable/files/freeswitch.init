@@ -48,7 +48,8 @@ start_service() {
   # wiki says: "If you set the file locations of any one of -conf, -log,
   # or -db you must set all three."
   # https://freeswitch.org/confluence/display/FREESWITCH/Command+Line+Switches
-  procd_append_param command -c -cache "$fs_dir_cache" \
+  # "-nc -nf": workaround for compat issue causing high load
+  procd_append_param command -nc -nf -cache "$fs_dir_cache" \
     -conf "$fs_dir_etc" -db "$fs_dir_db" -log "$fs_dir_log" \
     -recordings "$fs_dir_recordings" -run "$fs_dir_run" \
     -storage "$fs_dir_storage" -temp "$fs_dir_temp" $OPTIONS
