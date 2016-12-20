@@ -32,7 +32,7 @@ config FS_STABLE_WITH_PGSQL
 
 config FS_STABLE_WITH_SRTP
 	bool "Enable SRTP"
-	default n
+	default y
 	help
 	  Compile with SRTP support.
 
