@@ -323,6 +323,23 @@ endef
 define Package/$(PKG_NAME)-util-$(1)/install
 $(call Package/$(PKG_NAME)/install/bin,$$(1),$(1))
 endef
+ifeq ($(1)$(CONFIG_FS_STABLE_WITH_LIBEDIT),fs_cli)
+define Package/$(PKG_NAME)-util-$(1)/postinst
+#!/bin/sh
+echo
+echo "+-----------------------------------------------------------------------+"
+echo "| fs_cli note                                                           |"
+echo "+-----------------------------------------------------------------------+"
+echo "| Your FreeSWITCH was compiled without libedit support. Due to an       |"
+echo "| interop issue it's possible that when you try to exit fs_cli with     |"
+echo "| Ctrl-D, you'll see messages flashing by and have to kill fs_cli       |"
+echo "| manually. To avoid this you can either use Ctrl-C instead (fs_cli     |"
+echo "| needs to be started with '-i' for this to work; you could create an   |"
+echo "| appropriate alias in /etc/profile) or type /exit, /quit or /bye.      |"
+echo "+-----------------------------------------------------------------------+"
+echo
+endef
+endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
