@@ -1,0 +1,20 @@
+--- a/src/mod/applications/mod_avmd/mod_avmd.c
++++ b/src/mod/applications/mod_avmd/mod_avmd.c
+@@ -43,6 +43,7 @@
+ #define ISINF(x) (isinf(x))
+ #else
+ int __isnan(double);
++int __isinf(double);
+ #define ISNAN(x) (__isnan(x))
+ #define ISINF(x) (__isinf(x))
+ #endif
+--- a/src/mod/applications/mod_avmd/avmd_desa2_tweaked.c
++++ b/src/mod/applications/mod_avmd/avmd_desa2_tweaked.c
+@@ -17,6 +17,7 @@
+     #define ISINF(x) (isinf(x))
+ #else
+     int __isnan(double);
++    int __isinf(double);
+     #define ISNAN(x) (__isnan(x))
+     #define ISINF(x) (__isinf(x))
+ #endif

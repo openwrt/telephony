@@ -352,10 +352,6 @@ CONFIGURE_VARS+= \
 	ac_cv_prog_PHP_CONFIG=false \
 	ac_cv_have_php_config=no
 
-# build breaks with -Werror enabled
-CONFIGURE_VARS+= \
-	ac_cv_gcc_supports_w_no_unused_result=no
-
 # The autoconf variables in this block are OK for both musl and glibc
 CONFIGURE_VARS+= \
 	ac_cv_file__dev_ptmx=yes \
