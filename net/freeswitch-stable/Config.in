@@ -11,7 +11,7 @@ config FS_STABLE_WITH_DEBUG
 
 config FS_STABLE_WITH_LIBEDIT
 	bool "Compile with libedit support"
-	default n
+	default y
 	help
 	  Compile with libedit support to enable command-line history editing
 	  and curses functionality. Of course this feels nicer when interacting
