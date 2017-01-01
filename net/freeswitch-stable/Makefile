@@ -204,7 +204,7 @@ endef
 
 define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
-  TITLE:=FreeSWITCH open source telephony platform, v$(PKG_VERSION)
+  TITLE:=Open source telephony platform, v$(PKG_VERSION)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:=$(FS_STABLE_DEPS)
@@ -212,9 +212,9 @@ $(call Package/$(PKG_NAME)/Default)
 endef
 
 define Package/$(PKG_NAME)/description
-FreeSWITCH is a scalable open source cross-platform telephony platform designed
-to route and interconnect popular communication protocols using audio, video,
-text or any other form of media.
+FreeSWITCH is a scalable open source cross-platform telephony platform
+designed to route and interconnect popular communication protocols
+using audio, video, text or any other form of media.
 endef
 
 define Package/$(PKG_NAME)/conffiles
@@ -266,10 +266,10 @@ $(call Package/$(PKG_NAME)/Default)
 endef
 define Package/$(PKG_NAME)-example-$(1)/description
 This package does not install any configuration for FreeSWITCH into
-/etc/freeswitch. The system administrator is completely responsible for that
-directory. If you install one of the example configuration packages, it will
-install the corresponding sample configuration to /usr/share/freeswitch/conf
-where you can take a look at it.
+/etc/freeswitch. The system administrator is completely responsible
+for that directory. If you install one of the example configuration
+packages, it will install the corresponding sample configuration to
+/usr/share/freeswitch/conf where you can take a look at it.
 endef
 define Package/$(PKG_NAME)-example-$(1)/install
 $(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/conf/$(1),$(PKG_BUILD_DIR)/conf/$(1))
