@@ -27,6 +27,8 @@ fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
 fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
 
 start_service() {
+  local dir=""
+
   if [ -f "/etc/freeswitch_disabled" ]; then
     echo
     echo "o-------------------------------------------------------------------o"
@@ -55,9 +57,7 @@ start_service() {
 
   procd_open_instance
   procd_set_param command freeswitch
-  # wiki says: "If you set the file locations of any one of -conf, -log,
-  # or -db you must set all three."
-  # https://freeswitch.org/confluence/display/FREESWITCH/Command+Line+Switches
+  # need to specify all or none of -conf, -log, and -db
   procd_append_param command -cache "$fs_dir_cache" -conf \
     "$fs_dir_etc" -db "$fs_dir_db" -log "$fs_dir_log" -recordings \
     "$fs_dir_recordings" -run "$fs_dir_run" -storage "$fs_dir_storage" \
@@ -75,13 +75,17 @@ start_service() {
 }
 
 stop_service() {
-  local retval
-  local mypid
+  local retval=""
+  local mypid=""
+
   [ -f "$fs_dir_run"/freeswitch.pid ] || exit 0
+
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
   kill $mypid
+
   pidof freeswitch | grep $mypid &>/dev/null
   retval="$?"
+
   while [ $retval -ne 1 ]; do
     sleep 1
     pidof freeswitch | grep $mypid &>/dev/null
