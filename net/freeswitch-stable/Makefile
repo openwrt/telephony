@@ -393,7 +393,8 @@ CONFIGURE_VARS+= \
 # _Don't_ remove quotes below!
 ifeq ($(CONFIG_LIBC),"musl")
 CONFIGURE_VARS+= \
-	apr_cv_mutex_robust_shared=no
+	apr_cv_mutex_robust_shared=no \
+	ac_cv_strerror_r_rc_int=yes
 else
 CONFIGURE_VARS+= \
 	apr_cv_mutex_robust_shared=yes
