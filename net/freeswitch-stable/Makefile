@@ -389,6 +389,7 @@ CONFIGURE_VARS+= \
 	apr_cv_tcp_nodelay_with_cork=yes \
 	apr_cv_type_rwlock_t=yes
 
+# Regarding apr_cv_mutex_robust_shared=no see
 # http://www.openwall.com/lists/musl/2016/11/26/1
 # _Don't_ remove quotes below!
 ifeq ($(CONFIG_LIBC),"musl")

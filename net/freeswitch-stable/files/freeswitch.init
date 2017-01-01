@@ -63,7 +63,7 @@ start_service() {
     "$fs_dir_recordings" -run "$fs_dir_run" -storage "$fs_dir_storage" \
     -temp "$fs_dir_temp"
   procd_append_param command -c
-  # -nc -nf: workaround for interop issue (which causes high load
+  # -nc -nf: workaround for interop issue (which causes high load)
   #procd_append_param command -nc -nf
   procd_append_param command $OPTIONS
   procd_set_param user "$fs_user"
