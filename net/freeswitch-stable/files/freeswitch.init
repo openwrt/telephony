@@ -27,6 +27,16 @@ fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
 fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
 
 start_service() {
+  if [ -f "/etc/freeswitch_disabled" ]; then
+    echo
+    echo "o-------------------------------------------------------------------o"
+    echo "| The file '/etc/freeswitch_disabled' is preventing the start of    |"
+    echo "| FreeSWITCH. Simply remove it once you're ready.                   |"
+    echo "o-------------------------------------------------------------=^_^=-o"
+    echo
+    exit 0
+  fi
+
   for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_localstate" \
     "$fs_dir_log" "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
     "$fs_dir_temp"

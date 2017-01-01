@@ -242,6 +242,15 @@ ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
 endif
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  # Prevent autostart of $(PRG_NAME)
+  touch /etc/$(PRG_NAME)_disabled
+fi
+exit 0
+endef
+
 define Package/$(PKG_NAME)-timezones
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Timezones file
