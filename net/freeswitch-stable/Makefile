@@ -454,6 +454,13 @@ define Build/Prepare
 		$(SED) '/mod_$(m)/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 endef
 
+# work around libtool issue which results in unquoted AS variable
+define Build/Configure
+	$(call Build/Configure/Default)
+	$(SED) "/^AS=/s/^AS=/AS='/;/^AS=/s/\$$$$/'/" \
+		$(PKG_BUILD_DIR)/libs/apr-util/xml/expat/libtool
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-timezones))
 
