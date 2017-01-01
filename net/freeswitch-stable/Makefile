@@ -312,7 +312,7 @@ $(call Package/$(PKG_NAME)/Default)
   DEPENDS:=$(PKG_NAME) $(4)
 endef
 define Package/$(PKG_NAME)-mod-$(1)/description
-$(3)
+$(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
@@ -330,7 +330,7 @@ $(call Package/$(PKG_NAME)/Default)
   endif
 endef
 define Package/$(PKG_NAME)-util-$(1)/description
-$(3)
+$(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-util-$(1)/install
 $(call Package/$(PKG_NAME)/install/bin,$$(1),$(1))
@@ -338,18 +338,22 @@ endef
 ifeq ($(1)$(CONFIG_FS_STABLE_WITH_LIBEDIT),fs_cli)
 define Package/$(PKG_NAME)-util-$(1)/postinst
 #!/bin/sh
-echo
-echo "+-----------------------------------------------------------------------+"
-echo "| fs_cli note                                                           |"
-echo "+-----------------------------------------------------------------------+"
-echo "| Your FreeSWITCH was compiled without libedit support. Due to an       |"
-echo "| interop issue it's possible that when you try to exit fs_cli with     |"
-echo "| Ctrl-D, you'll see messages flashing by and have to kill fs_cli       |"
-echo "| manually. To avoid this you can either use Ctrl-C instead (fs_cli     |"
-echo "| needs to be started with '-i' for this to work; you could create an   |"
-echo "| appropriate alias in /etc/profile) or type /exit, /quit or /bye.      |"
-echo "+-----------------------------------------------------------------------+"
-echo
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| fs_cli note                                                       |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Your FreeSWITCH was compiled without libedit support. Due to an   |"
+  echo "| interop issue it's possible that when you try to exit fs_cli with |"
+  echo "| Ctrl-D, you'll see messages flashing by and have to kill fs_cli   |"
+  echo "| manually. To avoid this you can either use Ctrl-C instead (fs_cli |"
+  echo "| needs to be started with '-i' for this to work; you could create  |"
+  echo "| an appropriate alias in /etc/profile) or type /exit, /quit or     |"
+  echo "| /bye.                                                             |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
@@ -490,19 +494,19 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 4 - Module dependencies
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Module,abstraction,API abstraction,This module provides a way to create new API functions via regex rewriting.,))
+$(eval $(call Package/$(PKG_NAME)/Module,abstraction,API abstraction,This module provides a way to create new API functions via regex\nrewriting.,))
 $(eval $(call Package/$(PKG_NAME)/Module,alsa,ALSA endpoint,ALSA endpoint module.,+alsa-lib))
-$(eval $(call Package/$(PKG_NAME)/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered the call.,))
+$(eval $(call Package/$(PKG_NAME)/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
 $(eval $(call Package/$(PKG_NAME)/Module,blacklist,Blacklist helper,This module provides tools to blacklist callers.,))
 $(eval $(call Package/$(PKG_NAME)/Module,callcenter,Call center,This module implements Automated Call Distribution queues.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_csv,CSV CDR,CSV Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_sqlite,SQLite CDR,SQLite Call Detail Record handler.,))
-$(eval $(call Package/$(PKG_NAME)/Module,cidlookup,Caller ID lookup,This module provides an API for querying caller ID name and location data.,))
+$(eval $(call Package/$(PKG_NAME)/Module,cidlookup,Caller ID lookup,This module provides an API for querying caller ID name and location\ndata.,))
 $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides miscellaneous API commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
-$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. This module is not needed currently because the init script starts FreeSWITCH without console output to work around an interoperability issue.,))
+$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. When\nFreeSWITCH is compiled without libedit support - this is not the\ndefault - mod_console has no effect because the init script starts\nFreeSWITCH with the console disabled to work around an\ninteroperability issue that causes high CPU load.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
-$(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be used as a limit db backend.,+libdb47))
+$(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be\nused as a limit db backend.,+libdb47))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_asterisk,Asterisk dialplan,Asterisk extensions.conf style dialplan parser.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_xml,XML dialplan,Standard FreeSWITCH XML dialplan support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dingaling,Generic XMPP,Allows FreeSWITCH to be used as a client for XMPP Servers.,))
@@ -518,13 +522,13 @@ $(eval $(call Package/$(PKG_NAME)/Module,event_socket,Event socket,Sends events 
 $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support for expression evaluation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
-$(eval $(call Package/$(PKG_NAME)/Module,fsk,FSK,This module adds frequency-shift keying support which can be used to send and receive caller ID.,))
+$(eval $(call Package/$(PKG_NAME)/Module,fsk,FSK,This module adds frequency-shift keying support which can be used to\nsend and receive caller ID.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g729,G.729 passthrough,G.729 codec passthrough.,))
-$(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a limit backend.,))
+$(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a\nlimit backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,libhiredis))
-$(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an API for controlling the switch by responding to HTTP requests.,))
-$(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the result is cached.,))
+$(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an API for controlling the switch by responding\nto HTTP requests.,))
+$(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
 $(eval $(call Package/$(PKG_NAME)/Module,json_cdr,JSON CDR,JSON-based Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,lcr,LCR,This module adds a facility for least-cost routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,local_stream,Local stream,Connects multiple channels to a looped stream.,))
@@ -533,7 +537,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,loopback,Loopback,A loopback channel dr
 $(eval $(call Package/$(PKG_NAME)/Module,lua,Lua,Lua language interface for FreeSWITCH.,+liblua))
 $(eval $(call Package/$(PKG_NAME)/Module,native_file,Native file,Plays files that are already encoded in the right format.,))
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
-$(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data store.,))
+$(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtc,Media streaming,Media streaming as used by WebRTC and mod_verto.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtmp,RTMP endpoint,RTMP endpoint support. Allows FreeSWITCH to be used from RTMP clients.,))
 $(eval $(call Package/$(PKG_NAME)/Module,say_de,German Say,Uses prerecorded sounds to read or say various things.,))
@@ -557,7 +561,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,say_zh,Chinese Say,Uses prerecorded sou
 $(eval $(call Package/$(PKG_NAME)/Module,sndfile,Soundfile,Adds sound format support via libsndfile.,+libsndfile))
 $(eval $(call Package/$(PKG_NAME)/Module,snom,SNOM,This module implements features specific to SNOM phones.,))
 $(eval $(call Package/$(PKG_NAME)/Module,sofia,Sofia SIP,SIP module.,))
-$(eval $(call Package/$(PKG_NAME)/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec functionality.,+libjpeg +liblzma))
+$(eval $(call Package/$(PKG_NAME)/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec\nfunctionality.,+libjpeg +liblzma))
 $(eval $(call Package/$(PKG_NAME)/Module,spy,User Spy,This module adds the ability to monitor the audio of a channel.,))
 $(eval $(call Package/$(PKG_NAME)/Module,syslog,Syslog logger,Logs FreeSWITCH output to the syslog.,))
 $(eval $(call Package/$(PKG_NAME)/Module,tone_stream,Tone stream,Tone generation stream.,))
@@ -578,7 +582,8 @@ $(eval $(call Package/$(PKG_NAME)/Module,xml_scgi,XML SCGI,SCGI XML Gateway.,))
 # 4 - Utility dependencies
 # 5 - Utility is a script (y/n)
 ################################
-$(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to connect to a FreeSWITCH instance running on the local or a remote system.,$(FS_STABLE_DEPS_BASE) +FS_STABLE_WITH_LIBEDIT:libedit,n))
-$(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by mod_native_file.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
+
+$(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to\nconnect to a FreeSWITCH instance running on the local or a remote\nsystem.,$(FS_STABLE_DEPS_BASE) +FS_STABLE_WITH_LIBEDIT:libedit,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by\nmod_native_file.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
 $(eval $(call Package/$(PKG_NAME)/Util,gentls_cert,TLS certificate,Can be used to create TLS certificates and setup CAs.,+openssl-util,y))
-$(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in any format that is supported by libsndfile.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-sndfile,n))
+$(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in\nany format that is supported by libsndfile.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-sndfile,n))
