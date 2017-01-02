@@ -36,7 +36,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 # configure fails without libjpeg, but it's only needed for mod_spandsp
 PKG_BUILD_DEPENDS:=libjpeg
 
-PKG_FIXUP:=autoreconf
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -455,11 +455,10 @@ define Build/Prepare
 		$(SED) '/mod_$(m)/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 endef
 
-# work around libtool issue which results in unquoted AS variable
 define Build/Configure
+	find $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
+	cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./rebootstrap.sh
 	$(call Build/Configure/Default)
-	$(SED) "/^AS=/s/^AS=/AS='/;/^AS=/s/\$$$$/'/" \
-		$(PKG_BUILD_DIR)/libs/apr-util/xml/expat/libtool
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
