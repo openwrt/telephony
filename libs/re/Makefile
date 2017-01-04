@@ -26,7 +26,7 @@ define Package/libre
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libopenssl +libpthread
+  DEPENDS:=+libopenssl +libpthread +zlib
   TITLE:=Generic library for real-time communications with async IO support
   URL:=http://www.creytiv.com/
 endef
