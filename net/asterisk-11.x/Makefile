@@ -278,6 +278,13 @@ AST_MENUSELECT_OPTS = \
 	--with-ncurses="$(STAGING_DIR)/host/usr" \
 	--with-libxml2="$(STAGING_DIR)/host/usr"
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifneq ($(CONFIG_TARGET_lantiq),)
+	$(CP) ./src-lantiq/* $(PKG_BUILD_DIR)/
+endif
+endef
+
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		./bootstrap.sh; \
@@ -379,6 +386,7 @@ $(eval $(call BuildAsterisk11Module,chan-alsa,ALSA channel,the channel chan_alsa
 $(eval $(call BuildAsterisk11Module,chan-agent,Agents proxy channel,an implementation of agents proxy channel,,,,chan_agent,))
 $(eval $(call BuildAsterisk11Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
 $(eval $(call BuildAsterisk11Module,chan-iax2,IAX2 channel,IAX support,+asterisk11-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
+$(eval $(call BuildAsterisk11Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))
 $(eval $(call BuildAsterisk11Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk11-res-xmpp,/etc/asterisk/motif.conf /etc/asterisk/jingle.conf,motif.conf jingle.conf,chan_motif,))
 $(eval $(call BuildAsterisk11Module,chan-ooh323,ooH323 channel,the channel chan_ooh323,,/etc/asterisk/ooh323.conf,ooh323.conf,chan_ooh323,))
