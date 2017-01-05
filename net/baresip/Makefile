@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.4.19
+PKG_VERSION:=0.5.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=18260d41b608dcc9c637a18749c8759c
+PKG_MD5SUM:=4c364f4bb2cf17f83b6ff2b35962fd94258158202dfa566f68531e8ba77c1436
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -29,10 +29,8 @@ baresip-mods:= \
 	g711 \
 	g722 \
 	g726 \
+	opus \
 	oss \
-	speex \
-	speex-aec \
-	speex-pp \
 	stdio \
 	v4l \
 	v4l2
@@ -64,10 +62,8 @@ baresip-mod-evdev     := USE_EVDEV
 baresip-mod-g711      := USE_G711
 baresip-mod-g722      := USE_G722
 baresip-mod-g726      := USE_G726
+baresip-mod-opus      := USE_OPUS
 baresip-mod-oss       := USE_OSS
-baresip-mod-speex     := USE_SPEEX
-baresip-mod-speex-aec := USE_SPEEX_AEC
-baresip-mod-speex-pp  := USE_SPEEX_PP
 baresip-mod-stdio     := USE_STDIO
 baresip-mod-v4l       := USE_V4L
 baresip-mod-v4l2      := USE_V4L2
@@ -150,10 +146,8 @@ $(eval $(call BuildPlugin,g711,G.711 audio codec,g711,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+PACKAGE_baresip-mod-g722:libspandsp))
 $(eval $(call BuildPlugin,g726,G.726 audio codec,g726,+PACKAGE_baresip-mod-g726:libspandsp))
 $(eval $(call BuildPlugin,httpd,Webserver UI module,httpd,))
+$(eval $(call BuildPlugin,opus,Opus audio codec,opus,+PACKAGE_baresip-mod-opus:libopus))
 $(eval $(call BuildPlugin,oss,OSS audio driver,oss,))
-$(eval $(call BuildPlugin,speex,Speex audio codec,speex,+PACKAGE_baresip-mod-speex:libspeex))
-$(eval $(call BuildPlugin,speex-aec,Speex Acoustic Echo Cancellation,speex_aec,+PACKAGE_baresip-mod-speex-aec:libspeex))
-$(eval $(call BuildPlugin,speex-pp,Speex Pre-processor,speex_pp,+PACKAGE_baresip-mod-speex-pp:libspeex))
 $(eval $(call BuildPlugin,stdio,standard I/O UI,stdio,))
 $(eval $(call BuildPlugin,v4l,Video4Linux video source,v4l,+PACKAGE_baresip-mod-v4l:libv4l))
 $(eval $(call BuildPlugin,v4l2,Video4Linux2 video source,v4l2,+PACKAGE_baresip-mod-v4l2:libv4l))
