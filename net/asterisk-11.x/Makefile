@@ -210,6 +210,14 @@ else
 	--without-postgres
 endif
 
+ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
+  CONFIGURE_ARGS+= \
+	--with-spandsp="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-spandsp
+endif
+
 ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-srtp),)
   CONFIGURE_ARGS+= \
 	--with-srtp="$(STAGING_DIR)/usr"
@@ -255,7 +263,6 @@ CONFIGURE_ARGS+= \
 	--without-pwlib \
 	--without-radius \
 	--without-sdl \
-	--without-spandsp \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
 	--without-suppserv \
@@ -437,6 +444,8 @@ $(eval $(call BuildAsterisk11Module,res-ael-share,Shareable AEL code,support for
 $(eval $(call BuildAsterisk11Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,,,,res_agi,))
 $(eval $(call BuildAsterisk11Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,/etc/asterisk/calendar.conf,calendar.conf,res_calendar,,))
 $(eval $(call BuildAsterisk11Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,,res_clioriginate,))
+$(eval $(call BuildAsterisk11Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk11-res-fax +libspandsp +libtiff,,,res_fax_spandsp,))
+$(eval $(call BuildAsterisk11Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk11-res-timing-pthread,/etc/asterisk/res_fax.conf,res_fax.conf,res_fax,))
 $(eval $(call BuildAsterisk11Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,,res_monitor,))
 $(eval $(call BuildAsterisk11Module,res-musiconhold,MOH,Music On Hold support,,/etc/asterisk/musiconhold.conf,musiconhold.conf,res_musiconhold,))
 $(eval $(call BuildAsterisk11Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,/etc/asterisk/phoneprov.conf,phoneprov.conf,res_phoneprov,))

@@ -207,7 +207,7 @@ CONFIGURE_ARGS+= \
 	--with-popt="$(STAGING_DIR)/usr" \
 	--without-pwlib \
 	--without-radius \
-	--without-spandsp \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),--with-iksemel="$(STAGING_DIR)/usr",--without-iksemel) \
 	--without-sdl \
 	--without-sqlite \
@@ -391,6 +391,8 @@ $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate cal
 $(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,,,,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-pjsip,PJSIP HEPv3 Logger,,+asterisk13-res-hep +asterisk13-pjsip,,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-rtcp,RTCP HEPv3 Logger,,+asterisk13-res-hep,,res_hep,,))
+$(eval $(call BuildAsterisk13Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk13-res-fax +libspandsp +libtiff,,res_fax_spandsp,,))
+$(eval $(call BuildAsterisk13Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk13-res-timing-pthread,res_fax.conf,res_fax,,))
 $(eval $(call BuildAsterisk13Module,res-http-websocket,HTTP websocket support,,,,res_http_websocket,,))
 $(eval $(call BuildAsterisk13Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,res_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
