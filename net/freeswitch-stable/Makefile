@@ -238,7 +238,8 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
 ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
-	$(SED) '/-c$$$$/s/^  /  #/;/-nf$$$$/s/#//' $(1)/etc/init.d/$(PRG_NAME)
+	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
+						$(1)/etc/init.d/$(PRG_NAME)
 endif
 endef
 
