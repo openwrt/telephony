@@ -18,3 +18,23 @@
 
 # The following is appended to the command line when starting FreeSWITCH:
 OPTIONS="-np -nonat"
+
+### Hotplug configuration ###
+
+# Only used by the FreeSWITCH hotplug script (available in a seperate package).
+
+# Provide the interface that needs to change its state to "up" (if unset the
+# hotplug script does nothing):
+#FS_HOTPLUG_INTERFACE="wan"
+
+# You can add conditions which need to be met before FreeSWITCH is started.
+
+# Uncomment to check if something is mounted here:
+#FS_HOTPLUG_MOUNTPOINT="/mnt/usb"
+
+# Uncomment to check if ntpd is running and has set the sytem time:
+#FS_HOTPLUG_NTPD="check"
+
+# Uncomment to change the default timeout of 60 seconds that the hotplug script
+# waits for a condition to turn from false to true:
+#FS_HOTPLUG_TIMEOUT="20"

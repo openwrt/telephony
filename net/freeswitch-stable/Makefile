@@ -24,7 +24,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.15
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -260,6 +260,37 @@ fi
 exit 0
 endef
 
+define Package/$(PKG_NAME)-hotplug
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Hotplug script
+  DEPENDS:=$(PKG_NAME)
+  PKGARCH:=all
+endef
+
+define Package/$(PKG_NAME)-hotplug/description
+This package includes a hotplug script for FreeSWITCH.
+endef
+
+define Package/$(PKG_NAME)-hotplug/install
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
+					$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
+endef
+
+define Package/$(PKG_NAME)-hotplug/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| FreeSWITCH hotplug note                                           |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| See /etc/default/freeswitch for hotplug hints.                    |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
+endef
+
 define Package/$(PKG_NAME)-timezones
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Timezones file
@@ -471,6 +502,7 @@ define Build/Configure
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)-hotplug))
 $(eval $(call BuildPackage,$(PKG_NAME)-timezones))
 
 ################################
