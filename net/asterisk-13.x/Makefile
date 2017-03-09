@@ -233,6 +233,13 @@ AST_MENUSELECT_OPTS = \
 	--with-ncurses="$(STAGING_DIR_HOST)/usr" \
 	--with-libxml2="$(STAGING_DIR_HOST)/usr"
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifneq ($(CONFIG_TARGET_lantiq),)
+	$(CP) ./src-lantiq/* $(PKG_BUILD_DIR)/
+endif
+endef
+
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		./bootstrap.sh; \
@@ -331,6 +338,7 @@ $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail
 $(eval $(call BuildAsterisk13Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,alsa.conf,chan_alsa,,))
 $(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
+$(eval $(call BuildAsterisk13Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,lantiq.conf,chan_lantiq,,))
 $(eval $(call BuildAsterisk13Module,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
 $(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,+asterisk13-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsterisk13Module,chan-skinny,Skinny channel,the channel chan_skinny,,skinny.conf,chan_skinny,,))
