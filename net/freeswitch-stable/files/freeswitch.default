@@ -1,11 +1,20 @@
+### FreeSWITCH configuration ###
+
 #FS_USER=freeswitch
 #FS_GROUP=freeswitch
 
 #FS_DIR_CACHE="/tmp/freeswitch/cache"
+
+# Don't point FS_DIR_DB toward a flash drive, e.g. the flash drive of your
+# router. FreeSWITCH will be writing constantly to its databases, which would
+# degrade the flash over time. Point it to a tmpfs destination like /dev/shm or
+# /tmp instead in order for the writes to go to RAM.
 #FS_DIR_DB="/tmp/freeswitch/db"
+
 #FS_DIR_LOG="/tmp/freeswitch/log"
 #FS_DIR_RECORDINGS="/tmp/freeswitch/recordings"
 #FS_DIR_STORAGE="/tmp/freeswitch/storage"
 #FS_DIR_TEMP="/tmp/freeswitch/temp"
 
+# The following is appended to the command line when starting FreeSWITCH:
 OPTIONS="-np -nonat"

@@ -8,7 +8,7 @@ USE_PROCD=1
 #PROCD_DEBUG=1
 
 DEFAULT=/etc/default/freeswitch
-OPTIONS=""
+OPTIONS=
 
 [ -f $DEFAULT ] && . $DEFAULT
 
@@ -27,16 +27,16 @@ fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
 fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
 
 start_service() {
-  local dir=""
+  local dir=
 
   if [ -f "/etc/freeswitch_disabled" ]; then
     echo
     echo "o-------------------------------------------------------------------o"
     echo "| The file '/etc/freeswitch_disabled' is preventing the start of    |"
-    echo "| FreeSWITCH. Simply remove it once you're ready.                   |"
+    echo "| FreeSWITCH. Simply remove it once you are ready.                  |"
     echo "o-------------------------------------------------------------=^_^=-o"
     echo
-    exit 0
+    return 1
   fi
 
   for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_localstate" \
@@ -75,20 +75,35 @@ start_service() {
 }
 
 stop_service() {
-  local retval=""
-  local mypid=""
+  local retval=
+  local mypid=
+  local timeout=10
 
-  [ -f "$fs_dir_run"/freeswitch.pid ] || exit 0
+  [ -f "$fs_dir_run"/freeswitch.pid ] || {
+    echo "pid file does not exist"
+    return 1
+  }
 
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
-  kill $mypid
 
+  [ $mypid -gt 1 ] || {
+    echo "pid file contains garbage: \"$mypid\""
+    return 1
+  }
+
+  kill $mypid
   pidof freeswitch | grep $mypid &>/dev/null
   retval="$?"
 
-  while [ $retval -ne 1 ]; do
+  while [ $retval -ne 1 -a $timeout -gt 0 ]; do
     sleep 1
     pidof freeswitch | grep $mypid &>/dev/null
     retval=$?
+    timeout=$(($timeout-1))
   done
+
+  [ $retval -ne 1 ] && {
+    echo "unable to stop FreeSWITCH"
+    return 1
+  }
 }

@@ -248,6 +248,14 @@ define Package/$(PKG_NAME)/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
   # Prevent autostart of $(PRG_NAME)
   touch /etc/$(PRG_NAME)_disabled
+
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| FreeSWITCH note                                                   |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/default/freeswitch to change basic init configuration.  |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
 fi
 exit 0
 endef
