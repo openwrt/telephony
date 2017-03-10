@@ -32,7 +32,7 @@ OPTIONS="-np -nonat"
 # Uncomment to check if something is mounted here:
 #FS_HOTPLUG_MOUNTPOINT="/mnt/usb"
 
-# Uncomment to check if ntpd is running and has set the sytem time:
+# Uncomment to check if ntpd is running and has set the system time:
 #FS_HOTPLUG_NTPD="check"
 
 # Uncomment to change the default timeout of 60 seconds that the hotplug script

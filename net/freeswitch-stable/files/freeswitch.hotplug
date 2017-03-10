@@ -94,7 +94,7 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
   timeout=$TIMEOUT
 
   result=$($UCI get 'system.ntp.enabled' 2> /dev/null)
-  [ $result -eq 1 ] 2> /dev/null && {
+  [ "$result" -eq 1 ] 2> /dev/null && {
     $LOGGER BusyBox NTP client _and_ ntpd running
     $LOGGER Probably not what you want
   }
@@ -114,27 +114,24 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
     if [ -z $result ]; then
       $LOGGER Failed to extract stratum from ntpd
       notReady="unable to extract stratum"
-      # return to top of while loop
-      continue 2
     else
       $LOGGER ntpd stratum $result
-    fi
-
-    if [ $result -lt 16 ] 2> /dev/null; then
-      result=$($NTPQ -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null | \
-                      awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
-      if [ -z $result ]; then
-        $LOGGER Failed to extract offset from ntpd
-        notReady="unable to extract offset"
+      if [ $result -lt 16 ] 2> /dev/null; then
+        result=$($NTPQ -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
+                    | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
+        if [ -z $result ]; then
+          $LOGGER Failed to extract offset from ntpd
+          notReady="unable to extract offset"
+        else
+          # "-0" looks stupid, so remove "-"
+          result=$(echo $result | grep -o '[0-9]*')
+          $LOGGER ntpd to system time offset \+\/\- $result ms
+          # If offset < 100 ms consider system time in sync
+          [ $result -lt 100 ] || notReady="system time not in sync yet"
+        fi
       else
-        # "-0" looks stupid, so remove "-"
-        result=$(echo $result | grep -o '[0-9]*')
-        $LOGGER ntpd to system time offset \+\/\- $result ms
-        # If offset < 100 ms consider system time in sync
-        [ $result -lt 100 ] || notReady="system time not in sync yet"
+        notReady="ntpd not in sync yet"
       fi
-    else
-      notReady="ntpd not in sync yet"
     fi
   done
 

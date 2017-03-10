@@ -86,8 +86,8 @@ stop_service() {
 
   mypid=$(cat "$fs_dir_run"/freeswitch.pid)
 
-  [ $mypid -gt 1 ] || {
-    echo "pid file contains garbage: \"$mypid\""
+  [ "$mypid" -gt 1 ] 2> /dev/null || {
+    echo "pid file contains garbage"
     return 1
   }
 
