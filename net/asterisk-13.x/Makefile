@@ -118,6 +118,8 @@ define Package/asterisk13/conffiles
 /etc/asterisk/rtp.conf
 /etc/asterisk/udptl.conf
 /etc/asterisk/users.conf
+/etc/asterisk/motif.conf
+/etc/asterisk/xmpp.conf
 /etc/default/asterisk
 /etc/init.d/asterisk
 endef
@@ -406,4 +408,6 @@ $(eval $(call BuildAsterisk13Module,res-timing-dahdi,DAHDI Timing Interface,,+as
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,,,,res_timing_timerfd,,))
 $(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail,vm-*,))
+$(eval $(call BuildAsterisk13Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk13-res-xmpp,motif.conf,chan_motif,,))
+$(eval $(call BuildAsterisk13Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
 
