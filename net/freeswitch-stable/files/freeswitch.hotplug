@@ -2,12 +2,10 @@
 
 DEFAULT=/etc/default/freeswitch
 FS=FreeSWITCH
-FS_INIT=/etc/init.d/freeswitch
-LOGGER="/usr/bin/logger -t $FS-hotplug --"
-MOUNTS=/proc/mounts
-NTPQ=/usr/sbin/ntpq
-PIDOF=/bin/pidof
-UCI=/sbin/uci
+LOGGER="/usr/bin/logger -t $FS-hotplug"
+LOG_ERR="$LOGGER -p user.err --"
+LOG_NOTICE="$LOGGER -p user.notice --"
+LOG_WARN="$LOGGER -p user.warn --"
 
 [ "$ACTION" = ifup ] || exit 0
 
@@ -17,17 +15,16 @@ UCI=/sbin/uci
 
 [ "$INTERFACE" = "$FS_HOTPLUG_INTERFACE" ] || exit 0
 
-$PIDOF freeswitch &> /dev/null
+pgrep freeswitch &> /dev/null
 if [ $? -eq 0 ]; then
-  $LOGGER Killing $FS
-  $FS_INIT stop &> /dev/null
-  $PIDOF freeswitch &> /dev/null
+  $LOG_NOTICE Stopping $FS
+  /etc/init.d/freeswitch stop &> /dev/null
+  pgrep freeswitch &> /dev/null
   if [ $? -eq 0 ]; then
-    $LOGGER Failed to stop $FS
-    $LOGGER Exiting
+    $LOG_ERR Failed to stop $FS
     exit 1
   else
-    $LOGGER $FS killed
+    $LOG_NOTICE $FS stopped
   fi
 fi
 
@@ -38,8 +35,7 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
 [ -n "$FS_HOTPLUG_MOUNTPOINT" ] && {
 
   if ! [ -d "$FS_HOTPLUG_MOUNTPOINT" ]; then
-    $LOGGER "$FS_HOTPLUG_MOUNTPOINT" not a valid mount point
-    $LOGGER Exiting
+    $LOG_ERR "$FS_HOTPLUG_MOUNTPOINT" not a valid mount point
     exit 1
   fi
 
@@ -49,27 +45,25 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
 
   while [ -n "$notReady" -a $timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOGGER "$mnt" not mounted yet
-      $LOGGER Giving up in $timeout seconds
+      $LOG_NOTICE "$mnt" not yet mounted, timeout in $timeout s
       sleep 5
       timeout=$(($timeout-5))
     fi
 
     notReady=
 
-    result=$(cat $MOUNTS | awk '{print $2}' | grep "^$mnt\$")
+    result=$(cat /proc/mounts | awk '{print $2}' | grep "^$mnt\$")
     if [ -z "$result" ]; then
       notReady="$mnt not ready yet"
     fi
   done
 
   if [ -n "$notReady" ]; then
-    $LOGGER "$mnt" still not mounted
-    $LOGGER Waited $TIMEOUT seconds
-    $LOGGER Not starting $FS
+    $LOG_ERR "$mnt" still not mounted
+    $LOG_ERR Not starting $FS
     exit 1
   else
-    $LOGGER "$mnt" mounted
+    $LOG_NOTICE "$mnt" mounted
   fi
 
 }
@@ -77,55 +71,51 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
 # ntpd condition
 [ -n "$FS_HOTPLUG_NTPD" ] && {
 
-  type $NTPQ &> /dev/null
+  type ntpq &> /dev/null
   [ $? -eq 0 ] || {
-    $LOGGER ntpq utility not found
-    $LOGGER Not starting $FS
+    $LOG_ERR ntpq utility not found
     exit 1
   }
 
-  $PIDOF ntpd &> /dev/null || {
-    $LOGGER ntpd not running
-    $LOGGER Not starting $FS
+  pgrep ntpd &> /dev/null || {
+    $LOG_ERR ntpd not running
     exit 1
   }
 
   notReady=start
   timeout=$TIMEOUT
 
-  result=$($UCI get 'system.ntp.enabled' 2> /dev/null)
+  result=$(uci get 'system.ntp.enabled' 2> /dev/null)
   [ "$result" -eq 1 ] 2> /dev/null && {
-    $LOGGER BusyBox NTP client _and_ ntpd running
-    $LOGGER Probably not what you want
+    $LOG_WARN BusyBox NTP client _and_ ntpd running
   }
 
   while [ -n "$notReady" -a $timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOGGER System time not in sync yet
-      $LOGGER Giving up in $timeout seconds
+      $LOG_NOTICE System time not in sync yet, timeout in $timeout s
       sleep 5
       timeout=$(($timeout-5))
     fi
 
     notReady=
 
-    result=$($NTPQ -c 'timeout 300' -c 'rv 0 stratum' 2> /dev/null | \
-                        awk -F '=' '{print $2}' | grep -o -E '^[0-9]+')
+    result=$(ntpq -c 'timeout 300' -c 'rv 0 stratum' 2> /dev/null | \
+                    awk -F '=' '{print $2}' | grep -o -E '^[0-9]+')
     if [ -z $result ]; then
-      $LOGGER Failed to extract stratum from ntpd
+      $LOG_WARN Failed to extract stratum from ntpd
       notReady="unable to extract stratum"
     else
-      $LOGGER ntpd stratum $result
+      $LOG_NOTICE ntpd stratum $result
       if [ $result -lt 16 ] 2> /dev/null; then
-        result=$($NTPQ -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
-                    | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
+        result=$(ntpq -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
+                 | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
         if [ -z $result ]; then
-          $LOGGER Failed to extract offset from ntpd
+          $LOG_WARN Failed to extract offset from ntpd
           notReady="unable to extract offset"
         else
           # "-0" looks stupid, so remove "-"
           result=$(echo $result | grep -o '[0-9]*')
-          $LOGGER ntpd to system time offset \+\/\- $result ms
+          $LOG_NOTICE ntpd to system time offset \+\/\- $result ms
           # If offset < 100 ms consider system time in sync
           [ $result -lt 100 ] || notReady="system time not in sync yet"
         fi
@@ -136,21 +126,20 @@ TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
   done
 
   if [ -n "$notReady" ]; then
-    $LOGGER System time still not in sync
-    $LOGGER Waited $TIMEOUT seconds
-    $LOGGER Not starting $FS
+    $LOG_ERR System time still not in sync
+    $LOG_ERR Not starting $FS
     exit 1
   else
-    $LOGGER System time in sync
+    $LOG_NOTICE System time in sync
   fi
 
 }
 
-$FS_INIT start &> /dev/null
-$PIDOF freeswitch &> /dev/null
+/etc/init.d/freeswitch start &> /dev/null
+pgrep freeswitch &> /dev/null
 if [ $? -eq 0 ]; then
-  $LOGGER Started $FS due to \"ifup "$INTERFACE"\" event
+  $LOG_NOTICE Started $FS due to \"ifup "$INTERFACE"\" event
 else
-  $LOGGER Start of $FS due to \"ifup "$INTERFACE"\" event failed
+  $LOG_ERR Start of $FS due to \"ifup "$INTERFACE"\" event failed
   exit 1
 fi
