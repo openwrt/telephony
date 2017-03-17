@@ -7,33 +7,33 @@ USE_PROCD=1
 
 #PROCD_DEBUG=1
 
-DEFAULT=/etc/default/freeswitch
-# not using full path in order for pgrep to find any FreeSWITCH process
 FS=freeswitch
-LOGGER="/usr/bin/logger -p user.err -s -t freeswitch"
+DEFAULT=/etc/default/$FS
+LOGGER="/usr/bin/logger -p user.err -s -t $FS"
 OPTIONS=
+TIMEOUT=30
 
 [ -f $DEFAULT ] && . $DEFAULT
 
-fs_user="${FS_USER:-freeswitch}"
-fs_group="${FS_GROUP:-freeswitch}"
+fs_user="${FS_USER:-$FS}"
+fs_group="${FS_GROUP:-$FS}"
 
-fs_dir_etc="/etc/freeswitch"
-fs_dir_localstate="/var/lib/freeswitch"
-fs_dir_run="/var/run/freeswitch"
+fs_dir_etc="/etc/$FS"
+fs_dir_localstate="/var/lib/$FS"
+fs_dir_run="/var/run/$FS"
 
-fs_dir_cache="${FS_DIR_CACHE:-/tmp/freeswitch/cache}"
-fs_dir_db="${FS_DIR_DB:-/tmp/freeswitch/db}"
-fs_dir_log="${FS_DIR_LOG:-/tmp/freeswitch/log}"
-fs_dir_recordings="${FS_DIR_RECORDINGS:-/tmp/freeswitch/recordings}"
-fs_dir_storage="${FS_DIR_STORAGE:-/tmp/freeswitch/storage}"
-fs_dir_temp="${FS_DIR_TEMP:-/tmp/freeswitch/temp}"
+fs_dir_cache="${FS_DIR_CACHE:-/tmp/$FS/cache}"
+fs_dir_db="${FS_DIR_DB:-/tmp/$FS/db}"
+fs_dir_log="${FS_DIR_LOG:-/tmp/$FS/log}"
+fs_dir_recordings="${FS_DIR_RECORDINGS:-/tmp/$FS/recordings}"
+fs_dir_storage="${FS_DIR_STORAGE:-/tmp/$FS/storage}"
+fs_dir_temp="${FS_DIR_TEMP:-/tmp/$FS/temp}"
 
 start_service() {
   local dir=
 
-  if [ -f "/etc/freeswitch_disabled" ]; then
-    $LOGGER /etc/freeswitch_disabled exists
+  if [ -f "/etc/${FS}_disabled" ]; then
+    $LOGGER File \"/etc/${FS}_disabled\" exists
     $LOGGER Remove it once your configuration is set up
     exit 1
   fi
@@ -77,36 +77,50 @@ start_service() {
 stop_service() {
   local retval=
   local mypid=
-  local timeout=10
+  local timeout=$TIMEOUT
 
   pgrep $FS &> /dev/null
   [ $? -ne 0 ] && exit 0
 
-  [ -f "$fs_dir_run"/freeswitch.pid ] || {
+  [ -f "$fs_dir_run"/${FS}.pid ]
+  retval=$?
+
+  # init script could find itself in a scenario where FS was started
+  # very recently, so make it wait a while for a pid file to appear
+  while [ $retval -ne 0 -a $timeout -gt 0 ]; do
+    sleep 1
+    [ -f "$fs_dir_run"/${FS}.pid ]
+    retval=$?
+    timeout=$(($timeout-1))
+  done
+
+  [ $retval -eq 0 ] || {
     $LOGGER PID file does not exist
     exit 1
   }
 
-  mypid=$(cat "$fs_dir_run"/freeswitch.pid)
+  mypid=$(cat "$fs_dir_run"/${FS}.pid)
 
   [ "$mypid" -gt 1 ] 2> /dev/null || {
     $LOGGER PID file contains garbage
     exit 1
   }
 
+  timeout=$TIMEOUT
   kill $mypid
-  pgrep $FS | grep $mypid &>/dev/null
+  pgrep $FS | grep -w $mypid &>/dev/null
   retval=$?
 
-  while [ $retval -ne 1 -a $timeout -gt 0 ]; do
-    sleep 1
-    pgrep $FS | grep $mypid &>/dev/null
+  while [ $retval -eq 0 -a $timeout -gt 0 ]; do
+    sleep 10
+    pgrep $FS | grep -w $mypid &>/dev/null
     retval=$?
-    timeout=$(($timeout-1))
+    [ $retval -eq 0 ] && kill $mypid 2>/dev/null
+    timeout=$(($timeout-10))
   done
 
   [ $retval -ne 1 ] && {
-    $LOGGER Failed to stop FreeSWITCH
+    $LOGGER Failed to stop $FS
     exit 1
   }
 }
