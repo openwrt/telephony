@@ -23,13 +23,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.15
+PKG_VERSION:=1.6.16
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_MD5SUM:=95b38c07de200a43cd6963d21e0882ab8a7087473ea82ece68d76b9fa78ca27c
+PKG_MD5SUM:=4caecd8d246265db4e4d37df0901e396accd84de060525dda8212935cd2ee285
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
