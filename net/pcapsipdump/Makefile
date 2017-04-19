@@ -41,7 +41,8 @@ TARGET_CC=$(TARGET_CXX)
 define Build/Compile
 	$(TARGET_CONFIGURE_OPTS) \
 		$(MAKE) -C $(PKG_BUILD_DIR) \
-		CPPFLAGS="$(TARGET_CXXFLAGS) -fno-rtti"  \
+		CPPFLAGS="$(TARGET_CXXFLAGS) $(TARGET_CPPFLAGS) -fno-rtti"  \
+		LDFLAGS="$(TARGET_LDFLAGS)" \
 		LIBS="-lpcap"
 endef
 
