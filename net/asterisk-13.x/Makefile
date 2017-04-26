@@ -380,6 +380,7 @@ $(eval $(call BuildAsterisk13Module,func-global,Global variable,global variable 
 $(eval $(call BuildAsterisk13Module,func-groupcount,Group count,for counting number of channels in the specified group,,,func_groupcount,,))
 $(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,))
 $(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,))
+$(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,,,func_periodic_hook,,))
 $(eval $(call BuildAsterisk13Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
 $(eval $(call BuildAsterisk13Module,func-realtime,realtime,the realtime dialplan function,,,func_realtime,,))
 $(eval $(call BuildAsterisk13Module,func-shell,Shell,support for shell execution,,,func_shell,,))
