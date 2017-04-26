@@ -1,7 +1,7 @@
 --- a/configure.ac
 +++ b/configure.ac
 @@ -181,6 +181,9 @@ case "${host_os}" in
-      linux-gnueabi* |  linux-gnuspe)
+      linux-gnu*)
       OSARCH=linux-gnu
       ;;
 +     linux-musl*)
@@ -10,7 +10,7 @@
       kfreebsd*-gnu)
       OSARCH=kfreebsd-gnu
       ;;
-@@ -1373,9 +1376,11 @@ if test "${PBX_BFD}" = "0"; then
+@@ -1402,9 +1405,11 @@ if test "${PBX_BFD}" = "0"; then
    AST_EXT_LIB_CHECK([BFD], [bfd], [bfd_check_format], [bfd.h], [-ldl -liberty -lz])
  fi
  
@@ -26,9 +26,9 @@
  AST_C_DEFINE_CHECK([DAHDI], [DAHDI_DEFAULT_MTU_MRU], [dahdi/user.h], [220])
 --- a/main/Makefile
 +++ b/main/Makefile
-@@ -45,7 +45,7 @@ AST_LIBS+=$(UUID_LIB)
- AST_LIBS+=$(CRYPT_LIB)
- AST_LIBS+=$(AST_CLANG_BLOCKS_LIBS)
+@@ -47,7 +47,7 @@ AST_LIBS+=$(UUID_LIB)
+ AST_LIBS+=$(RT_LIB)
+ AST_LIBS+=$(SYSTEMD_LIB)
  
 -ifneq ($(findstring $(OSARCH), linux-gnu uclinux linux-uclibc kfreebsd-gnu),)
 +ifneq ($(findstring $(OSARCH), linux-gnu uclinux linux-uclibc linux-musl kfreebsd-gnu),)
