@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.22.0
-PKG_RELEASE:=2
+PKG_VERSION:=11.25.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=35870c34fadbd2bcb284bd8521c6e689
+PKG_HASH:=dc9c282ca1142b286e5a5c391647d6be73f35524c8def37718de866e8384a57c
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -462,6 +462,7 @@ $(eval $(call BuildAsterisk11Module,res-pktccops,Provide PacketCable COPS,simple
 $(eval $(call BuildAsterisk11Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,/etc/asterisk/smdi.conf,smdi.conf,res_smdi,))
 $(eval $(call BuildAsterisk11Module,res-speech,Speech Recognition API,Support for the Asterisk Generic Speech Recognition API,,,,res_speech,))
 $(eval $(call BuildAsterisk11Module,res-srtp,SRTP,Secure RTP,+libsrtp,,,res_srtp,))
+$(eval $(call BuildAsterisk11Module,res-stun-monitor,STUN monitoring,resource STUN Monitor,,/etc/asterisk/res_stun_monitor.conf,res_stun_monitor.conf,res_stun_monitor,))
 $(eval $(call BuildAsterisk11Module,res-timing-dahdi,DAHDI Timing Interface,,+asterisk11-chan-dahdi,,,res_timing_dahdi,))
 $(eval $(call BuildAsterisk11Module,res-timing-pthread,pthread Timing Interface,,,,,res_timing_pthread,))
 $(eval $(call BuildAsterisk11Module,res-timing-timerfd,Timerfd Timing Interface,,,,,res_timing_timerfd,))
