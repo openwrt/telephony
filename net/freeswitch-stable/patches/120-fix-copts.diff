@@ -1,0 +1,226 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -1959,7 +1959,13 @@ AC_SUBST(OUR_DISABLED_INSTALL_MODS)
+ AC_SUBST(OUR_DISABLED_UNINSTALL_MODS)
+ AC_SUBST(AM_MAKEFLAGS)
+ 
+-ac_configure_args="$ac_configure_args --with-modinstdir=${modulesdir} CONFIGURE_CFLAGS='$CFLAGS $CPPFLAGS' CONFIGURE_CXXFLAGS='$CXXFLAGS $CPPFLAGS' CONFIGURE_LDFLAGS='$LDFLAGS' "
++ac_configure_args="$ac_configure_args --with-modinstdir=${modulesdir}"
++
++case $host in
++   *-darwin*)
++        ac_configure_args="$ac_configure_args CONFIGURE_CFLAGS='$CFLAGS $CPPFLAGS' CONFIGURE_CXXFLAGS='$CXXFLAGS $CPPFLAGS' CONFIGURE_LDFLAGS='$LDFLAGS' "
++       ;;
++esac
+ 
+ #	--prefix='$prefix' --exec_prefix='$exec_prefix' --libdir='$libdir' --libexecdir='$libexecdir' --bindir='$bindir' --sbindir='$sbindir' \
+ #	--localstatedir='$localstatedir' --datadir='$datadir'"
+--- a/libs/apr-util/configure.ac
++++ b/libs/apr-util/configure.ac
+@@ -20,9 +20,13 @@ dnl Generate ./config.nice for reproduci
+ dnl 
+ APR_CONFIG_NICE(config.nice)
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ dnl # Some initial steps for configuration.  We setup the default directory
+ dnl # and which files are to be configured.
+--- a/libs/apr/configure.ac
++++ b/libs/apr/configure.ac
+@@ -20,9 +20,13 @@ sinclude(build/apr_hints.m4)
+ sinclude(build/libtool.m4)
+ sinclude(build/ltsugar.m4)
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ dnl Hard-coded inclusion at the tail end of apr_private.h:
+ AH_BOTTOM([
+--- a/libs/broadvoice/configure.ac
++++ b/libs/broadvoice/configure.ac
+@@ -22,9 +22,13 @@
+ 
+ AC_INIT([broadvoice],[0.1.0])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ m4_include(config/ax_compiler_vendor.m4)
+ m4_include(config/ax_check_real_file.m4)
+--- a/libs/iksemel/configure.ac
++++ b/libs/iksemel/configure.ac
+@@ -6,9 +6,13 @@ AC_CONFIG_SRCDIR([configure.ac])
+ AM_INIT_AUTOMAKE
+ AC_CONFIG_HEADERS(include/config.h)
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ AC_CANONICAL_HOST
+ 
+--- a/libs/ilbc/configure.ac
++++ b/libs/ilbc/configure.ac
+@@ -22,9 +22,13 @@
+ 
+ AC_INIT([ilbc], [0.0.1])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ AC_DEFUN([AX_COMPILER_VENDOR],
+ [
+--- a/libs/libdingaling/configure.ac
++++ b/libs/libdingaling/configure.ac
+@@ -8,9 +8,13 @@ AM_INIT_AUTOMAKE
+ AC_CONFIG_SRCDIR([src])
+ AC_CONFIG_HEADERS([src/config.h])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ #Set default language
+ AC_LANG_C
+--- a/libs/libsndfile/configure.ac
++++ b/libs/libsndfile/configure.ac
+@@ -15,9 +15,13 @@ AC_CANONICAL_TARGET([])
+ AC_CONFIG_MACRO_DIR([M4])
+ AC_CONFIG_HEADERS([src/config.h])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ AM_INIT_AUTOMAKE
+ AC_SUBST(ACLOCAL_AMFLAGS, "-I M4")
+--- a/libs/sofia-sip/configure.ac
++++ b/libs/sofia-sip/configure.ac
+@@ -13,9 +13,13 @@ dnl ---------------------------
+ dnl update both the version for AC_INIT and the LIBSOFIA_SIP_UA_MAJOR_MINOR
+ AC_INIT([sofia-sip], [1.12.10devel])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ AC_CONFIG_SRCDIR([libsofia-sip-ua/sip/sofia-sip/sip.h])
+ AC_CONFIG_MACRO_DIR([m4])
+--- a/libs/spandsp/configure.ac
++++ b/libs/spandsp/configure.ac
+@@ -21,9 +21,13 @@
+ AC_PREREQ([2.59])
+ AC_INIT([spandsp], [1.99.0])
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ SPANDSP_LT_CURRENT=3
+ SPANDSP_LT_REVISION=0
+--- a/libs/srtp/configure.ac
++++ b/libs/srtp/configure.ac
+@@ -3,9 +3,13 @@ AC_INIT(srtp, 1.4.2, mcgrew@cisco.com)
+ AC_CONFIG_AUX_DIR(build)
+ AM_INIT_AUTOMAKE
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ #Set default language
+ AC_LANG_C
+--- a/libs/tiff-4.0.2/configure.ac
++++ b/libs/tiff-4.0.2/configure.ac
+@@ -32,9 +32,13 @@ AC_LANG(C)
+ AC_PROG_LIBTOOL
+ m4_include(m4/acinclude.m4)
+ 
+-CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
+-LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++case $host in
++   *-darwin*)
++        CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
++        CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
++        LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
++       ;;
++esac
+ 
+ dnl Compute the canonical host (run-time) system type variable
+ AC_CANONICAL_HOST
