@@ -1,0 +1,235 @@
+Index: include/asterisk/logger.h
+===================================================================
+--- include/asterisk/logger.h	(revision 432991)
++++ include/asterisk/logger.h	(working copy)
+@@ -62,6 +62,17 @@
+ void ast_log(int level, const char *file, int line, const char *function, const char *fmt, ...)
+ 	__attribute__((format(printf, 5, 6)));
+ 
++/*!
++ * \brief Used for sending a log message with protection against recursion.
++ *
++ * \note This function should be used by all error messages that might be directly
++ * or indirectly caused by logging.
++ *
++ * \see ast_log for documentation on the parameters.
++ */
++void ast_log_safe(int level, const char *file, int line, const char *function, const char *fmt, ...)
++	__attribute__((format(printf, 5, 6)));
++
+ /* XXX needs documentation */
+ struct ast_callid;
+ 
+Index: include/asterisk/threadstorage.h
+===================================================================
+--- include/asterisk/threadstorage.h	(revision 432991)
++++ include/asterisk/threadstorage.h	(working copy)
+@@ -84,6 +84,8 @@
+ 	AST_THREADSTORAGE_CUSTOM_SCOPE(name, NULL, ast_free_ptr,) 
+ #define AST_THREADSTORAGE_EXTERNAL(name) \
+ 	extern struct ast_threadstorage name
++#define AST_THREADSTORAGE_RAW(name) \
++	AST_THREADSTORAGE_CUSTOM_SCOPE(name, NULL, NULL,)
+ 
+ /*!
+  * \brief Define a thread storage variable, with custom initialization and cleanup
+@@ -216,4 +218,42 @@
+ #define ast_threadstorage_get(ts, init_size) __ast_threadstorage_get(ts, init_size, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+ #endif /* defined(DEBUG_THREADLOCALS) */
+ 
++/*!
++ * \brief Retreive a raw pointer from threadstorage.
++ * \param ts Threadstorage object to operate on.
++ *
++ * \return A pointer associated with the current thread, NULL
++ * if no pointer is associated yet.
++ *
++ * \note This should only be used on threadstorage declared
++ * by AST_THREADSTORAGE_RAW unless you really know what
++ * you are doing.
++ */
++AST_INLINE_API(
++void *ast_threadstorage_get_ptr(struct ast_threadstorage *ts),
++{
++	pthread_once(&ts->once, ts->key_init);
++	return pthread_getspecific(ts->key);
++}
++)
++
++/*!
++ * \brief Set a raw pointer from threadstorage.
++ * \param ts Threadstorage object to operate on.
++ *
++ * \retval 0 Success
++ * \retval non-zero Failure
++ *
++ * \note This should only be used on threadstorage declared
++ * by AST_THREADSTORAGE_RAW unless you really know what
++ * you are doing.
++ */
++AST_INLINE_API(
++int ast_threadstorage_set_ptr(struct ast_threadstorage *ts, void *ptr),
++{
++	pthread_once(&ts->once, ts->key_init);
++	return pthread_setspecific(ts->key, ptr);
++}
++)
++
+ #endif /* ASTERISK_THREADSTORAGE_H */
+Index: include/asterisk/utils.h
+===================================================================
+--- include/asterisk/utils.h	(revision 432991)
++++ include/asterisk/utils.h	(working copy)
+@@ -500,26 +500,8 @@
+ #define ast_free free
+ #define ast_free_ptr ast_free
+ 
+-/*
+- * This buffer is in static memory. We never intend to read it,
+- * nor do we care about multiple threads writing to it at the
+- * same time. We only want to know if we're recursing too deep
+- * already. 60 entries should be more than enough.  Function
+- * call depth rarely exceeds 20 or so.
+- */
+-#define _AST_MEM_BACKTRACE_BUFLEN 60
+-extern void *_ast_mem_backtrace_buffer[_AST_MEM_BACKTRACE_BUFLEN];
+-
+-/*
+- * Ok, this sucks. But if we're already out of mem, we don't
+- * want the logger to create infinite recursion (and a crash).
+- */
+ #define MALLOC_FAILURE_MSG \
+-	do { \
+-		if (backtrace(_ast_mem_backtrace_buffer, _AST_MEM_BACKTRACE_BUFLEN) < _AST_MEM_BACKTRACE_BUFLEN) { \
+-			ast_log(LOG_ERROR, "Memory Allocation Failure in function %s at line %d of %s\n", func, lineno, file); \
+-		} \
+-	} while (0)
++	ast_log_safe(LOG_ERROR, "Memory Allocation Failure in function %s at line %d of %s\n", func, lineno, file)
+ 
+ /*!
+  * \brief A wrapper for malloc()
+Index: main/astobj2.c
+===================================================================
+--- main/astobj2.c	(revision 432991)
++++ main/astobj2.c	(working copy)
+@@ -36,6 +36,9 @@
+ #include "asterisk/cli.h"
+ #include "asterisk/paths.h"
+ 
++/* Use ast_log_safe in place of ast_log. */
++#define ast_log ast_log_safe
++
+ static FILE *ref_log;
+ 
+ /*!
+Index: main/hashtab.c
+===================================================================
+--- main/hashtab.c	(revision 432991)
++++ main/hashtab.c	(working copy)
+@@ -43,10 +43,6 @@
+ #include "asterisk/hashtab.h"
+ 
+ 
+-#ifndef __AST_DEBUG_MALLOC
+-void *_ast_mem_backtrace_buffer[_AST_MEM_BACKTRACE_BUFLEN];
+-#endif
+-
+ #if (defined(MALLOC_DEBUG) && !defined(STANDALONE))
+ static void _ast_hashtab_resize(struct ast_hashtab *tab, const char *file, int lineno, const char *func);
+ #define ast_hashtab_resize(a)	_ast_hashtab_resize(a,__FILE__, __LINE__, __PRETTY_FUNCTION__)
+Index: main/logger.c
+===================================================================
+--- main/logger.c	(revision 432991)
++++ main/logger.c	(working copy)
+@@ -107,6 +107,7 @@
+ } logfiles = { 1 };
+ 
+ static char hostname[MAXHOSTNAMELEN];
++AST_THREADSTORAGE_RAW(in_safe_log);
+ 
+ enum logtypes {
+ 	LOGTYPE_SYSLOG,
+@@ -1320,6 +1321,9 @@
+ {
+ 	struct logmsg *next = NULL, *msg = NULL;
+ 
++	/* Block ast_log_safe from this thread. */
++	ast_threadstorage_set_ptr(&in_safe_log, (void*)1);
++
+ 	for (;;) {
+ 		/* We lock the message list, and see if any message exists... if not we wait on the condition to be signalled */
+ 		AST_LIST_LOCK(&logmsgs);
+@@ -1755,6 +1759,37 @@
+ 	}
+ }
+ 
++void ast_log_safe(int level, const char *file, int line, const char *function, const char *fmt, ...)
++{
++	va_list ap;
++	void *recursed = ast_threadstorage_get_ptr(&in_safe_log);
++	struct ast_callid *callid;
++
++	if (recursed) {
++		return;
++	}
++
++	if (ast_threadstorage_set_ptr(&in_safe_log, (void*)1)) {
++		/* We were already dealing with an allocation failure,
++		 * and we've failed to set the flag that protects against
++		 * recursion, so bail. */
++		return;
++	}
++
++	callid = ast_read_threadstorage_callid();
++
++	va_start(ap, fmt);
++	ast_log_full(level, file, line, function, callid, fmt, ap);
++	va_end(ap);
++
++	if (callid) {
++		ast_callid_unref(callid);
++	}
++
++	/* Clear flag so the next allocation failure can be logged. */
++	ast_threadstorage_set_ptr(&in_safe_log, NULL);
++}
++
+ void ast_log_callid(int level, const char *file, int line, const char *function, struct ast_callid *callid, const char *fmt, ...)
+ {
+ 	va_list ap;
+Index: main/strings.c
+===================================================================
+--- main/strings.c	(revision 432991)
++++ main/strings.c	(working copy)
+@@ -87,9 +87,6 @@
+ 			} else if (max_len == 0) {	/* if unbounded, give more room for next time */
+ 				need += 16 + need / 4;
+ 			}
+-			if (0) {	/* debugging */
+-				ast_verbose("extend from %d to %d\n", len, need);
+-			}
+ 			if (
+ #if (defined(MALLOC_DEBUG) && !defined(STANDALONE))
+ 					_ast_str_make_space(buf, need, file, lineno, function)
+@@ -97,7 +94,7 @@
+ 					ast_str_make_space(buf, need)
+ #endif
+ 				) {
+-				ast_verbose("failed to extend from %d to %d\n", len, need);
++				ast_log_safe(LOG_VERBOSE, "failed to extend from %d to %d\n", len, need);
+ 				va_end(aq);
+ 				return AST_DYNSTR_BUILD_FAILED;
+ 			}
+Index: main/utils.c
+===================================================================
+--- main/utils.c	(revision 432991)
++++ main/utils.c	(working copy)
+@@ -1998,7 +1998,7 @@
+ 		cur = *pool_head;
+ 	} else {			/* preserve the last pool */
+ 		if (*pool_head == NULL) {
+-			ast_log(LOG_WARNING, "trying to reset empty pool\n");
++			ast_log_safe(LOG_WARNING, "trying to reset empty pool\n");
+ 			return -1;
+ 		}
+ 		preserve = *pool_head;
