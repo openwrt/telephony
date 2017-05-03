@@ -8,7 +8,7 @@
  #
 --- a/utils/kamctl/kamctlrc
 +++ b/utils/kamctl/kamctlrc
-@@ -147,3 +147,6 @@
+@@ -145,3 +145,6 @@
  ## Extra start options - default is: not set
  # example: start Kamailio with 64MB share memory: STARTOPTIONS="-m 64"
  # STARTOPTIONS=
