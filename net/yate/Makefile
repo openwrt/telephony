@@ -12,7 +12,7 @@ RELEASEVER:=5.5.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
@@ -111,7 +111,6 @@ CONFIGURE_ARGS+= \
 	--with-mysql="$(STAGING_DIR)/usr" \
 	--without-wphwec \
 	--without-libgsm \
-	--with-libspeex="$(STAGING_DIR)/usr/include" \
 	--without-amrnb \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
 	--without-pwlib \
@@ -262,7 +261,6 @@ $(eval $(call BuildPlugin,rmanager,,Yate Remote Management,))
 $(eval $(call BuildPlugin,sigtransport,server,SIGTRAN (SS7 over IP) connection provider,))
 $(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,))
 $(eval $(call BuildPlugin,sipfeatures,server,SIP Features (SUBSCRIBE/NOTIFY),))
-$(eval $(call BuildPlugin,speexcodec,,Speex Codec,+libspeex))
 $(eval $(call BuildPlugin,subscription,server,Subcription handler and presence notifier,))
 $(eval $(call BuildPlugin,tdmcard,server,TDM Cards Signalling and Data Driver,@BROKEN)) # Missing TDM libraries
 $(eval $(call BuildPlugin,tonedetect,,Detectors for Various Tones,))
