@@ -1,6 +1,7 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2006-2017 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
+# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.4.5
+PKG_VERSION:=2.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)/
-PKG_MD5SUM:=f58b3485977b3a700256203a554b3869
+PKG_HASH:=2f5a1da1c174d845871c758bd80fbb580fca7799d3cfaa0d3c4e082b5161c7b4
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
@@ -66,6 +67,8 @@ CONFIGURE_ARGS += \
 	--disable-ssl \
 	--disable-oss \
 	--disable-sound \
+	--disable-libwebrtc \
+	--disable-libyuv \
 	--with-external-srtp="$(STAGING_DIR)/usr" \
 	--without-external-gsm \
 	--disable-small-filter \
