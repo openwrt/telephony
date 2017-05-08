@@ -1,11 +1,6 @@
-Description: Fix MIPS namespace collision
-Author: Thiemo Seufer <ths@networkno.de>
-Origin: vendor, http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=24;bug=439976
-Bug-Debian: http://bugs.debian.org/439976
-Last-Update: 2010-02-28
 --- a/test/srtp_driver.c
 +++ b/test/srtp_driver.c
-@@ -314,7 +314,7 @@ main (int argc, char *argv[]) {
+@@ -341,7 +341,7 @@ main (int argc, char *argv[]) {
    if (do_codec_timing) {
      srtp_policy_t policy;
      int ignore;
@@ -14,8 +9,8 @@ Last-Update: 2010-02-28
  
      crypto_policy_set_rtp_default(&policy.rtp);
      crypto_policy_set_rtcp_default(&policy.rtcp);
-@@ -323,33 +323,33 @@ main (int argc, char *argv[]) {
-     policy.key  = test_key;
+@@ -353,33 +353,33 @@ main (int argc, char *argv[]) {
+     policy.allow_repeat_tx = 0;
      policy.next = NULL;
  
 -    printf("mips estimate: %e\n", mips);
