@@ -94,7 +94,7 @@ define Package/asterisk11
 $(call Package/asterisk11/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
+  DEPENDS:=+alsa-lib +bluez-libs +libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
 endef
 
 define Package/asterisk11/description
@@ -102,6 +102,7 @@ $(call Package/asterisk11/Default/description)
 endef
 
 define Package/asterisk11/conffiles
+/etc/asterisk/alsa.conf
 /etc/asterisk/asterisk.conf
 /etc/asterisk/acl.conf
 /etc/asterisk/ccss.conf
@@ -110,6 +111,7 @@ define Package/asterisk11/conffiles
 /etc/asterisk/extensions.conf
 /etc/asterisk/features.conf
 /etc/asterisk/indications.conf
+/etc/asterisk/chan_mobile.conf
 /etc/asterisk/logger.conf
 /etc/asterisk/manager.conf
 /etc/asterisk/modules.conf
@@ -119,6 +121,7 @@ define Package/asterisk11/conffiles
 /etc/asterisk/sip_notify.conf
 /etc/asterisk/udptl.conf
 /etc/asterisk/users.conf
+/etc/asterisk/oss.conf
 /etc/init.d/asterisk
 endef
 
@@ -126,11 +129,11 @@ AST_CFG_FILES:= \
 	asterisk.conf acl.conf ccss.conf extconfig.conf \
 	extensions.conf features.conf indications.conf \
 	logger.conf manager.conf modules.conf res_config_sqlite3.conf \
-	rtp.conf sip_notify.conf sip.conf udptl.conf users.conf
+	rtp.conf sip_notify.conf sip.conf udptl.conf users.conf alsa.conf chan_mobile.conf oss.conf
 AST_EMB_MODULES:=\
 	app_dial app_echo app_macro app_playback codec_ulaw format_pcm func_callerid \
 	func_logic func_strings func_timeout chan_sip chan_local pbx_config \
-	res_crypto res_http_websocket res_rtp_asterisk res_rtp_multicast
+	res_crypto res_http_websocket res_rtp_asterisk res_rtp_multicast chan_mobile chan_alsa chan_oss
 
 define Package/asterisk11/install
 $(call Package/asterisk11/install/lib,$(1),libasteriskssl)
@@ -239,7 +242,7 @@ CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
-	--without-bluetooth \
+	--with-bluetooth="$(STAGING_DIR)/usr" \
 	--without-cap \
 	--without-curses \
 	--with-gsm=internal \
