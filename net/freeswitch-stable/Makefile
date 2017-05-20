@@ -8,7 +8,6 @@
 # TODO
 #
 # - try to use system xmlrpc-c once it compiles again :-)
-# - include fs_ivrd?
 
 # NOTES
 #
@@ -704,5 +703,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,xml_scgi,XML SCGI,SCGI XML Gateway.,))
 
 $(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to\nconnect to a FreeSWITCH instance running on the local or a remote\nsystem.,$(FS_STABLE_DEPS_BASE) +FS_STABLE_WITH_LIBEDIT:libedit,n))
 $(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by\nmod_native_file.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_ivrd,IVR daemon,The FreeSWITCH IVR daemon is an abstraction layer that sits on top of\nthe ESL. The basic idea is that the ivrd will allow the user to have\na STDIN/STDOUT interface for simple call control.,$(FS_STABLE_DEPS_BASE),n))
 $(eval $(call Package/$(PKG_NAME)/Util,gentls_cert,TLS certificate,Can be used to create TLS certificates and setup CAs.,+openssl-util,y))
 $(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in\nany format that is supported by libsndfile.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-sndfile,n))
