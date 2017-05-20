@@ -34,7 +34,11 @@ PKG_MD5SUM:=709b3e43362d86b9682a7db14eb344b74362493d68244dfc4e6f40218089d4e1
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
 # configure fails without libjpeg, but it's only needed for mod_spandsp
-PKG_BUILD_DEPENDS:=libjpeg
+PKG_BUILD_DEPENDS:= \
+	libjpeg \
+	python \
+	python-setuptools \
+	swig/host
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -128,6 +132,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	lua \
 	native_file \
 	odbc_cdr \
+	python \
 	redis \
 	rtc \
 	rtmp \
@@ -166,6 +171,11 @@ FS_STABLE_MOD_AVAILABLE:= \
 
 include $(INCLUDE_DIR)/package.mk
 
+$(call include_mk, python-version.mk)
+PYTHON_DIR:=$(STAGING_DIR)/usr
+PYTHON_INC_DIR:=$(PYTHON_DIR)/include/python$(PYTHON_VERSION)
+PYTHON_PKG_DIR:=/usr/lib/python$(PYTHON_VERSION)/site-packages
+
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
@@ -191,6 +201,12 @@ define Package/$(PKG_NAME)/install/mod
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/mod_$(2).so \
 						$(1)/usr/lib/$(PRG_NAME)/mod
+ifeq ($(2),python)
+	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
+						$(1)$(PYTHON_PKG_DIR)
+endif
 endef
 
 define Package/$(PKG_NAME)/config
@@ -291,6 +307,27 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
   echo
 fi
 exit 0
+endef
+
+define Package/$(PKG_NAME)-python-esl
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Python ESL
+  DEPENDS:=$(PKG_NAME) +python-light
+endef
+
+define Package/$(PKG_NAME)-python-esl/description
+This package contains the Python binding for FreeSWITCH's Event Socket
+Library (ESL).
+endef
+
+define Package/$(PKG_NAME)-python-esl/install
+	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/ESL.py \
+					$(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/_ESL.so \
+					$(1)$(PYTHON_PKG_DIR)
 endef
 
 define Package/$(PKG_NAME)-timezones
@@ -475,7 +512,9 @@ CONFIGURE_ARGS+= \
 	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	--without-erlang \
-	--without-python \
+	_python_sysroot="$(STAGING_DIR)" \
+	_python_prefix="/usr" \
+	_python_exec_prefix="/usr" \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
@@ -495,6 +534,21 @@ define Build/Prepare
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
+
+	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
+		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
+	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
+		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
+	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
+		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
+	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
+	$(RM) $(PKG_BUILD_DIR)/libs/esl/python/esl_wrap.cpp
+	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
+	$(RM) $(PKG_BUILD_DIR)/src/mod/languages/mod_python/mod_python_wrap.cpp
+	$(SED)'s|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
+		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 endef
 
 define Build/Configure
@@ -503,8 +557,19 @@ define Build/Configure
 	$(call Build/Configure/Default)
 endef
 
+define Build/Compile
+	$(call Build/Compile/Default)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
+endef
+
+define Build/Install
+	$(call Build/Install/Default)
+	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod-install)
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-hotplug))
+$(eval $(call BuildPackage,$(PKG_NAME)-python-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-timezones))
 
 ################################
@@ -590,6 +655,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,loopback,Loopback,A loopback channel dr
 $(eval $(call Package/$(PKG_NAME)/Module,lua,Lua,Lua language interface for FreeSWITCH.,+liblua))
 $(eval $(call Package/$(PKG_NAME)/Module,native_file,Native file,Plays files that are already encoded in the right format.,))
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
+$(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtc,Media streaming,Media streaming as used by WebRTC and mod_verto.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rtmp,RTMP endpoint,RTMP endpoint support. Allows FreeSWITCH to be used from RTMP clients.,))
