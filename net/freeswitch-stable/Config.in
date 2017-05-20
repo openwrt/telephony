@@ -9,6 +9,12 @@ config FS_STABLE_WITH_DEBUG
 	  want to get meaningful backtraces see
 	  https://wiki.openwrt.org/doc/devel/debugging for starting points.
 
+config FS_STABLE_WITH_FREETYPE
+	bool "Compile with FreeType support"
+	default n
+	help
+	  Add FreeType support to FreeSWITCH
+
 config FS_STABLE_WITH_LIBEDIT
 	bool "Compile with libedit support"
 	default y
@@ -17,6 +23,12 @@ config FS_STABLE_WITH_LIBEDIT
 	  and curses functionality. Of course this feels nicer when interacting
 	  with FreeSWITCH (without it it doesn't feel very interactive at all),
 	  but it adds additional dependencies (libedit, libncursesw, terminfo).
+
+config FS_STABLE_WITH_LIBYUV
+	bool "Compile with libyuv support"
+	default n
+	help
+	  Add libyuv support to FreeSWITCH
 
 config FS_STABLE_WITH_ODBC
 	bool "Compile with ODBC support"
@@ -30,11 +42,23 @@ config FS_STABLE_WITH_PGSQL
 	help
 	  Enable PostgreSQL support.
 
+config FS_STABLE_WITH_PNG
+	bool "Compile with PNG support"
+	default n
+	help
+	  Add PNG support to FreeSWITCH
+
 config FS_STABLE_WITH_SRTP
 	bool "Enable SRTP"
 	default y
 	help
 	  Compile with SRTP support.
+
+config FS_STABLE_WITH_VPX
+	bool "Compile with VPx support"
+	default n
+	help
+	  Compile with VPx video codec support
 
 config FS_STABLE_WITH_ZRTP
 	bool "Enable ZRTP"

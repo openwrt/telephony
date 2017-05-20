@@ -70,8 +70,10 @@ FS_STABLE_DEPS_BASE:= \
 
 FS_STABLE_DEPS:= \
 	$(FS_STABLE_DEPS_BASE) \
+	+FS_STABLE_WITH_FREETYPE:libfreetype \
 	+FS_STABLE_WITH_LIBEDIT:libedit \
 	+FS_STABLE_WITH_ODBC:unixodbc \
+	+FS_STABLE_WITH_PNG:libpng \
 	+libcurl \
 	+libpcre \
 	+libpthread \
@@ -455,8 +457,6 @@ CONFIGURE_ARGS+= \
 	--srcdir=$(PKG_BUILD_DIR) \
 	--sysconfdir=/etc \
 	--disable-dependency-tracking \
-	--disable-libvpx \
-	--disable-libyuv \
 	--disable-static \
 	--disable-system-xmlrpc-c \
 	--enable-fhs \
@@ -475,17 +475,19 @@ CONFIGURE_ARGS+= \
 	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	--without-erlang \
-	--without-freetype \
-	--without-png \
 	--without-python \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
 	$(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
+	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
+	$(if $(CONFIG_FS_STABLE_WITH_LIBYUV),,--disable-libyuv) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql)
+	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql) \
+	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
+	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
