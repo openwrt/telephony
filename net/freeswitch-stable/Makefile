@@ -9,15 +9,6 @@
 #
 # - try to use system xmlrpc-c once it compiles again :-)
 
-# NOTES
-#
-# - --disable-cpp sounds like we could get rid of the dep on libstdcpp, but it
-#   only results in switch_cpp.cpp not being compiled and there is other stuff
-#   that depends on libstdcpp.
-# - I have patched configure.ac to be able to say no to libpng and freetype. If
-#   there are errors in the future due to missing depends we'll need to poke
-#   around some more.
-
 include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
@@ -40,7 +31,8 @@ PKG_BUILD_DEPENDS:= \
 	python-setuptools \
 	swig/host
 
-PKG_BUILD_PARALLEL:=1
+# With mod_ssml and mod_rayo enabled the parallel compiles always failed
+#PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -571,7 +563,7 @@ define Build/Prepare
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
-		$(SED) '/mod_$(m)/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
+		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
@@ -677,7 +669,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides 
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. When\nFreeSWITCH is compiled without libedit support - this is not the\ndefault - mod_console has no effect because the init script starts\nFreeSWITCH with the console disabled to work around an\ninteroperability issue that causes high CPU load.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
-$(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be\nused as a limit db backend.,+libdb47))
+$(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be\nused as a limit db backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_asterisk,Asterisk dialplan,Asterisk extensions.conf style dialplan parser.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_xml,XML dialplan,Standard FreeSWITCH XML dialplan support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dingaling,Generic XMPP,Allows FreeSWITCH to be used as a client for XMPP Servers.,))

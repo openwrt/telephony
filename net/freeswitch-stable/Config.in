@@ -49,7 +49,7 @@ config FS_STABLE_WITH_PNG
 	  Add PNG support to FreeSWITCH
 
 config FS_STABLE_WITH_SRTP
-	bool "Enable SRTP"
+	bool "Compile with SRTP support"
 	default y
 	help
 	  Compile with SRTP support.
@@ -61,7 +61,7 @@ config FS_STABLE_WITH_VPX
 	  Compile with VPx video codec support
 
 config FS_STABLE_WITH_ZRTP
-	bool "Enable ZRTP"
+	bool "Compile with ZRTP support"
 	default n
 	help
 	  Compile with ZRTP support.
