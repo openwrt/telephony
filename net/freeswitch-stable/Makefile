@@ -28,7 +28,6 @@ PKG_BUILD_DEPENDS:= \
 	erlang \
 	libjpeg \
 	python \
-	python-setuptools \
 	swig/host
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
@@ -515,6 +514,11 @@ endif
 CONFIGURE_VARS+= \
 	disable_cc=yes
 
+CONFIGURE_VARS+= \
+	_python_sysroot="$(STAGING_DIR)" \
+	_python_prefix="/usr" \
+	_python_exec_prefix="/usr"
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -542,9 +546,6 @@ CONFIGURE_ARGS+= \
 	--with-scriptdir=/usr/share/$(PRG_NAME)/scripts \
 	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
-	_python_sysroot="$(STAGING_DIR)" \
-	_python_prefix="/usr" \
-	_python_exec_prefix="/usr" \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
@@ -571,12 +572,10 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(RM) $(PKG_BUILD_DIR)/libs/esl/python/esl_wrap.cpp
-	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(RM) $(PKG_BUILD_DIR)/src/mod/languages/mod_python/mod_python_wrap.cpp
 	$(SED)'s|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 
@@ -595,8 +594,9 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
 endef
 
 define Build/Install
