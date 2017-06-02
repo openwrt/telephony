@@ -567,11 +567,15 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(SED)'s|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
+	$(SED) 's|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
+		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
+	$(SED) 's|@PYTHON_CFLAGS@|-I$(PYTHON_INC_DIR)|' \
+		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
+	$(SED) 's|@PYTHON_LDFLAGS@|$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
