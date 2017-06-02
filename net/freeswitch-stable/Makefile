@@ -28,7 +28,6 @@ PKG_BUILD_DEPENDS:= \
 	erlang \
 	libjpeg \
 	python \
-	python-setuptools \
 	swig/host
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
@@ -58,27 +57,6 @@ PKG_LICENSE:= \
 	zlib-acknowledgement
 
 PKG_LICENSE_FILES:=debian/copyright
-
-FS_STABLE_DEPS_BASE:= \
-	+FS_STABLE_WITH_PGSQL:libpq \
-	+libopenssl \
-	+libuuid
-
-FS_STABLE_DEPS:= \
-	$(FS_STABLE_DEPS_BASE) \
-	+FS_STABLE_WITH_FREETYPE:libfreetype \
-	+FS_STABLE_WITH_LIBEDIT:libedit \
-	+FS_STABLE_WITH_ODBC:unixodbc \
-	+FS_STABLE_WITH_PNG:libpng \
-	+libcurl \
-	+libpcre \
-	+libpthread \
-	+librt \
-	+libspeex \
-	+libspeexdsp \
-	+libstdcpp \
-	+libsqlite3 \
-	+zlib
 
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
@@ -256,7 +234,23 @@ $(call Package/$(PKG_NAME)/Default)
   TITLE:=Open source telephony platform, v$(PKG_VERSION)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
-  DEPENDS:=$(FS_STABLE_DEPS)
+  DEPENDS:= \
+	  +FS_STABLE_WITH_FREETYPE:libfreetype \
+	  +FS_STABLE_WITH_LIBEDIT:libedit \
+	  +FS_STABLE_WITH_ODBC:unixodbc \
+	  +FS_STABLE_WITH_PGSQL:libpq \
+	  +FS_STABLE_WITH_PNG:libpng \
+	  +libcurl \
+	  +libopenssl \
+	  +libpcre \
+	  +libpthread \
+	  +librt \
+	  +libspeex \
+	  +libspeexdsp \
+	  +libstdcpp \
+	  +libsqlite3 \
+	  +libuuid \
+	  +zlib
   CONFLICTS:=$(PRG_NAME)
 endef
 
@@ -343,7 +337,7 @@ endef
 define Package/$(PKG_NAME)-python-esl
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Python ESL
-  DEPENDS:=$(PKG_NAME) +python-light
+  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-python-esl:python-light
 endef
 
 define Package/$(PKG_NAME)-python-esl/description
@@ -419,7 +413,7 @@ define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-mod-$(1)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=$(2) module
-  DEPENDS:=$(PKG_NAME) $(4)
+  DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
 endef
 define Package/$(PKG_NAME)-mod-$(1)/description
 $(subst \n,$(newline),$(3))
@@ -434,7 +428,7 @@ define Package/$(PKG_NAME)/Util
 define Package/$(PKG_NAME)-util-$(1)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=$(2) utility
-  DEPENDS:=$(PKG_NAME) $(4)
+  DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-util-$(1):%,$(4))
   ifeq ($(5),y)
   PKGARCH:=all
   endif
@@ -515,6 +509,11 @@ endif
 CONFIGURE_VARS+= \
 	disable_cc=yes
 
+CONFIGURE_VARS+= \
+	_python_sysroot="$(STAGING_DIR)" \
+	_python_prefix="/usr" \
+	_python_exec_prefix="/usr"
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -542,9 +541,6 @@ CONFIGURE_ARGS+= \
 	--with-scriptdir=/usr/share/$(PRG_NAME)/scripts \
 	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
-	_python_sysroot="$(STAGING_DIR)" \
-	_python_prefix="/usr" \
-	_python_exec_prefix="/usr" \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
@@ -571,12 +567,10 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(RM) $(PKG_BUILD_DIR)/libs/esl/python/esl_wrap.cpp
-	$(SED)'s|swig2.0|$(STAGING_DIR)/host/bin/swig|' \
+	$(SED)'s|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(RM) $(PKG_BUILD_DIR)/src/mod/languages/mod_python/mod_python_wrap.cpp
 	$(SED)'s|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 
@@ -595,8 +589,9 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
 endef
 
 define Build/Install
@@ -693,7 +688,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,g729,G.729 passthrough,G.729 codec pass
 $(eval $(call Package/$(PKG_NAME)/Module,graylog2,Graylog2 logger,GELF logger for Graylog2 and Logstash.,))
 $(eval $(call Package/$(PKG_NAME)/Module,h26x,H.26x passthrough,H.26x video codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a\nlimit backend.,))
-$(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,libhiredis))
+$(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,+libhiredis))
 $(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an API for controlling the switch by responding\nto HTTP requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
 $(eval $(call Package/$(PKG_NAME)/Module,isac,iSAC,iSAC codec support.,))
@@ -778,8 +773,8 @@ $(eval $(call Package/$(PKG_NAME)/Module,yaml,YAML,YAML language module.,+libyam
 # 5 - Utility is a script (y/n)
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to\nconnect to a FreeSWITCH instance running on the local or a remote\nsystem.,$(FS_STABLE_DEPS_BASE) +FS_STABLE_WITH_LIBEDIT:libedit,n))
-$(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by\nmod_native_file.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
-$(eval $(call Package/$(PKG_NAME)/Util,fs_ivrd,IVR daemon,The FreeSWITCH IVR daemon is an abstraction layer that sits on top of\nthe ESL. The basic idea is that the ivrd will allow the user to have\na STDIN/STDOUT interface for simple call control.,$(FS_STABLE_DEPS_BASE),n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to\nconnect to a FreeSWITCH instance running on the local or a remote\nsystem.,,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by\nmod_native_file.,+$(PKG_NAME)-mod-native_file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_ivrd,IVR daemon,The FreeSWITCH IVR daemon is an abstraction layer that sits on top of\nthe ESL. The basic idea is that the ivrd will allow the user to have\na STDIN/STDOUT interface for simple call control.,,n))
 $(eval $(call Package/$(PKG_NAME)/Util,gentls_cert,TLS certificate,Can be used to create TLS certificates and setup CAs.,+openssl-util,y))
-$(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in\nany format that is supported by libsndfile.,$(FS_STABLE_DEPS) +$(PKG_NAME)-mod-sndfile,n))
+$(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in\nany format that is supported by libsndfile.,+$(PKG_NAME)-mod-sndfile,n))
