@@ -554,6 +554,12 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
 	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
 
+# Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
+# different apr/apr-util if found.
+# FS_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
+FS_ANCHOR:=dnl Get build information from APR
+FS_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
+
 define Build/Prepare
 	$(call Build/Prepare/Default)
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
@@ -577,6 +583,8 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|@PYTHON_LDFLAGS@|$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
+	$(SED) 's|$(FS_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_APR_LIBS) $(TARGET_LDFLAGS))|' \
+		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-unimrcp),)
