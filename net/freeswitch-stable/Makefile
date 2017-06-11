@@ -404,6 +404,29 @@ endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-lang-$(1)))
 endef
 
+# The next package generator is for miscellaneous files that only
+# require being copied from PKG_INSTALL_DIR to the ipkg.
+define Package/$(PKG_NAME)/Misc
+define Package/$(PKG_NAME)-misc-$(1)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2)
+  DEPENDS:=$(PKG_NAME)
+endef
+define Package/$(PKG_NAME)-misc-$(1)/description
+$(subst \n,$(newline),$(3))
+endef
+define Package/$(PKG_NAME)-misc-$(1)/install
+$(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
+ifeq ($(1),dev)
+	$(INSTALL_DIR) $$(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/freeswitch.pc \
+						$$(1)/usr/lib/pkgconfig
+endif
+endef
+$$(eval $$(call BuildPackage,$(PKG_NAME)-misc-$(1)))
+endef
+
 define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-mod-$(1)
 $(call Package/$(PKG_NAME)/Default)
@@ -651,6 +674,21 @@ $(eval $(call Package/$(PKG_NAME)/Language,he,Hebrew))
 $(eval $(call Package/$(PKG_NAME)/Language,pt,Portuguese))
 $(eval $(call Package/$(PKG_NAME)/Language,ru,Russian))
 $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
+
+################################
+# FreeSWITCH misc packages
+# Params:
+# 1 - Package subname
+# 2 - Package title
+# 3 - Package description
+# 4 - Source dir relative to
+#     PKG_INSTALL_DIR
+# 5 - Dest dir relative to ipkg
+################################
+
+$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,/usr/share/$(PRG_NAME)/include,/usr/include))
+$(eval $(call Package/$(PKG_NAME)/Misc,fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/fonts,/usr/share/$(PRG_NAME)/fonts))
+$(eval $(call Package/$(PKG_NAME)/Misc,images,Images,This package includes the images bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/images,/usr/share/$(PRG_NAME)/images))
 
 ################################
 # FreeSWITCH modules
