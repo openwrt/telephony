@@ -211,12 +211,6 @@ define Package/$(PKG_NAME)/install/mod
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/mod_$(2).so \
 						$(1)/usr/lib/$(PRG_NAME)/mod
-ifeq ($(2),python)
-	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
-						$(1)$(PYTHON_PKG_DIR)
-endif
 endef
 
 define Package/$(PKG_NAME)/config
@@ -421,6 +415,12 @@ $(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
+ifeq ($(1),python)
+	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
+						$$(1)$(PYTHON_PKG_DIR)
+endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
 endef
