@@ -568,16 +568,19 @@ define Build/Prepare
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
+	find $(PKG_BUILD_DIR)/libs/esl -name Makefile \
+		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+		{} \;
+	find $(PKG_BUILD_DIR)/src/mod/languages -name Makefile.am \
+		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+		{} \;
+
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|@PYTHON_CFLAGS@|-I$(PYTHON_INC_DIR)|' \
@@ -602,6 +605,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_lua swigclean)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
