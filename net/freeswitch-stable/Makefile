@@ -191,11 +191,12 @@ define Package/$(PKG_NAME)/install/bin
 endef
 
 define Package/$(PKG_NAME)/install/dir
-	for dir in $$$$(shell cd $(2); find -type d -print | sed 's|^./\?||'); \
+	if [ -d $(2) ]; then $(INSTALL_DIR) $(1); fi
+	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && find -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) $(1)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell cd $(2); find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell [ -d $(2) ] && cd $(2) && find -type f -print | sed 's|^./||'); \
 	do \
 		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
@@ -210,12 +211,6 @@ define Package/$(PKG_NAME)/install/mod
 	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/mod_$(2).so \
 						$(1)/usr/lib/$(PRG_NAME)/mod
-ifeq ($(2),python)
-	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
-						$(1)$(PYTHON_PKG_DIR)
-endif
 endef
 
 define Package/$(PKG_NAME)/config
@@ -317,7 +312,7 @@ endef
 define Package/$(PKG_NAME)-hotplug/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
-					$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
+		$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)-hotplug/postinst
@@ -385,10 +380,10 @@ This package does not install any configuration for FreeSWITCH into
 /etc/freeswitch. The system administrator is completely responsible
 for that directory. If you install one of the example configuration
 packages, it will install the corresponding sample configuration to
-/usr/share/freeswitch/conf where you can take a look at it.
+/usr/share/freeswitch/examples where you can take a look at it.
 endef
 define Package/$(PKG_NAME)-example-$(1)/install
-$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/conf/$(1),$(PKG_BUILD_DIR)/conf/$(1))
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/$(1),$(PKG_BUILD_DIR)/conf/$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
@@ -409,6 +404,29 @@ endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-lang-$(1)))
 endef
 
+# The next package generator is for miscellaneous files that only
+# require being copied from PKG_INSTALL_DIR to the ipkg.
+define Package/$(PKG_NAME)/Misc
+define Package/$(PKG_NAME)-misc-$(1)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=$(2)
+  DEPENDS:=$(PKG_NAME)
+endef
+define Package/$(PKG_NAME)-misc-$(1)/description
+$(subst \n,$(newline),$(3))
+endef
+define Package/$(PKG_NAME)-misc-$(1)/install
+$(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
+ifeq ($(1),dev)
+	$(INSTALL_DIR) $$(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/freeswitch.pc \
+						$$(1)/usr/lib/pkgconfig
+endif
+endef
+$$(eval $$(call BuildPackage,$(PKG_NAME)-misc-$(1)))
+endef
+
 define Package/$(PKG_NAME)/Module
 define Package/$(PKG_NAME)-mod-$(1)
 $(call Package/$(PKG_NAME)/Default)
@@ -420,6 +438,15 @@ $(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
+ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
+endif
+ifeq ($(1),python)
+	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
+						$$(1)$(PYTHON_PKG_DIR)
+endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
 endef
@@ -567,16 +594,19 @@ define Build/Prepare
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
+	find $(PKG_BUILD_DIR)/libs/esl -name Makefile \
+		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+		{} \;
+	find $(PKG_BUILD_DIR)/src/mod/languages -name Makefile.am \
+		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
+		{} \;
+
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|@PYTHON_CFLAGS@|-I$(PYTHON_INC_DIR)|' \
@@ -601,6 +631,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_lua swigclean)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
@@ -646,6 +677,21 @@ $(eval $(call Package/$(PKG_NAME)/Language,he,Hebrew))
 $(eval $(call Package/$(PKG_NAME)/Language,pt,Portuguese))
 $(eval $(call Package/$(PKG_NAME)/Language,ru,Russian))
 $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
+
+################################
+# FreeSWITCH misc packages
+# Params:
+# 1 - Package subname
+# 2 - Package title
+# 3 - Package description
+# 4 - Source dir relative to
+#     PKG_INSTALL_DIR
+# 5 - Dest dir relative to ipkg
+################################
+
+$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,/usr/share/$(PRG_NAME)/include,/usr/include))
+$(eval $(call Package/$(PKG_NAME)/Misc,fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/fonts,/usr/share/$(PRG_NAME)/fonts))
+$(eval $(call Package/$(PKG_NAME)/Misc,images,Images,This package includes the images bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/images,/usr/share/$(PRG_NAME)/images))
 
 ################################
 # FreeSWITCH modules
@@ -703,7 +749,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-va
 $(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,+libhiredis))
 $(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an API for controlling the switch by responding\nto HTTP requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
-$(eval $(call Package/$(PKG_NAME)/Module,isac,iSAC,iSAC codec support.,))
+$(eval $(call Package/$(PKG_NAME)/Module,isac,iSAC,iSAC codec support.,@arm||i386||mips||mips64||mips64el||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,json_cdr,JSON CDR,JSON-based Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,lcr,LCR,This module adds a facility for least-cost routing.,))

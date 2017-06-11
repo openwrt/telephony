@@ -62,8 +62,16 @@ config FS_STABLE_WITH_VPX
 
 config FS_STABLE_WITH_ZRTP
 	bool "Compile with ZRTP support"
+	depends on @aarch64||aarch64_be||arm||armeb||i386||mips||mips64||mips64el||mipsel||powerpc||powerpc64||powerpcle||sparc||x86_64
 	default n
 	help
 	  Compile with ZRTP support.
+
+config FS_STABLE_WITH_MODCONF
+	bool "Include module examples"
+	default n
+	help
+	  Some modules include examples in their source directory, e.g. xml
+	  snippets. Select y to include them.
 
 endmenu
