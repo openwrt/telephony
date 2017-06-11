@@ -67,4 +67,11 @@ config FS_STABLE_WITH_ZRTP
 	help
 	  Compile with ZRTP support.
 
+config FS_STABLE_WITH_MODCONF
+	bool "Include module examples"
+	default n
+	help
+	  Some modules include examples in their source directory, e.g. xml
+	  snippets. Select y to include them.
+
 endmenu

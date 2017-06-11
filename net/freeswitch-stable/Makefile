@@ -438,6 +438,9 @@ $(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
+ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
+endif
 ifeq ($(1),python)
 	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
 	$(INSTALL_DATA) \
