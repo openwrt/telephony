@@ -312,7 +312,7 @@ endef
 define Package/$(PKG_NAME)-hotplug/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
-					$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
+		$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)-hotplug/postinst
