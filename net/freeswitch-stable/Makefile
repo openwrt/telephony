@@ -191,11 +191,12 @@ define Package/$(PKG_NAME)/install/bin
 endef
 
 define Package/$(PKG_NAME)/install/dir
-	for dir in $$$$(shell cd $(2); find -type d -print | sed 's|^./\?||'); \
+	if [ -d $(2) ]; then $(INSTALL_DIR) $(1); fi
+	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && find -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) $(1)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell cd $(2); find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell [ -d $(2) ] && cd $(2) && find -type f -print | sed 's|^./||'); \
 	do \
 		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
