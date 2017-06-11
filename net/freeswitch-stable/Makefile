@@ -380,10 +380,10 @@ This package does not install any configuration for FreeSWITCH into
 /etc/freeswitch. The system administrator is completely responsible
 for that directory. If you install one of the example configuration
 packages, it will install the corresponding sample configuration to
-/usr/share/freeswitch/conf where you can take a look at it.
+/usr/share/freeswitch/examples where you can take a look at it.
 endef
 define Package/$(PKG_NAME)-example-$(1)/install
-$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/conf/$(1),$(PKG_BUILD_DIR)/conf/$(1))
+$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/$(1),$(PKG_BUILD_DIR)/conf/$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
