@@ -5,21 +5,17 @@
 # See /LICENSE for more information.
 #
 
-# TODO
-#
-# - try to use system xmlrpc-c once it compiles again :-)
-
 include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.17
+PKG_VERSION:=1.6.18
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_MD5SUM:=709b3e43362d86b9682a7db14eb344b74362493d68244dfc4e6f40218089d4e1
+PKG_MD5SUM:=ac1b32f61e5c35680c5a2d6f145bc480cf26e6527af07d8b8b9fa2d5280252cd
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
@@ -27,8 +23,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:= \
 	erlang \
 	libjpeg \
-	python \
-	swig/host
+	python
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -594,13 +589,6 @@ define Build/Prepare
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
-	find $(PKG_BUILD_DIR)/libs/esl -name Makefile \
-		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		{} \;
-	find $(PKG_BUILD_DIR)/src/mod/languages -name Makefile.am \
-		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		{} \;
-
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
@@ -631,10 +619,8 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_lua swigclean)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
 endef
 
 define Build/Install
