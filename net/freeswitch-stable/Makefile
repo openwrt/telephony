@@ -5,10 +5,6 @@
 # See /LICENSE for more information.
 #
 
-# TODO
-#
-# - try to use system xmlrpc-c once it compiles again :-)
-
 include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
@@ -27,8 +23,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:= \
 	erlang \
 	libjpeg \
-	python \
-	swig/host
+	python
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -594,13 +589,6 @@ define Build/Prepare
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
-	find $(PKG_BUILD_DIR)/libs/esl -name Makefile \
-		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		{} \;
-	find $(PKG_BUILD_DIR)/src/mod/languages -name Makefile.am \
-		-exec $(SED) 's|swig2.0|$(STAGING_DIR_HOSTPKG)/bin/swig|' \
-		{} \;
-
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
@@ -631,10 +619,8 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_lua swigclean)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/src/mod/languages/mod_python swigclean)
 	$(call Build/Compile/Default)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl swigclean pymod)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
 endef
 
 define Build/Install
