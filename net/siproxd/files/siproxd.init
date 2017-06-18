@@ -40,7 +40,7 @@ start_instance() {
 	config_get hosts_deny_sip "$cfg" hosts_deny_sip
 	config_get sip_listen_port "$cfg" sip_listen_port 5060
 	config_get_bool daemonize "$cfg" daemonize 1
-	config_get silence_log "$cfg" silence_log 4
+	config_get silence_log "$cfg" silence_log 1
 	config_get user "$cfg" user nobody
 	config_get chrootjail "$cfg" chrootjail
 	config_get registration_file "$cfg" registration_file "$siproxd_registration_dir/siproxd_registrations-$cfg"
