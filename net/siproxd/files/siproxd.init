@@ -18,9 +18,22 @@ deal_with_lists () {
 
 start_instance() {
 	local cfg="$1"
+	local _int_inbound
+	local _int_outbound
+	local _dev_inbound
+	local _dev_outbound
 
-	config_get if_inbound "$cfg" if_inbound
-	config_get if_outbound "$cfg" if_outbound
+	config_get _int_inbound "$cfg" interface_inbound
+	config_get _int_outbound "$cfg" interface_outbound
+
+	scan_interfaces
+	network_get_physdev _dev_inbound $_int_inbound
+	network_get_physdev _dev_outbound $_int_outbound
+
+	config_load 'siproxd'
+	config_get if_inbound "$cfg" if_inbound $_dev_inbound
+	config_get if_outbound "$cfg" if_outbound $_dev_outbound
+
 	config_get host_outbound "$cfg" host_outbound
 	config_get hosts_allow_reg "$cfg" hosts_allow_reg
 	config_get hosts_allow_sip "$cfg" hosts_allow_sip
@@ -225,6 +238,8 @@ start() {
 		chown nobody:nogroup "$siproxd_pid_dir"
 	}
 
+	include /lib/network
+	. /lib/functions/network.sh
 	config_load 'siproxd'
 	config_foreach start_instance 'siproxd'
 }
