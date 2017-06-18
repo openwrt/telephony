@@ -230,13 +230,16 @@ stop_instance() {
 }
 
 start() {
-	mkdir -m 0755 -p "$siproxd_conf_dir"
-	mkdir -m 0755 -p "$siproxd_registration_dir"
-	[ -d "$siproxd_pid_dir" ] || {
-		mkdir -m 0755 -p "$siproxd_pid_dir"
-		chmod 0750 "$siproxd_pid_dir"
-		chown nobody:nogroup "$siproxd_pid_dir"
-	}
+	mkdir -p "$siproxd_conf_dir"
+	chmod 755 "$siproxd_conf_dir"
+
+	mkdir -p "$siproxd_registration_dir"
+	chmod 700 "$siproxd_registration_dir"
+	chown nobody:nogroup "$siproxd_registration_dir"
+
+	mkdir -p "$siproxd_pid_dir"
+	chmod 700 "$siproxd_pid_dir"
+	chown nobody:nogroup "$siproxd_pid_dir"
 
 	include /lib/network
 	. /lib/functions/network.sh
