@@ -175,6 +175,25 @@ start_instance() {
 	config_list_foreach "$cfg" 'plugin_regex_pattern' deal_with_lists "plugin_regex_pattern"
 	config_list_foreach "$cfg" 'plugin_regex_replace' deal_with_lists "plugin_regex_replace"
 
+	# plugin_stripheader.so
+	config_list_foreach "$cfg" 'plugin_stripheader_remove' deal_with_lists "plugin_stripheader_remove"
+
+	# plugin_codecfilter.so
+	config_list_foreach "$cfg" 'plugin_codecfilter_blacklist' deal_with_lists "plugin_codecfilter_blacklist"
+
+	# plugin_siptrunk.so
+	config_list_foreach "$cfg" 'plugin_siptrunk_name' deal_with_lists "plugin_siptrunk_name"
+	config_list_foreach "$cfg" 'plugin_siptrunk_account' deal_with_lists "plugin_siptrunk_account"
+	config_list_foreach "$cfg" 'plugin_siptrunk_numbers_regex' deal_with_lists "plugin_siptrunk_numbers_regex"
+
+	# plugin_fix_DTAG.so
+	config_get plugin_fix_DTAG_networks "$cfg" plugin_fix_DTAG_networks
+	append_conf_if_set plugin_fix_DTAG_networks
+
+	# plugin_fix_fbox_anoncall.so
+	config_get plugin_fix_fbox_anoncall_networks "$cfg" plugin_fix_fbox_anoncall_networks
+	append_conf_if_set plugin_fix_fbox_anoncall_networks
+
 	SERVICE_PID_FILE="$pid_file" \
 	service_start $siproxd_bin --config "$siproxd_conf_prefix$cfg.conf"
 }
