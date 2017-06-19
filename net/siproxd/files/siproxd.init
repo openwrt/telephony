@@ -7,19 +7,20 @@ START=50
 SERVICE_USE_PID=1
 
 siproxd_bin="/usr/sbin/siproxd"
-siproxd_conf_dir="/var/etc"
+siproxd_conf_dir="/var/etc/siproxd"
 siproxd_conf_prefix="$siproxd_conf_dir/siproxd-"
 siproxd_registration_dir="/var/lib/siproxd"
+siproxd_registration_prefix="$siproxd_registration_dir/siproxd-"
 siproxd_pid_dir="/var/run/siproxd"
 
 append_conf_if_set() {
 	local _val=$(eval "echo \$`echo $1`")
 	[ -n "$_val" ] &&
-	echo "$1" = "$_val" >> "$siproxd_conf_prefix$cfg"
+	echo "$1" = "$_val" >> "$siproxd_conf_prefix$cfg.conf"
 }
 
 deal_with_lists () {
-	echo "$2" = "$1" >> "$siproxd_conf_prefix$cfg"
+	echo "$2" = "$1" >> "$siproxd_conf_prefix$cfg.conf"
 }
 
 start_instance() {
@@ -49,7 +50,7 @@ start_instance() {
 	config_get silence_log "$cfg" silence_log 1
 	config_get user "$cfg" user nobody
 	config_get chrootjail "$cfg" chrootjail
-	config_get registration_file "$cfg" registration_file "$siproxd_registration_dir/siproxd_registrations-$cfg"
+	config_get registration_file "$cfg" registration_file "$siproxd_registration_prefix$cfg.reg"
 	config_get autosave_registrations "$cfg" autosave_registrations 300
 	config_get pid_file "$cfg" pid_file "$siproxd_pid_dir/siproxd-$cfg.pid"
 	config_get_bool rtp_proxy_enable "$cfg" rtp_proxy_enable 1
@@ -79,10 +80,10 @@ start_instance() {
 	config_get outbound_domain_host "$cfg" outbound_domain_host
 	config_get outbound_domain_port "$cfg" outbound_domain_port
 
-	if [ -f "$siproxd_conf_prefix$cfg" ]; then
-		rm "$siproxd_conf_prefix$cfg"
+	if [ -f "$siproxd_conf_prefix$cfg.conf" ]; then
+		rm "$siproxd_conf_prefix$cfg.conf"
 	fi
-	echo "# auto-generated config file from /etc/config/siproxd" > "$siproxd_conf_prefix$cfg"
+	echo "# auto-generated config file from /etc/config/siproxd" > "$siproxd_conf_prefix$cfg.conf"
 
 	append_conf_if_set if_inbound
 	append_conf_if_set if_outbound
@@ -175,7 +176,7 @@ start_instance() {
 	config_list_foreach "$cfg" 'plugin_regex_replace' deal_with_lists "plugin_regex_replace"
 
 	SERVICE_PID_FILE="$pid_file" \
-	service_start $siproxd_bin --config "$siproxd_conf_prefix$cfg"
+	service_start $siproxd_bin --config "$siproxd_conf_prefix$cfg.conf"
 }
 
 stop_instance() {
