@@ -1,6 +1,6 @@
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -77,8 +77,8 @@ plugin_regex_la_LDFLAGS = -module -avoid
+@@ -103,8 +103,8 @@
  #  else Cygwin goes beserk when building...)
  #
  sbin_PROGRAMS = siproxd
@@ -13,10 +13,10 @@
  		  rtpproxy_relay.c accessctl.c route_processing.c \
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -326,8 +326,8 @@ plugin_prefix_la_LDFLAGS = -module -avoi
+@@ -377,8 +377,8 @@
  #
- plugin_regex_la_SOURCES = plugin_regex.c
- plugin_regex_la_LDFLAGS = -module -avoid-version -shrext '.so'
+ plugin_fix_fbox_anoncall_la_SOURCES = plugin_fix_fbox_anoncall.c
+ plugin_fix_fbox_anoncall_la_LDFLAGS = -module -avoid-version -shrext '.so'
 -siproxd_LDFLAGS = -export-dynamic
 -siproxd_LDADD = $(LIBLTDL) $(DLOPENPLUGINS)
 +siproxd_LDFLAGS = -export-dynamic -lltdl
