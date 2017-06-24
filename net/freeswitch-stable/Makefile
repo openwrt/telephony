@@ -316,24 +316,24 @@ fi
 exit 0
 endef
 
-define Package/$(PKG_NAME)-hotplug
+define Package/$(PKG_NAME)-misc-hotplug
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Hotplug script
   DEPENDS:=$(PKG_NAME)
   PKGARCH:=all
 endef
 
-define Package/$(PKG_NAME)-hotplug/description
+define Package/$(PKG_NAME)-misc-hotplug/description
 This package includes a hotplug script for FreeSWITCH.
 endef
 
-define Package/$(PKG_NAME)-hotplug/install
+define Package/$(PKG_NAME)-misc-hotplug/install
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
 	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/99-$(PRG_NAME)
 endef
 
-define Package/$(PKG_NAME)-hotplug/postinst
+define Package/$(PKG_NAME)-misc-hotplug/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
   echo
@@ -347,18 +347,18 @@ fi
 exit 0
 endef
 
-define Package/$(PKG_NAME)-python-esl
+define Package/$(PKG_NAME)-misc-python-esl
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Python ESL
-  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-python-esl:python-light
+  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-misc-python-esl:python-light
 endef
 
-define Package/$(PKG_NAME)-python-esl/description
+define Package/$(PKG_NAME)-misc-python-esl/description
 This package contains the Python binding for FreeSWITCH's Event Socket
 Library (ESL).
 endef
 
-define Package/$(PKG_NAME)-python-esl/install
+define Package/$(PKG_NAME)-misc-python-esl/install
 	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/ESL.py \
@@ -368,18 +368,18 @@ define Package/$(PKG_NAME)-python-esl/install
 					$(1)$(PYTHON_PKG_DIR)
 endef
 
-define Package/$(PKG_NAME)-timezones
+define Package/$(PKG_NAME)-misc-timezones
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Timezones file
   DEPENDS:=$(PKG_NAME)
   PKGARCH:=all
 endef
 
-define Package/$(PKG_NAME)-timezones/description
+define Package/$(PKG_NAME)-misc-timezones/description
 This package includes a timezones file for FreeSWITCH.
 endef
 
-define Package/$(PKG_NAME)-timezones/install
+define Package/$(PKG_NAME)-misc-timezones/install
 	$(INSTALL_DIR) $(1)$(FS_STABLE_TZ_DIR)
 	$(INSTALL_DATA) \
 	$(PKG_BUILD_DIR)/conf/vanilla/autoload_configs/timezones.conf.xml \
@@ -425,15 +425,18 @@ endef
 # The next package generator is for miscellaneous files that only
 # require being copied from PKG_INSTALL_DIR to the ipkg.
 define Package/$(PKG_NAME)/Misc
-define Package/$(PKG_NAME)-misc-$(1)
+define Package/$(PKG_NAME)-$(1)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=$(2)
   DEPENDS:=$(PKG_NAME)
+  ifeq ($(6),y)
+  PKGARCH:=all
+  endif
 endef
-define Package/$(PKG_NAME)-misc-$(1)/description
+define Package/$(PKG_NAME)-$(1)/description
 $(subst \n,$(newline),$(3))
 endef
-define Package/$(PKG_NAME)-misc-$(1)/install
+define Package/$(PKG_NAME)-$(1)/install
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
 ifeq ($(1),dev)
 	$(INSTALL_DIR) $$(1)$(FS_STABLE_PKGCONFIG_DIR)
@@ -442,7 +445,7 @@ ifeq ($(1),dev)
 						$$(1)$(FS_STABLE_PKGCONFIG_DIR)
 endif
 endef
-$$(eval $$(call BuildPackage,$(PKG_NAME)-misc-$(1)))
+$$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
 
 define Package/$(PKG_NAME)/Module
@@ -654,9 +657,9 @@ define Build/Install
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-hotplug))
-$(eval $(call BuildPackage,$(PKG_NAME)-python-esl))
-$(eval $(call BuildPackage,$(PKG_NAME)-timezones))
+$(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
+$(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
+$(eval $(call BuildPackage,$(PKG_NAME)-misc-timezones))
 
 ################################
 # FreeSWITCH example configs
@@ -698,11 +701,12 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 4 - Source dir relative to
 #     PKG_INSTALL_DIR
 # 5 - Dest dir relative to ipkg
+# 6 - Arch independent files
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR)))
-$(eval $(call Package/$(PKG_NAME)/Misc,fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR)))
-$(eval $(call Package/$(PKG_NAME)/Misc,images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR)))
+$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR),n))
+$(eval $(call Package/$(PKG_NAME)/Misc,misc-fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR),y))
+$(eval $(call Package/$(PKG_NAME)/Misc,misc-images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR),y))
 
 ################################
 # FreeSWITCH modules
