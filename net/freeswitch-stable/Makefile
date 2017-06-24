@@ -78,6 +78,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	amrwb \
 	av \
 	avmd \
+	b64 \
 	basic \
 	bert \
 	blacklist \
@@ -87,13 +88,17 @@ FS_STABLE_MOD_AVAILABLE:= \
 	cdr_pg_csv \
 	cdr_sqlite \
 	cidlookup \
+	clearmode \
 	cluechoo \
 	commands \
 	conference \
 	console \
 	curl \
+	cv \
+	dahdi_codec \
 	db \
 	dialplan_asterisk \
+	dialplan_directory \
 	dialplan_xml \
 	dingaling \
 	directory \
@@ -106,6 +111,8 @@ FS_STABLE_MOD_AVAILABLE:= \
 	esl \
 	event_multicast \
 	event_socket \
+	event_test \
+	event_zmq \
 	expr \
 	fifo \
 	format_cdr \
@@ -135,8 +142,11 @@ FS_STABLE_MOD_AVAILABLE:= \
 	opus \
 	oreka \
 	png \
+	pocketsphinx \
+	posix_timer \
 	prefix \
 	python \
+	random \
 	rayo \
 	redis \
 	rss \
@@ -182,6 +192,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	unimrcp \
 	valet_parking \
 	verto \
+	vmd \
 	voicemail \
 	voicemail_ivr \
 	xml_cdr \
@@ -189,7 +200,8 @@ FS_STABLE_MOD_AVAILABLE:= \
 	xml_ldap \
 	xml_rpc \
 	xml_scgi \
-	yaml
+	yaml \
+	yuv
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -627,8 +639,49 @@ CONFIGURE_ARGS+= \
 FS_STABLE_ANCHOR:=dnl Get build information from APR
 FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
+# mod_event_zmq
+ZEROMQ_FILE:=zeromq-2.1.9.tar.gz
+ZEROMQ_MD5SUM:=f3542f756687e622beef3a75c8e027fe2d95d4654350cbca4c070ffc58d9ace0
+ZEROMQ_URL:=http://download.zeromq.org
+
+# mod_pocketsphinx
+POCKETSPHINX_FILE:=pocketsphinx-0.8.tar.gz
+POCKETSPHINX_MD5SUM:=874c4c083d91c8ff26a2aec250b689e537912ff728923c141c4dac48662cce7a
+POCKETSPHINX_URL:=@SF/cmusphinx
+
+SPHINXBASE_FILE:=sphinxbase-0.8.tar.gz
+SPHINXBASE_MD5SUM:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca8
+SPHINXBASE_URL:=@SF/cmusphinx
+
+SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
+SPHINXMODEL_MD5SUM:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
+SPHINXMODEL_URL:=https://files.freeswitch.org/downloads/libs
+
+define Download/files
+define Download/$(1)
+  FILE:=$(2)
+  URL:=$(3)
+  MD5SUM:=$(4)
+endef
+$$(eval $$(call Download,$(1)))
+endef
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
+$(eval $(call Download/files,zmq,$(ZEROMQ_FILE),$(ZEROMQ_URL),$(ZEROMQ_MD5SUM)))
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
+$(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(POCKETSPHINX_URL),$(POCKETSPHINX_MD5SUM)))
+$(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(SPHINXBASE_URL),$(SPHINXBASE_MD5SUM)))
+$(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(SPHINXMODEL_URL),$(SPHINXMODEL_MD5SUM)))
+endif
+
 define Build/Prepare
 	$(call Build/Prepare/Default)
+
+	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
+	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
+	echo '#event_handlers/mod_event_test' >> $(PKG_BUILD_DIR)/modules.conf
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
@@ -651,6 +704,23 @@ endif
 
 	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
+	$(CP) $(DL_DIR)/$(ZEROMQ_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
+	$(CP) $(DL_DIR)/$(POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+# Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx),)
+	$(SED) '/mod_pocketsphinx$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
+endif
+endif
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-unimrcp),)
@@ -730,6 +800,7 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 
 $(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR),n))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR),y))
+$(eval $(call Package/$(PKG_NAME)/Misc,misc-grammar,Grammar,This package contains grammar files. mod_pocketsphinx would be a\npotential user.,$(FS_STABLE_GRAMMAR_DIR),$(FS_STABLE_GRAMMAR_DIR),y))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR),y))
 
 ################################
@@ -747,6 +818,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,amr,AMR passthrough,Passthrough AMR cod
 $(eval $(call Package/$(PKG_NAME)/Module,amrwb,AMR wideband passthrough,Passthrough AMR wideband codec support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN)) # libffmpeg-full doesn't provide avresample
 $(eval $(call Package/$(PKG_NAME)/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
+$(eval $(call Package/$(PKG_NAME)/Module,b64,Base64,Transfers data Base64 encoded.,))
 $(eval $(call Package/$(PKG_NAME)/Module,basic,BASIC,BASIC module for FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,bert,BERT,Line testing tool.,))
 $(eval $(call Package/$(PKG_NAME)/Module,blacklist,Blacklist helper,This module provides tools to blacklist callers.,))
@@ -756,13 +828,17 @@ $(eval $(call Package/$(PKG_NAME)/Module,cdr_mongodb,MongoDB CDR,MongoDB Call De
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_pg_csv,PostgreSQL CDR,PostgreSQL Call Detail Record handler.,@FS_STABLE_WITH_PGSQL))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_sqlite,SQLite CDR,SQLite Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cidlookup,Caller ID lookup,This module provides an API for querying caller ID name and location\ndata.,))
+$(eval $(call Package/$(PKG_NAME)/Module,clearmode,Clearmode,Clearmode codec passthrough support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cluechoo,Clue Choo,This demo module renders a Clue Choo train on the FreeSWITCH console.,+libncurses))
 $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides miscellaneous API commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. When\nFreeSWITCH is compiled without libedit support - this is not the\ndefault - mod_console has no effect because the init script starts\nFreeSWITCH with the console disabled to work around an\ninteroperability issue that causes high CPU load.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
+$(eval $(call Package/$(PKG_NAME)/Module,cv,OpenCV,This module exposes opencv actions to enable computer vision actions.,+opencv @BROKEN)) # opencv package too stripped-down
+$(eval $(call Package/$(PKG_NAME)/Module,dahdi_codec,DAHDI codec,DAHDI codec module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be\nused as a limit db backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_asterisk,Asterisk dialplan,Asterisk extensions.conf style dialplan parser.,))
+$(eval $(call Package/$(PKG_NAME)/Module,dialplan_directory,Directory dialplan,Directory dialplan support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_xml,XML dialplan,Standard FreeSWITCH XML dialplan support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dingaling,Generic XMPP,Allows FreeSWITCH to be used as a client for XMPP Servers.,))
 $(eval $(call Package/$(PKG_NAME)/Module,directory,Dial-by-name directory,This module implements a dial-by-name directory IVR.,))
@@ -775,6 +851,8 @@ $(eval $(call Package/$(PKG_NAME)/Module,esf,Multicast,This module adds multi-ca
 $(eval $(call Package/$(PKG_NAME)/Module,esl,Single ESL,This module adds an API for generating one-off ESL requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_multicast,Multicast Event,Multicast Event System for FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_socket,Event socket,Sends events via a single socket. Needed for fs_cli.,))
+$(eval $(call Package/$(PKG_NAME)/Module,event_test,Event test,Event demo module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,event_zmq,ZMQ event,ZMQ event module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support for expression evaluation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
@@ -804,8 +882,11 @@ $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Reco
 $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
+$(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,))
+$(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
+$(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rayo,Rayo,Rayo/XMPP 3PCC server for FreeSWITCH.,+$(PKG_NAME)-mod-ssml))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rss,RSS,Parses and reads XML based RSS feeds and reads the entries aloud via a TTS engine.,))
@@ -851,6 +932,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a 
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
+$(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail,Voicemail,This module provides a voicemail system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail_ivr,Voicemail IVR,This module provides an extensible voicemail IVR system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,xml_cdr,XML CDR,XML Call Detail Record handler.,))
@@ -859,6 +941,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,xml_ldap,XML LDAP,LDAP XML gateway.,+li
 $(eval $(call Package/$(PKG_NAME)/Module,xml_rpc,XML RPC,Allows using the webapi to control FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,xml_scgi,XML SCGI,SCGI XML Gateway.,))
 $(eval $(call Package/$(PKG_NAME)/Module,yaml,YAML,YAML language module.,+libyaml))
+$(eval $(call Package/$(PKG_NAME)/Module,yuv,Raw YUV,Raw YUV I420 video codec support.,@FS_STABLE_WITH_LIBYUV))
 
 ################################
 # FreeSWITCH utilities
