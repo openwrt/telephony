@@ -574,6 +574,11 @@ CONFIGURE_ARGS+= \
 endif
 # Python setup end
 
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
+CONFIGURE_ARGS+= \
+	--with-erlang=no
+endif
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -740,7 +745,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,abstraction,API abstraction,This module
 $(eval $(call Package/$(PKG_NAME)/Module,alsa,ALSA endpoint,ALSA endpoint module.,+alsa-lib))
 $(eval $(call Package/$(PKG_NAME)/Module,amr,AMR passthrough,Passthrough AMR codec support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,amrwb,AMR wideband passthrough,Passthrough AMR wideband codec support.,))
-$(eval $(call Package/$(PKG_NAME)/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN))
+$(eval $(call Package/$(PKG_NAME)/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN)) # libffmpeg-full doesn't provide avresample
 $(eval $(call Package/$(PKG_NAME)/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
 $(eval $(call Package/$(PKG_NAME)/Module,basic,BASIC,BASIC module for FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,bert,BERT,Line testing tool.,))
