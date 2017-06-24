@@ -22,8 +22,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 # configure fails without libjpeg, but it's only needed for mod_spandsp
 PKG_BUILD_DEPENDS:= \
 	erlang \
-	libjpeg \
-	python
+	libjpeg
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -193,11 +192,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	yaml
 
 include $(INCLUDE_DIR)/package.mk
-
-$(call include_mk, python-version.mk)
-PYTHON_DIR:=$(STAGING_DIR)/usr
-PYTHON_INC_DIR:=$(PYTHON_DIR)/include/python$(PYTHON_VERSION)
-PYTHON_PKG_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
@@ -557,10 +551,28 @@ endif
 CONFIGURE_VARS+= \
 	disable_cc=yes
 
+# Python setup start
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
+
+$(call include_mk, python-version.mk)
+
+PYTHON_DIR:=$(STAGING_DIR)/usr
+PYTHON_INC_DIR:=$(PYTHON_DIR)/include/python$(PYTHON_VERSION)
+PYTHON_LDFLAGS:=-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic
+PYTHON_PKG_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
+
 CONFIGURE_VARS+= \
 	_python_sysroot="$(STAGING_DIR)" \
 	_python_prefix="/usr" \
 	_python_exec_prefix="/usr"
+
+else
+
+CONFIGURE_ARGS+= \
+	--with-python=no
+
+endif
+# Python setup end
 
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
@@ -606,9 +618,9 @@ CONFIGURE_ARGS+= \
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
-# FS_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
-FS_ANCHOR:=dnl Get build information from APR
-FS_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
+# FS_STABLE_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
+FS_STABLE_ANCHOR:=dnl Get build information from APR
+FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -617,9 +629,10 @@ define Build/Prepare
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
 
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
 	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
+	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(PYTHON_LDFLAGS)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
 	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
 		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
@@ -627,9 +640,11 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
 	$(SED) 's|@PYTHON_CFLAGS@|-I$(PYTHON_INC_DIR)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(SED) 's|@PYTHON_LDFLAGS@|$(TARGET_LDFLAGS) -lpython$(PYTHON_VERSION)|' \
+	$(SED) 's|@PYTHON_LDFLAGS@|$(PYTHON_LDFLAGS)|' \
 		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(SED) 's|$(FS_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_APR_LIBS) $(TARGET_LDFLAGS))|' \
+endif
+
+	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
@@ -648,12 +663,16 @@ endef
 
 define Build/Compile
 	$(call Build/Compile/Default)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
+endif
 endef
 
 define Build/Install
 	$(call Build/Install/Default)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod-install)
+endif
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
