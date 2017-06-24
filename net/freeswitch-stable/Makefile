@@ -53,6 +53,25 @@ PKG_LICENSE:= \
 
 PKG_LICENSE_FILES:=debian/copyright
 
+FS_STABLE_PREFIX_DIR:=/usr/share/$(PRG_NAME)
+
+FS_STABLE_BIN_DIR:=/usr/bin
+FS_STABLE_SYSCONF_DIR:=/etc
+FS_STABLE_EXAMPLES_DIR:=$(FS_STABLE_PREFIX_DIR)/examples
+FS_STABLE_FONTS_DIR:=$(FS_STABLE_PREFIX_DIR)/fonts
+FS_STABLE_GRAMMAR_DIR:=$(FS_STABLE_PREFIX_DIR)/grammar
+FS_STABLE_HTDOCS_DIR:=$(FS_STABLE_PREFIX_DIR)/htdocs
+FS_STABLE_IMAGES_DIR:=$(FS_STABLE_PREFIX_DIR)/images
+FS_STABLE_INCLUDES_DIR:=/usr/include/$(PRG_NAME)
+FS_STABLE_LANG_DIR:=$(FS_STABLE_PREFIX_DIR)/lang
+FS_STABLE_LIB_DIR:=/usr/lib
+FS_STABLE_MOD_DIR:=$(FS_STABLE_LIB_DIR)/$(PRG_NAME)/mod
+FS_STABLE_PKGCONFIG_DIR:=$(FS_STABLE_LIB_DIR)/pkgconfig
+FS_STABLE_SCRIPTS_DIR:=$(FS_STABLE_PREFIX_DIR)/scripts
+FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_PREFIX_DIR)/sounds
+FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
+FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
+
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -178,11 +197,12 @@ include $(INCLUDE_DIR)/package.mk
 $(call include_mk, python-version.mk)
 PYTHON_DIR:=$(STAGING_DIR)/usr
 PYTHON_INC_DIR:=$(PYTHON_DIR)/include/python$(PYTHON_VERSION)
-PYTHON_PKG_DIR:=/usr/lib/python$(PYTHON_VERSION)/site-packages
+PYTHON_PKG_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
 define Package/$(PKG_NAME)/install/bin
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(2) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_BIN_DIR)/$(2) \
+					$(1)$(FS_STABLE_BIN_DIR)
 endef
 
 define Package/$(PKG_NAME)/install/dir
@@ -198,14 +218,15 @@ define Package/$(PKG_NAME)/install/dir
 endef
 
 define Package/$(PKG_NAME)/install/lib
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib
+	$(INSTALL_DIR) $(1)$(FS_STABLE_LIB_DIR)
+	$(CP) $(PKG_INSTALL_DIR)$(FS_STABLE_LIB_DIR)/$(2).so* \
+					$(1)$(FS_STABLE_LIB_DIR)
 endef
 
 define Package/$(PKG_NAME)/install/mod
-	$(INSTALL_DIR) $(1)/usr/lib/$(PRG_NAME)/mod
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(PRG_NAME)/mod/mod_$(2).so \
-						$(1)/usr/lib/$(PRG_NAME)/mod
+	$(INSTALL_DIR) $(1)$(FS_STABLE_MOD_DIR)
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_MOD_DIR)/mod_$(2).so \
+						$(1)$(FS_STABLE_MOD_DIR)
 endef
 
 define Package/$(PKG_NAME)/config
@@ -251,28 +272,30 @@ using audio, video, text or any other form of media.
 endef
 
 define Package/$(PKG_NAME)/conffiles
-/etc/$(PRG_NAME)
-/etc/default/$(PRG_NAME)
-/etc/init.d/$(PRG_NAME)
+$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)
+$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
-	$(INSTALL_DIR) $(1)/etc/$(PRG_NAME)/tls
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/fonts
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/grammar
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/htdocs
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/images
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/scripts
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/sounds
-	$(INSTALL_DIR) $(1)/etc/default
-	$(INSTALL_CONF) ./files/$(PRG_NAME).default $(1)/etc/default/$(PRG_NAME)
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/$(PRG_NAME).init $(1)/etc/init.d/$(PRG_NAME)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_FONTS_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_GRAMMAR_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_HTDOCS_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_IMAGES_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/default
+	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
+	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
 	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
-						$(1)/etc/init.d/$(PRG_NAME)
+			$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 endif
 endef
 
@@ -280,7 +303,7 @@ define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
   # Prevent autostart of $(PRG_NAME)
-  touch /etc/$(PRG_NAME)_disabled
+  touch $(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)_disabled
 
   echo
   echo "o-------------------------------------------------------------------o"
@@ -305,9 +328,9 @@ This package includes a hotplug script for FreeSWITCH.
 endef
 
 define Package/$(PKG_NAME)-hotplug/install
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
 	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
-		$(1)/etc/hotplug.d/iface/99-$(PRG_NAME)
+		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/99-$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)-hotplug/postinst
@@ -357,10 +380,10 @@ This package includes a timezones file for FreeSWITCH.
 endef
 
 define Package/$(PKG_NAME)-timezones/install
-	$(INSTALL_DIR) $(1)/usr/share/$(PRG_NAME)/tz
+	$(INSTALL_DIR) $(1)$(FS_STABLE_TZ_DIR)
 	$(INSTALL_DATA) \
 	$(PKG_BUILD_DIR)/conf/vanilla/autoload_configs/timezones.conf.xml \
-						$(1)/usr/share/$(PRG_NAME)/tz
+						$(1)$(FS_STABLE_TZ_DIR)
 endef
 
 define Package/$(PKG_NAME)/Example
@@ -378,7 +401,7 @@ packages, it will install the corresponding sample configuration to
 /usr/share/freeswitch/examples where you can take a look at it.
 endef
 define Package/$(PKG_NAME)-example-$(1)/install
-$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/$(1),$(PKG_BUILD_DIR)/conf/$(1))
+$(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/$(1),$(PKG_BUILD_DIR)/conf/$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-example-$(1)))
 endef
@@ -394,7 +417,7 @@ define Package/$(PKG_NAME)-lang-$(1)/description
 This package includes the $(2) language files for FreeSWITCH.
 endef
 define Package/$(PKG_NAME)-lang-$(1)/install
-$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/lang/$(1),$(PKG_BUILD_DIR)/conf/vanilla/lang/$(1))
+$(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_LANG_DIR)/$(1),$(PKG_BUILD_DIR)/conf/vanilla/lang/$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-lang-$(1)))
 endef
@@ -413,10 +436,10 @@ endef
 define Package/$(PKG_NAME)-misc-$(1)/install
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
 ifeq ($(1),dev)
-	$(INSTALL_DIR) $$(1)/usr/lib/pkgconfig
+	$(INSTALL_DIR) $$(1)$(FS_STABLE_PKGCONFIG_DIR)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/freeswitch.pc \
-						$$(1)/usr/lib/pkgconfig
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/freeswitch.pc \
+						$$(1)$(FS_STABLE_PKGCONFIG_DIR)
 endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-misc-$(1)))
@@ -434,7 +457,7 @@ endef
 define Package/$(PKG_NAME)-mod-$(1)/install
 $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
 ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
-$(call Package/$(PKG_NAME)/install/dir,$$(1)/usr/share/$(PRG_NAME)/examples/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
+$(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
 endif
 ifeq ($(1),python)
 	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
@@ -540,28 +563,30 @@ CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
 	--target=$(GNU_TARGET_NAME) \
-	--prefix=/usr/share/$(PRG_NAME) \
-	--bindir=/usr/bin \
-	--libdir=/usr/lib \
+	--prefix=$(FS_STABLE_PREFIX_DIR) \
+	--bindir=$(FS_STABLE_BIN_DIR) \
+	--includedir=$(FS_STABLE_INCLUDES_DIR) \
+	--libdir=$(FS_STABLE_LIB_DIR) \
 	--srcdir=$(PKG_BUILD_DIR) \
-	--sysconfdir=/etc \
+	--sysconfdir=$(FS_STABLE_SYSCONF_DIR) \
 	--disable-dependency-tracking \
 	--disable-static \
 	--disable-system-xmlrpc-c \
 	--enable-fhs \
 	--with-cachedir=/tmp/$(PRG_NAME)/cache \
-	--with-certsdir=/etc/$(PRG_NAME)/tls \
+	--with-certsdir=$(FS_STABLE_TLS_DIR) \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
-	--with-fontsdir=/usr/share/$(PRG_NAME)/fonts \
-	--with-grammardir=/usr/share/$(PRG_NAME)/grammar \
-	--with-htdocsdir=/usr/share/$(PRG_NAME)/htdocs \
-	--with-imagesdir=/usr/share/$(PRG_NAME)/images \
+	--with-fontsdir=$(FS_STABLE_FONTS_DIR) \
+	--with-grammardir=$(FS_STABLE_GRAMMAR_DIR) \
+	--with-htdocsdir=$(FS_STABLE_HTDOCS_DIR) \
+	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
-	--with-modinstdir=/usr/lib/$(PRG_NAME)/mod \
+	--with-modinstdir=$(FS_STABLE_MOD_DIR) \
+	--with-pkgconfigdir=$(FS_STABLE_PKGCONFIG_DIR) \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-rundir=/var/run/$(PRG_NAME) \
-	--with-scriptdir=/usr/share/$(PRG_NAME)/scripts \
-	--with-soundsdir=/usr/share/$(PRG_NAME)/sounds \
+	--with-scriptdir=$(FS_STABLE_SCRIPTS_DIR) \
+	--with-soundsdir=$(FS_STABLE_SOUNDS_DIR) \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
@@ -570,7 +595,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
 	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
 	$(if $(CONFIG_FS_STABLE_WITH_LIBYUV),,--disable-libyuv) \
-	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
+	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql) \
 	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
@@ -675,9 +700,9 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 5 - Dest dir relative to ipkg
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,/usr/share/$(PRG_NAME)/include,/usr/include))
-$(eval $(call Package/$(PKG_NAME)/Misc,fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/fonts,/usr/share/$(PRG_NAME)/fonts))
-$(eval $(call Package/$(PKG_NAME)/Misc,images,Images,This package includes the images bundled with FreeSWITCH.,/usr/share/$(PRG_NAME)/images,/usr/share/$(PRG_NAME)/images))
+$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR)))
+$(eval $(call Package/$(PKG_NAME)/Misc,fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR)))
+$(eval $(call Package/$(PKG_NAME)/Misc,images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR)))
 
 ################################
 # FreeSWITCH modules
