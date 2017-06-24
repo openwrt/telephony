@@ -40,3 +40,18 @@
    AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
      if test "$PKG_CONFIG" = "no" \
         || test x"$enable_core_pgsql_pkgconfig" = x"no" \
+@@ -1555,13 +1531,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+ # -a "x$ac_cv_have_EXTERN_h" != "xno"
+ 
+ if test "x$ac_cv_have_perl" != "xno"; then
+-   PERL=perl
+-   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlib}'`"
+-   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlib}'`/CORE"
+-   PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
+-   PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's|-arch x86_64 -arch i386||'` -DEMBED_PERL"
+-   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
+-   PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
++   PERL_CFLAGS="-w -DMULTIPLICITY ${PERL_CFLAGS} -DEMBED_PERL"
+ 
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PERL_CFLAGS"

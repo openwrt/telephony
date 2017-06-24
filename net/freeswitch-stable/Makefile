@@ -141,6 +141,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	odbc_cdr \
 	opus \
 	oreka \
+	perl \
 	png \
 	pocketsphinx \
 	posix_timer \
@@ -353,6 +354,33 @@ fi
 exit 0
 endef
 
+define Package/$(PKG_NAME)-misc-perl-esl
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Perl ESL
+  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-misc-perl-esl:perl
+endef
+
+define Package/$(PKG_NAME)-misc-perl-esl/description
+This package contains the Perl binding for FreeSWITCH's Event Socket
+Library (ESL).
+endef
+
+define Package/$(PKG_NAME)-misc-perl-esl/install
+	$(INSTALL_DIR) $(1)$$(PERL_SITELIB)/ESL
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.pm \
+					$(1)$$(PERL_SITELIB)
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.so \
+					$(1)$$(PERL_SITELIB)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/Dispatch.pm \
+					$(1)$$(PERL_SITELIB)/ESL
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/IVR.pm \
+					$(1)$$(PERL_SITELIB)/ESL
+endef
+
 define Package/$(PKG_NAME)-misc-python-esl
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Python ESL
@@ -468,6 +496,15 @@ $(call Package/$(PKG_NAME)/install/mod,$$(1),$(1))
 ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
 endif
+ifeq ($(1),perl)
+	$(INSTALL_DIR) $$(1)$$(PERL_SITELIB)/auto
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
+							$$(1)$$(PERL_SITELIB)
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
+							$$(1)$$(PERL_SITELIB)/auto
+endif
 ifeq ($(1),python)
 	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
 	$(INSTALL_DATA) \
@@ -517,10 +554,8 @@ endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
-# we neither need host-perl nor host-php
+# don't want host-php
 CONFIGURE_VARS+= \
-	ac_cv_prog_PERL=false \
-	ac_cv_have_perl=no \
 	ac_cv_prog_PHP=false \
 	ac_cv_have_php=no \
 	ac_cv_prog_PHP_CONFIG=false \
@@ -562,6 +597,38 @@ endif
 # fs_cli
 CONFIGURE_VARS+= \
 	disable_cc=yes
+
+# Perl setup start
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
+
+FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
+
+FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
+	$(FS_STABLE_PERL_FEED)/files/base.config | \
+			sed "s/^libs=//;s/'//g")
+
+include $(FS_STABLE_PERL_FEED)/perlmod.mk
+
+CONFIGURE_VARS+= \
+	ac_cv_lib_perl_perl_alloc=yes
+
+CONFIGURE_VARS+= \
+	PERL="$(PERL_CMD)" \
+	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_LDFLAGS="-fPIC -Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
+	PERL_LIBDIR="-L$(PERL_SITELIB)/CORE" \
+	PERL_LIBS="-lpthread $(FS_STABLE_PERL_LIBS) $(EXTRA_LIBDIRS:%=-L%) $(EXTRA_LIBS:%=-l%)" \
+	PERL_SITEDIR="$(PERL_SITELIB)"
+
+else
+
+CONFIGURE_VARS+= \
+	ac_cv_prog_PERL=false \
+	ac_cv_have_perl=no
+
+endif
+# Perl setup end
 
 # Python setup start
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
@@ -738,6 +805,9 @@ endef
 
 define Build/Compile
 	$(call Build/Compile/Default)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
+endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
 endif
@@ -745,6 +815,9 @@ endef
 
 define Build/Install
 	$(call Build/Install/Default)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
+endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod-install)
 endif
@@ -752,6 +825,7 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
+$(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-timezones))
 
@@ -881,6 +955,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,nibblebill,Nibblebill,This module allow
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
+$(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,@PERL_THREADS PACKAGE_$(PKG_NAME)-mod-perl:perl +libdb47 +libgdbm))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
 $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,))
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
