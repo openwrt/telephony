@@ -42,7 +42,7 @@ endef
 define Download/$(PKG_NAME)-$(1)
   FILE:=freeswitch-sounds-$(1)-$(6).tar.gz
   URL:=$(PRG_URL)
-  MD5SUM:=$(7)
+  HASH:=$(7)
 endef
 define Package/$(PKG_NAME)-$(1)/description
 $(2)
