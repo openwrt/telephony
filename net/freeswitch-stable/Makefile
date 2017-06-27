@@ -366,19 +366,19 @@ Library (ESL).
 endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/install
-	$(INSTALL_DIR) $(1)$$(PERL_SITELIB)/ESL
+	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/ESL
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.pm \
-					$(1)$$(PERL_SITELIB)
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
+					$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.so \
-					$(1)$$(PERL_SITELIB)
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.so \
+					$(1)$(PERL_SITELIB)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/Dispatch.pm \
-					$(1)$$(PERL_SITELIB)/ESL
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/Dispatch.pm \
+					$(1)$(PERL_SITELIB)/ESL
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/IVR.pm \
-					$(1)$$(PERL_SITELIB)/ESL
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/IVR.pm \
+					$(1)$(PERL_SITELIB)/ESL
 endef
 
 define Package/$(PKG_NAME)-misc-python-esl
@@ -393,13 +393,13 @@ Library (ESL).
 endef
 
 define Package/$(PKG_NAME)-misc-python-esl/install
-	$(INSTALL_DIR) $(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DIR) $(1)$(PYTHON_SITE_DIR)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/ESL.py \
-					$(1)$(PYTHON_PKG_DIR)
+		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/ESL.py \
+					$(1)$(PYTHON_SITE_DIR)
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/_ESL.so \
-					$(1)$(PYTHON_PKG_DIR)
+		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/_ESL.so \
+					$(1)$(PYTHON_SITE_DIR)
 endef
 
 define Package/$(PKG_NAME)-misc-timezones
@@ -497,19 +497,19 @@ ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
 endif
 ifeq ($(1),perl)
-	$(INSTALL_DIR) $$(1)$$(PERL_SITELIB)/auto
+	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
-							$$(1)$$(PERL_SITELIB)
+							$$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
-							$$(1)$$(PERL_SITELIB)/auto
+							$$(1)$(PERL_SITELIB)/auto
 endif
 ifeq ($(1),python)
-	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
+	$(INSTALL_DIR) $$(1)$(PYTHON_SITE_DIR)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_PKG_DIR)/$(PRG_NAME).py \
-						$$(1)$(PYTHON_PKG_DIR)
+		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/$(PRG_NAME).py \
+						$$(1)$(PYTHON_SITE_DIR)
 endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
@@ -635,15 +635,17 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)
 
 $(call include_mk, python-version.mk)
 
-PYTHON_DIR:=$(STAGING_DIR)/usr
-PYTHON_INC_DIR:=$(PYTHON_DIR)/include/python$(PYTHON_VERSION)
-PYTHON_LDFLAGS:=-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic
-PYTHON_PKG_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
+PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
 CONFIGURE_VARS+= \
-	_python_sysroot="$(STAGING_DIR)" \
-	_python_prefix="/usr" \
-	_python_exec_prefix="/usr"
+	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
+	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic" \
+	PYTHON_LIB="python$(PYTHON_VERSION)" \
+	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
+	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
+
+CONFIGURE_ARGS+= \
+	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
 
 else
 
@@ -753,21 +755,6 @@ define Build/Prepare
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
-	$(SED) 's|^LOCAL_CFLAGS=.*|LOCAL_CFLAGS=-I$(PYTHON_INC_DIR)|' \
-		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|^LOCAL_LDFLAGS=.*|LOCAL_LDFLAGS=$(PYTHON_LDFLAGS)|' \
-		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|^SITE_DIR=.*|SITE_DIR=$$$$(DESTDIR)$(PYTHON_PKG_DIR)|' \
-		$(PKG_BUILD_DIR)/libs/esl/python/Makefile
-	$(SED) 's|^PYTHON_SITE_DIR=.*|PYTHON_SITE_DIR=$(PYTHON_PKG_DIR)|' \
-		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(SED) 's|@PYTHON_CFLAGS@|-I$(PYTHON_INC_DIR)|' \
-		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-	$(SED) 's|@PYTHON_LDFLAGS@|$(PYTHON_LDFLAGS)|' \
-		$(PKG_BUILD_DIR)/src/mod/languages/mod_python/Makefile.am
-endif
 
 	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
@@ -957,7 +944,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus)
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,@PERL_THREADS PACKAGE_$(PKG_NAME)-mod-perl:perl +libdb47 +libgdbm))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
-$(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,))
+$(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,+libsamplerate)) # When libsamplerate is found it'll be linked against, there is no switch to turn it off
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
