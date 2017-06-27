@@ -366,19 +366,19 @@ Library (ESL).
 endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/install
-	$(INSTALL_DIR) $(1)$$(PERL_SITELIB)/ESL
+	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/ESL
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.pm \
-					$(1)$$(PERL_SITELIB)
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
+					$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL.so \
-					$(1)$$(PERL_SITELIB)
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.so \
+					$(1)$(PERL_SITELIB)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/Dispatch.pm \
-					$(1)$$(PERL_SITELIB)/ESL
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/Dispatch.pm \
+					$(1)$(PERL_SITELIB)/ESL
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$$(PERL_SITELIB)/ESL/IVR.pm \
-					$(1)$$(PERL_SITELIB)/ESL
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/IVR.pm \
+					$(1)$(PERL_SITELIB)/ESL
 endef
 
 define Package/$(PKG_NAME)-misc-python-esl
@@ -497,13 +497,13 @@ ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
 endif
 ifeq ($(1),perl)
-	$(INSTALL_DIR) $$(1)$$(PERL_SITELIB)/auto
+	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
-							$$(1)$$(PERL_SITELIB)
+							$$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
-							$$(1)$$(PERL_SITELIB)/auto
+							$$(1)$(PERL_SITELIB)/auto
 endif
 ifeq ($(1),python)
 	$(INSTALL_DIR) $$(1)$(PYTHON_PKG_DIR)
