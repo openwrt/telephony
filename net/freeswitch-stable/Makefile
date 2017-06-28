@@ -357,7 +357,7 @@ endef
 define Package/$(PKG_NAME)-misc-perl-esl
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Perl ESL
-  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-misc-perl-esl:perl
+  DEPENDS:=$(PKG_NAME) @PERL_THREADS PACKAGE_$(PKG_NAME)-misc-perl-esl:perl
 endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/description
