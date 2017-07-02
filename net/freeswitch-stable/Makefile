@@ -84,6 +84,11 @@ FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_PREFIX_DIR)/sounds
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
 FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
 
+FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
+FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
+	$(FS_STABLE_PERL_FEED)/files/base.config | \
+			sed "s/^libs=//;s/'//g")
+
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -218,6 +223,10 @@ FS_STABLE_MOD_AVAILABLE:= \
 	yuv
 
 include $(INCLUDE_DIR)/package.mk
+include $(FS_STABLE_PERL_FEED)/perlmod.mk
+
+$(call include_mk, python-version.mk)
+PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
@@ -689,30 +698,6 @@ CONFIGURE_VARS+= \
 	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
 	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
 endif
-
-# Perl setup start
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
-
-FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
-
-FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
-	$(FS_STABLE_PERL_FEED)/files/base.config | \
-			sed "s/^libs=//;s/'//g")
-
-include $(FS_STABLE_PERL_FEED)/perlmod.mk
-
-endif
-# Perl setup end
-
-# Python setup start
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
-
-$(call include_mk, python-version.mk)
-
-PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
-
-endif
-# Python setup end
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
