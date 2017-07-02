@@ -21,7 +21,6 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
 # configure fails without libjpeg, but it's only needed for mod_spandsp
 PKG_BUILD_DEPENDS:= \
-	erlang \
 	libjpeg
 
 PKG_CONFIG_DEPENDS:= \
@@ -644,7 +643,7 @@ CONFIGURE_ARGS+= \
 	--with-python=no
 endif
 
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-kazoo),)
 CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
@@ -942,7 +941,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,distributor,Load distributor,This modul
 $(eval $(call Package/$(PKG_NAME)/Module,dptools,Dialplan tools,This module implements basic dialplan tools.,))
 $(eval $(call Package/$(PKG_NAME)/Module,easyroute,DID routing,This module does destination lookup based on DID.,))
 $(eval $(call Package/$(PKG_NAME)/Module,enum,ENUM routing,This module implements ENUM support.,+libldns))
-$(eval $(call Package/$(PKG_NAME)/Module,erlang_event,Erlang event,Erlang event module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,erlang_event,Erlang event,Erlang event module.,+erlang))
 $(eval $(call Package/$(PKG_NAME)/Module,esf,Multicast,This module adds multi-cast support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,esl,Single ESL,This module adds an API for generating one-off ESL requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_multicast,Multicast Event,Multicast Event System for FreeSWITCH.,))
@@ -964,7 +963,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an 
 $(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
 $(eval $(call Package/$(PKG_NAME)/Module,isac,iSAC,iSAC codec support.,@arm||i386||mips||mips64||mips64el||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,json_cdr,JSON CDR,JSON-based Call Detail Record handler.,))
-$(eval $(call Package/$(PKG_NAME)/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,))
+$(eval $(call Package/$(PKG_NAME)/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,+erlang))
 $(eval $(call Package/$(PKG_NAME)/Module,lcr,LCR,This module adds a facility for least-cost routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,ldap,LDAP,LDAP module for FreeSWITCH.,+libopenldap))
 $(eval $(call Package/$(PKG_NAME)/Module,local_stream,Local stream,Connects multiple channels to a looped stream.,))
