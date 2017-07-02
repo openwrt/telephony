@@ -89,6 +89,9 @@ FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
 			sed "s/^libs=//;s/'//g")
 
+FS_STABLE_LIBS_URL:=https://files.$(PRG_NAME).org/downloads/libs
+FS_STABLE_SPHINX_URL:=@SF/cmusphinx
+
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -227,6 +230,15 @@ include $(FS_STABLE_PERL_FEED)/perlmod.mk
 
 $(call include_mk, python-version.mk)
 PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
+
+define Download/files
+define Download/$(1)
+  FILE:=$(2)
+  URL:=$(3)
+  HASH:=$(4)
+endef
+$$(eval $$(call Download,$(1)))
+endef
 
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
@@ -713,33 +725,21 @@ ZEROMQ_URL:=http://download.zeromq.org
 # mod_pocketsphinx
 POCKETSPHINX_FILE:=pocketsphinx-0.8.tar.gz
 POCKETSPHINX_HASH:=874c4c083d91c8ff26a2aec250b689e537912ff728923c141c4dac48662cce7a
-POCKETSPHINX_URL:=@SF/cmusphinx
 
 SPHINXBASE_FILE:=sphinxbase-0.8.tar.gz
 SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca8
-SPHINXBASE_URL:=@SF/cmusphinx
 
 SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
-SPHINXMODEL_URL:=https://files.freeswitch.org/downloads/libs
-
-define Download/files
-define Download/$(1)
-  FILE:=$(2)
-  URL:=$(3)
-  HASH:=$(4)
-endef
-$$(eval $$(call Download,$(1)))
-endef
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
 $(eval $(call Download/files,zmq,$(ZEROMQ_FILE),$(ZEROMQ_URL),$(ZEROMQ_HASH)))
 endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
-$(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(POCKETSPHINX_URL),$(POCKETSPHINX_HASH)))
-$(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(SPHINXBASE_URL),$(SPHINXBASE_HASH)))
-$(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(SPHINXMODEL_URL),$(SPHINXMODEL_HASH)))
+$(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(FS_STABLE_SPHINX_URL),$(POCKETSPHINX_HASH)))
+$(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(FS_STABLE_SPHINX_URL),$(SPHINXBASE_HASH)))
+$(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(FS_STABLE_LIBS_URL),$(SPHINXMODEL_HASH)))
 endif
 
 define Build/Prepare
