@@ -68,7 +68,6 @@ PKG_LICENSE_FILES:=debian/copyright
 FS_STABLE_PREFIX_DIR:=/usr/share/$(PRG_NAME)
 
 FS_STABLE_BIN_DIR:=/usr/bin
-FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_EXAMPLES_DIR:=$(FS_STABLE_PREFIX_DIR)/examples
 FS_STABLE_FONTS_DIR:=$(FS_STABLE_PREFIX_DIR)/fonts
 FS_STABLE_GRAMMAR_DIR:=$(FS_STABLE_PREFIX_DIR)/grammar
@@ -81,6 +80,7 @@ FS_STABLE_MOD_DIR:=$(FS_STABLE_LIB_DIR)/$(PRG_NAME)/mod
 FS_STABLE_PKGCONFIG_DIR:=$(FS_STABLE_LIB_DIR)/pkgconfig
 FS_STABLE_SCRIPTS_DIR:=$(FS_STABLE_PREFIX_DIR)/scripts
 FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_PREFIX_DIR)/sounds
+FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
 FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
 
@@ -299,8 +299,8 @@ $(call Package/$(PKG_NAME)/Default)
 	  +librt \
 	  +libspeex \
 	  +libspeexdsp \
-	  +libstdcpp \
 	  +libsqlite3 \
+	  +libstdcpp \
 	  +libuuid \
 	  +zlib
   CONFLICTS:=$(PRG_NAME)
@@ -321,7 +321,6 @@ endef
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
-	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_FONTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_GRAMMAR_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_HTDOCS_DIR)
@@ -329,11 +328,12 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/default
-	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
+	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
+	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
 	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
 			$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
@@ -401,11 +401,11 @@ endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/install
 	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/ESL
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
-					$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.so \
+					$(1)$(PERL_SITELIB)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
 					$(1)$(PERL_SITELIB)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/Dispatch.pm \
@@ -428,11 +428,11 @@ endef
 
 define Package/$(PKG_NAME)-misc-python-esl/install
 	$(INSTALL_DIR) $(1)$(PYTHON_SITE_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/ESL.py \
-					$(1)$(PYTHON_SITE_DIR)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/_ESL.so \
+					$(1)$(PYTHON_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/ESL.py \
 					$(1)$(PYTHON_SITE_DIR)
 endef
 
@@ -532,12 +532,12 @@ $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$
 endif
 ifeq ($(1),perl)
 	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
-							$$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
 							$$(1)$(PERL_SITELIB)/auto
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
+							$$(1)$(PERL_SITELIB)
 endif
 ifeq ($(1),python)
 	$(INSTALL_DIR) $$(1)$(PYTHON_SITE_DIR)
@@ -711,12 +711,6 @@ CONFIGURE_VARS+= \
 	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
 endif
 
-# Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
-# different apr/apr-util if found.
-# FS_STABLE_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
-FS_STABLE_ANCHOR:=dnl Get build information from APR
-FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
-
 # mod_event_zmq
 ZEROMQ_FILE:=zeromq-2.1.9.tar.gz
 ZEROMQ_HASH:=f3542f756687e622beef3a75c8e027fe2d95d4654350cbca4c070ffc58d9ace0
@@ -741,6 +735,12 @@ $(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(FS_STABLE_SPHIN
 $(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(FS_STABLE_SPHINX_URL),$(SPHINXBASE_HASH)))
 $(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(FS_STABLE_LIBS_URL),$(SPHINXMODEL_HASH)))
 endif
+
+# Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
+# different apr/apr-util if found.
+# FS_STABLE_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
+FS_STABLE_ANCHOR:=dnl Get build information from APR
+FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
