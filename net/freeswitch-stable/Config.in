@@ -56,13 +56,14 @@ config FS_STABLE_WITH_SRTP
 
 config FS_STABLE_WITH_VPX
 	bool "Compile with VPx support"
+	depends on FS_STABLE_WITH_LIBYUV
 	default n
 	help
 	  Compile with VPx video codec support
 
 config FS_STABLE_WITH_ZRTP
 	bool "Compile with ZRTP support"
-	depends on @aarch64||aarch64_be||arm||armeb||i386||mips||mips64||mips64el||mipsel||powerpc||powerpc64||powerpcle||sparc||x86_64
+	depends on aarch64||aarch64_be||arm||armeb||i386||mips||mips64||mips64el||mipsel||powerpc||powerpc64||powerpcle||sparc||x86_64
 	default n
 	help
 	  Compile with ZRTP support.
