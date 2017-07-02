@@ -236,11 +236,11 @@ endef
 
 define Package/$(PKG_NAME)/install/dir
 	if [ -d $(2) ]; then $(INSTALL_DIR) $(1); fi
-	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && find -type d -print | sed 's|^./\?||'); \
+	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && $(FIND) -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) $(1)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell [ -d $(2) ] && cd $(2) && find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell [ -d $(2) ] && cd $(2) && $(FIND) -type f -print | sed 's|^./||'); \
 	do \
 		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
@@ -782,7 +782,7 @@ endif
 endef
 
 define Build/Configure
-	find $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
+	$(FIND) $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
 	cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./rebootstrap.sh
 	$(call Build/Configure/Default)
 endef
