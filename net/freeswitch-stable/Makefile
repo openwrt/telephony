@@ -169,6 +169,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	posix_timer \
 	prefix \
 	python \
+	radius_cdr \
 	random \
 	rayo \
 	redis \
@@ -661,6 +662,7 @@ CONFIGURE_VARS+= \
 
 # The autoconf variables in this block are OK for both musl and glibc
 CONFIGURE_VARS+= \
+	ac_cv_dev_urandom=yes \
 	ac_cv_file__dev_ptmx=yes \
 	ac_cv_file__dev_urandom=yes \
 	ac_cv_file_dbd_apr_dbd_mysql_c=no \
@@ -720,6 +722,11 @@ CONFIGURE_VARS+= \
 	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
 endif
 
+# mod_radius_cdr runs configure in libs/freeradius-client. Let
+# freeradius-client know /dev/urandom is available on target devices.
+MAKE_VARS+= \
+	ac_cv_dev_urandom=yes
+
 # Make sphinxbase use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -742,6 +749,10 @@ SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca
 SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
 
+# mod_radius_cdr
+FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.6.tar.gz
+FREERADIUS_CLIENT_HASH:=3fc609af328258e00345389d5478b099fe4ea3ad694d0472525ef3adab9cf053
+
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
 $(eval $(call Download/files,zmq,$(ZEROMQ_FILE),$(ZEROMQ_URL),$(ZEROMQ_HASH)))
 endif
@@ -750,6 +761,10 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME
 $(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(FS_STABLE_SPHINX_URL),$(POCKETSPHINX_HASH)))
 $(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(FS_STABLE_SPHINX_URL),$(SPHINXBASE_HASH)))
 $(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(FS_STABLE_LIBS_URL),$(SPHINXMODEL_HASH)))
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
+$(eval $(call Download/files,freeradius-client,$(FREERADIUS_CLIENT_FILE),$(FS_STABLE_LIBS_URL),$(FREERADIUS_CLIENT_HASH)))
 endif
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
@@ -780,6 +795,10 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME
 	$(CP) $(DL_DIR)/$(POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
 	$(CP) $(DL_DIR)/$(SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
 	$(CP) $(DL_DIR)/$(SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
+	$(CP) $(DL_DIR)/$(FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
@@ -961,6 +980,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module a
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
+$(eval $(call Package/$(PKG_NAME)/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rayo,Rayo,Rayo/XMPP 3PCC server for FreeSWITCH.,+$(PKG_NAME)-mod-ssml))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
