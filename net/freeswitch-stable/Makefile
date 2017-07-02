@@ -567,6 +567,61 @@ endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
+CONFIGURE_ARGS+= \
+	--build=$(GNU_HOST_NAME) \
+	--host=$(GNU_TARGET_NAME) \
+	--target=$(GNU_TARGET_NAME) \
+	--prefix=$(FS_STABLE_PREFIX_DIR) \
+	--bindir=$(FS_STABLE_BIN_DIR) \
+	--includedir=$(FS_STABLE_INCLUDES_DIR) \
+	--libdir=$(FS_STABLE_LIB_DIR) \
+	--srcdir=$(PKG_BUILD_DIR) \
+	--sysconfdir=$(FS_STABLE_SYSCONF_DIR) \
+	--disable-dependency-tracking \
+	--disable-static \
+	--disable-system-xmlrpc-c \
+	--enable-fhs \
+	--with-cachedir=/tmp/$(PRG_NAME)/cache \
+	--with-certsdir=$(FS_STABLE_TLS_DIR) \
+	--with-dbdir=/tmp/$(PRG_NAME)/db \
+	--with-fontsdir=$(FS_STABLE_FONTS_DIR) \
+	--with-grammardir=$(FS_STABLE_GRAMMAR_DIR) \
+	--with-htdocsdir=$(FS_STABLE_HTDOCS_DIR) \
+	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
+	--with-logfiledir=/tmp/$(PRG_NAME)/log \
+	--with-modinstdir=$(FS_STABLE_MOD_DIR) \
+	--with-pkgconfigdir=$(FS_STABLE_PKGCONFIG_DIR) \
+	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
+	--with-rundir=/var/run/$(PRG_NAME) \
+	--with-scriptdir=$(FS_STABLE_SCRIPTS_DIR) \
+	--with-soundsdir=$(FS_STABLE_SOUNDS_DIR) \
+	--with-storagedir=/tmp/$(PRG_NAME)/storage \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
+	$(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
+	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
+	$(if $(CONFIG_FS_STABLE_WITH_LIBYUV),,--disable-libyuv) \
+	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
+	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
+	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql) \
+	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
+	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
+CONFIGURE_ARGS+= \
+	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
+else
+CONFIGURE_ARGS+= \
+	--with-python=no
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
+CONFIGURE_ARGS+= \
+	--with-erlang=no
+endif
+
 # don't want host-php
 CONFIGURE_VARS+= \
 	ac_cv_prog_PHP=false \
@@ -657,63 +712,8 @@ CONFIGURE_VARS+= \
 	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
 	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
 
-CONFIGURE_ARGS+= \
-	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
-
-else
-
-CONFIGURE_ARGS+= \
-	--with-python=no
-
 endif
 # Python setup end
-
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
-CONFIGURE_ARGS+= \
-	--with-erlang=no
-endif
-
-CONFIGURE_ARGS+= \
-	--build=$(GNU_HOST_NAME) \
-	--host=$(GNU_TARGET_NAME) \
-	--target=$(GNU_TARGET_NAME) \
-	--prefix=$(FS_STABLE_PREFIX_DIR) \
-	--bindir=$(FS_STABLE_BIN_DIR) \
-	--includedir=$(FS_STABLE_INCLUDES_DIR) \
-	--libdir=$(FS_STABLE_LIB_DIR) \
-	--srcdir=$(PKG_BUILD_DIR) \
-	--sysconfdir=$(FS_STABLE_SYSCONF_DIR) \
-	--disable-dependency-tracking \
-	--disable-static \
-	--disable-system-xmlrpc-c \
-	--enable-fhs \
-	--with-cachedir=/tmp/$(PRG_NAME)/cache \
-	--with-certsdir=$(FS_STABLE_TLS_DIR) \
-	--with-dbdir=/tmp/$(PRG_NAME)/db \
-	--with-fontsdir=$(FS_STABLE_FONTS_DIR) \
-	--with-grammardir=$(FS_STABLE_GRAMMAR_DIR) \
-	--with-htdocsdir=$(FS_STABLE_HTDOCS_DIR) \
-	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
-	--with-logfiledir=/tmp/$(PRG_NAME)/log \
-	--with-modinstdir=$(FS_STABLE_MOD_DIR) \
-	--with-pkgconfigdir=$(FS_STABLE_PKGCONFIG_DIR) \
-	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
-	--with-rundir=/var/run/$(PRG_NAME) \
-	--with-scriptdir=$(FS_STABLE_SCRIPTS_DIR) \
-	--with-soundsdir=$(FS_STABLE_SOUNDS_DIR) \
-	--with-storagedir=/tmp/$(PRG_NAME)/storage \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
-	$(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
-	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
-	$(if $(CONFIG_FS_STABLE_WITH_LIBYUV),,--disable-libyuv) \
-	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
-	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql) \
-	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
-	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
