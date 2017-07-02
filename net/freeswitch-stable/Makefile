@@ -622,12 +622,12 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
-# don't want host-php
+# Don't want host-php
 CONFIGURE_VARS+= \
-	ac_cv_prog_PHP=false \
 	ac_cv_have_php=no \
-	ac_cv_prog_PHP_CONFIG=false \
-	ac_cv_have_php_config=no
+	ac_cv_have_php_config=no \
+	ac_cv_prog_PHP=false \
+	ac_cv_prog_PHP_CONFIG=false
 
 # The autoconf variables in this block are OK for both musl and glibc
 CONFIGURE_VARS+= \
@@ -650,6 +650,10 @@ CONFIGURE_VARS+= \
 	apr_cv_tcp_nodelay_with_cork=yes \
 	apr_cv_type_rwlock_t=yes
 
+# fs_cli
+CONFIGURE_VARS+= \
+	disable_cc=yes
+
 # Regarding apr_cv_mutex_robust_shared=no see
 # http://www.openwall.com/lists/musl/2016/11/26/1
 # _Don't_ remove quotes below!
@@ -662,9 +666,29 @@ CONFIGURE_VARS+= \
 	apr_cv_mutex_robust_shared=yes
 endif
 
-# fs_cli
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
 CONFIGURE_VARS+= \
-	disable_cc=yes
+	PERL="$(PERL_CMD)" \
+	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_LDFLAGS="-fPIC -Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
+	PERL_LIBDIR="-L$(PERL_SITELIB)/CORE" \
+	PERL_LIBS="-lpthread $(FS_STABLE_PERL_LIBS) $(EXTRA_LIBDIRS:%=-L%) $(EXTRA_LIBS:%=-l%)" \
+	PERL_SITEDIR="$(PERL_SITELIB)"
+else
+CONFIGURE_VARS+= \
+	ac_cv_have_perl=no \
+	ac_cv_prog_PERL=false
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
+CONFIGURE_VARS+= \
+	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
+	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic" \
+	PYTHON_LIB="python$(PYTHON_VERSION)" \
+	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
+	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
+endif
 
 # Perl setup start
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
@@ -677,24 +701,6 @@ FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 
 include $(FS_STABLE_PERL_FEED)/perlmod.mk
 
-CONFIGURE_VARS+= \
-	ac_cv_lib_perl_perl_alloc=yes
-
-CONFIGURE_VARS+= \
-	PERL="$(PERL_CMD)" \
-	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
-	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
-	PERL_LDFLAGS="-fPIC -Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
-	PERL_LIBDIR="-L$(PERL_SITELIB)/CORE" \
-	PERL_LIBS="-lpthread $(FS_STABLE_PERL_LIBS) $(EXTRA_LIBDIRS:%=-L%) $(EXTRA_LIBS:%=-l%)" \
-	PERL_SITEDIR="$(PERL_SITELIB)"
-
-else
-
-CONFIGURE_VARS+= \
-	ac_cv_prog_PERL=false \
-	ac_cv_have_perl=no
-
 endif
 # Perl setup end
 
@@ -704,13 +710,6 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)
 $(call include_mk, python-version.mk)
 
 PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
-
-CONFIGURE_VARS+= \
-	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
-	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic" \
-	PYTHON_LIB="python$(PYTHON_VERSION)" \
-	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
-	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
 
 endif
 # Python setup end
