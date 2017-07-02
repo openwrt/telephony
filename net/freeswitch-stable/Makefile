@@ -25,7 +25,6 @@ PKG_BUILD_DEPENDS:= \
 	libjpeg
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_LIBC \
 	CONFIG_FS_STABLE_WITH_DEBUG \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
 	CONFIG_FS_STABLE_WITH_LIBEDIT \
@@ -35,7 +34,9 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
 	CONFIG_FS_STABLE_WITH_VPX \
-	CONFIG_FS_STABLE_WITH_ZRTP
+	CONFIG_FS_STABLE_WITH_ZRTP \
+	CONFIG_LIBC \
+	CONFIG_SOFT_FLOAT
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -644,6 +645,13 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
+# Make mod_spandsp use fixed point math when soft float support is
+# enabled on target devices.
+ifeq ($(CONFIG_SOFT_FLOAT),y)
+CONFIGURE_ARGS+= \
+	--enable-fixed-point
+endif
+
 # Don't want host-php
 CONFIGURE_VARS+= \
 	ac_cv_have_php=no \
@@ -710,6 +718,13 @@ CONFIGURE_VARS+= \
 	PYTHON_LIB="python$(PYTHON_VERSION)" \
 	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
 	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
+endif
+
+# Make sphinxbase use fixed point math when soft float support is
+# enabled on target devices.
+ifeq ($(CONFIG_SOFT_FLOAT),y)
+MAKE_VARS+= \
+	FS_STABLE_USE_FIXED_POINT="--enable-fixed"
 endif
 
 # mod_event_zmq
