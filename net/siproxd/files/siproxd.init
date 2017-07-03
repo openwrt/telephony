@@ -76,9 +76,6 @@ start_instance() {
 	config_get use_rport "$cfg" use_rport 0
 	config_get outbound_proxy_host "$cfg" outbound_proxy_host
 	config_get outbound_proxy_port "$cfg" outbound_proxy_port
-	config_get outbound_domain_name "$cfg" outbound_domain_name
-	config_get outbound_domain_host "$cfg" outbound_domain_host
-	config_get outbound_domain_port "$cfg" outbound_domain_port
 
 	if [ -f "$siproxd_conf_prefix$cfg.conf" ]; then
 		rm "$siproxd_conf_prefix$cfg.conf"
@@ -129,9 +126,9 @@ start_instance() {
 	append_conf_if_set use_rport
 	append_conf_if_set outbound_proxy_host
 	append_conf_if_set outbound_proxy_port
-	append_conf_if_set outbound_domain_name
-	append_conf_if_set outbound_domain_host
-	append_conf_if_set outbound_domain_port
+	config_list_foreach "$cfg" 'outbound_domain_name' deal_with_lists "outbound_domain_name"
+	config_list_foreach "$cfg" 'outbound_domain_host' deal_with_lists "outbound_domain_host"
+	config_list_foreach "$cfg" 'outbound_domain_port' deal_with_lists "outbound_domain_port"
 
 	# handle plugins
 	config_get plugindir "$cfg" plugindir "/usr/lib/siproxd/"
