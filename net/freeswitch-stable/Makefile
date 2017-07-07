@@ -513,12 +513,6 @@ $(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-$(1)/install
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
-ifeq ($(1),dev)
-	$(INSTALL_DIR) $$(1)$(FS_STABLE_PKGCONFIG_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
-						$$(1)$(FS_STABLE_PKGCONFIG_DIR)
-endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
@@ -846,6 +840,16 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 endif
 endef
 
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)$(FS_STABLE_INCLUDES_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_PKGCONFIG_DIR)
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_STABLE_INCLUDES_DIR)/*.h \
+						$(1)$(FS_STABLE_INCLUDES_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
+						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
@@ -895,7 +899,6 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 6 - Arch independent files
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR),n))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR),y))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-grammar,Grammar,This package contains grammar files. mod_pocketsphinx would be a\npotential user.,$(FS_STABLE_GRAMMAR_DIR),$(FS_STABLE_GRAMMAR_DIR),y))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR),y))
