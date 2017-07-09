@@ -72,6 +72,38 @@ FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
 FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
 
+# Maintain a list of all non-module packages so they can be added to
+# PKG_CONFIG_DEPENDS.
+FS_STABLE_MISC_AVAILABLE:= \
+	example-curl \
+	example-insideout \
+	example-minimal \
+	example-rayo \
+	example-sbc \
+	example-softphone \
+	example-testing \
+	example-vanilla \
+	lang-de \
+	lang-en \
+	lang-es \
+	lang-fr \
+	lang-he \
+	lang-pt \
+	lang-ru \
+	lang-sv \
+	misc-fonts \
+	misc-grammar \
+	misc-hotplug \
+	misc-images \
+	misc-perl-esl \
+	misc-python-esl \
+	misc-timezones \
+	util-fs_cli \
+	util-fs_encode \
+	util-fs_ivrd \
+	util-gentls_cert \
+	util-tone2wav
+
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -208,6 +240,23 @@ FS_STABLE_MOD_AVAILABLE:= \
 	xml_scgi \
 	yaml \
 	yuv
+
+PKG_CONFIG_DEPENDS:= \
+	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(FS_STABLE_MISC_AVAILABLE)) \
+	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_STABLE_MOD_AVAILABLE)) \
+	CONFIG_FS_STABLE_WITH_DEBUG \
+	CONFIG_FS_STABLE_WITH_FREETYPE \
+	CONFIG_FS_STABLE_WITH_LIBEDIT \
+	CONFIG_FS_STABLE_WITH_LIBYUV \
+	CONFIG_FS_STABLE_WITH_MODCONF \
+	CONFIG_FS_STABLE_WITH_ODBC \
+	CONFIG_FS_STABLE_WITH_PGSQL \
+	CONFIG_FS_STABLE_WITH_PNG \
+	CONFIG_FS_STABLE_WITH_SRTP \
+	CONFIG_FS_STABLE_WITH_VPX \
+	CONFIG_FS_STABLE_WITH_ZRTP \
+	CONFIG_LIBC \
+	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
 
