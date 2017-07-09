@@ -145,9 +145,12 @@ FS_STABLE_MOD_AVAILABLE:= \
 	perl \
 	png \
 	pocketsphinx \
+	portaudio \
+	portaudio_stream \
 	posix_timer \
 	prefix \
 	python \
+	radius_cdr \
 	random \
 	rayo \
 	redis \
@@ -192,6 +195,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	translate \
 	tts_commandline \
 	unimrcp \
+	v8 \
 	valet_parking \
 	verto \
 	vmd \
@@ -630,6 +634,11 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
+CONFIGURE_ARGS+= \
+	--enable-static-v8
+endif
+
 # Make mod_spandsp use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -706,6 +715,89 @@ CONFIGURE_VARS+= \
 	PYTHON_SITE_DIR="$(FS_STABLE_PYTHON_SITE_DIR)"
 endif
 
+# mod_radius_cdr runs configure in libs/freeradius-client. Let
+# freeradius-client know /dev/urandom is available on target devices.
+MAKE_VARS+= \
+	ac_cv_dev_urandom=yes
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
+
+# arm
+ifeq ($(CONFIG_arm),y)
+  FS_STABLE_MYARCH:=arm
+  FS_STABLE_MYDEFINES:=v8_target_arch=arm
+  ifeq ($(CONFIG_arm_v6),y)
+    FS_STABLE_MYDEFINES+=arm_version=6
+  else
+    ifeq ($(CONFIG_arm_v7),y)
+      FS_STABLE_MYDEFINES+=arm_version=7
+    else
+      FS_STABLE_MYDEFINES+=arm_version=default
+    endif
+  endif
+  ifeq ($(CONFIG_VFP),y)
+    ifeq ($(CONFIG_VFPv3),y)
+      ifeq ($(CONFIG_NEON),y)
+        FS_STABLE_MYDEFINES+=arm_fpu=neon
+      else
+        FS_STABLE_MYDEFINES+=arm_fpu=vfpv3
+      endif
+    else
+      FS_STABLE_MYDEFINES+=arm_fpu=vfp
+    endif
+  else
+    FS_STABLE_MYDEFINES+=arm_fpu=default
+  endif
+  ifeq ($(CONFIG_SOFT_FLOAT),y)
+    FS_STABLE_MYDEFINES+=arm_float_abi=softfp
+  else
+    FS_STABLE_MYDEFINES+=arm_float_abi=hard
+  endif
+endif
+
+# i386
+ifeq ($(CONFIG_i386),y)
+  FS_STABLE_MYARCH:=ia32
+  FS_STABLE_MYDEFINES:=v8_target_arch=ia32
+endif
+
+# mipsel
+ifeq ($(CONFIG_mipsel),y)
+  FS_STABLE_MYARCH:=mipsel
+  FS_STABLE_MYDEFINES:=v8_target_arch=mipsel
+  ifeq ($(CONFIG_CPU_MIPS32),y)
+    ifeq ($(CONFIG_CPU_MIPS32_R2),y)
+      FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r2
+    else
+      ifeq ($(CONFIG_CPU_MIPS32_R1),y)
+        FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r1
+      endif
+    endif
+  endif
+  ifeq ($(CONFIG_SOFT_FLOAT),y)
+    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=false
+  else
+    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=true
+  endif
+endif
+
+# x86_64
+ifeq ($(CONFIG_x86_64),y)
+  FS_STABLE_MYARCH:=x64
+  FS_STABLE_MYDEFINES:=v8_target_arch=x64
+endif
+
+MAKE_VARS+= \
+	FS_STABLE_HOSTCC="$(HOSTCC)" \
+	FS_STABLE_HOSTCXX="$(HOSTCXX)" \
+	FS_STABLE_HOST_CFLAGS="$(HOST_CFLAGS)" \
+	FS_STABLE_HOST_LDFLAGS="$(HOST_LDFLAGS)" \
+	FS_STABLE_HOST_PYTHONPATH="$(HOST_PYTHONPATH)" \
+	FS_STABLE_MYARCH="$(FS_STABLE_MYARCH)" \
+	FS_STABLE_MYDEFINES="$(FS_STABLE_MYDEFINES)"
+
+endif
+
 # Make sphinxbase use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -732,6 +824,14 @@ FS_STABLE_SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb
 FS_STABLE_SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 FS_STABLE_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
 
+# mod_radius_cdr
+FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.6.tar.gz
+FS_STABLE_FREERADIUS_CLIENT_HASH:=3fc609af328258e00345389d5478b099fe4ea3ad694d0472525ef3adab9cf053
+
+# mod_v8
+FS_STABLE_V8_FILE:=v8-3.24.14.tar.bz2
+FS_STABLE_V8_HASH:=395f4eaf5580b973b1e33fe0aa27f8d013ddf1b163ad76992c50dd91ff182828
+
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
 $(eval $(call Download/files,zmq,$(FS_STABLE_ZEROMQ_FILE),$(FS_STABLE_ZEROMQ_URL),$(FS_STABLE_ZEROMQ_HASH)))
 endif
@@ -740,6 +840,14 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME
 $(eval $(call Download/files,pocketsphinx,$(FS_STABLE_POCKETSPHINX_FILE),$(FS_STABLE_SPHINX_URL),$(FS_STABLE_POCKETSPHINX_HASH)))
 $(eval $(call Download/files,sphinxbase,$(FS_STABLE_SPHINXBASE_FILE),$(FS_STABLE_SPHINX_URL),$(FS_STABLE_SPHINXBASE_HASH)))
 $(eval $(call Download/files,communicator,$(FS_STABLE_SPHINXMODEL_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_SPHINXMODEL_HASH)))
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
+$(eval $(call Download/files,freeradius-client,$(FS_STABLE_FREERADIUS_CLIENT_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_FREERADIUS_CLIENT_HASH)))
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
+$(eval $(call Download/files,v8,$(FS_STABLE_V8_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_V8_HASH)))
 endif
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
@@ -770,6 +878,14 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME
 	$(CP) $(DL_DIR)/$(FS_STABLE_POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
 	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
 	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_V8_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
@@ -957,9 +1073,12 @@ $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media 
 $(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,+libdb47 +libgdbm +perlbase-essential @PERL_THREADS))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
 $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,+libsamplerate)) # When libsamplerate is found it'll be linked against, there is no switch to turn it off
+$(eval $(call Package/$(PKG_NAME)/Module,portaudio,Portaudio,Voice through a local soundcard.,+portaudio))
+$(eval $(call Package/$(PKG_NAME)/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
+$(eval $(call Package/$(PKG_NAME)/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rayo,Rayo,Rayo/XMPP 3PCC server for FreeSWITCH.,+$(PKG_NAME)-mod-ssml))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
@@ -1004,6 +1123,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,tone_stream,Tone stream,Tone generation
 $(eval $(call Package/$(PKG_NAME)/Module,translate,Number translation,This module implements number translation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
+$(eval $(call Package/$(PKG_NAME)/Module,v8,V8,This package contains mod_v8 for FreeSWITCH.,@FS_STABLE_WITH_V8 @arm||i386||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
