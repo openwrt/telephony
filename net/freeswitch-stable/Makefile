@@ -21,8 +21,9 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
 # configure fails without libjpeg, but it's only needed for mod_spandsp
 PKG_BUILD_DEPENDS:= \
-	erlang \
-	libjpeg
+	libjpeg \
+	perl/host \
+	python/host
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -207,9 +208,10 @@ FS_STABLE_MOD_AVAILABLE:= \
 include $(INCLUDE_DIR)/package.mk
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
+FS_STABLE_PYTHON_FEED:=$(TOPDIR)/feeds/packages/lang/python
 
 include $(FS_STABLE_PERL_FEED)/perlmod.mk
-$(call include_mk, python-version.mk)
+include $(FS_STABLE_PYTHON_FEED)/files/python-host.mk
 
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
@@ -377,7 +379,11 @@ endef
 define Package/$(PKG_NAME)-misc-perl-esl
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Perl ESL
-  DEPENDS:=$(PKG_NAME) @PERL_THREADS PACKAGE_$(PKG_NAME)-misc-perl-esl:perl
+  DEPENDS:=$(PKG_NAME) \
+	  +PACKAGE_$(PKG_NAME)-misc-perl-esl:perlbase-autoloader \
+	  +PACKAGE_$(PKG_NAME)-misc-perl-esl:perlbase-data \
+	  +PACKAGE_$(PKG_NAME)-misc-perl-esl:perlbase-dynaloader \
+	  @PERL_THREADS
 endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/description
@@ -387,9 +393,10 @@ endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/install
 	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/ESL
+	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/auto/ESL
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.so \
-					$(1)$(PERL_SITELIB)
+					$(1)$(PERL_SITELIB)/auto/ESL
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
 					$(1)$(PERL_SITELIB)
@@ -511,10 +518,10 @@ ifeq ($(CONFIG_FS_STABLE_WITH_MODCONF),y)
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$(PKG_BUILD_DIR)/src/mod/*/mod_$(1)/conf)
 endif
 ifeq ($(1),perl)
-	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto
+	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto/$(PRG_NAME)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
-							$$(1)$(PERL_SITELIB)/auto
+					$$(1)$(PERL_SITELIB)/auto/$(PRG_NAME)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
 							$$(1)$(PERL_SITELIB)
@@ -618,9 +625,16 @@ CONFIGURE_ARGS+= \
 	--with-python=no
 endif
 
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-kazoo),)
 CONFIGURE_ARGS+= \
 	--with-erlang=no
+endif
+
+# Make mod_spandsp use fixed point math when soft float support is
+# enabled on target devices.
+ifeq ($(CONFIG_SOFT_FLOAT),y)
+CONFIGURE_ARGS+= \
+	--enable-fixed-point
 endif
 
 # Don't want host-php
@@ -632,6 +646,7 @@ CONFIGURE_VARS+= \
 
 # The autoconf variables in this block are OK for both musl and glibc
 CONFIGURE_VARS+= \
+	ac_cv_dev_urandom=yes \
 	ac_cv_file__dev_ptmx=yes \
 	ac_cv_file__dev_urandom=yes \
 	ac_cv_file_dbd_apr_dbd_mysql_c=no \
@@ -669,8 +684,6 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
 CONFIGURE_VARS+= \
-	ac_cv_lib_perl_perl_alloc=yes
-CONFIGURE_VARS+= \
 	PERL="$(PERL_CMD)" \
 	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
 	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
@@ -691,6 +704,13 @@ CONFIGURE_VARS+= \
 	PYTHON_LIB="python$(PYTHON_VERSION)" \
 	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
 	PYTHON_SITE_DIR="$(FS_STABLE_PYTHON_SITE_DIR)"
+endif
+
+# Make sphinxbase use fixed point math when soft float support is
+# enabled on target devices.
+ifeq ($(CONFIG_SOFT_FLOAT),y)
+MAKE_VARS+= \
+	FS_STABLE_USE_FIXED_POINT="--enable-fixed"
 endif
 
 # Some common URLs
@@ -899,7 +919,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,distributor,Load distributor,This modul
 $(eval $(call Package/$(PKG_NAME)/Module,dptools,Dialplan tools,This module implements basic dialplan tools.,))
 $(eval $(call Package/$(PKG_NAME)/Module,easyroute,DID routing,This module does destination lookup based on DID.,))
 $(eval $(call Package/$(PKG_NAME)/Module,enum,ENUM routing,This module implements ENUM support.,+libldns))
-$(eval $(call Package/$(PKG_NAME)/Module,erlang_event,Erlang event,Erlang event module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,erlang_event,Erlang event,Erlang event module.,+erlang))
 $(eval $(call Package/$(PKG_NAME)/Module,esf,Multicast,This module adds multi-cast support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,esl,Single ESL,This module adds an API for generating one-off ESL requests.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_multicast,Multicast Event,Multicast Event System for FreeSWITCH.,))
@@ -921,7 +941,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,httapi,HT-TAPI,This module provides an 
 $(eval $(call Package/$(PKG_NAME)/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
 $(eval $(call Package/$(PKG_NAME)/Module,isac,iSAC,iSAC codec support.,@arm||i386||mips||mips64||mips64el||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,json_cdr,JSON CDR,JSON-based Call Detail Record handler.,))
-$(eval $(call Package/$(PKG_NAME)/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,))
+$(eval $(call Package/$(PKG_NAME)/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,+erlang))
 $(eval $(call Package/$(PKG_NAME)/Module,lcr,LCR,This module adds a facility for least-cost routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,ldap,LDAP,LDAP module for FreeSWITCH.,+libopenldap))
 $(eval $(call Package/$(PKG_NAME)/Module,local_stream,Local stream,Connects multiple channels to a looped stream.,))
@@ -934,7 +954,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,nibblebill,Nibblebill,This module allow
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
-$(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,@PERL_THREADS PACKAGE_$(PKG_NAME)-mod-perl:perl +libdb47 +libgdbm))
+$(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,+libdb47 +libgdbm +perlbase-essential @PERL_THREADS))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
 $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,+libsamplerate)) # When libsamplerate is found it'll be linked against, there is no switch to turn it off
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
