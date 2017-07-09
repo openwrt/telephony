@@ -55,7 +55,6 @@ PKG_LICENSE_FILES:=debian/copyright
 FS_STABLE_PREFIX_DIR:=/usr/share/$(PRG_NAME)
 
 FS_STABLE_BIN_DIR:=/usr/bin
-FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_EXAMPLES_DIR:=$(FS_STABLE_PREFIX_DIR)/examples
 FS_STABLE_FONTS_DIR:=$(FS_STABLE_PREFIX_DIR)/fonts
 FS_STABLE_GRAMMAR_DIR:=$(FS_STABLE_PREFIX_DIR)/grammar
@@ -68,6 +67,7 @@ FS_STABLE_MOD_DIR:=$(FS_STABLE_LIB_DIR)/$(PRG_NAME)/mod
 FS_STABLE_PKGCONFIG_DIR:=$(FS_STABLE_LIB_DIR)/pkgconfig
 FS_STABLE_SCRIPTS_DIR:=$(FS_STABLE_PREFIX_DIR)/scripts
 FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_PREFIX_DIR)/sounds
+FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
 FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
 
@@ -206,6 +206,26 @@ FS_STABLE_MOD_AVAILABLE:= \
 
 include $(INCLUDE_DIR)/package.mk
 
+FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
+
+include $(FS_STABLE_PERL_FEED)/perlmod.mk
+$(call include_mk, python-version.mk)
+
+FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
+	$(FS_STABLE_PERL_FEED)/files/base.config | \
+			sed "s/^libs=//;s/'//g")
+
+FS_STABLE_PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
+
+define Download/files
+define Download/$(1)
+  FILE:=$(2)
+  URL:=$(3)
+  HASH:=$(4)
+endef
+$$(eval $$(call Download,$(1)))
+endef
+
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_BIN_DIR)/$(2) \
@@ -214,11 +234,11 @@ endef
 
 define Package/$(PKG_NAME)/install/dir
 	if [ -d $(2) ]; then $(INSTALL_DIR) $(1); fi
-	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && find -type d -print | sed 's|^./\?||'); \
+	for dir in $$$$(shell [ -d $(2) ] && cd $(2) && $(FIND) -type d -print | sed 's|^./\?||'); \
 	do \
 		$(INSTALL_DIR) $(1)/$$$$$$$$dir; \
 	done
-	for file in $$$$(shell [ -d $(2) ] && cd $(2) && find -type f -print | sed 's|^./||'); \
+	for file in $$$$(shell [ -d $(2) ] && cd $(2) && $(FIND) -type f -print | sed 's|^./||'); \
 	do \
 		$(INSTALL_DATA) $(2)/$$$$$$$$file $(1)/$$$$$$$$file; \
 	done
@@ -265,8 +285,8 @@ $(call Package/$(PKG_NAME)/Default)
 	  +librt \
 	  +libspeex \
 	  +libspeexdsp \
-	  +libstdcpp \
 	  +libsqlite3 \
+	  +libstdcpp \
 	  +libuuid \
 	  +zlib
   CONFLICTS:=$(PRG_NAME)
@@ -287,7 +307,6 @@ endef
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/bin,$(1),$(PRG_NAME))
 $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
-	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_FONTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_GRAMMAR_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_HTDOCS_DIR)
@@ -295,11 +314,12 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/default
-	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
+	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
+	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
 	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
 			$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
@@ -367,11 +387,11 @@ endef
 
 define Package/$(PKG_NAME)-misc-perl-esl/install
 	$(INSTALL_DIR) $(1)$(PERL_SITELIB)/ESL
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
-					$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.so \
+					$(1)$(PERL_SITELIB)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL.pm \
 					$(1)$(PERL_SITELIB)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(PERL_SITELIB)/ESL/Dispatch.pm \
@@ -393,13 +413,13 @@ Library (ESL).
 endef
 
 define Package/$(PKG_NAME)-misc-python-esl/install
-	$(INSTALL_DIR) $(1)$(PYTHON_SITE_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/ESL.py \
-					$(1)$(PYTHON_SITE_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_PYTHON_SITE_DIR)
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/_ESL.so \
-					$(1)$(PYTHON_SITE_DIR)
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/_ESL.so \
+					$(1)$(FS_STABLE_PYTHON_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/ESL.py \
+					$(1)$(FS_STABLE_PYTHON_SITE_DIR)
 endef
 
 define Package/$(PKG_NAME)-misc-timezones
@@ -472,12 +492,6 @@ $(subst \n,$(newline),$(3))
 endef
 define Package/$(PKG_NAME)-$(1)/install
 $(call Package/$(PKG_NAME)/install/dir,$$(1)$(5),$(PKG_INSTALL_DIR)$(4))
-ifeq ($(1),dev)
-	$(INSTALL_DIR) $$(1)$(FS_STABLE_PKGCONFIG_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/freeswitch.pc \
-						$$(1)$(FS_STABLE_PKGCONFIG_DIR)
-endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
 endef
@@ -498,18 +512,18 @@ $(call Package/$(PKG_NAME)/install/dir,$$(1)$(FS_STABLE_EXAMPLES_DIR)/mod_$(1),$
 endif
 ifeq ($(1),perl)
 	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
-							$$(1)$(PERL_SITELIB)
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
 							$$(1)$(PERL_SITELIB)/auto
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
+							$$(1)$(PERL_SITELIB)
 endif
 ifeq ($(1),python)
-	$(INSTALL_DIR) $$(1)$(PYTHON_SITE_DIR)
+	$(INSTALL_DIR) $$(1)$(FS_STABLE_PYTHON_SITE_DIR)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(PYTHON_SITE_DIR)/$(PRG_NAME).py \
-						$$(1)$(PYTHON_SITE_DIR)
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/$(PRG_NAME).py \
+					$$(1)$(FS_STABLE_PYTHON_SITE_DIR)
 endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
@@ -554,112 +568,6 @@ endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
-# don't want host-php
-CONFIGURE_VARS+= \
-	ac_cv_prog_PHP=false \
-	ac_cv_have_php=no \
-	ac_cv_prog_PHP_CONFIG=false \
-	ac_cv_have_php_config=no
-
-# The autoconf variables in this block are OK for both musl and glibc
-CONFIGURE_VARS+= \
-	ac_cv_file__dev_ptmx=yes \
-	ac_cv_file__dev_urandom=yes \
-	ac_cv_file_dbd_apr_dbd_mysql_c=no \
-	ac_cv_free_null=yes \
-	ac_cv_func_mmap_fixed_mapped=yes \
-	ac_cv_func_pthread_rwlock_init=yes \
-	ac_cv_func_sem_open=yes \
-	ac_cv_have_working_memmove=yes \
-	ac_cv_negative_eai=yes \
-	ac_cv_o_nonblock_inherited=no \
-	ac_cv_struct_rlimit=yes \
-	apr_cv_epoll=yes \
-	apr_cv_gai_addrconfig=yes \
-	apr_cv_mutex_recursive=yes \
-	apr_cv_process_shared_works=yes \
-	apr_cv_pthreads_lib=-lpthread \
-	apr_cv_tcp_nodelay_with_cork=yes \
-	apr_cv_type_rwlock_t=yes
-
-# Regarding apr_cv_mutex_robust_shared=no see
-# http://www.openwall.com/lists/musl/2016/11/26/1
-# _Don't_ remove quotes below!
-ifeq ($(CONFIG_LIBC),"musl")
-CONFIGURE_VARS+= \
-	apr_cv_mutex_robust_shared=no \
-	ac_cv_strerror_r_rc_int=yes
-else
-CONFIGURE_VARS+= \
-	apr_cv_mutex_robust_shared=yes
-endif
-
-# fs_cli
-CONFIGURE_VARS+= \
-	disable_cc=yes
-
-# Perl setup start
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
-
-FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
-
-FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
-	$(FS_STABLE_PERL_FEED)/files/base.config | \
-			sed "s/^libs=//;s/'//g")
-
-include $(FS_STABLE_PERL_FEED)/perlmod.mk
-
-CONFIGURE_VARS+= \
-	ac_cv_lib_perl_perl_alloc=yes
-
-CONFIGURE_VARS+= \
-	PERL="$(PERL_CMD)" \
-	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
-	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
-	PERL_LDFLAGS="-fPIC -Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
-	PERL_LIBDIR="-L$(PERL_SITELIB)/CORE" \
-	PERL_LIBS="-lpthread $(FS_STABLE_PERL_LIBS) $(EXTRA_LIBDIRS:%=-L%) $(EXTRA_LIBS:%=-l%)" \
-	PERL_SITEDIR="$(PERL_SITELIB)"
-
-else
-
-CONFIGURE_VARS+= \
-	ac_cv_prog_PERL=false \
-	ac_cv_have_perl=no
-
-endif
-# Perl setup end
-
-# Python setup start
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
-
-$(call include_mk, python-version.mk)
-
-PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
-
-CONFIGURE_VARS+= \
-	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
-	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic" \
-	PYTHON_LIB="python$(PYTHON_VERSION)" \
-	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
-	PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)"
-
-CONFIGURE_ARGS+= \
-	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
-
-else
-
-CONFIGURE_ARGS+= \
-	--with-python=no
-
-endif
-# Python setup end
-
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
-CONFIGURE_ARGS+= \
-	--with-erlang=no
-endif
-
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -702,48 +610,123 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
 	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
 
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
+CONFIGURE_ARGS+= \
+	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
+else
+CONFIGURE_ARGS+= \
+	--with-python=no
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang_event),)
+CONFIGURE_ARGS+= \
+	--with-erlang=no
+endif
+
+# Don't want host-php
+CONFIGURE_VARS+= \
+	ac_cv_have_php=no \
+	ac_cv_have_php_config=no \
+	ac_cv_prog_PHP=false \
+	ac_cv_prog_PHP_CONFIG=false
+
+# The autoconf variables in this block are OK for both musl and glibc
+CONFIGURE_VARS+= \
+	ac_cv_file__dev_ptmx=yes \
+	ac_cv_file__dev_urandom=yes \
+	ac_cv_file_dbd_apr_dbd_mysql_c=no \
+	ac_cv_free_null=yes \
+	ac_cv_func_mmap_fixed_mapped=yes \
+	ac_cv_func_pthread_rwlock_init=yes \
+	ac_cv_func_sem_open=yes \
+	ac_cv_have_working_memmove=yes \
+	ac_cv_negative_eai=yes \
+	ac_cv_o_nonblock_inherited=no \
+	ac_cv_struct_rlimit=yes \
+	apr_cv_epoll=yes \
+	apr_cv_gai_addrconfig=yes \
+	apr_cv_mutex_recursive=yes \
+	apr_cv_process_shared_works=yes \
+	apr_cv_pthreads_lib=-lpthread \
+	apr_cv_tcp_nodelay_with_cork=yes \
+	apr_cv_type_rwlock_t=yes
+
+# fs_cli
+CONFIGURE_VARS+= \
+	disable_cc=yes
+
+# Regarding apr_cv_mutex_robust_shared=no see
+# http://www.openwall.com/lists/musl/2016/11/26/1
+# _Don't_ remove quotes below!
+ifeq ($(CONFIG_LIBC),"musl")
+CONFIGURE_VARS+= \
+	apr_cv_mutex_robust_shared=no \
+	ac_cv_strerror_r_rc_int=yes
+else
+CONFIGURE_VARS+= \
+	apr_cv_mutex_robust_shared=yes
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
+CONFIGURE_VARS+= \
+	ac_cv_lib_perl_perl_alloc=yes
+CONFIGURE_VARS+= \
+	PERL="$(PERL_CMD)" \
+	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
+	PERL_LDFLAGS="$(FPIC) -Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
+	PERL_LIBDIR="-L$(PERL_SITELIB)/CORE" \
+	PERL_LIBS="-lpthread $(FS_STABLE_PERL_LIBS) $(EXTRA_LIBDIRS:%=-L%) $(EXTRA_LIBS:%=-l%)" \
+	PERL_SITEDIR="$(PERL_SITELIB)"
+else
+CONFIGURE_VARS+= \
+	ac_cv_have_perl=no \
+	ac_cv_prog_PERL=false
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
+CONFIGURE_VARS+= \
+	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
+	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION) -ldl -lpthread -lm -Xlinker -export-dynamic" \
+	PYTHON_LIB="python$(PYTHON_VERSION)" \
+	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
+	PYTHON_SITE_DIR="$(FS_STABLE_PYTHON_SITE_DIR)"
+endif
+
+# Some common URLs
+FS_STABLE_LIBS_URL:=https://files.$(PRG_NAME).org/downloads/libs
+FS_STABLE_SPHINX_URL:=@SF/cmusphinx
+
+# mod_event_zmq
+FS_STABLE_ZEROMQ_FILE:=zeromq-2.1.9.tar.gz
+FS_STABLE_ZEROMQ_HASH:=f3542f756687e622beef3a75c8e027fe2d95d4654350cbca4c070ffc58d9ace0
+FS_STABLE_ZEROMQ_URL:=http://download.zeromq.org
+
+# mod_pocketsphinx
+FS_STABLE_POCKETSPHINX_FILE:=pocketsphinx-0.8.tar.gz
+FS_STABLE_POCKETSPHINX_HASH:=874c4c083d91c8ff26a2aec250b689e537912ff728923c141c4dac48662cce7a
+
+FS_STABLE_SPHINXBASE_FILE:=sphinxbase-0.8.tar.gz
+FS_STABLE_SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca8
+
+FS_STABLE_SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
+FS_STABLE_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
+$(eval $(call Download/files,zmq,$(FS_STABLE_ZEROMQ_FILE),$(FS_STABLE_ZEROMQ_URL),$(FS_STABLE_ZEROMQ_HASH)))
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
+$(eval $(call Download/files,pocketsphinx,$(FS_STABLE_POCKETSPHINX_FILE),$(FS_STABLE_SPHINX_URL),$(FS_STABLE_POCKETSPHINX_HASH)))
+$(eval $(call Download/files,sphinxbase,$(FS_STABLE_SPHINXBASE_FILE),$(FS_STABLE_SPHINX_URL),$(FS_STABLE_SPHINXBASE_HASH)))
+$(eval $(call Download/files,communicator,$(FS_STABLE_SPHINXMODEL_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_SPHINXMODEL_HASH)))
+endif
+
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
 # FS_STABLE_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
 FS_STABLE_ANCHOR:=dnl Get build information from APR
 FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
-
-# mod_event_zmq
-ZEROMQ_FILE:=zeromq-2.1.9.tar.gz
-ZEROMQ_HASH:=f3542f756687e622beef3a75c8e027fe2d95d4654350cbca4c070ffc58d9ace0
-ZEROMQ_URL:=http://download.zeromq.org
-
-# mod_pocketsphinx
-POCKETSPHINX_FILE:=pocketsphinx-0.8.tar.gz
-POCKETSPHINX_HASH:=874c4c083d91c8ff26a2aec250b689e537912ff728923c141c4dac48662cce7a
-POCKETSPHINX_URL:=@SF/cmusphinx
-
-SPHINXBASE_FILE:=sphinxbase-0.8.tar.gz
-SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca8
-SPHINXBASE_URL:=@SF/cmusphinx
-
-SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
-SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
-SPHINXMODEL_URL:=https://files.freeswitch.org/downloads/libs
-
-define Download/files
-define Download/$(1)
-  FILE:=$(2)
-  URL:=$(3)
-  HASH:=$(4)
-endef
-$$(eval $$(call Download,$(1)))
-endef
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
-$(eval $(call Download/files,zmq,$(ZEROMQ_FILE),$(ZEROMQ_URL),$(ZEROMQ_HASH)))
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
-$(eval $(call Download/files,pocketsphinx,$(POCKETSPHINX_FILE),$(POCKETSPHINX_URL),$(POCKETSPHINX_HASH)))
-$(eval $(call Download/files,sphinxbase,$(SPHINXBASE_FILE),$(SPHINXBASE_URL),$(SPHINXBASE_HASH)))
-$(eval $(call Download/files,communicator,$(SPHINXMODEL_FILE),$(SPHINXMODEL_URL),$(SPHINXMODEL_HASH)))
-endif
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -760,13 +743,13 @@ define Build/Prepare
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
-	$(CP) $(DL_DIR)/$(ZEROMQ_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_ZEROMQ_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
-	$(CP) $(DL_DIR)/$(POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
-	$(CP) $(DL_DIR)/$(SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
-	$(CP) $(DL_DIR)/$(SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
@@ -785,7 +768,7 @@ endif
 endef
 
 define Build/Configure
-	find $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
+	$(FIND) $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
 	cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./rebootstrap.sh
 	$(call Build/Configure/Default)
 endef
@@ -808,6 +791,16 @@ endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod-install)
 endif
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)$(FS_STABLE_INCLUDES_DIR)
+	$(INSTALL_DIR) $(1)$(FS_STABLE_PKGCONFIG_DIR)
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_STABLE_INCLUDES_DIR)/*.h \
+						$(1)$(FS_STABLE_INCLUDES_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
+						$(1)$(FS_STABLE_PKGCONFIG_DIR)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
@@ -859,7 +852,6 @@ $(eval $(call Package/$(PKG_NAME)/Language,sv,Swedish))
 # 6 - Arch independent files
 ################################
 
-$(eval $(call Package/$(PKG_NAME)/Misc,dev,Development files,This package includes the FreeSWITCH headers and pkgconfig file.,$(FS_STABLE_INCLUDES_DIR),$(FS_STABLE_INCLUDES_DIR),n))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-fonts,Fonts,This package includes the fonts bundled with FreeSWITCH.,$(FS_STABLE_FONTS_DIR),$(FS_STABLE_FONTS_DIR),y))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-grammar,Grammar,This package contains grammar files. mod_pocketsphinx would be a\npotential user.,$(FS_STABLE_GRAMMAR_DIR),$(FS_STABLE_GRAMMAR_DIR),y))
 $(eval $(call Package/$(PKG_NAME)/Misc,misc-images,Images,This package includes the images bundled with FreeSWITCH.,$(FS_STABLE_IMAGES_DIR),$(FS_STABLE_IMAGES_DIR),y))
