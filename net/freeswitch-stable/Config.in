@@ -11,7 +11,7 @@ config FS_STABLE_WITH_DEBUG
 
 config FS_STABLE_WITH_FREETYPE
 	bool "Compile with FreeType support"
-	default n
+	default y if x86_64
 	help
 	  Add FreeType support to FreeSWITCH
 
@@ -26,25 +26,25 @@ config FS_STABLE_WITH_LIBEDIT
 
 config FS_STABLE_WITH_LIBYUV
 	bool "Compile with libyuv support"
-	default n
+	default y if x86_64
 	help
 	  Add libyuv support to FreeSWITCH
 
 config FS_STABLE_WITH_ODBC
 	bool "Compile with ODBC support"
-	default n
+	default y if x86_64
 	help
 	  Enable ODBC support.
 
 config FS_STABLE_WITH_PGSQL
 	bool "Compile with PGSQL support"
-	default n
+	default y if x86_64
 	help
 	  Enable PostgreSQL support.
 
 config FS_STABLE_WITH_PNG
 	bool "Compile with PNG support"
-	default n
+	default y if x86_64
 	help
 	  Add PNG support to FreeSWITCH
 
@@ -57,20 +57,20 @@ config FS_STABLE_WITH_SRTP
 config FS_STABLE_WITH_VPX
 	bool "Compile with VPx support"
 	depends on FS_STABLE_WITH_LIBYUV
-	default n
+	default y if x86_64
 	help
 	  Compile with VPx video codec support
 
 config FS_STABLE_WITH_ZRTP
 	bool "Compile with ZRTP support"
 	depends on aarch64||aarch64_be||arm||armeb||i386||mips||mips64||mips64el||mipsel||powerpc||powerpc64||powerpcle||sparc||x86_64
-	default n
+	default y if x86_64
 	help
 	  Compile with ZRTP support.
 
 config FS_STABLE_WITH_MODCONF
 	bool "Include module examples"
-	default n
+	default y if x86_64
 	help
 	  Some modules include examples in their source directory, e.g. xml
 	  snippets. Select y to include them.
