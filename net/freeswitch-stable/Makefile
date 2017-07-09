@@ -261,10 +261,9 @@ PKG_CONFIG_DEPENDS:= \
 include $(INCLUDE_DIR)/package.mk
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
-FS_STABLE_PYTHON_FEED:=$(TOPDIR)/feeds/packages/lang/python
 
 include $(FS_STABLE_PERL_FEED)/perlmod.mk
-include $(FS_STABLE_PYTHON_FEED)/files/python-host.mk
+$(call include_mk, python-host.mk)
 
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
