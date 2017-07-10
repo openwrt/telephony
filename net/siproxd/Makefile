@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014-2015 OpenWrt.org
+# Copyright (C) 2014-2017 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
-PKG_MD5SUM:=e3ec83f66ac880717c98512d89613f42
+PKG_HASH:=526ce491b0cc189e2766c62432aff3ebb995e551d7261ea32c02a90c7bf7ccd0
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
