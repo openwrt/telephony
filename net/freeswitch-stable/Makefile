@@ -253,6 +253,8 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
+	CONFIG_FS_STABLE_WITH_V8 \
+	CONFIG_FS_STABLE_WITH_V8_SNAPSHOT \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
@@ -684,7 +686,8 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
 CONFIGURE_ARGS+= \
-	--enable-static-v8
+	--enable-static-v8 \
+	$(if $(CONFIG_FS_STABLE_WITH_V8_SNAPSHOT),,--disable-snapshot-v8)
 endif
 
 # Make mod_spandsp use fixed point math when soft float support is

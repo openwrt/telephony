@@ -66,6 +66,17 @@ config FS_STABLE_WITH_V8
 
 	  If you want mod_v8 to become available, select 'y'.
 
+config FS_STABLE_WITH_V8_SNAPSHOT
+	bool "Include heap snapshot"
+	depends on FS_STABLE_WITH_V8
+	default n
+	help
+	  V8 can be built with a heap snapshot for faster initialization. Default
+	  is 'n' because of seemingly random segmentation faults observed when
+	  generating the snapshot.
+
+	  Only select 'y' if you know what you are doing.
+
 config FS_STABLE_WITH_VPX
 	bool "Compile with VPx support"
 	depends on FS_STABLE_WITH_LIBYUV
