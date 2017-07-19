@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.18
+PKG_VERSION:=1.6.19
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=ac1b32f61e5c35680c5a2d6f145bc480cf26e6527af07d8b8b9fa2d5280252cd
+PKG_HASH:=e8d271a0d876ba4cca551682af0a4f5047bfd79438fcebdcc17d00711c04a8ff
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
@@ -253,6 +253,8 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
+	CONFIG_FS_STABLE_WITH_V8 \
+	CONFIG_FS_STABLE_WITH_V8_SNAPSHOT \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
@@ -262,8 +264,8 @@ include $(INCLUDE_DIR)/package.mk
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
-include $(FS_STABLE_PERL_FEED)/perlmod.mk
 $(call include_mk, python-host.mk)
+include $(FS_STABLE_PERL_FEED)/perlmod.mk
 
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
@@ -684,7 +686,8 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
 CONFIGURE_ARGS+= \
-	--enable-static-v8
+	--enable-static-v8 \
+	$(if $(CONFIG_FS_STABLE_WITH_V8_SNAPSHOT),,--disable-snapshot-v8)
 endif
 
 # Make mod_spandsp use fixed point math when soft float support is
@@ -1053,7 +1056,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,abstraction,API abstraction,This module
 $(eval $(call Package/$(PKG_NAME)/Module,alsa,ALSA endpoint,ALSA endpoint module.,+alsa-lib))
 $(eval $(call Package/$(PKG_NAME)/Module,amr,AMR passthrough,Passthrough AMR codec support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,amrwb,AMR wideband passthrough,Passthrough AMR wideband codec support.,))
-$(eval $(call Package/$(PKG_NAME)/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN)) # libffmpeg-full doesn't provide avresample
+$(eval $(call Package/$(PKG_NAME)/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @i386||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
 $(eval $(call Package/$(PKG_NAME)/Module,b64,Base64,Transfers data Base64 encoded.,))
 $(eval $(call Package/$(PKG_NAME)/Module,basic,BASIC,BASIC module for FreeSWITCH.,))
@@ -1119,7 +1122,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Reco
 $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,+libdb47 +libgdbm +perlbase-essential @PERL_THREADS))
-$(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,))
+$(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,@FS_STABLE_WITH_PNG))
 $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,+libsamplerate)) # When libsamplerate is found it'll be linked against, there is no switch to turn it off
 $(eval $(call Package/$(PKG_NAME)/Module,portaudio,Portaudio,Voice through a local soundcard.,+portaudio))
 $(eval $(call Package/$(PKG_NAME)/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
