@@ -81,6 +81,7 @@ CONFIGURE_ARGS += \
 	--disable-g7221-codec \
 	--disable-speex-codec \
 	--disable-ilbc-codec \
+	--disable-opus \
 	--disable-resample-dll \
 	--disable-sdl \
 	--disable-ffmpeg \
