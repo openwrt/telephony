@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.15.0
-PKG_RELEASE:=2
+PKG_VERSION:=13.17.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_HASH:=8b8a55557d9c882f9b68f61b62f5f8af5c9ad68b6da6a1aa3506fa1894fb5844
+PKG_HASH:=c4a89386d7db58520391fcbd3202902584b4434289094ca2e4a6b8dada1e90a4
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -231,8 +231,8 @@ CONFIGURE_VARS += \
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
-	--with-ncurses="$(STAGING_DIR_HOST)/usr" \
-	--with-libxml2="$(STAGING_DIR_HOST)/usr"
+	--with-ncurses="$(STAGING_DIR_HOSTPKG)/usr" \
+	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -248,22 +248,22 @@ define Build/Configure
 	$(call Build/Configure/Default,,$(SITE_VARS))
 	(cd $(PKG_BUILD_DIR)/menuselect; \
 		./bootstrap.sh; \
+		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS) \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 	);
 endef
 
 define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
-		include/asterisk/buildopts.h defaults.h \
-		makeopts.embed_rules
+		include/asterisk/buildopts.h defaults.h
 	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY"
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \

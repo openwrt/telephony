@@ -26,12 +26,12 @@
  AST_C_DEFINE_CHECK([DAHDI], [DAHDI_DEFAULT_MTU_MRU], [dahdi/user.h], [220])
 --- a/main/Makefile
 +++ b/main/Makefile
-@@ -47,7 +47,7 @@ AST_LIBS+=$(UUID_LIB)
+@@ -47,7 +47,7 @@ AST_LIBS+=$(AST_CLANG_BLOCKS_LIBS)
  AST_LIBS+=$(RT_LIB)
  AST_LIBS+=$(SYSTEMD_LIB)
  
 -ifneq ($(findstring $(OSARCH), linux-gnu uclinux linux-uclibc kfreebsd-gnu),)
 +ifneq ($(findstring $(OSARCH), linux-gnu uclinux linux-uclibc linux-musl kfreebsd-gnu),)
-   ifneq ($(findstring LOADABLE_MODULES,$(MENUSELECT_CFLAGS)),)
    AST_LIBS+=-ldl
-   endif
+   ifneq (x$(CAP_LIB),x)
+     AST_LIBS+=$(CAP_LIB)
