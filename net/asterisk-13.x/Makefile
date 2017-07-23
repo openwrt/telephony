@@ -264,8 +264,8 @@ define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h
-	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY"
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)"
+	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY" \
+	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
 		ASTDATADIR="/usr/lib/asterisk" \
