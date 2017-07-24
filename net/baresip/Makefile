@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010-2014 OpenWrt.org
+# Copyright (C) 2010-2016 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,16 +9,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.4.12
-PKG_RELEASE:=2
+PKG_VERSION:=0.5.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_MD5SUM:=93c0ea33ec0e96b89b1c3e0f78b72c5b
+PKG_MD5SUM:=4c364f4bb2cf17f83b6ff2b35962fd94258158202dfa566f68531e8ba77c1436
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 baresip-mods:= \
 	alsa \
@@ -28,12 +28,12 @@ baresip-mods:= \
 	evdev \
 	g711 \
 	g722 \
+	g726 \
+	opus \
 	oss \
-	speex \
 	stdio \
-	uuid \
 	v4l \
-	v4l2 \
+	v4l2
 
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(baresip-mods)) \
@@ -61,18 +61,19 @@ baresip-mod-cons      := USE_CONS
 baresip-mod-evdev     := USE_EVDEV
 baresip-mod-g711      := USE_G711
 baresip-mod-g722      := USE_G722
+baresip-mod-g726      := USE_G726
+baresip-mod-opus      := USE_OPUS
 baresip-mod-oss       := USE_OSS
-baresip-mod-speex     := USE_SPEEX
 baresip-mod-stdio     := USE_STDIO
-baresip-mod-uuid      := USE_UUID
 baresip-mod-v4l       := USE_V4L
 baresip-mod-v4l2      := USE_V4L2
 
 BARESIP_MOD_OPTIONS:= \
 	MOD_AUTODETECT= \
+	EXTRA_MODULES="dtmfio" \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS += $(FPIC) -D_GNU_SOURCE
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
@@ -139,12 +140,14 @@ $(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+PACKAGE_baresip-mod-alsa:
 $(eval $(call BuildPlugin,avcodec,FFmpeg video codecs,avcodec,+PACKAGE_baresip-mod-avcodec:libffmpeg-full))
 $(eval $(call BuildPlugin,avformat,FFmpeg video source,avformat,+PACKAGE_baresip-mod-avformat:libffmpeg-full))
 $(eval $(call BuildPlugin,cons,console UI,cons,))
+$(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
 $(eval $(call BuildPlugin,evdev,input event device UI,evdev,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,g711,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+PACKAGE_baresip-mod-g722:libspandsp))
+$(eval $(call BuildPlugin,g726,G.726 audio codec,g726,+PACKAGE_baresip-mod-g726:libspandsp))
+$(eval $(call BuildPlugin,httpd,Webserver UI module,httpd,))
+$(eval $(call BuildPlugin,opus,Opus audio codec,opus,+PACKAGE_baresip-mod-opus:libopus))
 $(eval $(call BuildPlugin,oss,OSS audio driver,oss,))
-$(eval $(call BuildPlugin,speex,Speex audio codec,speex,+PACKAGE_baresip-mod-speex:libspeex))
 $(eval $(call BuildPlugin,stdio,standard I/O UI,stdio,))
-$(eval $(call BuildPlugin,uuid,UUID,uuid,+libuuid))
 $(eval $(call BuildPlugin,v4l,Video4Linux video source,v4l,+PACKAGE_baresip-mod-v4l:libv4l))
 $(eval $(call BuildPlugin,v4l2,Video4Linux2 video source,v4l2,+PACKAGE_baresip-mod-v4l2:libv4l))

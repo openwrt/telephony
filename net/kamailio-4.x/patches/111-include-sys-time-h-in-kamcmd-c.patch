@@ -1,0 +1,10 @@
+--- a/utils/kamcmd/kamcmd.c
++++ b/utils/kamcmd/kamcmd.c
+@@ -43,6 +43,7 @@
+ #include <errno.h>
+ #include <ctype.h> /* isprint */
+ #include <sys/socket.h>
++#include <sys/time.h> /* struct timeval */
+ #include <sys/un.h> /* unix sock*/
+ #include <netinet/in.h> /* udp sock */
+ #include <sys/uio.h> /* writev */

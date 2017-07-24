@@ -1,5 +1,5 @@
-# 
-# Copyright (C) 2010-2014 OpenWrt.org
+#
+# Copyright (C) 2010-2016 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,16 +9,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
-PKG_VERSION:=0.4.11
+PKG_VERSION:=0.4.17
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_MD5SUM:=1668e450c0e78e8dad6bc47a4e2b6e42
+PKG_MD5SUM:=5900337fd8c77515c87eae5bf0f8c091
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -26,14 +26,14 @@ define Package/libre
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libopenssl +libpthread
+  DEPENDS:=+libopenssl +libpthread +zlib
   TITLE:=Generic library for real-time communications with async IO support
   URL:=http://www.creytiv.com/
 endef
 
 TARGET_CFLAGS += $(FPIC)
 
-ifneq ($(CONFIG_USE_EGLIBC),)
+ifneq ($(CONFIG_USE_GLIBC)$(CONFIG_USE_MUSL),)
 TARGET_CFLAGS += -D_GNU_SOURCE
 endif
 

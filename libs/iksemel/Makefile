@@ -21,7 +21,7 @@ PKG_INSTALL:=1
 
 PKG_LICENSE:=LGPL-2.1
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 

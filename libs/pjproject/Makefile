@@ -1,6 +1,7 @@
 #
-# Copyright (C) 2015 OpenWrt.org
-# Copyright (C) 2015 Cesnet, z.s.p.o.
+# Copyright (C) 2006-2017 OpenWrt.org
+# Copyright (C) 2016 Cesnet, z.s.p.o.
+# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,18 +10,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.3
+PKG_VERSION:=2.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)/
-PKG_MD5SUM:=8440e43242c439ae5ec30b5b85005fce
+PKG_HASH:=2f5a1da1c174d845871c758bd80fbb580fca7799d3cfaa0d3c4e082b5161c7b4
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -30,13 +31,13 @@ define Package/pjproject/Default
   SECTION:=lib
   CATEGORY:=Libraries
   SUBMENU:=Telephony
-  URL:=http://www.pjproject.org/
+  URL:=http://www.pjsip.org/
   DEPENDS:=+libuuid +libstdcpp +libpthread
 endef
 
 define Package/pjproject/install/lib
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
 endef
 
 define PJSIPpackage
@@ -66,6 +67,8 @@ CONFIGURE_ARGS += \
 	--disable-ssl \
 	--disable-oss \
 	--disable-sound \
+	--disable-libwebrtc \
+	--disable-libyuv \
 	--with-external-srtp="$(STAGING_DIR)/usr" \
 	--without-external-gsm \
 	--disable-small-filter \
@@ -78,6 +81,7 @@ CONFIGURE_ARGS += \
 	--disable-g7221-codec \
 	--disable-speex-codec \
 	--disable-ilbc-codec \
+	--disable-opus \
 	--disable-resample-dll \
 	--disable-sdl \
 	--disable-ffmpeg \

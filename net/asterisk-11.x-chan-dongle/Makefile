@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=asterisk11-chan-dongle
 PKG_VERSION:=1.1r35
 PKG_REV:=28a46567a88cebdc365db6f294e682246fd2dd7b
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_SOURCE_SUBDIR:=asterisk11-chan-dongle-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
@@ -24,7 +24,7 @@ PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYRIGHT.txt LICENSE.txt
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -44,7 +44,7 @@ endef
 MAKE_ARGS:= \
 	CC="$(TARGET_CC)" \
 	LD="$(TARGET_CC)" \
-	CFLAGS="$(TARGET_CFLAGS) -DASTERISK_VERSION_NUM=110000 -DLOW_MEMORY -D_XOPEN_SOURCE=600 $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/lib/libiconv-full/include -I$(STAGING_DIR)/usr/include/asterisk-11/include -DHAVE_CONFIG_H -I. -fPIC" \
+	CFLAGS="$(TARGET_CFLAGS) -DASTERISK_VERSION_NUM=110000 -DLOW_MEMORY -D_GNU_SOURCE -D_XOPEN_SOURCE=600 $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/lib/libiconv-full/include -I$(STAGING_DIR)/usr/include/asterisk-11/include -DHAVE_CONFIG_H -I. -fPIC" \
 	LDFLAGS="$(TARGET_LDFLAGS) -L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv" \
 	DESTDIR="$(PKG_INSTALL_DIR)/usr/lib/asterisk/modules"
 

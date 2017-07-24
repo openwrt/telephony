@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2009-2013 OpenWrt.org
+# Copyright (C) 2009-2016 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,47 +8,49 @@
 include $(TOPDIR)/rules.mk
 
 
+ifneq ($(PACKAGE_$(PKG_NAME)-mod-perl),)
+include $(TOPDIR)/feeds/packages/lang/perl/perlmod.mk
+endif
+
+
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.5.14
+PKG_VERSION:=1.7.0
 
 
 #
 # The latest FS git hash in PKG_SOURCE_VERSION can be obtained from
 # http://fisheye.freeswitch.org
 #
-FS_WITH_DEFAULT_HEAD:=6eb59c711989774fb797d1c447e3d63aac84826b
-PKG_SOURCE_URL:=https://stash.$(PKG_NAME).org/scm/fs/$(PKG_NAME).git
-PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD|cut -f1),$(FS_WITH_DEFAULT_HEAD))
+PKG_SOURCE_URL:=https://$(PKG_NAME).org/stash/scm/fs/$(PKG_NAME).git
+PATCH_DIR:=./patches/$(CONFIG_LIBC)
+
+
+FS_WITH_DEFAULT_HEAD:=cc0a062204cb51311619cd37f51b32b2f266729f
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
+PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1),$(FS_WITH_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
 PKG_RELEASE:=$(PKG_SOURCE_VERSION_SHORT)
-PKG_SOURCE_SUBDIR:=$(PKG_DISTNAME)
-PKG_SOURCE:=$(PKG_SOURCE_SUBDIR)-$(if $(CONFIG_FS_WITH_LOCAL_SOURCE),$(FS_WITH_DEFAULT_HEAD_SHORT).tar.xz,$(PKG_SOURCE_VERSION_SHORT).tar.bz2)
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_DISTNAME)-$(FS_WITH_DEFAULT_HEAD_SHORT).tar.xz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
 
 
-PKG_FIXUP:=libtool autoreconf
+TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
+
+
+PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=0
+
 
 PKG_LICENSE:=MPL-1.1
 PKG_LICENSE_FILES:=COPYING
 
+
 ifeq ($(CONFIG_DEVEL),y)
 	export QUILT=1
 endif
-
-
-PKG_BUILD_DEPENDS:= \
-	FS_WITH_CORE_LIBEDIT_SUPPORT:libedit \
-	FS_WITH_MYSQL:libmysqlclient \
-	FS_WITH_POSTGRESQL:libpq \
-	FS_WITH_SQLITE3:libsqlite3 \
-	FS_WITH_APR_SCTP:sctp \
-
-
-TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
 
 
 FS_MOD_AVAILABLE:= \
@@ -56,6 +58,7 @@ FS_MOD_AVAILABLE:= \
 	alsa \
 	amr \
 	amrwb \
+	av \
 	avmd \
 	basic \
 	bert \
@@ -66,7 +69,6 @@ FS_MOD_AVAILABLE:= \
 	cdr-mongodb \
 	cdr-pg-csv \
 	cdr-sqlite \
-	celt \
 	cepstral \
 	cidlookup \
 	cluechoo \
@@ -75,6 +77,7 @@ FS_MOD_AVAILABLE:= \
 	conference \
 	console \
 	curl \
+	cv \
 	dahdi-codec \
 	db \
 	dialplan-asterisk \
@@ -88,6 +91,7 @@ FS_MOD_AVAILABLE:= \
 	enum \
 	erlang-event \
 	esf \
+	esl \
 	event-multicast \
 	event-socket \
 	event-zmq \
@@ -101,10 +105,12 @@ FS_MOD_AVAILABLE:= \
 	fsv \
 	g723-1 \
 	g729 \
+	graylog2 \
 	gsmopen \
 	h26x \
 	h323 \
 	hash \
+	hiredis \
 	html5 \
 	httapi \
 	http-cache \
@@ -112,6 +118,7 @@ FS_MOD_AVAILABLE:= \
 	isac \
 	java \
 	json-cdr \
+	kazoo \
 	lcr \
 	ldap \
 	local-stream \
@@ -128,9 +135,11 @@ FS_MOD_AVAILABLE:= \
 	opus \
 	oreka \
 	perl \
+	png \
 	portaudio \
 	portaudio-stream \
 	posix-timer \
+	prefix \
 	python \
 	radius-cdr \
 	rayo \
@@ -157,9 +166,9 @@ FS_MOD_AVAILABLE:= \
 	skel \
 	skinny \
 	skypopen \
+	smpp \
 	sms \
 	snapshot \
-	snipe-hunt \
 	sndfile \
 	snmp \
 	snom \
@@ -178,6 +187,7 @@ FS_MOD_AVAILABLE:= \
 	syslog \
 	timerfd \
 	tone-stream \
+	translate \
 	tts-commandline \
 	unimrcp \
 	valet-parking \
@@ -185,17 +195,17 @@ FS_MOD_AVAILABLE:= \
 	vmd \
 	voicemail \
 	voicemail-ivr \
-	vp8 \
 	xml-cdr \
 	xml-curl \
 	xml-ldap \
-	xml-rpc \
 	xml-radius \
+	xml-rpc \
 	xml-scgi \
 	yaml \
 
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_FS_WITH_LATEST_HEAD \
 	CONFIG_FS_WITH_ALSA \
 	CONFIG_FS_WITH_APR_CONFIG_SWITCHES \
 	CONFIG_FS_WITH_APR_IPV6 \
@@ -207,8 +217,9 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_ERLANG \
 	CONFIG_FS_WITH_FHS \
 	CONFIG_FS_WITH_FIXED_POINT \
-	CONFIG_FS_WITH_LATEST_HEAD \
 	CONFIG_FS_WITH_LOCAL_SOURCE \
+	CONFIG_FS_WITH_LIBVPX \
+	CONFIG_FS_WITH_LIBYUV \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
@@ -218,7 +229,9 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_OPT \
 	CONFIG_FS_WITH_POSTGRESQL \
 	CONFIG_FS_WITH_PYTHON \
+	CONFIG_FS_WITH_PYTHON_PATH \
 	CONFIG_FS_WITH_SILENT_RULES \
+	CONFIG_FS_WITH_SQLITE2 \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
@@ -231,11 +244,8 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
-
-
-ifneq ($(CONFIG_CCACHE),)
-TARGET_CC=$(TARGET_CC_NOCACHE)
-TARGET_CXX=$(TARGET_CXX_NOCACHE)
+ifneq ($(CONFIG_FS_WITH_PYTHON),)
+$(call include_mk, python3-package.mk)
 endif
 
 
@@ -255,10 +265,10 @@ endef
 
 
 define Package/$(PKG_NAME)
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +FS_WITH_SRTP:libsrtp_git +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libfreetype +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpng +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE2:libsqlite2 +FS_WITH_SQLITE3:libsqlite3 +libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
 
 
@@ -286,7 +296,7 @@ endef
 
 
 define Package/$(PKG_NAME)-example-config
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH example config (commented)
   DEPENDS:= $(PKG_NAME)
 endef
@@ -300,7 +310,7 @@ endef
 
 
 define Package/$(PKG_NAME)-config-upstream-defaults
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH upstream config
   DEPENDS:= $(PKG_NAME)
 endef
@@ -314,7 +324,7 @@ endef
 
 
 define Package/$(PKG_NAME)-config-minimal
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH minimal config
   DEPENDS:= $(PKG_NAME)
 endef
@@ -327,7 +337,7 @@ endef
 
 
 define Package/$(PKG_NAME)-collection-upstream-defaults
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FS upstream def sample conf
   DEPENDS:= $(PKG_NAME) \
 		+$(PKG_NAME)-config-upstream-defaults \
@@ -360,7 +370,7 @@ endef
 
 
 define Package/$(PKG_NAME)-collection-minimal
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH minimal package collection
   DEFAULT:=y
   DEPENDS:= $(PKG_NAME) \
@@ -381,63 +391,63 @@ endef
 
 
 define Package/$(PKG_NAME)-sounds-en-08KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 8KHz english sounds
   DEPENDS:= $(PKG_NAME)
 endef
 
 
 define Package/$(PKG_NAME)-sounds-en-16KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 16KHz english sounds
   DEPENDS:= +$(PKG_NAME)-sounds-en-08KHz
 endef
 
 
 define Package/$(PKG_NAME)-sounds-en-32KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 32KHz english sounds
   DEPENDS:= +$(PKG_NAME)-sounds-en-16KHz
 endef
 
 
 define Package/$(PKG_NAME)-sounds-en-48KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 48KHz english sounds
   DEPENDS:= +$(PKG_NAME)-sounds-en-32KHz
 endef
 
 
 define Package/$(PKG_NAME)-sounds-moh-08KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 8KHz music-on-hold sounds
   DEPENDS:= $(PKG_NAME)
 endef
 
 
 define Package/$(PKG_NAME)-sounds-moh-16KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 16KHz music-on-hold sounds
   DEPENDS:= +$(PKG_NAME)-sounds-moh-08KHz
 endef
 
 
 define Package/$(PKG_NAME)-sounds-moh-32KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 32KHz music-on-hold sounds
   DEPENDS:= +$(PKG_NAME)-sounds-moh-16KHz
 endef
 
 
 define Package/$(PKG_NAME)-sounds-moh-48KHz
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH 48KHz music-on-hold sounds
   DEPENDS:= +$(PKG_NAME)-sounds-moh-32KHz
 endef
 
 
 define Package/$(PKG_NAME)-tools
-$(call Package/$(PKG_NAME)/Default)
+  $(call Package/$(PKG_NAME)/Default)
   TITLE:=FreeSWITCH control tools
   DEPENDS:= $(PKG_NAME)
 endef
@@ -459,11 +469,6 @@ endef
 MAKE_INSTALL_TARGETS:=install
 
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),)
- $(eval $(call Download/files,celt,celt-0.10.0.tar.gz,a656f6176e9be84027c0e51ceedd710f,,downloads/libs/,libs/))
-endif
-
-
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl),)
  $(eval $(call Download/files,json-cdr,json-c-0.9.tar.gz,4653b3b9c568bb9c782178abfaac128d,,downloads/libs/,libs/))
 endif
@@ -474,23 +479,8 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event-zmq),)
 endif
 
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-flite),)
- $(eval $(call Download/files,flite,flite-2.0.0-release.tar.bz2,645db96ffc296cbb6d37f231cc1cc6b2,,downloads/libs/,libs/))
-endif
-
-
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-mongo),)
  $(eval $(call Download/files,mongo,mongo-c-driver-0.92.2.tar.gz,afab25a33abd3f1e0ba79c5a9da92651,,downloads/libs/,libs/))
-endif
-
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-opus),)
- $(eval $(call Download/files,opus,opus-1.1-p2.tar.gz,5da7cb39925bfb7dd60ea2e810f71357,,downloads/libs/,libs/))
-endif
-
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-ldap)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-ldap),)
- $(eval $(call Download/files,ldap,openldap-2.4.19.tar.gz,4a6dab2711fcf141f19bb680bc335887,,downloads/libs/,libs/))
 endif
 
 
@@ -558,21 +548,21 @@ ifneq ($(CONFIG_USE_EGLIBC),)
 endif
 
 
-FS_TARGET_CFLAGS:= $(TARGET_CFLAGS) -DLUA_USE_LINUX $(FPIC) -std=gnu99 -Wno-format -Wno-unused-variable -Wno-unused-but-set-variable -Wno-implicit-function-declaration
-FS_TARGET_CXXFLAGS:= $(TARGET_CXXFLAGS)
-FS_TARGET_CPPFLAGS:= -I. -I./lua $(TARGET_CPPFLAGS) $(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-json-cdr),-Wno-error) -I`ls -d $(PKG_BUILD_DIR)/libs/*|grep tiff`/libtiff -I$(PKG_BUILD_DIR)/libs/spandsp/src
+ifeq ($(CONFIG_LIBC),musl)
+	TARGET_CFLAGS += -D_GNU_SOURCE
+endif
 
 
-#MAKE_FLAGS += \
-#	OPT_FLAGS+="$(TARGET_CFLAGS)"
-
-
-MAKE_VARS += \
+MAKE_FLAGS += \
 	AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar" \
 	CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
 	CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
 	RANLIB="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ranlib" \
 	CC_FOR_BUILD="$(HOSTCC)" \
+
+
+MAKE_VARS += \
+	OPT_FLAGS+="$(TARGET_CFLAGS)"
 
 
 CONFIGURE_ARGS+= \
@@ -582,13 +572,15 @@ CONFIGURE_ARGS+= \
 	--bindir="/usr/bin" \
 	--libdir="/usr/lib" \
 	--srcdir="$(PKG_BUILD_DIR)" \
-	--sysconfdir="/etc/$(PKG_NAME)" \
+	--sysconfdir="/etc" \
 	--with-modinstdir="/usr/lib/$(PKG_NAME)" \
 	--with-random="/dev/urandom" \
 	$(call autoconf_bool,CONFIG_FS_WITH_BUILTIN_ZRTP,zrtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_CORE_LIBEDIT_SUPPORT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_IPV6,ipv6) \
+	$(call autoconf_bool,CONFIG_FS_WITH_LIBVPX,libvpx) \
+	$(call autoconf_bool,CONFIG_FS_WITH_LIBYUV,libyuv) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
 	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
@@ -609,58 +601,36 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_OGG),--with-ogg="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_OPENSSL),--with-openssl="pkg-config") \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-celt),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event),--with-erlang="$(CONFIG_FS_WITH_ERLANG)",--without-erlang) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-java),--with-java="$(STAGING_DIR)/usr",--without-java) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),--with-python="$(CONFIG_FS_WITH_PYTHON)",--without-python) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),--with-python="$(CONFIG_FS_WITH_PYTHON_PATH)",--without-python) \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	--with$(if $(CONFIG_FS_WITH_MYSQL),,out)-mysql \
 	--with$(if $(CONFIG_FS_WITH_POSTGRESQL),,out)-pgsql \
+	--with$(if $(CONFIG_FS_WITH_SQLITE2),,out)-sqlite2 \
 	--with$(if $(CONFIG_FS_WITH_SQLITE3),,out)-sqlite3 \
 
 
-ifeq ($(ARCH),arm)
+ifeq ($(CONFIG_TARGET_ARCH_PACKAGES),"kirkwood")
 	CONFIGURE_ARGS+= --enable-arm5e-asm \
 
 endif
 
 
-CONFIGURE_VARS+= \
-	config_TARGET_CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
-	config_TARGET_CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
-	config_TARGET_CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
-	config_TARGET_CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
-	config_TARGET_CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
-	config_TARGET_READLINE_INC="$(FS_TARGET_CPPFLAGS)" \
-	config_TARGET_READLINE_LIBS="-lreadline -lncurses" \
-	config_TARGET_LIBS="-lpthread -ldl" \
-	config_BUILD_CC="$(HOSTCC)" \
-	CC_FOR_BUILD="$(HOSTCC)" \
-	BUILDTOOL_CC="$(HOSTCC)" \
-	BUILDTOOL_CCLD="$(HOSTCC)" \
-	CC="$(TOOLCHAIN_DIR)/bin/$(TARGET_CC)" \
-	CXX="$(TOOLCHAIN_DIR)/bin/$(TARGET_CXX)" \
-	AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar" \
-	RANLIB="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ranlib" \
-	CFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CFLAGS)" \
-	CXXFLAGS="$(FS_TARGET_CPPFLAGS) $(FS_TARGET_CXXFLAGS)" \
-	CPPFLAGS="$(FS_TARGET_CPPFLAGS)" \
-	LDFLAGS="-L$(STAGING_DIR)/usr/lib/perl5/5.20/CORE -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib\" -Wl,-rpath-link=\"$(STAGING_DIR)/usr/lib$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),/perl5/5.20/CORE)\" -Wl,-rpath,/usr/lib -Wl,-rpath,/usr/lib$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),/perl5/5.20/CORE -lperl -lpthread -lnsl -lgdbm -ldb -ldl -lm -lcrypt -lutil -lc)" \
-	HOST_CC="/usr/bin/cc" \
-	HOST_CXX="/usr/bin/g++" \
-	CROSS_COMPILE="1" \
-	$(if $(CONFIG_FS_WITH_APR_SCTP),ac_cv_header_netinet_sctp_h="yes") \
+#ifeq ($(CONFIG_LIBC),"uClibc")
+ifeq ($(CONFIG_ARCH),"mips")
+	CONFIGURE_VARS+= \
+		ac_cv_file_dbd_apr_dbd_mysql_c="no" \
+
+endif
+#endif
 
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	$(call Prepare/celt)
 	$(call Prepare/event-zmq)
-	$(call Prepare/flite)
 	$(call Prepare/json-cdr)
-	$(call Prepare/ldap)
 	$(call Prepare/mongo)
-	$(call Prepare/opus)
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-08KHz),$(call Prepare/sounds-en-08KHz))
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-16KHz),$(call Prepare/sounds-en-16KHz))
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-sounds-en-32KHz),$(call Prepare/sounds-en-32KHz))
@@ -672,12 +642,11 @@ define Build/Prepare
 ifeq ($(CONFIG_FS_WITH_LOCAL_SOURCE),y)
 	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1 && [ -f $(PKG_BUILD_DIR)/patches/series ]; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
 endif
+	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
 endef
 
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); $(if $(CONFIG_FS_WITH_LATEST_HEAD),if $(QUILT_CMD) top > /dev/null 2>&1 && [ -f $(PKG_BUILD_DIR)/patches/series ]; then $(QUILT_CMD) pop -a; fi; git pull;) if $(QUILT_CMD) next > /dev/null 2>&1; then $(QUILT_CMD) push -a; fi)
-	(cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./bootstrap.sh)
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 			$(SED) 's|^[ #]*\([^#]*/mod_$(subst -,_,$(m))\)$$$$|\1|g' $(PKG_BUILD_DIR)/modules.conf
@@ -699,14 +668,6 @@ define Build/Compile
 endef
 
 
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/include $(1)/usr
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib$(PKG_NAME).{a,so*} $(1)/usr/lib/
-endef
-
-
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/default
@@ -715,7 +676,6 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(INSTALL_BIN) ./files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
@@ -723,7 +683,6 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DATA) ./files/$(PKG_NAME).default $(1)/etc/default/$(PKG_NAME)
 	$(INSTALL_DATA) ./files/$(PKG_NAME).hotplug $(1)/etc/hotplug.d/iface/90-$(PKG_NAME)
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/$(PKG_NAME) $(1)/usr/bin/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include $(1)/usr/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib$(PKG_NAME)* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/$(PKG_NAME).pc $(1)/usr/lib/pkgconfig/
 	$(if $(1)/usr/lib/lib$(PKG_NAME).la,$(STAGING_DIR_HOST)/bin/sed -i -re 's|$(STAGING_DIR)||g;s|$(TOOLCHAIN_DIR)||g;s|$(TARGET_CROSS)|usr|g;s|$(REAL_GNU_TARGET_NAME)|usr|g;s|-L$(PKG_BUILD_DIR)(.*)libzrtp ||g;:a;s|((-[IL]/\S+\s).*)\2|\1|;ta' $(1)/usr/lib/lib$(PKG_NAME).la)
@@ -971,25 +930,26 @@ $(eval $(call BuildPlugin,abstraction,An Abstraction To API Call,vanilla,,,,))
 $(eval $(call BuildPlugin,alsa,Alsa Endpoint,vanilla,,,,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA))
 $(eval $(call BuildPlugin,amr,Adaptive Multi-Rate On Bandwidth Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,amrwb,Wide Band AMR,vanilla,,,,))
+$(eval $(call BuildPlugin,av,FS Video Codec / File Format,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,avmd,Advanced Voice Mail Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,basic,BASIC,vanilla,,,,))
 $(eval $(call BuildPlugin,bert,Naive Bit Error Rate Tester,vanilla,,,,))
 $(eval $(call BuildPlugin,blacklist,Blacklist,vanilla,,,,))
-$(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,))
+$(eval $(call BuildPlugin,bv,BroadVoice 16/32-bit Audio Codec,vanilla,,,,@BROKEN)) # Requires unsupported libbroadvoice
 $(eval $(call BuildPlugin,callcenter,Call Center,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-csv,CSV-CDR Handler,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,cdr-mongodb,MongoDB CDR logger,vanilla,,,,))
 $(eval $(call BuildPlugin,cdr-pg-csv,PostgreSQL CDR Handler,vanilla,,,,+coreutils +FS_WITH_POSTGRESQL:libpq @FS_WITH_POSTGRESQL))
 $(eval $(call BuildPlugin,cdr-sqlite,SQLite3 CDR Handler,vanilla,,,,@FS_WITH_SQLITE3))
-$(eval $(call BuildPlugin,celt,CELT Ultra-Low Delay Codec,vanilla,,,,+ogg_svn))
 $(eval $(call BuildPlugin,cepstral,Cepstral Interface,vanilla,,,,@BROKEN)) # needs <swift.h>
 $(eval $(call BuildPlugin,cidlookup,Data Query For CID->NAME Services,mod,,,,+libcurl)) # ~/conf
 $(eval $(call BuildPlugin,cluechoo,Framework Demo,vanilla,,,,))
-$(eval $(call BuildPlugin,codec2,CoDec 2,,,,,))
+$(eval $(call BuildPlugin,codec2,CoDec 2,,,,,@BROKEN)) # Requires unsupported libcodec2
 $(eval $(call BuildPlugin,commands,API Commands,vanilla,,,,))
 $(eval $(call BuildPlugin,conference,Conference Room,vanilla,,,,))
 $(eval $(call BuildPlugin,console,Console Logger,vanilla,,,,))
 $(eval $(call BuildPlugin,curl,HTTP Request,vanilla,,,,+libcurl))
+$(eval $(call BuildPlugin,cv,Detect Video motion,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,dahdi-codec,DAHDI Codecs,vanilla,,,,))
 $(eval $(call BuildPlugin,db,Database Backend,vanilla,,,,+libdb47))
 $(eval $(call BuildPlugin,dialplan-asterisk,Asterisk Dialplan Parser,vanilla,,,,))
@@ -1000,38 +960,42 @@ $(eval $(call BuildPlugin,directory,Search By Name Directory IVR,vanilla,,,,))
 $(eval $(call BuildPlugin,distributor,Simple Robin-Round Load,vanilla,,,,))
 $(eval $(call BuildPlugin,dptools,Dialplan Tools,vanilla,,,,))
 $(eval $(call BuildPlugin,easyroute,Simple DID Routing,vanilla,,,,))
-$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns @BROKEN))
+$(eval $(call BuildPlugin,enum,ENUM Routing,,,,,+libldns))
 $(eval $(call BuildPlugin,erlang-event,Erlang Event Handler,vanilla,,,,+erlang))
 $(eval $(call BuildPlugin,esf,Extra SIP Functionality,vanilla,,,,))
+$(eval $(call BuildPlugin,esl,Allow to generate remote ESL commands,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,event-multicast,Multicast Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-socket,Socket Event Handler,vanilla,,,,))
 $(eval $(call BuildPlugin,event-zmq,Socket Event Handler By Zero MQ,vanilla,,,,+libuuid))
 $(eval $(call BuildPlugin,expr,Expression Evaluation,vanilla,,,,))
 $(eval $(call BuildPlugin,fifo,FIFO,vanilla,,,,))
 $(eval $(call BuildPlugin,file-string,Streaming Multiple Sound Files Sequentially,vanilla,,,,@OBSOLETE)) # merged into dptools
-$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,@(!(armeb||avr32)||BROKEN)))
+$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package repo
 $(eval $(call BuildPlugin,format-cdr,XML CDR Module to files or curl,vanilla,,,,))
 $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
-$(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,))
+$(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,+libyuv @BROKEN)) # Requires unsupported libyuv.
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,g729,G.729 Codec,vanilla,,,,))
+$(eval $(call BuildPlugin,graylog2,Graylog2 GELF logger,vanilla,,,,))
 $(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+FS_WITH_ALSA:alsa-lib +FS_WITH_LZMA:liblzma @FS_WITH_ALSA @BROKEN)) # needs gsmlib
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
+$(eval $(call BuildPlugin,hiredis,Redis DB access,vanilla,,,,+hiredis @BROKEN))
 #$(eval $(call BuildPlugin,html5,HTML5 Endpoint Module,vanilla,,,,)) # defunct?
 $(eval $(call BuildPlugin,httapi,HT Telephony API and HTTP Caching,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,http-cache,HTTP GET With Caching,mod,,,,+libcurl)) # ~/conf
-$(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,))
+$(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,+libilbc @BROKEN)) # Requires unsupported libilbc.
 $(eval $(call BuildPlugin,isac,iSAC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,java,Java Language Interface,vanilla,,,,@BROKEN)) # needs java
 $(eval $(call BuildPlugin,json-cdr,JSon-CDR Interface,mod,,,,+libcurl))
+$(eval $(call BuildPlugin,kazoo,Socket Controlled Event Handler,vanilla,,,,+erlang))
 $(eval $(call BuildPlugin,ldap,LDAP interface,vanilla,,,,+libopenldap))
 $(eval $(call BuildPlugin,lcr,Least Cost Routing,vanilla,,,,))
 $(eval $(call BuildPlugin,local-stream,Multi-Channel On Same Stream,vanilla,,,,))
 $(eval $(call BuildPlugin,logfile,File Logger,vanilla,,,,))
 $(eval $(call BuildPlugin,loopback,Loopback to Dialplan Endpoint,vanilla,,,,))
-$(eval $(call BuildPlugin,lua,LUA Language Interface,vanilla,,,,))
+$(eval $(call BuildPlugin,lua,LUA Language Interface,vanilla,,,,+liblua))
 $(eval $(call BuildPlugin,managed,Media Switching Software Library,vanilla,,,,+glib2 @BROKEN)) # needs Mono
 $(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req host libmemcached
 $(eval $(call BuildPlugin,mongo,A Document-Oriented Database,vanilla,,,,@BROKEN))
@@ -1039,16 +1003,18 @@ $(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROK
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
 $(eval $(call BuildPlugin,native-file,WAV Format Sound Player,vanilla,,,,))
 $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
-$(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,))
+$(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,+libopus))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
-$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/5.20/$(PKG_NAME).la lib/perl5/5.20/$(PKG_NAME).pm lib/perl5/5.20/$(PKG_NAME).so,,+perl +libdb47 +libgdbm @ROKEN))
+$(eval $(call BuildPlugin,png,play a png as video with audio,vanilla,,,,+libpng))
+$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/$(PERL_VERSION)/$(PKG_NAME).la lib/perl5/$(PERL_VERSION)/$(PKG_NAME).pm lib/perl5/$(PERL_VERSION)/$(PKG_NAME).so,,+perl +libdb47 +libgdbm @BROKEN))
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
-$(eval $(call BuildPlugin,python,Python Language Interface,vanilla,,,,python @BROKEN))
+$(eval $(call BuildPlugin,prefix,longest-prefix match in store,mod,,,,))
+$(eval $(call BuildPlugin,python,Python Language Interface,vanilla,,lib/python$(PYTHON3_VERSION)/site-packages/freeswitch.py,,+FS_WITH_PYTHON:python3 @FS_WITH_PYTHON))
 $(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
 $(eval $(call BuildPlugin,rayo,Rayo server & node implementation,vanilla,,,,))
-$(eval $(call BuildPlugin,redis,Redis Limited Backend,vanilla,,,,))
+$(eval $(call BuildPlugin,redis,Redis limit backend,vanilla,,,,))
 $(eval $(call BuildPlugin,rss,RRS Feeds via TTS,vanilla,,,,))
 $(eval $(call BuildPlugin,rtc,RTC endpoint,vanilla,,,,))
 $(eval $(call BuildPlugin,rtmp,RTMP Protocol Handler,vanilla,,,,))
@@ -1066,15 +1032,15 @@ $(eval $(call BuildPlugin,say-ru,Russian Say,vanilla,,,,))
 $(eval $(call BuildPlugin,say-th,Thai Say,vanilla,,,,))
 $(eval $(call BuildPlugin,say-zh,Chineese Say,vanilla,,,,))
 $(eval $(call BuildPlugin,shell-stream,Streaming Audio Through CLI,vanilla,,,,))
-$(eval $(call BuildPlugin,silk,Skype(TM) SILK Codec Module,vanilla,,,,))
-$(eval $(call BuildPlugin,siren,G.722.1 Codec,vanilla,,,,))
-$(eval $(call BuildPlugin,skel,Template For New Module,vanilla,,,,))
+$(eval $(call BuildPlugin,silk,Skype(TM) SILK Codec Module,vanilla,,,,+libsilk @BROKEN)) # Requires unsupported libsilk
+$(eval $(call BuildPlugin,siren,G.722.1 Codec,vanilla,,,,+libg7221 @BROKEN)) # Requires unsupported libg7221
+$(eval $(call BuildPlugin,skel,Template For New Module,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,skinny,Skinny Call Control Protocol (SCCP),vanilla,,,,))
 $(eval $(call BuildPlugin,skypopen,Skype Compatible Endpoint,mod,,,,@FEATURE_drawing-backend_libX11))
 $(eval $(call BuildPlugin,sms,SMS,vanilla,,,,))
+$(eval $(call BuildPlugin,smpp,smpp client and server implementation,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,snapshot,Record Audio Snapshot to File,vanilla,,,,))
-$(eval $(call BuildPlugin,sndfile,Multi-Format Sound File,vanilla,,,,))
-$(eval $(call BuildPlugin,snipe-hunt,Snipe Hunt (Simple Example Module),vanilla,,,,))
+$(eval $(call BuildPlugin,sndfile,Multi-Format Sound File,vanilla,,,,+libsndfile))
 $(eval $(call BuildPlugin,snmp,SNMP AgentX Subagent,vanilla,,,,+libnetsnmp))
 $(eval $(call BuildPlugin,snom,SNOM specific features,vanilla,,,,))
 $(eval $(call BuildPlugin,sofia,SOFIA SIP,mod,,,,)) # ~/conf
@@ -1092,18 +1058,18 @@ $(eval $(call BuildPlugin,stress,Voice Stress Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,syslog,SysLog logger,vanilla,,,,))
 $(eval $(call BuildPlugin,timerfd,Linux Kernel timerfd API,vanilla,,,,))
 $(eval $(call BuildPlugin,tone-stream,Tone Generation Stream,vanilla,,,,))
+$(eval $(call BuildPlugin,translate,Translate,vanilla,,,,))
 $(eval $(call BuildPlugin,tts-commandline,ASR TTS Command Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,unimrcp,UniMRCP (MRCP Client),vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,valet-parking,Valet Parking Application,vanilla,,,,))
-$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/5.20/MCAST.so lib/perl5/5.20/MCAST.la lib/perl5/5.20/MCAST.pm,perl rtc,@BROKEN))
+$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/$(PERL_VERSION)/MCAST.so lib/perl5/$(PERL_VERSION)/MCAST.la lib/perl5/$(PERL_VERSION)/MCAST.pm,perl rtc,+perl @BROKEN))
 $(eval $(call BuildPlugin,vmd,VoiceMail Beep Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail,VoiceMail,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail-ivr,VoiceMail IVR,vanilla,,,,))
-$(eval $(call BuildPlugin,vp8,VP8 Video Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-cdr,XML-CDR Handler,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl Gateway,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap))
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
-$(eval $(call BuildPlugin,yaml,YAML language,vanilla,,,,+libyaml @BROKEN))
+$(eval $(call BuildPlugin,yaml,YAML language,vanilla,,,,+libyaml))

@@ -1,20 +1,14 @@
-Description: Fix data alignment
-Author: "Martin Guy" <martinwguy@yahoo.it>
-Origin: vendor, http://bugs.debian.org/cgi-bin/bugreport.cgi?msg=5;bug=470505
-Bug: http://sourceforge.net/tracker/index.php?func=detail&aid=1912057&group_id=38894&atid=423799
-Bug-Debian: http://bugs.debian.org/470505
-Last-Update: 2011-05-30
 --- a/test/srtp_driver.c
 +++ b/test/srtp_driver.c
-@@ -1129,7 +1129,6 @@ mips_estimate(int num_trials, int *ignor
+@@ -1198,7 +1198,6 @@ mips_estimate(int num_trials, int *ignor
   * These packets were made with the default SRTP policy.
   */
  
 -
  err_status_t
  srtp_validate() {
-   unsigned char test_key[30] = {
-@@ -1144,14 +1143,14 @@ srtp_validate() {
+   uint8_t srtp_plaintext_ref[28] = {
+@@ -1207,14 +1206,14 @@ srtp_validate() {
      0xab, 0xab, 0xab, 0xab, 0xab, 0xab, 0xab, 0xab, 
      0xab, 0xab, 0xab, 0xab
    };

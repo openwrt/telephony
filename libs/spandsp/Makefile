@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spandsp
 PKG_VERSION:=0.0.6
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.soft-switch.org/downloads/spandsp/
@@ -21,7 +21,7 @@ PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=LGPL-2.1 GPL-2.0
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 

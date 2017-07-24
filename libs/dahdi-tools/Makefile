@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
-PKG_VERSION:=2.10.0.1
+PKG_VERSION:=2.11.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/dahdi-tools/releases/
-PKG_MD5SUM:=224c5b86195249d5ce462ca316332087
+PKG_MD5SUM:=8a908640d0ff7f8cbcdccd23f5022ede
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -60,13 +60,13 @@ define Build/Compile
 		INSTALL_PREFIX="$(PKG_INSTALL_DIR)" \
 		DAHDI_INCLUDE="$(STAGING_DIR)/usr/include" \
 		CONFIGURE_SILENT="--silent" \
-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune libs
+		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.a $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/.libs/*.a $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/include/dahdi
 	$(CP) $(PKG_BUILD_DIR)/tonezone.h $(1)/usr/include/dahdi/
@@ -88,8 +88,8 @@ endef
 
 define Package/dahdi-tools-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/libtonezone.so $(1)/usr/lib/
-	cd $(1)/usr/lib/; ln -s libtonezone.so libtonezone.so.2.0
+	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so.2.0.0 $(1)/usr/lib/
+	cd $(1)/usr/lib/; ln -s libtonezone.so.2.0.0 libtonezone.so; ln -s libtonezone.so.2.0.0 libtonezone.so.2
 endef
 
 $(eval $(call BuildPackage,dahdi-cfg))

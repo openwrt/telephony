@@ -7,25 +7,27 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/uclibc++.mk
 
-RELEASEVER:=5.4.2
+RELEASEVER:=5.5.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=4
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate5/
-PKG_MD5SUM:=50ffb5a9d3a7105a8776e56783d309ed
+PKG_MD5SUM:=c433b3df08a5993e16fadaac279e39a0
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
+
+PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -54,7 +56,7 @@ endef
 
 define Package/$(PKG_NAME)-scripts-perl
   $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perl
+  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perlbase-data
   TITLE:= Perl module for Yate
 endef
 
@@ -77,6 +79,12 @@ define Package/$(PKG_NAME)-collection-basic
 	+$(PKG_NAME)-mod-ysipchan
    TITLE := Basic Yate Server
 endef
+
+ifneq ($(CONFIG_USE_MUSL),)
+  LIBNSL:=
+else
+  LIBNSL:=-lnsl
+endif
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,)
 
@@ -103,7 +111,6 @@ CONFIGURE_ARGS+= \
 	--with-mysql="$(STAGING_DIR)/usr" \
 	--without-wphwec \
 	--without-libgsm \
-	--with-libspeex="$(STAGING_DIR)/usr/include" \
 	--without-amrnb \
 	--with-spandsp="$(STAGING_DIR)/usr/include" \
 	--without-pwlib \
@@ -118,12 +125,12 @@ CONFIGURE_ARGS+= \
 
 CONFIGURE_VARS+= \
 	LDFLAGS="$$$$LDFLAGS -nodefaultlibs" \
-	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S)"
+	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S) $(LIBNSL)"
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	
-	for yatelib in "" sig mgcp jabber script; do \
+	for yatelib in "" asn sig mgcp jabber script; do \
 		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib ;\
 		$(LN) ./libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib/libyate$$$${yatelib}.so ;\
 	done
@@ -216,7 +223,7 @@ $(eval $(call BuildPlugin,dbwave,server,Wav Media for DB Storage,+$(PKG_NAME)-mo
 $(eval $(call BuildPlugin,dumbchan,,Dummy Channel,))
 $(eval $(call BuildPlugin,enumroute,,ENUM Routing,))
 $(eval $(call BuildPlugin,eventlogs,server,Write events and alarms to log files,))
-$(eval $(call BuildPlugin,extmodule,,External Module Handler,))
+$(eval $(call BuildPlugin,extmodule,,External Module Handler,,/usr/share/yate/scripts/echo.sh))
 $(eval $(call BuildPlugin,faxchan,,Spandsp Fax Channel,+libspandsp))
 $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,))
@@ -254,7 +261,6 @@ $(eval $(call BuildPlugin,rmanager,,Yate Remote Management,))
 $(eval $(call BuildPlugin,sigtransport,server,SIGTRAN (SS7 over IP) connection provider,))
 $(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,))
 $(eval $(call BuildPlugin,sipfeatures,server,SIP Features (SUBSCRIBE/NOTIFY),))
-$(eval $(call BuildPlugin,speexcodec,,Speex Codec,+libspeex))
 $(eval $(call BuildPlugin,subscription,server,Subcription handler and presence notifier,))
 $(eval $(call BuildPlugin,tdmcard,server,TDM Cards Signalling and Data Driver,@BROKEN)) # Missing TDM libraries
 $(eval $(call BuildPlugin,tonedetect,,Detectors for Various Tones,))

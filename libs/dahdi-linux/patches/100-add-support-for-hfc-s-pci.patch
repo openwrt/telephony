@@ -1,7 +1,5 @@
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/Kbuild
-===================================================================
---- dahdi-linux-2.10.0.1.orig/drivers/dahdi/Kbuild
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/Kbuild
+--- a/drivers/dahdi/Kbuild
++++ b/drivers/dahdi/Kbuild
 @@ -13,6 +13,7 @@ obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCT
  obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTDM24XXP)	+= wctdm24xxp/
  obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTE12XP)		+= wcte12xp/
@@ -10,10 +8,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/Kbuild
  
  wcte13xp-objs := wcte13xp-base.o wcxb_spi.o wcxb.o wcxb_flash.o
  CFLAGS_wcte13xp-base.o += -I$(src)/oct612x -I$(src)/oct612x/include -I$(src)/oct612x/octdeviceapi -I$(src)/oct612x/octdeviceapi/oct6100api
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/Kconfig
-===================================================================
---- dahdi-linux-2.10.0.1.orig/drivers/dahdi/Kconfig
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/Kconfig
+--- a/drivers/dahdi/Kconfig
++++ b/drivers/dahdi/Kconfig
 @@ -291,4 +291,14 @@ config DAHDI_WCTE11XP
  
  	  If unsure, say Y.
@@ -29,10 +25,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/Kconfig
 +	  If unsure, say Y.
 +
  source "drivers/dahdi/xpp/Kconfig"
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/base.c
-===================================================================
 --- /dev/null
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/base.c
++++ b/drivers/dahdi/hfcs/base.c
 @@ -0,0 +1,1742 @@
 +/*
 + * dahdi_hfcs.c - Dahdi driver for HFC-S PCI A based ISDN BRI cards
@@ -1776,10 +1770,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/base.c
 +#ifdef DEBUG
 +MODULE_PARM_DESC(debug_level, "Debug verbosity level");
 +#endif
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/dahdi_hfcs.h
-===================================================================
 --- /dev/null
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/dahdi_hfcs.h
++++ b/drivers/dahdi/hfcs/dahdi_hfcs.h
 @@ -0,0 +1,419 @@
 +/*
 + * dahdi_hfcs.h - Dahdi driver for HFC-S PCI A based ISDN BRI cards
@@ -2200,10 +2192,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/dahdi_hfcs.h
 +}
 +
 +#endif
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.c
-===================================================================
 --- /dev/null
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.c
++++ b/drivers/dahdi/hfcs/fifo.c
 @@ -0,0 +1,380 @@
 +/*
 + * fifo.c - HFC FIFO management routines
@@ -2585,10 +2575,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.c
 +	}
 +}
 +
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.h
-===================================================================
 --- /dev/null
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.h
++++ b/drivers/dahdi/hfcs/fifo.h
 @@ -0,0 +1,139 @@
 +/*
 + * fifo.h - Dahdi driver for HFC-S PCI A based ISDN BRI cards
@@ -2729,10 +2717,8 @@ Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/fifo.h
 +void hfc_clear_fifo_tx(struct hfc_chan_simplex *chan);
 +
 +#endif
-Index: dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/Kbuild
-===================================================================
 --- /dev/null
-+++ dahdi-linux-2.10.0.1/drivers/dahdi/hfcs/Kbuild
++++ b/drivers/dahdi/hfcs/Kbuild
 @@ -0,0 +1,10 @@
 +obj-m += dahdi_hfcs.o
 +
