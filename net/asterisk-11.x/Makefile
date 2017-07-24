@@ -451,7 +451,7 @@ $(eval $(call BuildAsterisk11Module,pbx-dundi,Dundi,provides Dundi Lookup servic
 $(eval $(call BuildAsterisk11Module,pbx-lua,Lua,provides Lua resources for Asterisk,+libpthread +libc +liblua,/etc/asterisk/extensions.lua,extensions.lua,pbx_lua,))
 $(eval $(call BuildAsterisk11Module,pbx-spool,Call Spool,outgoing call spool support,,,,pbx_spool,))
 $(eval $(call BuildAsterisk11Module,pbx-realtime,Realtime Switch,realtime switch support,,,,pbx_realtime,))
-$(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
+$(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq @!arc,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
 $(eval $(call BuildAsterisk11Module,res-adsi,Provide ADSI,Analog Display Services Interface capability,,,,res_adsi,))
 $(eval $(call BuildAsterisk11Module,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,,res_ael_share,))
 $(eval $(call BuildAsterisk11Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,+asterisk11-res-speech,,,res_agi,))
