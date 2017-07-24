@@ -10,7 +10,7 @@
       kfreebsd*-gnu)
       OSARCH=kfreebsd-gnu
       ;;
-@@ -1285,9 +1288,11 @@ if test "${PBX_BFD}" = "0"; then
+@@ -1278,9 +1281,11 @@ if test "${PBX_BFD}" = "0"; then
    AST_EXT_LIB_CHECK([BFD], [bfd], [bfd_check_format], [bfd.h], [-ldl -liberty -lz])
  fi
  

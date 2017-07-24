@@ -282,8 +282,8 @@ CONFIGURE_VARS += \
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
-	--with-ncurses="$(STAGING_DIR)/host/usr" \
-	--with-libxml2="$(STAGING_DIR)/host/usr"
+	--with-ncurses="$(STAGING_DIR_HOSTPKG)/usr" \
+	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -307,23 +307,24 @@ define Build/Configure
 		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
 	(cd $(PKG_BUILD_DIR)/menuselect; \
+		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS) \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 	);
 endef
 
 define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR)/host/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
 		makeopts.embed_rules
-	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY"
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)"
+	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY" \
+	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
 		ASTDATADIR="/usr/lib/asterisk" \
