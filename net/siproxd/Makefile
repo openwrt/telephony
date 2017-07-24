@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014-2015 OpenWrt.org
+# Copyright (C) 2014-2017 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
-PKG_VERSION:=0.8.1
-PKG_RELEASE:=5
+PKG_VERSION:=0.8.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
-PKG_MD5SUM:=1a6f9d13aeb2d650375c9a346ac6cbaf
+PKG_HASH:=526ce491b0cc189e2766c62432aff3ebb995e551d7261ea32c02a90c7bf7ccd0
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -79,11 +79,16 @@ define BuildPlugin
 endef
 
 $(eval $(call BuildPackage,siproxd))
+$(eval $(call BuildPlugin,codecfilter))
 $(eval $(call BuildPlugin,defaulttarget))
 $(eval $(call BuildPlugin,demo))
 $(eval $(call BuildPlugin,fix_bogus_via))
+$(eval $(call BuildPlugin,fix_DTAG))
+$(eval $(call BuildPlugin,fix_fbox_anoncall))
 $(eval $(call BuildPlugin,logcall))
 $(eval $(call BuildPlugin,prefix))
 $(eval $(call BuildPlugin,regex))
 $(eval $(call BuildPlugin,shortdial))
+$(eval $(call BuildPlugin,stripheader))
 $(eval $(call BuildPlugin,stun))
+$(eval $(call BuildPlugin,siptrunk))
