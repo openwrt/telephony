@@ -24,6 +24,7 @@ PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 define Package/asterisk11/install/module
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
@@ -282,7 +283,6 @@ CONFIGURE_VARS += \
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
-	--with-ncurses="$(STAGING_DIR_HOSTPKG)/usr" \
 	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
 
 define Build/Prepare
@@ -307,19 +307,22 @@ define Build/Configure
 		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
 	$(call Build/Configure/Default,,$(SITE_VARS))
 	(cd $(PKG_BUILD_DIR)/menuselect; \
+		CC="$(HOSTCC)" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+		CONFIG_SITE= \
+		LDFLAGS="$(HOST_LDFLAGS)" \
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS) \
-		LDFLAGS="$(HOST_LDFLAGS) -lxml2" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 	);
 endef
 
 define Build/Compile
-	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
-		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
+	CC="$(HOSTCC)" \
+	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+	LDFLAGS="$(HOST_LDFLAGS)" \
+	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
 		makeopts.embed_rules
@@ -448,7 +451,7 @@ $(eval $(call BuildAsterisk11Module,pbx-dundi,Dundi,provides Dundi Lookup servic
 $(eval $(call BuildAsterisk11Module,pbx-lua,Lua,provides Lua resources for Asterisk,+libpthread +libc +liblua,/etc/asterisk/extensions.lua,extensions.lua,pbx_lua,))
 $(eval $(call BuildAsterisk11Module,pbx-spool,Call Spool,outgoing call spool support,,,,pbx_spool,))
 $(eval $(call BuildAsterisk11Module,pbx-realtime,Realtime Switch,realtime switch support,,,,pbx_realtime,))
-$(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
+$(eval $(call BuildAsterisk11Module,pgsql,PostgreSQL,PostgreSQL support,+libpq @!arc,/etc/asterisk/cel_pgsql.conf /etc/asterisk/cdr_pgsql.conf /etc/asterisk/res_pgsql.conf,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,))
 $(eval $(call BuildAsterisk11Module,res-adsi,Provide ADSI,Analog Display Services Interface capability,,,,res_adsi,))
 $(eval $(call BuildAsterisk11Module,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,,res_ael_share,))
 $(eval $(call BuildAsterisk11Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,+asterisk11-res-speech,,,res_agi,))
