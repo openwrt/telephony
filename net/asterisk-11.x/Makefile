@@ -323,10 +323,16 @@ define Build/Compile
 	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
+	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+			--disable BUILD_NATIVE \
+			--enable LOW_MEMORY \
+			menuselect.makeopts
 	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
 		makeopts.embed_rules
-	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY" \
+	ASTCFLAGS="$(EXTRA_CFLAGS)" \
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
