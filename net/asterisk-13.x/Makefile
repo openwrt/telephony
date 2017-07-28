@@ -227,6 +227,7 @@ CONFIGURE_ARGS+= \
 	--enable-xmldoc
 
 CONFIGURE_VARS += \
+	ac_cv_lib_srtp2_srtp_init=no \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
 
 AST_MENUSELECT_OPTS = \
