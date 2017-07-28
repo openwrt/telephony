@@ -9,9 +9,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=6647
+PKG_REV:=6728
 PKG_VERSION:=v4.2.3-r$(PKG_REV)
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
@@ -19,11 +19,13 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
 
-PKG_FIXUP:=autoreconf -fi
+PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-1.0
 PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
+
+PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -59,6 +61,8 @@ Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
+	--enable-debug=no \
+	--enable-optimization=no \
 	--enable-conference \
 	--enable-advanced-functions \
 	--enable-video
@@ -81,13 +85,6 @@ endef
 
 Package/asterisk11-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
-
-define Build/Compile
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		CFLAGS="$(CFLAGS) -I$(PKG_BUILD_DIR)/src -DLOW_MEMORY" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install
-endef
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
