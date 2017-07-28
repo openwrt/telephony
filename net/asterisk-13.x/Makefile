@@ -165,7 +165,7 @@ define Package/asterisk13-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
+ifneq ($(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr" \
 	--with-pri="$(STAGING_DIR)/usr" \

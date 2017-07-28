@@ -164,7 +164,7 @@ define Package/asterisk11-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr" \
 	--with-pri="$(STAGING_DIR)/usr" \
@@ -176,7 +176,7 @@ else
 	--without-tonezone
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-curl),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-curl),)
   CONFIGURE_ARGS+= \
 	--with-libcurl="$(STAGING_DIR)/usr"
 else
@@ -184,7 +184,7 @@ else
 	--without-libcurl
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-mysql),)
   CONFIGURE_VARS+= \
 	ac_cv_path_ac_pt_CONFIG_MYSQLCLIENT=$(STAGING_DIR)/usr/bin/mysql_config
   CONFIGURE_ARGS+= \
@@ -194,7 +194,7 @@ else
 	--without-mysqlclient
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pbx-lua),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-pbx-lua),)
   CONFIGURE_ARGS+= \
 	--with-lua="$(STAGING_DIR)/usr"
   TARGET_LDFLAGS+=-ldl -lcrypt
@@ -203,7 +203,7 @@ else
 	--without-lua
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pgsql),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-pgsql),)
   CONFIGURE_ARGS+= \
 	--with-postgres="$(STAGING_DIR)/usr"
 else
@@ -211,7 +211,7 @@ else
 	--without-postgres
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
   CONFIGURE_ARGS+= \
 	--with-spandsp="$(STAGING_DIR)/usr"
 else
@@ -219,7 +219,7 @@ else
 	--without-spandsp
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-srtp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-srtp),)
   CONFIGURE_ARGS+= \
 	--with-srtp="$(STAGING_DIR)/usr"
 else
@@ -227,7 +227,7 @@ else
 	--without-srtp
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-xmpp),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
   SITE_VARS+= \
