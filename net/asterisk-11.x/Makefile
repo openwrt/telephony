@@ -164,7 +164,7 @@ define Package/asterisk11-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr" \
 	--with-pri="$(STAGING_DIR)/usr" \
@@ -176,7 +176,7 @@ else
 	--without-tonezone
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-curl),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-curl),)
   CONFIGURE_ARGS+= \
 	--with-libcurl="$(STAGING_DIR)/usr"
 else
@@ -184,7 +184,7 @@ else
 	--without-libcurl
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-mysql),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-mysql),)
   CONFIGURE_VARS+= \
 	ac_cv_path_ac_pt_CONFIG_MYSQLCLIENT=$(STAGING_DIR)/usr/bin/mysql_config
   CONFIGURE_ARGS+= \
@@ -194,7 +194,7 @@ else
 	--without-mysqlclient
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pbx-lua),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-pbx-lua),)
   CONFIGURE_ARGS+= \
 	--with-lua="$(STAGING_DIR)/usr"
   TARGET_LDFLAGS+=-ldl -lcrypt
@@ -203,7 +203,7 @@ else
 	--without-lua
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-pgsql),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-pgsql),)
   CONFIGURE_ARGS+= \
 	--with-postgres="$(STAGING_DIR)/usr"
 else
@@ -211,7 +211,7 @@ else
 	--without-postgres
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-fax-spandsp),)
   CONFIGURE_ARGS+= \
 	--with-spandsp="$(STAGING_DIR)/usr"
 else
@@ -219,7 +219,7 @@ else
 	--without-spandsp
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-srtp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-srtp),)
   CONFIGURE_ARGS+= \
 	--with-srtp="$(STAGING_DIR)/usr"
 else
@@ -227,7 +227,7 @@ else
 	--without-srtp
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk11-res-xmpp),)
+ifneq ($(CONFIG_PACKAGE_asterisk11-res-xmpp),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
   SITE_VARS+= \
@@ -310,7 +310,7 @@ define Build/Configure
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
-		LDFLAGS="$(HOST_LDFLAGS)" \
+		LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
@@ -321,12 +321,18 @@ endef
 define Build/Compile
 	CC="$(HOSTCC)" \
 	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
-	LDFLAGS="$(HOST_LDFLAGS)" \
+	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
+	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+			--disable BUILD_NATIVE \
+			--enable LOW_MEMORY \
+			menuselect.makeopts
 	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h \
 		makeopts.embed_rules
-	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY" \
+	ASTCFLAGS="$(EXTRA_CFLAGS)" \
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
@@ -396,7 +402,7 @@ $(eval $(call BuildAsterisk11Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail
 $(eval $(call BuildAsterisk11Module,cdr,Provides CDR,Call Detail Record,,/etc/asterisk/cdr.conf /etc/asterisk/cdr_custom.conf /etc/asterisk/cdr_manager.conf /etc/asterisk/cdr_syslog.conf,cdr cdr_custom cdr_manager cdr_syslog,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,))
 $(eval $(call BuildAsterisk11Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,/etc/asterisk/alsa.conf,alsa.conf,chan_alsa,,))
 $(eval $(call BuildAsterisk11Module,chan-agent,Agents proxy channel,an implementation of agents proxy channel,,,,chan_agent,))
-$(eval $(call BuildAsterisk11Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
+$(eval $(call BuildAsterisk11Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,/etc/asterisk/chan_dahdi.conf,chan_dahdi.conf,chan_dahdi,))
 $(eval $(call BuildAsterisk11Module,chan-iax2,IAX2 channel,IAX support,+asterisk11-res-timing-timerfd,/etc/asterisk/iax.conf /etc/asterisk/iaxprov.conf,iax.conf iaxprov.conf,chan_iax2,))
 $(eval $(call BuildAsterisk11Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,/etc/asterisk/lantiq.conf,lantiq.conf,chan_lantiq,))
 $(eval $(call BuildAsterisk11Module,chan-mgcp,MGCP channel,the channel chan_mgcp,,/etc/asterisk/mgcp.conf,mgcp.conf,chan_mgcp,))

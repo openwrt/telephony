@@ -165,7 +165,7 @@ define Package/asterisk13-sounds/install
 	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
 endef
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
+ifneq ($(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr" \
 	--with-pri="$(STAGING_DIR)/usr" \
@@ -227,6 +227,7 @@ CONFIGURE_ARGS+= \
 	--enable-xmldoc
 
 CONFIGURE_VARS += \
+	ac_cv_lib_srtp2_srtp_init=no \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
 
 AST_MENUSELECT_OPTS = \
@@ -251,7 +252,7 @@ define Build/Configure
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
-		LDFLAGS="$(HOST_LDFLAGS)" \
+		LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
@@ -262,12 +263,18 @@ endef
 define Build/Compile
 	CC="$(HOSTCC)" \
 	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
-	LDFLAGS="$(HOST_LDFLAGS)" \
+	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
+	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+			--disable BUILD_NATIVE \
+			--enable LOW_MEMORY \
+			menuselect.makeopts
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \
 		include/asterisk/buildopts.h defaults.h
-	ASTCFLAGS="$(EXTRA_CFLAGS) -DLOW_MEMORY" \
+	ASTCFLAGS="$(EXTRA_CFLAGS)" \
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTVARLIBDIR="/usr/lib/asterisk" \
@@ -341,7 +348,7 @@ $(eval $(call BuildAsterisk13Module,cdr,Provides CDR,Call Detail Record,,cdr.con
 $(eval $(call BuildAsterisk13Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
 $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
 $(eval $(call BuildAsterisk13Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,alsa.conf,chan_alsa,,))
-$(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri,chan_dahdi.conf,chan_dahdi,,))
+$(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
 $(eval $(call BuildAsterisk13Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,lantiq.conf,chan_lantiq,,))
 $(eval $(call BuildAsterisk13Module,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
