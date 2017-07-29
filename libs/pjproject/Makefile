@@ -95,8 +95,7 @@ define Build/Compile
 endef
 
 PJPROJECT_LIBS = \
-	libpj libpjlib-util libpjmedia-audiodev libpjmedia-codec \
-	libpjmedia-videodev libpjmedia libpjnath libpjsip-simple \
+	libpj libpjlib-util libpjmedia libpjnath libpjsip-simple \
 	libpjsip-ua libpjsip libpjsua libpjsua2 libresample
 
 define Build/InstallDev
