@@ -52,6 +52,10 @@ define Package/asterisk13/install/sounds
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
 endef
 
+define Package/$(PKG_NAME)/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define BuildAsterisk13Module
   define Package/asterisk13-$(1)
   $$(call Package/asterisk13/Default)
@@ -269,7 +273,7 @@ define Build/Compile
 	cd "$(PKG_BUILD_DIR)" && \
 		./menuselect/menuselect \
 			--disable BUILD_NATIVE \
-			--enable LOW_MEMORY \
+			$(if $(CONFIG_ASTERISK13_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		include/asterisk/version.h \

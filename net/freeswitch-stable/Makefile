@@ -53,24 +53,24 @@ PKG_LICENSE:= \
 
 PKG_LICENSE_FILES:=debian/copyright
 
-FS_STABLE_PREFIX_DIR:=/usr/share/$(PRG_NAME)
+FS_STABLE_DATA_DIR:=/usr/share/$(PRG_NAME)
 
 FS_STABLE_BIN_DIR:=/usr/bin
-FS_STABLE_EXAMPLES_DIR:=$(FS_STABLE_PREFIX_DIR)/examples
-FS_STABLE_FONTS_DIR:=$(FS_STABLE_PREFIX_DIR)/fonts
-FS_STABLE_GRAMMAR_DIR:=$(FS_STABLE_PREFIX_DIR)/grammar
-FS_STABLE_HTDOCS_DIR:=$(FS_STABLE_PREFIX_DIR)/htdocs
-FS_STABLE_IMAGES_DIR:=$(FS_STABLE_PREFIX_DIR)/images
+FS_STABLE_EXAMPLES_DIR:=$(FS_STABLE_DATA_DIR)/examples
+FS_STABLE_FONTS_DIR:=$(FS_STABLE_DATA_DIR)/fonts
+FS_STABLE_GRAMMAR_DIR:=$(FS_STABLE_DATA_DIR)/grammar
+FS_STABLE_HTDOCS_DIR:=$(FS_STABLE_DATA_DIR)/htdocs
+FS_STABLE_IMAGES_DIR:=$(FS_STABLE_DATA_DIR)/images
 FS_STABLE_INCLUDES_DIR:=/usr/include/$(PRG_NAME)
-FS_STABLE_LANG_DIR:=$(FS_STABLE_PREFIX_DIR)/lang
+FS_STABLE_LANG_DIR:=$(FS_STABLE_DATA_DIR)/lang
 FS_STABLE_LIB_DIR:=/usr/lib
 FS_STABLE_MOD_DIR:=$(FS_STABLE_LIB_DIR)/$(PRG_NAME)/mod
 FS_STABLE_PKGCONFIG_DIR:=$(FS_STABLE_LIB_DIR)/pkgconfig
-FS_STABLE_SCRIPTS_DIR:=$(FS_STABLE_PREFIX_DIR)/scripts
-FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_PREFIX_DIR)/sounds
+FS_STABLE_SCRIPTS_DIR:=$(FS_STABLE_DATA_DIR)/scripts
+FS_STABLE_SOUNDS_DIR:=$(FS_STABLE_DATA_DIR)/sounds
 FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
-FS_STABLE_TZ_DIR:=$(FS_STABLE_PREFIX_DIR)/tz
+FS_STABLE_TZ_DIR:=$(FS_STABLE_DATA_DIR)/tz
 
 # Maintain a list of all non-module packages so they can be added to
 # PKG_CONFIG_DEPENDS.
@@ -574,10 +574,10 @@ endif
 ifeq ($(1),perl)
 	$(INSTALL_DIR) $$(1)$(PERL_SITELIB)/auto/$(PRG_NAME)
 	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).so \
+		$(PKG_INSTALL_DIR)/usr/perl/$(PRG_NAME).so \
 					$$(1)$(PERL_SITELIB)/auto/$(PRG_NAME)
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PREFIX_DIR)/perl/$(PRG_NAME).pm \
+		$(PKG_INSTALL_DIR)/usr/perl/$(PRG_NAME).pm \
 							$$(1)$(PERL_SITELIB)
 endif
 ifeq ($(1),python)
@@ -630,33 +630,16 @@ $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
 CONFIGURE_ARGS+= \
-	--build=$(GNU_HOST_NAME) \
-	--host=$(GNU_TARGET_NAME) \
-	--target=$(GNU_TARGET_NAME) \
-	--prefix=$(FS_STABLE_PREFIX_DIR) \
-	--bindir=$(FS_STABLE_BIN_DIR) \
-	--includedir=$(FS_STABLE_INCLUDES_DIR) \
-	--libdir=$(FS_STABLE_LIB_DIR) \
 	--srcdir=$(PKG_BUILD_DIR) \
-	--sysconfdir=$(FS_STABLE_SYSCONF_DIR) \
 	--disable-dependency-tracking \
 	--disable-static \
 	--disable-system-xmlrpc-c \
 	--enable-fhs \
 	--with-cachedir=/tmp/$(PRG_NAME)/cache \
-	--with-certsdir=$(FS_STABLE_TLS_DIR) \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
-	--with-fontsdir=$(FS_STABLE_FONTS_DIR) \
-	--with-grammardir=$(FS_STABLE_GRAMMAR_DIR) \
-	--with-htdocsdir=$(FS_STABLE_HTDOCS_DIR) \
 	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
-	--with-modinstdir=$(FS_STABLE_MOD_DIR) \
-	--with-pkgconfigdir=$(FS_STABLE_PKGCONFIG_DIR) \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
-	--with-rundir=/var/run/$(PRG_NAME) \
-	--with-scriptdir=$(FS_STABLE_SCRIPTS_DIR) \
-	--with-soundsdir=$(FS_STABLE_SOUNDS_DIR) \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
