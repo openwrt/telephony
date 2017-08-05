@@ -608,7 +608,7 @@ endef
 ifeq ($(1)$(CONFIG_FS_STABLE_WITH_LIBEDIT),fs_cli)
 define Package/$(PKG_NAME)-util-$(1)/postinst
 #!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
+if [ -z "$$$${IPKG_INSTROOT}" ]; then
   echo
   echo "o-------------------------------------------------------------------o"
   echo "| fs_cli note                                                       |"
