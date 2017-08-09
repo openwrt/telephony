@@ -55,37 +55,33 @@ $(call Package/pjproject/install/lib,$$(1),$2)
 endef
 
 CONFIGURE_ARGS += \
-	--enable-shared \
+	--disable-ffmpeg \
 	--disable-floating-point \
-	--enable-g711-codec \
-	--disable-l16-codec \
+	--disable-g711-codec \
 	--disable-g722-codec \
 	--disable-g7221-codec \
 	--disable-gsm-codec \
+	--disable-ilbc-codec \
 	--disable-ilbc-coder \
 	--disable-ipp \
-	--disable-ssl \
-	--disable-oss \
-	--disable-sound \
+	--disable-l16-codec \
+	--disable-large-filter \
 	--disable-libwebrtc \
 	--disable-libyuv \
-	--with-external-srtp="$(STAGING_DIR)/usr" \
-	--without-external-gsm \
-	--disable-small-filter \
-	--disable-large-filter \
-	--disable-speex-aec \
-	--disable-g711-codec \
-	--disable-l16-codec \
-	--disable-gsm-codec \
-	--disable-g722-codec \
-	--disable-g7221-codec \
-	--disable-speex-codec \
-	--disable-ilbc-codec \
 	--disable-opus \
+	--disable-oss \
 	--disable-resample-dll \
 	--disable-sdl \
-	--disable-ffmpeg \
-	--disable-v4l2
+	--disable-small-filter \
+	--disable-sound \
+	--disable-speex-aec \
+	--disable-speex-codec \
+	--disable-ssl \
+	--disable-v4l2 \
+	--enable-g711-codec \
+	--enable-shared \
+	--with-external-srtp="$(STAGING_DIR)/usr" \
+	--without-external-gsm
 
 TARGET_LDFLAGS+=-lc $(LIBGCC) -lm
 TARGET_CFLAGS+=$(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)
