@@ -55,33 +55,36 @@ $(call Package/pjproject/install/lib,$$(1),$2)
 endef
 
 CONFIGURE_ARGS += \
+	$(if $(CONFIG_SOFT_FLOAT),--disable-floating-point) \
+	--disable-ext-sound \
 	--disable-ffmpeg \
-	--disable-floating-point \
 	--disable-g711-codec \
 	--disable-g722-codec \
 	--disable-g7221-codec \
 	--disable-gsm-codec \
 	--disable-ilbc-codec \
-	--disable-ilbc-coder \
 	--disable-ipp \
 	--disable-l16-codec \
-	--disable-large-filter \
 	--disable-libwebrtc \
 	--disable-libyuv \
+	--disable-opencore-amr \
+	--disable-openh264 \
 	--disable-opus \
 	--disable-oss \
-	--disable-resample-dll \
+	--disable-resample \
 	--disable-sdl \
-	--disable-small-filter \
+	--disable-silk \
 	--disable-sound \
 	--disable-speex-aec \
 	--disable-speex-codec \
 	--disable-ssl \
 	--disable-v4l2 \
-	--enable-g711-codec \
+	--disable-video \
 	--enable-shared \
 	--with-external-srtp="$(STAGING_DIR)/usr" \
-	--without-external-gsm
+	--without-external-gsm \
+	--without-external-pa \
+	--without-external-webrtc
 
 TARGET_LDFLAGS+=-lc $(LIBGCC) -lm
 TARGET_CFLAGS+=$(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)
@@ -92,7 +95,7 @@ endef
 
 PJPROJECT_LIBS = \
 	libpj libpjlib-util libpjmedia libpjnath libpjsip-simple \
-	libpjsip-ua libpjsip libpjsua libpjsua2 libresample
+	libpjsip-ua libpjsip libpjsua libpjsua2
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/{include,lib}
@@ -106,11 +109,10 @@ endef
 
 $(eval $(call PJSIPpackage,libpj,libpj,+librt))
 $(eval $(call PJSIPpackage,libpjlib-util,libpjlib-util,+libpj +librt))
-$(eval $(call PJSIPpackage,libpjmedia,libpjmedia*,+libpj +libpjlib-util +libpjnath +libresample +librt +libspeex +libsrtp))
+$(eval $(call PJSIPpackage,libpjmedia,libpjmedia*,+libpj +libpjlib-util +libpjnath +librt +libsrtp))
 $(eval $(call PJSIPpackage,libpjnath,libpjnath,+libpj +libpjlib-util +librt))
-$(eval $(call PJSIPpackage,libpjsip-simple,libpjsip-simple,+libpj +libpjlib-util +libpjsip +libresample +librt +libspeex +libsrtp))
-$(eval $(call PJSIPpackage,libpjsip-ua,libpjsip-ua,+libpj +libpjlib-util +libpjmedia +libpjsip-simple +libpjsip +libresample +librt +libspeex +libsrtp))
-$(eval $(call PJSIPpackage,libpjsip,libpjsip,+libpj +libpjlib-util +libresample +librt +libspeex +libsrtp))
-$(eval $(call PJSIPpackage,libpjsua,libpjsua,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libresample +librt +libspeex +libsrtp))
-$(eval $(call PJSIPpackage,libpjsua2,libpjsua2,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libresample +librt +libspeex +libsrtp +libpjsua))
-$(eval $(call PJSIPpackage,libresample,libresample,))
+$(eval $(call PJSIPpackage,libpjsip-simple,libpjsip-simple,+libpj +libpjlib-util +libpjsip +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjsip-ua,libpjsip-ua,+libpj +libpjlib-util +libpjmedia +libpjsip-simple +libpjsip +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjsip,libpjsip,+libpj +libpjlib-util +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjsua,libpjsua,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjsua2,libpjsua2,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +librt +libsrtp +libpjsua))
