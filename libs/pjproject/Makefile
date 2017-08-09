@@ -32,7 +32,7 @@ define Package/pjproject/Default
   CATEGORY:=Libraries
   SUBMENU:=Telephony
   URL:=http://www.pjsip.org/
-  DEPENDS:=+libuuid +libstdcpp +libpthread
+  DEPENDS:=+libopenssl +libuuid +libstdcpp +libpthread
 endef
 
 define Package/pjproject/install/lib
@@ -77,11 +77,11 @@ CONFIGURE_ARGS += \
 	--disable-sound \
 	--disable-speex-aec \
 	--disable-speex-codec \
-	--disable-ssl \
 	--disable-v4l2 \
 	--disable-video \
 	--enable-shared \
 	--with-external-srtp="$(STAGING_DIR)/usr" \
+	--with-ssl="$(STAGING_DIR)/usr" \
 	--without-external-gsm \
 	--without-external-pa \
 	--without-external-webrtc
