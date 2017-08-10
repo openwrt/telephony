@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 - 2017 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=chan-sccp-b
 PKG_REV:=6728
 PKG_VERSION:=v4.2.3-r$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
@@ -27,6 +27,8 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_INSTALL:=1
 
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/chan-sccp-b/Default
@@ -35,7 +37,8 @@ define Package/chan-sccp-b/Default
   CATEGORY:=Network
   TITLE:=SCCP channel provider support
   URL:=http://chan-sccp-b.sourceforge.net/
-  DEPENDS:= +libltdl
+  DEPENDS:=+libltdl
+  PKG_BUILD_DEPENDS:=libiconv
 endef
 
 define Package/asterisk13-chan-sccp-b
@@ -61,8 +64,8 @@ Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
-	--enable-debug=no \
-	--enable-optimization=no \
+	--enable-static \
+	--enable-section-relocation \
 	--enable-conference \
 	--enable-advanced-functions \
 	--enable-video
