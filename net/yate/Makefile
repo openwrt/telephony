@@ -146,6 +146,7 @@ endef
 define Package/$(PKG_NAME)-scripts-perl/install
 	$(INSTALL_DIR) $(1)/usr/share/yate/scripts
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/yate/scripts/Yate.pm $(1)/usr/share/yate/scripts/
+	$(INSTALL_BIN) ./files/banbrutes.pl $(1)/usr/share/yate/scripts/
 endef
 
 define Package/$(PKG_NAME)-sounds/install
