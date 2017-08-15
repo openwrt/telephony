@@ -9,15 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp-b
-PKG_REV:=6728
-PKG_VERSION:=v4.2.3-r$(PKG_REV)
-PKG_RELEASE:=2
+PKG_VERSION:=v4.3.0-20170814
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=git://github.com/chan-sccp/chan-sccp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=$(PKG_REV)
-PKG_SOURCE_PROTO:=svn
+PKG_SOURCE_VERSION:=016fee3a96b09d5404757f7b178af2e349e55bcc
+PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
 
@@ -64,10 +63,9 @@ Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
-	--enable-static \
-	--enable-section-relocation \
-	--enable-conference \
+	--disable-debug \
 	--enable-advanced-functions \
+	--enable-conference \
 	--enable-video
 
 ifeq ($(BUILD_VARIANT),asterisk13)
