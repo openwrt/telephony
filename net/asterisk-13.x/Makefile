@@ -48,8 +48,8 @@ define Package/asterisk13/install/sbin
 endef
 
 define Package/asterisk13/install/sounds
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
 define Package/$(PKG_NAME)/config
@@ -145,7 +145,7 @@ $(call Package/asterisk13/install/sbin,$(1),safe_asterisk)
 $(call Package/asterisk13/install/sbin,$(1),astgenkey)
 $(foreach m,$(AST_CFG_FILES),$(call Package/asterisk13/install/conffile,$(1),$(m));)
 $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk13/install/module,$(1),$(m));)
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -163,9 +163,9 @@ This package provides the sound-files for Asterisk-13.
 endef
 
 define Package/asterisk13-sounds/install
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
-	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
+	rm -f $(1)/usr/share/asterisk/sounds/vm-*
 endef
 
 ifneq ($(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
@@ -280,10 +280,7 @@ define Build/Compile
 	ASTCFLAGS="$(EXTRA_CFLAGS)" \
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		ASTVARLIBDIR="/usr/lib/asterisk" \
-		ASTDATADIR="/usr/lib/asterisk" \
-		ASTKEYDIR="/usr/lib/asterisk" \
-		ASTDBDIR="/usr/lib/asterisk" \
+		ASTDATADIR="/usr/share/asterisk" \
 		NOISY_BUILD="yes" \
 		DEBUG="" \
 		OPTIMIZE="" \
