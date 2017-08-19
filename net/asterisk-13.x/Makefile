@@ -190,7 +190,7 @@ CONFIGURE_ARGS+= \
 	--without-execinfo \
 	--without-bluetooth \
 	--without-cap \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr",--without-curl) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr") \
 	--without-curses \
 	--with-gsm=internal \
 	--without-gtk2 \
@@ -222,7 +222,6 @@ CONFIGURE_ARGS+= \
 	--without-tds \
 	--without-termcap \
 	--without-tinfo \
-	--with-uuid="$(STAGING_DIR)/usr" \
 	--without-vorbis \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
@@ -246,11 +245,10 @@ endif
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); \
-		./bootstrap.sh; \
-	);
-	$(call Build/Configure/Default,,$(SITE_VARS))
-	(cd $(PKG_BUILD_DIR)/menuselect; \
+	cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh
+	$(call Build/Configure/Default)
+	cd $(PKG_BUILD_DIR)/menuselect; \
 		./bootstrap.sh; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
@@ -259,8 +257,7 @@ define Build/Configure
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
-		$(AST_MENUSELECT_OPTS) \
-	);
+		$(AST_MENUSELECT_OPTS)
 endef
 
 define Build/Compile
