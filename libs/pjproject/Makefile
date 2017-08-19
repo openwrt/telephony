@@ -14,7 +14,7 @@ PKG_VERSION:=2.6
 PKG_RELEASE:=3
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)/
+PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
 PKG_HASH:=2f5a1da1c174d845871c758bd80fbb580fca7799d3cfaa0d3c4e082b5161c7b4
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
@@ -31,13 +31,13 @@ define Package/pjproject/Default
   SECTION:=lib
   CATEGORY:=Libraries
   SUBMENU:=Telephony
-  URL:=http://www.pjsip.org/
+  URL:=http://www.pjsip.org
   DEPENDS:=+libopenssl +libuuid +libstdcpp +libpthread
 endef
 
 define Package/pjproject/install/lib
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib
 endef
 
 define PJSIPpackage
@@ -54,7 +54,7 @@ $(call Package/pjproject/install/lib,$$(1),$2)
   $$(eval $$(call BuildPackage,$(1)))
 endef
 
-CONFIGURE_ARGS += \
+CONFIGURE_ARGS+= \
 	$(if $(CONFIG_SOFT_FLOAT),--disable-floating-point) \
 	--disable-ext-sound \
 	--disable-ffmpeg \
@@ -86,25 +86,26 @@ CONFIGURE_ARGS += \
 	--without-external-pa \
 	--without-external-webrtc
 
-TARGET_LDFLAGS+=-lc $(LIBGCC) -lm
-TARGET_CFLAGS+=$(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Build/Compile
 	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)
 endef
 
-PJPROJECT_LIBS = \
+PJPROJECT_LIBS:= \
 	libpj libpjlib-util libpjmedia libpjnath libpjsip-simple \
 	libpjsip-ua libpjsip libpjsua libpjsua2
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/{include,lib}
 	
-	$(CP) -R $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
+	$(CP) -R $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include
 
-	$(foreach m,$(PJPROJECT_LIBS),$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(m)* $(1)/usr/lib/;)
+	$(foreach m,$(PJPROJECT_LIBS),$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(m)* $(1)/usr/lib;)
+
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc $(1)/usr/lib/pkgconfig/
+	$(SED) 's|$(TARGET_CFLAGS)||' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc $(1)/usr/lib/pkgconfig
 endef
 
 $(eval $(call PJSIPpackage,libpj,libpj,+librt))
