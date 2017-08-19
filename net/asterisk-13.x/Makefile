@@ -180,11 +180,9 @@ else
 	--without-tonezone
 endif
 
-TARGET_LDFLAGS+= \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),-ldl -lcrypt)
-
-EXTRA_CFLAGS+=$(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS+=$(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+# Pass CPPFLAGS in the CFLAGS as otherwise the build system will
+# ignore them.
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
 	--without-execinfo \
@@ -232,6 +230,20 @@ CONFIGURE_VARS += \
 	ac_cv_lib_srtp2_srtp_init=no \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
 
+MAKE_FLAGS+= \
+	ASTDATADIR="/usr/share/asterisk" \
+	DESTDIR="$(PKG_INSTALL_DIR)"
+
+# show full gcc arguments instead of [CC] and [LD]
+MAKE_FLAGS+= \
+	NOISY_BUILD="yes"
+
+# don't let asterisk mess with build flags
+MAKE_FLAGS+= \
+	AST_FORTIFY_SOURCE="" \
+	DEBUG="" \
+	OPTIMIZE=""
+
 AST_MENUSELECT_OPTS = \
 	--without-newt \
 	--without-curses \
@@ -271,18 +283,7 @@ define Build/Compile
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK13_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		include/asterisk/version.h \
-		include/asterisk/buildopts.h defaults.h
-	ASTCFLAGS="$(EXTRA_CFLAGS)" \
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		ASTDATADIR="/usr/share/asterisk" \
-		NOISY_BUILD="yes" \
-		DEBUG="" \
-		OPTIMIZE="" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install samples
+	$(call Build/Compile/Default,all install samples)
 endef
 
 define Build/InstallDev
