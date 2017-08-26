@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.17.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -48,8 +48,8 @@ define Package/asterisk13/install/sbin
 endef
 
 define Package/asterisk13/install/sounds
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
 define Package/$(PKG_NAME)/config
@@ -145,7 +145,7 @@ $(call Package/asterisk13/install/sbin,$(1),safe_asterisk)
 $(call Package/asterisk13/install/sbin,$(1),astgenkey)
 $(foreach m,$(AST_CFG_FILES),$(call Package/asterisk13/install/conffile,$(1),$(m));)
 $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk13/install/module,$(1),$(m));)
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -163,9 +163,9 @@ This package provides the sound-files for Asterisk-13.
 endef
 
 define Package/asterisk13-sounds/install
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
-	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
+	rm -f $(1)/usr/share/asterisk/sounds/vm-*
 endef
 
 ifneq ($(CONFIG_PACKAGE_asterisk13-chan-dahdi),)
@@ -180,17 +180,15 @@ else
 	--without-tonezone
 endif
 
-TARGET_LDFLAGS+= \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),-ldl -lcrypt)
-
-EXTRA_CFLAGS+=$(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS+=$(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+# Pass CPPFLAGS in the CFLAGS as otherwise the build system will
+# ignore them.
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
 	--without-execinfo \
 	--without-bluetooth \
 	--without-cap \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr",--without-curl) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr") \
 	--without-curses \
 	--with-gsm=internal \
 	--without-gtk2 \
@@ -222,7 +220,6 @@ CONFIGURE_ARGS+= \
 	--without-tds \
 	--without-termcap \
 	--without-tinfo \
-	--with-uuid="$(STAGING_DIR)/usr" \
 	--without-vorbis \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
@@ -232,6 +229,20 @@ CONFIGURE_ARGS+= \
 CONFIGURE_VARS += \
 	ac_cv_lib_srtp2_srtp_init=no \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
+MAKE_FLAGS+= \
+	ASTDATADIR="/usr/share/asterisk" \
+	DESTDIR="$(PKG_INSTALL_DIR)"
+
+# show full gcc arguments instead of [CC] and [LD]
+MAKE_FLAGS+= \
+	NOISY_BUILD="yes"
+
+# don't let asterisk mess with build flags
+MAKE_FLAGS+= \
+	AST_FORTIFY_SOURCE="" \
+	DEBUG="" \
+	OPTIMIZE=""
 
 AST_MENUSELECT_OPTS = \
 	--without-newt \
@@ -246,11 +257,10 @@ endif
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); \
-		./bootstrap.sh; \
-	);
-	$(call Build/Configure/Default,,$(SITE_VARS))
-	(cd $(PKG_BUILD_DIR)/menuselect; \
+	cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh
+	$(call Build/Configure/Default)
+	cd $(PKG_BUILD_DIR)/menuselect; \
 		./bootstrap.sh; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
@@ -259,8 +269,7 @@ define Build/Configure
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
-		$(AST_MENUSELECT_OPTS) \
-	);
+		$(AST_MENUSELECT_OPTS)
 endef
 
 define Build/Compile
@@ -274,21 +283,7 @@ define Build/Compile
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK13_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		include/asterisk/version.h \
-		include/asterisk/buildopts.h defaults.h
-	ASTCFLAGS="$(EXTRA_CFLAGS)" \
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		ASTVARLIBDIR="/usr/lib/asterisk" \
-		ASTDATADIR="/usr/lib/asterisk" \
-		ASTKEYDIR="/usr/lib/asterisk" \
-		ASTDBDIR="/usr/lib/asterisk" \
-		NOISY_BUILD="yes" \
-		DEBUG="" \
-		OPTIMIZE="" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install samples
+	$(call Build/Compile/Default,all install samples)
 endef
 
 define Build/InstallDev
@@ -370,7 +365,7 @@ $(eval $(call BuildAsterisk13Module,codec-ilbc,linear to ILBC translation,transl
 $(eval $(call BuildAsterisk13Module,codec-lpc10,Linear to LPC10 translation,translate between signed linear and LPC10,,,codec_lpc10,,))
 $(eval $(call BuildAsterisk13Module,codec-resample,resample sLinear audio,resample sLinear audio,,,codec_resample,,))
 $(eval $(call BuildAsterisk13Module,codec-ulaw,Signed linear to ulaw translation,translation between signed linear and ulaw codecs,,,codec_ulaw,,))
-$(eval $(call BuildAsterisk13Module,curl,CURL,CURL support,+libcurl,,func_curl res_curl,,))
+$(eval $(call BuildAsterisk13Module,curl,CURL,CURL support,+libcurl,,func_curl res_config_curl res_curl,,))
 $(eval $(call BuildAsterisk13Module,format-g726,G.726,support for headerless G.726 16/24/32/40kbps data format,,,format_g726,,))
 $(eval $(call BuildAsterisk13Module,format-g729,G.729,support for raw headerless G729 data,,,format_g729,,))
 $(eval $(call BuildAsterisk13Module,format-gsm,GSM format,support for GSM format,,,format_gsm,,))
@@ -401,9 +396,10 @@ $(eval $(call BuildAsterisk13Module,func-realtime,REALTIME dialplan function,REA
 $(eval $(call BuildAsterisk13Module,func-shell,Shell,support for shell execution,,,func_shell,,))
 $(eval $(call BuildAsterisk13Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,func_uri,,))
 $(eval $(call BuildAsterisk13Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,func_vmcount,,))
-$(eval $(call BuildAsterisk13Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc,,))
+$(eval $(call BuildAsterisk13Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc res_odbc_transaction,,))
 $(eval $(call BuildAsterisk13Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,extensions.ael,pbx_ael,,))
 $(eval $(call BuildAsterisk13Module,pbx-dundi,Dundi,provides Dundi Lookup service for Asterisk,,dundi.conf,pbx_dundi,,))
+$(eval $(call BuildAsterisk13Module,pbx-lua,Lua,provides Lua resources for Asterisk,+liblua,extensions.lua,pbx_lua,,))
 $(eval $(call BuildAsterisk13Module,pbx-realtime,Realtime Switch,realtime switch support,,,pbx_realtime,,))
 $(eval $(call BuildAsterisk13Module,pbx-spool,Call Spool,outgoing call spool support,,,pbx_spool,,))
 $(eval $(call BuildAsterisk13Module,pgsql,PostgreSQL,PostgreSQL support,+libpq @!arc,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
