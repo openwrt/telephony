@@ -392,6 +392,7 @@ $(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,fu
 $(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,))
 $(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,,,func_periodic_hook,,))
 $(eval $(call BuildAsterisk13Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
+$(eval $(call BuildAsterisk13Module,func-rand,RAND dialplan function,RAND dialplan function,,,func_rand,,))
 $(eval $(call BuildAsterisk13Module,func-realtime,REALTIME dialplan function,REALTIME dialplan function,,,func_realtime,,))
 $(eval $(call BuildAsterisk13Module,func-shell,Shell,support for shell execution,,,func_shell,,))
 $(eval $(call BuildAsterisk13Module,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,func_uri,,))
