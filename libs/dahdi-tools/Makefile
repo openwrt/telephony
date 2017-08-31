@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
 PKG_VERSION:=2.11.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/dahdi-tools/releases/
@@ -30,7 +30,7 @@ endef
 
 define Package/dahdi-cfg
   $(call Package/dahdi-cfg/Default)
-  DEPENDS+=+libpthread
+  DEPENDS+=+libpthread +dahdi-tools-libtonezone
   TITLE:=DAHDI tools dahdi_cfg, dahdi_scan and fxotune
 endef
 
@@ -74,7 +74,7 @@ endef
 
 define Package/dahdi-cfg/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_BUILD_DIR)/dahdi_cfg $(1)/usr/sbin/
+	$(CP) $(PKG_BUILD_DIR)/.libs/dahdi_cfg $(1)/usr/sbin/
 	$(CP) $(PKG_BUILD_DIR)/dahdi_scan $(1)/usr/sbin/
 	$(CP) $(PKG_BUILD_DIR)/fxotune $(1)/usr/sbin/
 endef
