@@ -30,13 +30,21 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSI
 
 include $(INCLUDE_DIR)/package.mk
 
+# musl and glibc include their own iconv, but uclibc does not
+ifneq ($(CONFIG_USE_UCLIBC),)
+TARGET_CPPFLAGS+= \
+	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
+TARGET_LDFLAGS+= \
+	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv
+endif
+
 define Package/chan-sccp-b/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   TITLE:=SCCP channel provider support
   URL:=http://chan-sccp-b.sourceforge.net/
-  DEPENDS:=+libltdl
+  DEPENDS:=+USE_UCLIBC:libiconv-full +libltdl
   PKG_BUILD_DEPENDS:=libiconv
 endef
 
