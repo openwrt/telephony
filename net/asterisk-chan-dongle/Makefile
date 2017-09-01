@@ -32,7 +32,7 @@ define Package/asterisk-chan-dongle/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=https://github.com/wdoekes/asterisk-chan-dongle
-  DEPENDS:=+kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
+  DEPENDS:=+USE_UCLIBC:libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
 endef
 
@@ -73,6 +73,12 @@ CONFIGURE_ARGS+= \
 TARGET_CFLAGS+= \
 	-I$(CHAN_DONGLE_AST_HEADERS)
 
+# musl and glibc include their own iconv, but uclibc does not
+ifneq ($(CONFIG_USE_UCLIBC),)
+TARGET_CPPFLAGS+= \
+	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
+endif
+
 # -DAST_MODULE_SELF_SYM=__internal_chan_dongle_self to fix Asterisk 14
 # compile issues
 CHAN_DONGLE_EXTRA_CFLAGS:= \
@@ -88,11 +94,11 @@ MAKE_ARGS:= \
 	CC="$(TARGET_CC)" \
 	LD="$(TARGET_CC)" \
 	CFLAGS="$(TARGET_CFLAGS) $(CHAN_DONGLE_EXTRA_CFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS)"
+	LDFLAGS="$(TARGET_LDFLAGS) $(if $(CONFIG_USE_UCLIBC),-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv)"
 
-# $TOOLCHAIN_DIR used by 200-fix-iconv-detection.patch
+# $CHAN_DONGLE_ICONV_INC used by 200-fix-iconv-detection.patch
 CONFIGURE_VARS += \
-	TOOLCHAIN_DIR=$(TOOLCHAIN_DIR) \
+	CHAN_DONGLE_ICONV_INC="$(TOOLCHAIN_DIR)/include $(STAGING_DIR)/usr/lib/libiconv-full/include" \
 	ac_cv_type_size_t=yes \
 	ac_cv_type_ssize_t=yes
 
