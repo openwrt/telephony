@@ -31,7 +31,7 @@ define Package/asterisk-chan-dongle/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  URL:=https://code.google.com/p/asterisk-chan-dongle
+  URL:=https://github.com/wdoekes/asterisk-chan-dongle
   DEPENDS:=+kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
 endef
