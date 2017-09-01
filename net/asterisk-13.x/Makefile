@@ -99,7 +99,7 @@ define Package/asterisk13
 $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+jansson +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
+  DEPENDS:=+jansson +libedit +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
 endef
 
 define Package/asterisk13/description
@@ -198,6 +198,7 @@ CONFIGURE_ARGS+= \
 	--without-nbs \
 	--without-neon \
 	--without-neon29 \
+	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
 	--with-ncurses="$(STAGING_DIR)/usr" \
 	--without-netsnmp \
