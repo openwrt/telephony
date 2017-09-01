@@ -25,12 +25,12 @@ define Package/dahdi-cfg/Default
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS=+kmod-dahdi +dahdi-tools-libtonezone
+  DEPENDS=+kmod-dahdi
 endef
 
 define Package/dahdi-cfg
   $(call Package/dahdi-cfg/Default)
-  DEPENDS+=+libpthread
+  DEPENDS+=+libpthread +dahdi-tools-libtonezone
   TITLE:=DAHDI tools dahdi_cfg, dahdi_scan and fxotune
 endef
 
