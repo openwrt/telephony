@@ -389,6 +389,7 @@ $(eval $(call BuildAsterisk13Module,func-env,Environment functions,Environment d
 $(eval $(call BuildAsterisk13Module,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,func_extstate,,))
 $(eval $(call BuildAsterisk13Module,func-global,Global variable,global variable dialplan functions,,,func_global,,))
 $(eval $(call BuildAsterisk13Module,func-groupcount,Group count,for counting number of channels in the specified group,,,func_groupcount,,))
+$(eval $(call BuildAsterisk13Module,func-iconv,Charset conversion,charset conversion,@!USE_UCLIBC,,func_iconv,,))
 $(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,,))
 $(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,,))
 $(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,,,func_periodic_hook,,))
