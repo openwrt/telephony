@@ -99,7 +99,7 @@ define Package/asterisk13
 $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+jansson +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
+  DEPENDS:=+jansson +libedit +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
 endef
 
 define Package/asterisk13/description
@@ -198,6 +198,7 @@ CONFIGURE_ARGS+= \
 	--without-nbs \
 	--without-neon \
 	--without-neon29 \
+	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
 	--with-ncurses="$(STAGING_DIR)/usr" \
 	--without-netsnmp \
@@ -322,7 +323,7 @@ $(eval $(call BuildAsterisk13Module,app-minivm,Minimal voicemail system,a voicem
 $(eval $(call BuildAsterisk13Module,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
 $(eval $(call BuildAsterisk13Module,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
 $(eval $(call BuildAsterisk13Module,app-playtones,Playtones application,play a tone list,,,app_playtones,,))
-$(eval $(call BuildAsterisk13Module,app-queue,True Call Queueing,support for ACD,,queues.conf queuerules.conf,app_queue,))
+$(eval $(call BuildAsterisk13Module,app-queue,True Call Queueing,support for ACD,,queues.conf queuerules.conf,app_queue,,))
 $(eval $(call BuildAsterisk13Module,app-read,Variable read,a trivial application to read a variable,,,app_read,,))
 $(eval $(call BuildAsterisk13Module,app-readexten,Extension to variable,a trivial application to read an extension into a variable,,,app_readexten,,))
 $(eval $(call BuildAsterisk13Module,app-record,Record sound file,to record a sound file,,,app_record,,))
@@ -336,12 +337,12 @@ $(eval $(call BuildAsterisk13Module,app-talkdetect,File playback with audio dete
 $(eval $(call BuildAsterisk13Module,app-verbose,Verbose logging,Verbose logging application,,,app_verbose,,))
 $(eval $(call BuildAsterisk13Module,app-waituntil,Sleep,support sleeping until the given epoch,,,app_waituntil,,))
 $(eval $(call BuildAsterisk13Module,app-while,While loop,a while loop implementation,,,app_while,,))
-$(eval $(call BuildAsterisk13Module,bridge-builtin-features,Bridging features,built in bridging features,,,bridge_builtin_features))
-$(eval $(call BuildAsterisk13Module,bridge-builtin-interval-features,Built in bridging interval features,built in bridging interval features,,,bridge_builtin_interval_features))
-$(eval $(call BuildAsterisk13Module,bridge-holding,Bridging for storing channels in a bridge,bridging technology for storing channels in a bridge,,,bridge_holding))
-$(eval $(call BuildAsterisk13Module,bridge-native-rtp,Native RTP bridging technology module,native RTP bridging technology module,,,bridge_native_rtp))
-$(eval $(call BuildAsterisk13Module,bridge-simple,Simple two channel bridging module,simple two channel bridging module,,,bridge_simple))
-$(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based channel mixing,multi-party software based channel mixing,,,bridge_softmix))
+$(eval $(call BuildAsterisk13Module,bridge-builtin-features,Bridging features,built in bridging features,,,bridge_builtin_features,,))
+$(eval $(call BuildAsterisk13Module,bridge-builtin-interval-features,Built in bridging interval features,built in bridging interval features,,,bridge_builtin_interval_features,,))
+$(eval $(call BuildAsterisk13Module,bridge-holding,Bridging for storing channels in a bridge,bridging technology for storing channels in a bridge,,,bridge_holding,,))
+$(eval $(call BuildAsterisk13Module,bridge-native-rtp,Native RTP bridging technology module,native RTP bridging technology module,,,bridge_native_rtp,,))
+$(eval $(call BuildAsterisk13Module,bridge-simple,Simple two channel bridging module,simple two channel bridging module,,,bridge_simple,,))
+$(eval $(call BuildAsterisk13Module,bridge-softmix,Multi-party software based channel mixing,multi-party software based channel mixing,,,bridge_softmix,,))
 $(eval $(call BuildAsterisk13Module,cdr,Provides CDR,Call Detail Record,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
 $(eval $(call BuildAsterisk13Module,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
 $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
@@ -381,15 +382,16 @@ $(eval $(call BuildAsterisk13Module,func-base64,base64 support,support of base64
 $(eval $(call BuildAsterisk13Module,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,func_blacklist,,))
 $(eval $(call BuildAsterisk13Module,func-channel,Channel info,Channel info dialplan function,,,func_channel,,))
 $(eval $(call BuildAsterisk13Module,func-cut,CUT function,CUT function,,,func_cut,,))
-$(eval $(call BuildAsterisk13Module,func-db,Database interaction,functions for interaction with the database,,,func_db app_db,))
+$(eval $(call BuildAsterisk13Module,func-db,Database interaction,functions for interaction with the database,,,func_db app_db,,))
 $(eval $(call BuildAsterisk13Module,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,func_devstate,,))
-$(eval $(call BuildAsterisk13Module,func-enum,ENUM,ENUM,,enum.conf,func_enum,))
-$(eval $(call BuildAsterisk13Module,func-env,Environment functions,Environment dialplan functions,,,func_env,))
+$(eval $(call BuildAsterisk13Module,func-enum,ENUM,ENUM,,enum.conf,func_enum,,))
+$(eval $(call BuildAsterisk13Module,func-env,Environment functions,Environment dialplan functions,,,func_env,,))
 $(eval $(call BuildAsterisk13Module,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,func_extstate,,))
 $(eval $(call BuildAsterisk13Module,func-global,Global variable,global variable dialplan functions,,,func_global,,))
 $(eval $(call BuildAsterisk13Module,func-groupcount,Group count,for counting number of channels in the specified group,,,func_groupcount,,))
-$(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,))
-$(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,))
+$(eval $(call BuildAsterisk13Module,func-iconv,Charset conversion,charset conversion,@!USE_UCLIBC,,func_iconv,,))
+$(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,,))
+$(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,,))
 $(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,,,func_periodic_hook,,))
 $(eval $(call BuildAsterisk13Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
 $(eval $(call BuildAsterisk13Module,func-rand,RAND dialplan function,RAND dialplan function,,,func_rand,,))
