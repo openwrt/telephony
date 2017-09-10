@@ -99,7 +99,7 @@ define Package/asterisk11
 $(call Package/asterisk11/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+libopenssl +libedit +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
+  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
   CONFLICTS:=asterisk13
 endef
 
@@ -254,7 +254,7 @@ CONFIGURE_ARGS+= \
 	--with-ilbc=internal \
 	--without-isdnnet \
 	--without-libxml2 \
-	--with-libedit="$(STAGING_DIR)/usr" \
+	--with-libedit=internal \
 	--without-misdn \
 	--without-nbs \
 	--with-ncurses="$(STAGING_DIR)/usr" \
