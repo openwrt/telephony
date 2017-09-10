@@ -201,7 +201,6 @@ endif
 ifneq ($(CONFIG_PACKAGE_asterisk11-pbx-lua),)
   CONFIGURE_ARGS+= \
 	--with-lua="$(STAGING_DIR)/usr"
-  TARGET_LDFLAGS+=-ldl -lcrypt
 else
   CONFIGURE_ARGS+= \
 	--without-lua
@@ -241,8 +240,8 @@ else
 	--without-iksemel
 endif
 
-EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -327,13 +326,9 @@ define Build/Compile
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK11_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
-	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
-		include/asterisk/buildopts.h defaults.h \
-		makeopts.embed_rules
-	ASTCFLAGS="$(EXTRA_CFLAGS)" \
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
 		ASTDATADIR="/usr/share/asterisk" \
+		AST_FORTIFY_SOURCE="" \
 		NOISY_BUILD="yes" \
 		DEBUG="" \
 		OPTIMIZE="" \
