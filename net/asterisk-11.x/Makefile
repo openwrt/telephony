@@ -47,8 +47,8 @@ define Package/asterisk11/install/sbin
 endef
 
 define Package/asterisk11/install/sounds
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
 define Package/$(PKG_NAME)/config
@@ -162,10 +162,10 @@ This package provides sounds for Asterisk11.
 endef
 
 define Package/asterisk11-sounds/install
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
-	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
-	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
+	rm -f $(1)/usr/share/asterisk/sounds/vm-*
+	rm -f $(1)/usr/share/asterisk/sounds/conf-*
 endef
 
 ifneq ($(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
@@ -340,10 +340,7 @@ define Build/Compile
 	ASTCFLAGS="$(EXTRA_CFLAGS)" \
 	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		ASTVARLIBDIR="/usr/lib/asterisk" \
-		ASTDATADIR="/usr/lib/asterisk" \
-		ASTKEYDIR="/usr/lib/asterisk" \
-		ASTDBDIR="/usr/lib/asterisk" \
+		ASTDATADIR="/usr/share/asterisk" \
 		NOISY_BUILD="yes" \
 		DEBUG="" \
 		OPTIMIZE="" \
