@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2017 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.25.1
-PKG_RELEASE:=2
+PKG_VERSION:=11.25.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_HASH:=dc9c282ca1142b286e5a5c391647d6be73f35524c8def37718de866e8384a57c
+PKG_HASH:=59fd3735546cb56bda15f39caf34636c113e68b79019554a007ad63cb6fc2d33
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
