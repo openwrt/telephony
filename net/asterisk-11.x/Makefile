@@ -234,7 +234,7 @@ endif
 ifneq ($(CONFIG_PACKAGE_asterisk11-res-xmpp),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
-  SITE_VARS+= \
+  CONFIGURE_VARS+= \
 	ac_cv_lib_iksemel_iks_start_sasl=yes
 else
   CONFIGURE_ARGS+= \
@@ -298,20 +298,14 @@ endif
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); \
-		./bootstrap.sh; \
-	);
-	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export LDLAGS += $(TARGET_LDFLAGS) $(EXTRA_LDFLAGS)"\
-		" -lc $(LIBGCC_S) -lm"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export CXXFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	$(call Build/Configure/Default,,$(SITE_VARS))
-	(cd $(PKG_BUILD_DIR)/menuselect; \
+	cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh
+	echo "export CFLAGS=-DNDEBUG=1 $(FPIC) $(TARGET_CFLAGS)" \
+		> $(PKG_BUILD_DIR)/res/pjproject/user.mak
+	echo "export LDFLAGS=$(TARGET_LDFLAGS)" \
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak
+	$(call Build/Configure/Default)
+	cd $(PKG_BUILD_DIR)/menuselect; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
@@ -319,8 +313,7 @@ define Build/Configure
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
-		$(AST_MENUSELECT_OPTS) \
-	);
+		$(AST_MENUSELECT_OPTS)
 endef
 
 define Build/Compile
