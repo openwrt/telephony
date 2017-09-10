@@ -63,7 +63,7 @@ define BuildAsterisk11Module
   endef
 
   define Package/asterisk11-$(1)/conffiles
-$(5)
+$(subst $(space),$(newline),$(foreach c,$(5),$(c)))
   endef
 
   define Package/asterisk11-$(1)/description
