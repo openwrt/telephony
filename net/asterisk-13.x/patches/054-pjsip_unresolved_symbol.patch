@@ -4,7 +4,7 @@ Bug: https://issues.asterisk.org/jira/browse/ASTERISK-26518
 
 --- a/res/res_pjsip/pjsip_message_ip_updater.c
 +++ b/res/res_pjsip/pjsip_message_ip_updater.c
-@@ -362,15 +362,15 @@ void ast_res_pjsip_cleanup_message_ip_up
+@@ -392,15 +392,15 @@ void ast_res_pjsip_cleanup_message_ip_up
  {
  	ast_sip_unregister_service(&multihomed_module);
  	ast_sip_unregister_supplement(&multihomed_supplement);
