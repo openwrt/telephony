@@ -12,8 +12,7 @@ start() {
        [ -d $DEST/var/run/asterisk ] || mkdir -p $DEST/var/run/asterisk
        [ -d $DEST/var/log/asterisk ] || mkdir -p $DEST/var/log/asterisk
        [ -d $DEST/var/spool/asterisk ] || mkdir -p $DEST/var/spool/asterisk
-       [ -d $DEST/var/lib ] || mkdir -p $DEST/var/lib
-       [ -h $DEST/var/lib/asterisk ] || ln -s /usr/lib/asterisk /var/lib/asterisk
+       [ -d $DEST/var/lib/asterisk ] || mkdir -p $DEST/var/lib/asterisk
        [ -d $DEST/var/lib/asterisk/keys ] || mkdir -p $DEST/var/lib/asterisk/keys
        [ -d $DEST/var/log/asterisk/cdr-csv ] || mkdir -p $DEST/var/log/asterisk/cdr-csv
 

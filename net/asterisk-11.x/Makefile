@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2017 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
-PKG_VERSION:=11.25.1
-PKG_RELEASE:=2
+PKG_VERSION:=11.25.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_HASH:=dc9c282ca1142b286e5a5c391647d6be73f35524c8def37718de866e8384a57c
+PKG_HASH:=59fd3735546cb56bda15f39caf34636c113e68b79019554a007ad63cb6fc2d33
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -47,8 +47,8 @@ define Package/asterisk11/install/sbin
 endef
 
 define Package/asterisk11/install/sounds
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/$(2) $(1)/usr/lib/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
 define Package/$(PKG_NAME)/config
@@ -63,7 +63,7 @@ define BuildAsterisk11Module
   endef
 
   define Package/asterisk11-$(1)/conffiles
-$(5)
+$(subst $(space),$(newline),$(foreach c,$(5),$(c)))
   endef
 
   define Package/asterisk11-$(1)/description
@@ -99,7 +99,7 @@ define Package/asterisk11
 $(call Package/asterisk11/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+libopenssl +libedit +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
+  DEPENDS:=+libopenssl +libncurses +libpopt +libpthread +libsqlite3 +librt +libuuid +zlib @!TARGET_avr32
   CONFLICTS:=asterisk13
 endef
 
@@ -162,10 +162,10 @@ This package provides sounds for Asterisk11.
 endef
 
 define Package/asterisk11-sounds/install
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/asterisk/sounds/en/* $(1)/usr/lib/asterisk/sounds/
-	rm -f $(1)/usr/lib/asterisk/sounds/vm-*
-	rm -f $(1)/usr/lib/asterisk/sounds/conf-*
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
+	rm -f $(1)/usr/share/asterisk/sounds/vm-*
+	rm -f $(1)/usr/share/asterisk/sounds/conf-*
 endef
 
 ifneq ($(CONFIG_PACKAGE_asterisk11-chan-dahdi),)
@@ -201,7 +201,6 @@ endif
 ifneq ($(CONFIG_PACKAGE_asterisk11-pbx-lua),)
   CONFIGURE_ARGS+= \
 	--with-lua="$(STAGING_DIR)/usr"
-  TARGET_LDFLAGS+=-ldl -lcrypt
 else
   CONFIGURE_ARGS+= \
 	--without-lua
@@ -234,15 +233,15 @@ endif
 ifneq ($(CONFIG_PACKAGE_asterisk11-res-xmpp),)
   CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
-  SITE_VARS+= \
+  CONFIGURE_VARS+= \
 	ac_cv_lib_iksemel_iks_start_sasl=yes
 else
   CONFIGURE_ARGS+= \
 	--without-iksemel
 endif
 
-EXTRA_CFLAGS+= $(TARGET_CPPFLAGS)
-EXTRA_LDFLAGS+= $(TARGET_LDFLAGS) -Wl,-rpath-link,$(STAGING_DIR)/usr/lib
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
+
 CONFIGURE_ARGS+= \
 	--build=$(GNU_HOST_NAME) \
 	--host=$(GNU_TARGET_NAME) \
@@ -255,7 +254,7 @@ CONFIGURE_ARGS+= \
 	--with-ilbc=internal \
 	--without-isdnnet \
 	--without-libxml2 \
-	--with-libedit="$(STAGING_DIR)/usr" \
+	--with-libedit=internal \
 	--without-misdn \
 	--without-nbs \
 	--with-ncurses="$(STAGING_DIR)/usr" \
@@ -298,20 +297,14 @@ endif
 endef
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); \
-		./bootstrap.sh; \
-	);
-	echo "export CFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export LDLAGS += $(TARGET_LDFLAGS) $(EXTRA_LDFLAGS)"\
-		" -lc $(LIBGCC_S) -lm"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	echo "export CXXFLAGS += $(FPIC) $(TARGET_CFLAGS) $(EXTRA_CFLAGS)"\
-		" $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)"\
-		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak;
-	$(call Build/Configure/Default,,$(SITE_VARS))
-	(cd $(PKG_BUILD_DIR)/menuselect; \
+	cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh
+	echo "export CFLAGS=-DNDEBUG=1 $(FPIC) $(TARGET_CFLAGS)" \
+		> $(PKG_BUILD_DIR)/res/pjproject/user.mak
+	echo "export LDFLAGS=$(TARGET_LDFLAGS)" \
+		>> $(PKG_BUILD_DIR)/res/pjproject/user.mak
+	$(call Build/Configure/Default)
+	cd $(PKG_BUILD_DIR)/menuselect; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
@@ -319,8 +312,7 @@ define Build/Configure
 		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
-		$(AST_MENUSELECT_OPTS) \
-	);
+		$(AST_MENUSELECT_OPTS)
 endef
 
 define Build/Compile
@@ -334,16 +326,9 @@ define Build/Compile
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK11_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
-	$(MAKE) -C "$(PKG_BUILD_DIR)" include/asterisk/version.h \
-		include/asterisk/buildopts.h defaults.h \
-		makeopts.embed_rules
-	ASTCFLAGS="$(EXTRA_CFLAGS)" \
-	ASTLDFLAGS="$(EXTRA_LDFLAGS)" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		ASTVARLIBDIR="/usr/lib/asterisk" \
-		ASTDATADIR="/usr/lib/asterisk" \
-		ASTKEYDIR="/usr/lib/asterisk" \
-		ASTDBDIR="/usr/lib/asterisk" \
+		ASTDATADIR="/usr/share/asterisk" \
+		AST_FORTIFY_SOURCE="" \
 		NOISY_BUILD="yes" \
 		DEBUG="" \
 		OPTIMIZE="" \
