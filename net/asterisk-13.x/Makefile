@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.17.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -61,6 +61,32 @@ define BuildAsterisk13Module
   $$(call Package/asterisk13/Default)
     TITLE:=$(2) support
     DEPENDS:= asterisk13 $(patsubst +%,+PACKAGE_asterisk13-$(1):%,$(4))
+  endef
+
+  define Package/asterisk13-$(1)/conffiles
+$(subst $(space),$(newline),$(foreach c,$(5),/etc/asterisk/$(c)))
+  endef
+
+  define Package/asterisk13-$(1)/description
+This package provides support for '$(3)' in Asterisk.
+  endef
+
+  define Package/asterisk13-$(1)/install
+$(foreach c,$(5),$(call Package/asterisk13/install/conffile,$$(1),$(c));)
+$(foreach m,$(6),$(call Package/asterisk13/install/module,$$(1),$(m));)
+$(foreach s,$(7),$(call Package/asterisk13/install/sounds,$$(1),$(s));)
+$(foreach b,$(8),$(call Package/asterisk13/install/sbin,$$(1),$(b));)
+  endef
+
+  $$(eval $$(call BuildPackage,asterisk13-$(1)))
+endef
+
+define BuildAsterisk13NonSharedModule
+  define Package/asterisk13-$(1)
+  $$(call Package/asterisk13/Default)
+    TITLE:=$(2) support
+    DEPENDS:= asterisk13 $(patsubst +%,+PACKAGE_asterisk13-$(1):%,$(4))
+    PKG_FLAGS:=nonshared
   endef
 
   define Package/asterisk13-$(1)/conffiles
@@ -349,7 +375,7 @@ $(eval $(call BuildAsterisk13Module,cdr-sqlite3,Provides CDR SQLITE3,Call Detail
 $(eval $(call BuildAsterisk13Module,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,alsa.conf,chan_alsa,,))
 $(eval $(call BuildAsterisk13Module,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsterisk13Module,chan-iax2,IAX2 channel,IAX support,+asterisk13-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
-$(eval $(call BuildAsterisk13Module,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,lantiq.conf,chan_lantiq,,))
+$(eval $(call BuildAsterisk13NonSharedModule,chan-lantiq,Lantiq TAPI channel,An implementation of Lantiq TAPI channel,@TARGET_lantiq +kmod-ltq-vmmc,lantiq.conf,chan_lantiq,,))
 $(eval $(call BuildAsterisk13Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk13-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsterisk13Module,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
 $(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,+asterisk13-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
