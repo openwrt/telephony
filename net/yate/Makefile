@@ -56,7 +56,7 @@ endef
 
 define Package/$(PKG_NAME)-scripts-perl
   $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perlbase-data
+  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perlbase-essential
   TITLE:= Perl module for Yate
 endef
 

@@ -1,0 +1,19 @@
+--- a/share/scripts/Yate.pm
++++ b/share/scripts/Yate.pm
+@@ -32,7 +32,6 @@ use warnings;
+ BEGIN {
+     # Have at least perl 5.6.1 to use this module.
+     use 5.006_001;
+-    use Data::Dumper;
+ 
+     # Set version && disable output buffering.
+     our $VERSION = '0.22';
+@@ -674,6 +673,8 @@ sub setlocal($$$) {
+ sub dump($) {
+     my ($self) = @_;
+ 
++    require Data::Dumper;
++    Data::Dumper->import();
+     $self->debug(Dumper($self));
+ }
+ 
