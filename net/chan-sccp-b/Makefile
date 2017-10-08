@@ -13,7 +13,7 @@ PKG_VERSION:=v4.3.0-20170814
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=git://github.com/chan-sccp/chan-sccp.git
+PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=016fee3a96b09d5404757f7b178af2e349e55bcc
 PKG_SOURCE_PROTO:=git
