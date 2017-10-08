@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://iksemel.googlecode.com/files/
-PKG_MD5SUM:=532e77181694f87ad5eb59435d11c1ca
+PKG_HASH:=458c1b8fb3349076a6cecf26c29db1d561315d84e16bfcfba419f327f502e244
 
 PKG_FIXUP:=autoreconf
 
