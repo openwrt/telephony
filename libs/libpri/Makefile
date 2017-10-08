@@ -12,7 +12,7 @@ PKG_VERSION:=1.6.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/libpri/releases
+PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/libpri/releases
 PKG_HASH:=7225ea7ec334a115f9dc08e71f55589c38cb4e00b13964cd2f08cc4e6123e3f6
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 

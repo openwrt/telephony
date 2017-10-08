@@ -12,7 +12,7 @@ PKG_VERSION:=1.0.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/
+PKG_SOURCE_URL:=@SAVANNAH/linphone/plugins/sources
 PKG_HASH:=77c923edc57a53014da5f31788b63efbabfc7277c06deaeada06574628e4b03f
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)

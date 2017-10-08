@@ -14,7 +14,7 @@ PKG_VERSION:=13.17.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
+PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
 PKG_HASH:=19ae0565687b85bde382b2cc274dd5a27ac33dc57a4eb3b663cb5ad9b238f1ac
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)

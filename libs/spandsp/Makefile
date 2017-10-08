@@ -12,7 +12,7 @@ PKG_VERSION:=0.0.6
 PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.soft-switch.org/downloads/spandsp/
+PKG_SOURCE_URL:=https://www.soft-switch.org/downloads/spandsp
 PKG_MD5SUM:=897d839516a6d4edb20397d4757a7ca3
 
 PKG_INSTALL:=1
