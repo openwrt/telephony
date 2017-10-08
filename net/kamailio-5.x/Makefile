@@ -12,7 +12,7 @@ PKG_NAME:=kamailio5
 PKG_VERSION:=5.0.2
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
+PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
 PKG_HASH:=
 PKG_USE_MIPS16:=0

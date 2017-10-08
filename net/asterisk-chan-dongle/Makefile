@@ -12,7 +12,7 @@ PKG_VERSION:=1.1-20170913
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=git://github.com/wdoekes/asterisk-chan-dongle.git
+PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=4ef5ad7eea7245a031101875be08b924aa1e151b
 PKG_SOURCE_PROTO:=git

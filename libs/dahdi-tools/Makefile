@@ -12,8 +12,8 @@ PKG_VERSION:=2.11.1
 PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/dahdi-tools/releases/
-PKG_MD5SUM:=8a908640d0ff7f8cbcdccd23f5022ede
+PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-tools/releases
+PKG_HASH:=53ffeb333f3e44b0c88e5b17475cdbf87d3f652eb81a6422de76250c061e2909
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
