@@ -53,7 +53,7 @@ Package/$(PKG_NAME)-asterisk13/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) $(SOURCE)/files/lantiq-$(BUILD_VARIANT).conf.sample \
+	$(INSTALL_CONF) ./files/lantiq-$(BUILD_VARIANT).conf.sample \
 		$(1)/etc/asterisk/lantiq.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_lantiq.so \
@@ -63,8 +63,8 @@ endef
 Package/$(PKG_NAME)-asterisk13/install = $(Package/Install/Default)
 
 define Build/Prepare
-	$(CP) $(SOURCE)/files/chan_lantiq-$(BUILD_VARIANT).c $(PKG_BUILD_DIR)/chan_lantiq.c
-	$(CP) $(SOURCE)/files/default.exports $(PKG_BUILD_DIR)/chan_lantiq.exports
+	$(CP) ./files/chan_lantiq-$(BUILD_VARIANT).c $(PKG_BUILD_DIR)/chan_lantiq.c
+	$(CP) ./files/default.exports $(PKG_BUILD_DIR)/chan_lantiq.exports
 	$(TAR) --extract --no-same-owner --no-same-permissions --xz \
 		--file=$(DL_DIR)/$(BUILD_VARIANT)-$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))-headers-for-chan-lantiq-$(VERSION_NUMBER).tar.xz \
 		--directory=$(PKG_BUILD_DIR)
