@@ -55,19 +55,11 @@ $(call Package/chan-sccp-b/Default)
   CONFLICTS:=asterisk13-chan-skinny
 endef
 
-define Package/asterisk11-chan-sccp-b
-$(call Package/chan-sccp-b/Default)
-  DEPENDS+= asterisk11
-  VARIANT:=asterisk11
-  CONFLICTS:=asterisk11-chan-skinny
-endef
-
 define Package/description/Default
  SCCP channel provider for asterisk. It delivers extended functionality for SCCP phones over chan_skinny delivered
  by asterisk by default.
 endef
 
-Package/asterisk11-chan-sccp-b/description = $(Package/description/Default)
 Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
@@ -80,10 +72,6 @@ ifeq ($(BUILD_VARIANT),asterisk13)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-13
 endif
 
-ifeq ($(BUILD_VARIANT),asterisk11)
-  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-11
-endif
-
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
 /etc/asterisk/extconfig.conf.sccp_sample
@@ -92,7 +80,6 @@ define Package/conffiles/Default
 /etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk11-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
@@ -106,8 +93,6 @@ define Package/Install/Default
 	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk11-chan-sccp-b/install = $(Package/Install/Default)
 Package/asterisk13-chan-sccp-b/install = $(Package/Install/Default)
 
-$(eval $(call BuildPackage,asterisk11-chan-sccp-b))
 $(eval $(call BuildPackage,asterisk13-chan-sccp-b))
