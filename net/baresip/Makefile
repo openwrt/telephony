@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.5.5
+PKG_VERSION:=0.5.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
-PKG_HASH:=6418215c95bf4f983cf0a709557eacc8f3b38c0735be444aafc1d91653acfe5b
+PKG_HASH:=148defef160842e0247af92c84bb0c8de4b36ffa68cf3a87c4cd7e510cddd00c
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -97,7 +97,7 @@ define Package/baresip/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/baresip $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/lib/baresip/modules
-	$(CP) \
+	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/{account,auloop,contact,ice,menu,stun,turn}.so \
 		$(1)/usr/lib/baresip/modules/.
 	$(INSTALL_DIR) $(1)/usr/share/baresip
