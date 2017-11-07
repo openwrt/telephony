@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
 PKG_VERSION:=2.0.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
@@ -23,6 +24,7 @@ PKG_INSTALL:=1
 
 PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -34,6 +36,9 @@ define Package/rtpproxy
   TITLE:=RTP (Realtime Transport Protocol) proxy
   URL:=http://www.rtpproxy.org/
 endef
+
+CONFIGURE_VARS += \
+        ac_cv_lib_bcg729_initBcg729EncoderChannel=no
 
 define Package/rtpproxy/install
 	$(INSTALL_DIR) $(1)/usr/bin
