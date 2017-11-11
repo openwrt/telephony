@@ -1,5 +1,5 @@
---- a/utils/sercmd/sercmd.c
-+++ b/utils/sercmd/sercmd.c
+--- a/utils/kamcmd/kamcmd.c
++++ b/utils/kamcmd/kamcmd.c
 @@ -43,6 +43,7 @@
  #include <errno.h>
  #include <ctype.h> /* isprint */
