@@ -33,7 +33,7 @@ define Package/kamailio4/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.kamailio.org/
-  DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2
+  DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2 +hiredis
 endef
 
 define Package/kamailio4
@@ -137,7 +137,6 @@ $(eval $(call BuildKamailio4Module,db_text,Text database-backend,,,dbtext/kamail
 $(eval $(call BuildKamailio4Module,db_unixodbc,UnixODBC Database-backend,,+unixodbc))
 $(eval $(call BuildKamailio4Module,debugger,Interactive config file debugger,,))
 $(eval $(call BuildKamailio4Module,dialog,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
-$(eval $(call BuildKamailio4Module,dialog_ng,Dialog support,,+kamailio4-mod-rr +kamailio4-mod-tm))
 $(eval $(call BuildKamailio4Module,dialplan,Dialplan management,,))
 $(eval $(call BuildKamailio4Module,dispatcher,Dispatcher,,))
 $(eval $(call BuildKamailio4Module,diversion,Diversion header insertion,,))
