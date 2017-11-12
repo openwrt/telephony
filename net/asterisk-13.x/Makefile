@@ -26,7 +26,6 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
-include $(INCLUDE_DIR)/version.mk
 
 define Package/asterisk13/install/module
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
@@ -281,25 +280,10 @@ define Build/Compile
 	$(call Build/Compile/Default,all install samples)
 endef
 
-# Tar up the headers for chan-lantiq and store them in $(DL_DIR). This is a
-# workaround for a hen and egg problem: chan-lantiq is a nonshared (target
-# specific) package. It depends on both kernel module and asterisk headers. But
-# the build bots will not build shared packages (e.g. asterisk) when building
-# the target specific packages because the shared packages are not selected by
-# CONFIG_ALL_NONSHARED=y.
-
-# The workaround stores the asterisk headers in $(DL_DIR) where chan-lantiq can
-# access them.
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/asterisk-13/include/asterisk/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/asterisk/*.h $(1)/usr/include/asterisk-13/include/asterisk/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/asterisk.h $(1)/usr/include/asterisk-13/include/
-ifeq ($(CONFIG_TARGET_ARCH_PACKAGES),"mips_24kc")
-	$(TAR) --create --xz \
-		--file=$(DL_DIR)/$(PKG_NAME)-$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))-headers-for-chan-lantiq-$(VERSION_NUMBER).tar.xz \
-		--directory=$(PKG_INSTALL_DIR)/usr include
-endif
 endef
 
 $(eval $(call BuildPackage,asterisk13))
