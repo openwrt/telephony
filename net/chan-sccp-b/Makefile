@@ -23,7 +23,7 @@ PKG_FIXUP:=autoreconf -fi
 
 PKG_LICENSE:=GPL-1.0
 PKG_LICENSE_FILES:=COPYING LICENSE
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 

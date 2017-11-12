@@ -1,5 +1,5 @@
-# 
-# Copyright (C) 2010-2014 OpenWrt.org
+#
+# Copyright (C) 2010-2017 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,16 +9,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
-PKG_VERSION:=0.4.6
+PKG_VERSION:=0.5.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_MD5SUM:=888c3000aa002790cc7129fa72d39a58
+PKG_HASH:=fbc54e81ed4fd28a11d525f4384d06bee4c11e10975395668e8260ef0d4a64eb
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -31,7 +31,7 @@ define Package/librem
   URL:=http://www.creytiv.com/
 endef
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS+=$(FPIC)
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \

@@ -18,7 +18,7 @@ PKG_MD5SUM:=e50e57aa96a19add97193b7765740456
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
-PKG_MAINTAINER:=Jiri Slachta <slachta@cesnet.cz>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 restund-mods:= mysql
 
