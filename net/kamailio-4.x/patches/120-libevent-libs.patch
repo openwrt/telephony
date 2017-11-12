@@ -1,20 +1,18 @@
-Index: kamailio4-4.3.0/modules/cnxcc/Makefile
-===================================================================
---- kamailio4-4.3.0.orig/modules/cnxcc/Makefile
-+++ kamailio4-4.3.0/modules/cnxcc/Makefile
-@@ -8,7 +8,7 @@ include ../../Makefile.defs
- auto_gen=
- NAME=cnxcc.so
+diff -rupN kamailio4-4.4.0/modules/cnxcc/Makefile kam4/modules/cnxcc/Makefile
+--- kamailio4-4.4.0/modules/cnxcc/Makefile	2016-04-07 11:26:01.186927107 +0200
++++ kam4/modules/cnxcc/Makefile	2016-04-07 11:25:28.370655776 +0200
+@@ -45,7 +45,7 @@ else
+ endif
  
--LIBS=-lhiredis -levent
-+LIBS=-lhiredis -levent $(EXTRA_LIBS)
+ DEFS+=$(HIREDISDEFS) $(LEVENTDEFS)
+-LIBS=$(HIREDISLIBS) $(LEVENTLIBS)
++LIBS=$(HIREDISLIBS) $(LEVENTLIBS) $(EXTRA_LIBS)
+ 
  DEFS+=-DOPENSER_MOD_INTERFACE
  SERLIBPATH=../../lib
- SER_LIBS+=$(SERLIBPATH)/kmi/kmi
-Index: kamailio4-4.3.0/modules/janssonrpc-c/netstring.h
-===================================================================
---- kamailio4-4.3.0.orig/modules/janssonrpc-c/netstring.h
-+++ kamailio4-4.3.0/modules/janssonrpc-c/netstring.h
+diff -rupN kamailio4-4.4.0/modules/janssonrpc-c/netstring.h kam4/modules/janssonrpc-c/netstring.h
+--- kamailio4-4.4.0/modules/janssonrpc-c/netstring.h	2016-04-07 11:26:24.163117016 +0200
++++ kam4/modules/janssonrpc-c/netstring.h	2016-04-07 11:25:28.070653295 +0200
 @@ -24,6 +24,7 @@
  #define __NETSTRING_STREAM_H
  
