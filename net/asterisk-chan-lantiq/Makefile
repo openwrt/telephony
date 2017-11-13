@@ -16,14 +16,7 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
-PKG_FLAGS:=nonshared
-
-# WARNING: Because this module is target specific ("nonshared") it cannot depend
-# on the shared Asterisk package. Asterisk needs to be built _before_ this
-# package, though, to generate the necessary headers.
-
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/version.mk
 
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
@@ -31,11 +24,12 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=@(TARGET_lantiq_falcon||TARGET_lantiq_xway||TARGET_lantiq_xrx200) +kmod-ltq-vmmc
+  DEPENDS:=+kmod-ltq-vmmc
 endef
 
-define Package/$(PKG_NAME)-asterisk13
+define Package/asterisk13-$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
+  DEPENDS+=asterisk13
   VARIANT:=asterisk13
 endef
 
@@ -43,13 +37,13 @@ define Package/description/Default
 An implementation of a Lantiq TAPI channel driver for Asterisk.
 endef
 
-Package/$(PKG_NAME)-asterisk13/description = $(Package/description/Default)
+Package/asterisk13-$(PKG_NAME)/description = $(Package/description/Default)
 
 define Package/conffiles/Default
 /etc/asterisk/lantiq.conf
 endef
 
-Package/$(PKG_NAME)-asterisk13/conffiles = $(Package/conffiles/Default)
+Package/asterisk13-$(PKG_NAME)/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -60,14 +54,15 @@ define Package/Install/Default
 		$(1)/usr/lib/asterisk/modules
 endef
 
-Package/$(PKG_NAME)-asterisk13/install = $(Package/Install/Default)
+Package/asterisk13-$(PKG_NAME)/install = $(Package/Install/Default)
+
+ifeq ($(BUILD_VARIANT),asterisk13)
+CHAN_LANTIQ_AST_INCLUDES:=-I$(STAGING_DIR)/usr/include/asterisk-13/include
+endif
 
 define Build/Prepare
 	$(CP) ./files/chan_lantiq-$(BUILD_VARIANT).c $(PKG_BUILD_DIR)/chan_lantiq.c
 	$(CP) ./files/default.exports $(PKG_BUILD_DIR)/chan_lantiq.exports
-	$(TAR) --extract --no-same-owner --no-same-permissions --xz \
-		--file=$(DL_DIR)/$(BUILD_VARIANT)-$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))-headers-for-chan-lantiq-$(VERSION_NUMBER).tar.xz \
-		--directory=$(PKG_BUILD_DIR)
 endef
 
 define Build/Configure
@@ -78,7 +73,7 @@ define Build/Compile
 	$(TARGET_CC) -o chan_lantiq.o -c chan_lantiq.c -MD -MT chan_lantiq.o \
 		-MF .chan_lantiq.o.d -MP -pthread \
 		$(TARGET_CFLAGS) \
-		-I$(PKG_BUILD_DIR)/include \
+		$(CHAN_LANTIQ_AST_INCLUDES) \
 		$(TARGET_CPPFLAGS) \
 		-Wall -Wstrict-prototypes -Wmissing-prototypes \
 		-Wmissing-declarations $(FPIC) -DAST_MODULE=\"chan_lantiq\" && \
@@ -87,4 +82,4 @@ define Build/Compile
 		chan_lantiq.o
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)-asterisk13))
+$(eval $(call BuildPackage,asterisk13-$(PKG_NAME)))
