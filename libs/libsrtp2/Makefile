@@ -55,8 +55,8 @@ endef
 
 define Package/libsrtp2/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so.* \
+	$(CP) \
+		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so* \
 		$(1)/usr/lib/
 endef
 

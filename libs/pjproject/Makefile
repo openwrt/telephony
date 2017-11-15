@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.6
-PKG_RELEASE:=3
+PKG_VERSION:=2.7.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
-PKG_HASH:=2f5a1da1c174d845871c758bd80fbb580fca7799d3cfaa0d3c4e082b5161c7b4
+PKG_HASH:=59fabc62a02b2b80857297cfb10e2c68c473f4a0acc6e848cfefe8421f2c3126
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
@@ -56,6 +56,7 @@ endef
 
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_SOFT_FLOAT),--disable-floating-point) \
+	--disable-bcg729 \
 	--disable-ext-sound \
 	--disable-ffmpeg \
 	--disable-g711-codec \
@@ -104,16 +105,16 @@ define Build/InstallDev
 	$(foreach m,$(PJPROJECT_LIBS),$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(m)* $(1)/usr/lib;)
 
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(SED) 's|$(TARGET_CFLAGS)||' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
+	$(SED) 's|$(TARGET_CFLAGS)||g' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc $(1)/usr/lib/pkgconfig
 endef
 
 $(eval $(call PJSIPpackage,libpj,libpj,+librt))
 $(eval $(call PJSIPpackage,libpjlib-util,libpjlib-util,+libpj +librt))
-$(eval $(call PJSIPpackage,libpjmedia,libpjmedia*,+libpj +libpjlib-util +libpjnath +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjmedia,libpjmedia*,+libpj +libpjlib-util +libpjnath +librt +libsrtp2))
 $(eval $(call PJSIPpackage,libpjnath,libpjnath,+libpj +libpjlib-util +librt))
 $(eval $(call PJSIPpackage,libpjsip-simple,libpjsip-simple,+libpj +libpjlib-util +libpjsip +librt))
 $(eval $(call PJSIPpackage,libpjsip-ua,libpjsip-ua,+libpj +libpjlib-util +libpjmedia +libpjsip-simple +libpjsip +librt))
-$(eval $(call PJSIPpackage,libpjsip,libpjsip,+libpj +libpjlib-util +librt +libsrtp))
+$(eval $(call PJSIPpackage,libpjsip,libpjsip,+libpj +libpjlib-util +librt +libsrtp2))
 $(eval $(call PJSIPpackage,libpjsua,libpjsua,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +librt))
 $(eval $(call PJSIPpackage,libpjsua2,libpjsua2,+libpj +libpjlib-util +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +librt +libpjsua))

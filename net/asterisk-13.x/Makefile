@@ -228,7 +228,6 @@ CONFIGURE_ARGS+= \
 	--enable-xmldoc
 
 CONFIGURE_VARS += \
-	ac_cv_lib_srtp2_srtp_init=no \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
 
 MAKE_FLAGS+= \
@@ -415,14 +414,14 @@ $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,m
 $(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application,,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsterisk13Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
 $(eval $(call BuildAsterisk13Module,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP Phone Provisioning,+asterisk13-pjsip +asterisk13-res-phoneprov,,res_pjsip_phoneprov_provider,,))
-$(eval $(call BuildAsterisk13Module,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp,pjproject.conf,res_pjproject,,))
+$(eval $(call BuildAsterisk13Module,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
 $(eval $(call BuildAsterisk13Module,res-realtime,RealTime CLI,RealTime CLI,,,res_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
 $(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,Sorcery backend modules for data access intended for using realtime as backend ,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-speech,Speech Recognition API,Support for the Asterisk Generic Speech Recognition API,,,res_speech,,))
-$(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp,,res_srtp,,))
+$(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp2,,res_srtp,,))
 $(eval $(call BuildAsterisk13Module,res-stun-monitor,STUN monitoring,resource STUN Monitor,,res_stun_monitor.conf,res_stun_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface,+asterisk13-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,POSIX pthreads Timing Interface,,,res_timing_pthread,,))
