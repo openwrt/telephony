@@ -100,6 +100,7 @@ ASTERISK_FILE_VERSION(__FILE__, "$Revision: xxx $")
 
 #define LANTIQ_CONTEXT_PREFIX "lantiq"
 #define DEFAULT_INTERDIGIT_TIMEOUT 4000
+#define DEFAULT_NUMSIGN_COMPLETE 0 /* 1=# key ends dialing */
 #define G723_HIGH_RATE	1
 #define LED_NAME_LENGTH 32
 
@@ -169,6 +170,7 @@ static struct lantiq_ctx {
 		char voip_led[LED_NAME_LENGTH]; /* VOIP LED name */
 		char ch_led[TAPI_AUDIO_PORT_NUM_MAX][LED_NAME_LENGTH]; /* FXS LED names */
 		int interdigit_timeout; /* Timeout in ms between dialed digits */
+		int numsign_complete; /* If nonzero, then the pound/hash key signifies that dialed number is complete */
 } dev_ctx;
 
 static int ast_digit_begin(struct ast_channel *ast, char digit);
@@ -791,9 +793,9 @@ static int ast_lantiq_hangup(struct ast_channel *ast)
 	lantiq_jb_get_stats(pvt->port_id);
 
 	ast_setstate(ast, AST_STATE_DOWN);
-	ast_module_unref(ast_module_info->self);
 	ast_channel_tech_pvt_set(ast, NULL);
 	pvt->owner = NULL;
+	ast_module_unref(ast_module_info->self);	/* Having an owner prohibitted module unloading */
 
 	ast_mutex_unlock(&iflock);
 
@@ -1143,16 +1145,26 @@ static int lantiq_standby(int c)
 	return lantiq_play_tone(c, TAPI_TONE_LOCALE_NONE);
 }
 
+/* Note that lantiq_end_dial_timer() may only be called when mutex 'iflock' has been locked by caller */
+static void lantiq_end_dial_timer(struct lantiq_pvt *pvt)
+{
+	if (pvt->dial_timer == -1)
+		return;
+		
+	ast_log(LOG_DEBUG, "deleting timer\n");
+	AST_SCHED_DEL(sched, pvt->dial_timer);
+	pvt->dial_timer = -1;
+	ast_module_unref(ast_module_info->self); /* Timer no longer prohibits module unloading */
+}
+
+/* Note that lantiq_end_dialing() may only be called when mutex 'iflock' has been locked by caller */
 static int lantiq_end_dialing(int c)
 {
 	struct lantiq_pvt *pvt = &iflist[c];
 
 	ast_log(LOG_DEBUG, "end of dialing\n");
 
-	if (pvt->dial_timer != -1) {
-		AST_SCHED_DEL(sched, pvt->dial_timer);
-		pvt->dial_timer = -1;
-	}
+	lantiq_end_dial_timer(pvt);
 
 	if(pvt->owner) {
 		ast_hangup(pvt->owner);
@@ -1200,6 +1212,7 @@ static struct ast_channel *lantiq_channel(int state, int c, char *ext, char *ctx
 	ast_channel_tech_set(chan, &lantiq_tech);
 	ast_channel_tech_pvt_set(chan, pvt);
 	pvt->owner = chan;
+	ast_module_ref(ast_module_info->self); /* Having an owner prohibits module unloading */
 
 	if (cap && ast_format_cap_iscompatible(cap, lantiq_tech.capabilities)) { /* compatible format capabilities given */
 		ast_format_cap_get_compatible(lantiq_tech.capabilities, cap, newcap);
@@ -1233,9 +1246,9 @@ static struct ast_channel *ast_lantiq_requester(const char *type, struct ast_for
 	struct ast_channel *chan = NULL;
 	int port_id = -1;
 
-	ast_mutex_lock(&iflock);
-
 	ast_debug(1, "Asked to create a TAPI channel with formats: %s\n", ast_format_cap_get_names(cap, &buf));
+
+	ast_mutex_lock(&iflock);
 
 	/* check for correct data argument */
 	if (ast_strlen_zero(data)) {
@@ -1422,11 +1435,11 @@ static void lantiq_reset_dtmfbuf(struct lantiq_pvt *pvt)
 	pvt->dtmfbuf_len = 0;
 }
 
+/* Note that lantiq_dial() may only be called when mutex 'iflock' has been locked by caller */
 static void lantiq_dial(struct lantiq_pvt *pvt)
 {
 	struct ast_channel *chan = NULL;
 
-	ast_mutex_lock(&iflock);
 	ast_log(LOG_DEBUG, "user want's to dial %s.\n", pvt->dtmfbuf);
 
 	if (ast_exists_extension(NULL, pvt->context, pvt->dtmfbuf, 1, NULL)) {
@@ -1437,7 +1450,7 @@ static void lantiq_dial(struct lantiq_pvt *pvt)
 		chan = lantiq_channel(AST_STATE_UP, pvt->port_id, pvt->dtmfbuf, pvt->context, NULL, 0, NULL);
 		if (!chan) {
 			ast_log(LOG_ERROR, "couldn't create channel\n");
-			goto bailout;
+			return;
 		}
 		ast_channel_tech_pvt_set(chan, pvt);
 		pvt->owner = chan;
@@ -1461,23 +1474,28 @@ static void lantiq_dial(struct lantiq_pvt *pvt)
 	}
 
 	lantiq_reset_dtmfbuf(pvt);
-bailout:
-	ast_mutex_unlock(&iflock);
 }
 
 static int lantiq_event_dial_timeout(const void* data)
 {
+	struct lantiq_pvt *pvt = (struct lantiq_pvt *) data;
+
 	ast_debug(1, "TAPI: lantiq_event_dial_timeout()\n");
 
-	struct lantiq_pvt *pvt = (struct lantiq_pvt *) data;
-	pvt->dial_timer = -1;
+	ast_mutex_lock(&iflock);
 
+	if (pvt->dial_timer != -1) {
+		pvt->dial_timer = -1;
+		ast_module_unref(ast_module_info->self); /* Running timer prohibitted module unloading */
+		}
+	
 	if (! pvt->channel_state == ONHOOK) {
 		lantiq_dial(pvt);
 	} else {
 		ast_debug(1, "TAPI: lantiq_event_dial_timeout(): dial timeout in state ONHOOK.\n");
 	}
 
+	ast_mutex_unlock(&iflock);
 	return 0;
 }
 
@@ -1516,10 +1534,13 @@ static void lantiq_dev_event_digit(int c, char digit)
 
 			/* fall through */
 		case DIALING:
-			if (pvt->dtmfbuf_len < AST_MAX_EXTENSION - 1) {
-				pvt->dtmfbuf[pvt->dtmfbuf_len] = digit;
-				pvt->dtmfbuf[++pvt->dtmfbuf_len] = '\0';
-			} else {
+			if (digit=='#' && dev_ctx.numsign_complete) {
+				lantiq_end_dial_timer(pvt);
+				lantiq_dial(pvt);
+				break;
+			}
+
+			if (pvt->dtmfbuf_len >= AST_MAX_EXTENSION - 1) {
 				/* No more room for another digit */
 				lantiq_end_dialing(c);
 				lantiq_play_tone(pvt->port_id, TAPI_TONE_LOCALE_BUSY_CODE);
@@ -1527,10 +1548,16 @@ static void lantiq_dev_event_digit(int c, char digit)
 				break;
 			}
 
+			pvt->dtmfbuf[pvt->dtmfbuf_len] = digit;
+			pvt->dtmfbuf[++pvt->dtmfbuf_len] = '\0';
+
 			/* setup autodial timer */
 			if (pvt->dial_timer == -1) {
 				ast_log(LOG_DEBUG, "setting new timer\n");
 				pvt->dial_timer = ast_sched_add(sched, dev_ctx.interdigit_timeout, lantiq_event_dial_timeout, (const void*) pvt);
+				if (pvt->dial_timer != -1)
+					ast_module_ref(ast_module_info->self);
+				
 			} else {
 				ast_log(LOG_DEBUG, "replacing timer\n");
 				AST_SCHED_REPLACE(pvt->dial_timer, sched, dev_ctx.interdigit_timeout, lantiq_event_dial_timeout, (const void*) pvt);
@@ -1837,13 +1864,14 @@ static int load_module(void)
 	dev_ctx.dev_fd = -1;
 	dev_ctx.channels = TAPI_AUDIO_PORT_NUM_MAX;
 	dev_ctx.interdigit_timeout = DEFAULT_INTERDIGIT_TIMEOUT;
+	dev_ctx.numsign_complete = DEFAULT_NUMSIGN_COMPLETE;
 	struct ast_tone_zone *tz;
 	struct ast_flags config_flags = { 0 };
 	int c;
 
 	if(!(lantiq_tech.capabilities = ast_format_cap_alloc(AST_FORMAT_CAP_FLAG_DEFAULT))) {
-	  ast_log(LOG_ERROR, "Unable to allocate format capabilities.\n");
-	  return AST_MODULE_LOAD_DECLINE;
+		ast_log(LOG_ERROR, "Unable to allocate format capabilities.\n");
+		return AST_MODULE_LOAD_DECLINE;
 	}
 
 	/* channel format capabilities */
@@ -2025,6 +2053,9 @@ static int load_module(void)
 				dev_ctx.interdigit_timeout = DEFAULT_INTERDIGIT_TIMEOUT;
 				ast_log(LOG_WARNING, "Invalid interdigit timeout: %s, using default.\n", v->value);
 			}
+		} else if (!strcasecmp(v->name, "numsign_complete")) {
+			dev_ctx.numsign_complete = ast_true(v->value);
+			ast_log(LOG_DEBUG, "Setting numsign_complete to '%s'.\n", dev_ctx.numsign_complete ? "on" : "off");
 		} else if (!strcasecmp(v->name, "tone_generator")) {
 			if (!strcasecmp(v->value, "integrated")) {
 				tone_generator = TONE_INTEGRATED;
@@ -2036,8 +2067,18 @@ static int load_module(void)
 				ast_log(LOG_ERROR, "Unknown tone_generator value '%s'. Try 'integrated', 'asterisk' or 'media'.\n", v->value);
 				goto cfg_error_il;
 			}
+		} else if (!strcasecmp(v->name, "allow")) {
+			int error =  ast_format_cap_update_by_allow_disallow(lantiq_tech.capabilities, v->value, 1);
+			if (error) {
+				ast_log(LOG_WARNING, "Codec configuration errors found in line %d : %s = %s\n", v->lineno, v->name, v->value);
+			}
+                } else if (!strcasecmp(v->name, "disallow")) {
+                	int error =  ast_format_cap_update_by_allow_disallow(lantiq_tech.capabilities, v->value, 0);
+			if (error) {
+				ast_log(LOG_WARNING, "Codec configuration errors found in line %d : %s = %s\n", v->lineno, v->name, v->value);
+			}
 		}
-	}
+	}	
 
 	lantiq_create_pvts();
 
