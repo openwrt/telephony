@@ -8,8 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-lantiq
-PKG_VERSION:=20170304
+PKG_VERSION:=20171111
 PKG_RELEASE:=1
+
+LANTIQ_AST13_VERSION:=5adf3d7774a75c88835f2f3daf824e2cda2c6e67
 
 PKG_LICENSE:=GPL-2.0
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
@@ -17,6 +19,17 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
+
+define Download/github
+define Download/$(PKG_NAME)
+  VERSION:=$(1)
+  SUBDIR:=$(PKG_NAME)
+  FILE:=$(BUILD_VARIANT)-$(PKG_NAME)-$(PKG_VERSION)-$(1).tar.xz
+  URL:=https://github.com/kochstefan/asterisk_channel_lantiq.git
+  PROTO:=git
+endef
+$$(eval $$(call Download,chan-lantiq))
+endef
 
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
@@ -47,10 +60,12 @@ Package/asterisk13-$(PKG_NAME)/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) ./files/lantiq-$(BUILD_VARIANT).conf.sample \
+	$(INSTALL_CONF) \
+		$(PKG_BUILD_DIR)/$(PKG_NAME)/src/configs/samples/lantiq.conf.sample \
 		$(1)/etc/asterisk/lantiq.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_lantiq.so \
+	$(INSTALL_BIN) \
+		$(PKG_BUILD_DIR)/$(PKG_NAME)/src/channels/chan_lantiq.so \
 		$(1)/usr/lib/asterisk/modules
 endef
 
@@ -58,18 +73,23 @@ Package/asterisk13-$(PKG_NAME)/install = $(Package/Install/Default)
 
 ifeq ($(BUILD_VARIANT),asterisk13)
 CHAN_LANTIQ_AST_INCLUDES:=-I$(STAGING_DIR)/usr/include/asterisk-13/include
+CHAN_LANTIQ_VERSION:=$(LANTIQ_AST13_VERSION)
 endif
 
 define Build/Prepare
-	$(CP) ./files/chan_lantiq-$(BUILD_VARIANT).c $(PKG_BUILD_DIR)/chan_lantiq.c
-	$(CP) ./files/default.exports $(PKG_BUILD_DIR)/chan_lantiq.exports
+	$(eval $(call Download/github,$(CHAN_LANTIQ_VERSION)))
+	$(TAR) --extract --no-same-owner --no-same-permissions --xz \
+		--file=$(DL_DIR)/$(BUILD_VARIANT)-$(PKG_NAME)-$(PKG_VERSION)-$(CHAN_LANTIQ_VERSION).tar.xz \
+		--directory=$(PKG_BUILD_DIR)
+	$(CP) ./files/default.exports \
+		$(PKG_BUILD_DIR)/$(PKG_NAME)/src/channels/chan_lantiq.exports
 endef
 
 define Build/Configure
 endef
 
 define Build/Compile
-	cd $(PKG_BUILD_DIR) && \
+	cd $(PKG_BUILD_DIR)/$(PKG_NAME)/src/channels && \
 	$(TARGET_CC) -o chan_lantiq.o -c chan_lantiq.c -MD -MT chan_lantiq.o \
 		-MF .chan_lantiq.o.d -MP -pthread \
 		$(TARGET_CFLAGS) \
