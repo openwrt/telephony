@@ -157,7 +157,7 @@ $(call Package/asterisk15/Default)
 endef
 
 define Package/asterisk15-sounds/description
-This package provides the sound-files for Asterisk-13.
+This package provides the sound-files for Asterisk-15.
 endef
 
 define Package/asterisk15-sounds/install
