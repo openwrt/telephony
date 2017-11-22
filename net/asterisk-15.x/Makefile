@@ -157,7 +157,7 @@ $(call Package/asterisk15/Default)
 endef
 
 define Package/asterisk15-sounds/description
-This package provides the sound-files for Asterisk-13.
+This package provides the sound-files for Asterisk-15.
 endef
 
 define Package/asterisk15-sounds/install
@@ -194,8 +194,6 @@ CONFIGURE_ARGS+= \
 	--without-isdnnet \
 	--without-misdn \
 	--without-nbs \
-	--without-neon \
-	--without-neon29 \
 	--with-pjproject="$(STAGING_DIR)/usr" \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
@@ -212,7 +210,6 @@ CONFIGURE_ARGS+= \
 	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),--with-iksemel="$(STAGING_DIR)/usr",--without-iksemel) \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
@@ -227,8 +224,45 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--enable-xmldoc
 
+# res-calendar-ews requires both neon and neon29 detection
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_ARGS+= \
+	--without-neon
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_ARGS+= \
+	--without-ical
+else
+CONFIGURE_ARGS+= \
+	--with-ical="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews),)
+CONFIGURE_ARGS+= \
+	--without-neon29
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),)
+CONFIGURE_ARGS+= \
+	--without-iksemel
+else
+CONFIGURE_ARGS+= \
+	--with-iksemel="$(STAGING_DIR)/usr"
+endif
+
 CONFIGURE_VARS += \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_VARS += \
+	ac_cv_path_CONFIG_NEON=$(STAGING_DIR)/usr/bin/neon-config
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews),)
+CONFIGURE_VARS += \
+	ac_cv_path_CONFIG_NEON29=$(STAGING_DIR)/usr/bin/neon-config
+endif
 
 MAKE_FLAGS+= \
 	ASTDATADIR="/usr/share/asterisk" \
@@ -401,7 +435,11 @@ $(eval $(call BuildAsterisk15Module,pjsip,pjsip channel,the channel pjsip,+aster
 $(eval $(call BuildAsterisk15Module,res-adsi,Provide ADSI,Analog Display Services Interface capability,,,res_adsi,,))
 $(eval $(call BuildAsterisk15Module,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,res_ael_share,,))
 $(eval $(call BuildAsterisk15Module,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,+asterisk15-res-speech,,res_agi,,))
-$(eval $(call BuildAsterisk15Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,calendar.conf,res_calendar,,))
+$(eval $(call BuildAsterisk15Module,res-calendar,Calendar API,the calendar API,,calendar.conf,res_calendar,,))
+$(eval $(call BuildAsterisk15Module,res-calendar-caldav,CalDAV calendar,CalDAV calendar integration,+asterisk15-res-calendar +libical +libneon +libxml2,,res_calendar_caldav,,))
+$(eval $(call BuildAsterisk15Module,res-calendar-ews,EWS calendar,MS Exchange Web Service calendar integration,+asterisk15-res-calendar +libneon,,res_calendar_ews,,))
+$(eval $(call BuildAsterisk15Module,res-calendar-exchange,Exchange calendar,MS Exchange calendar integration,+asterisk15-res-calendar +libical +libiksemel +libneon,,res_calendar_exchange,,))
+$(eval $(call BuildAsterisk15Module,res-calendar-icalendar,iCalendar calendar,iCalendar calendar integration,+asterisk15-res-calendar +libical +libneon,,res_calendar_icalendar,,))
 $(eval $(call BuildAsterisk15Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
 $(eval $(call BuildAsterisk15Module,res-hep,HEPv3 API,Routines for integration with Homer using HEPv3,,,res_hep,,))
 $(eval $(call BuildAsterisk15Module,res-hep-pjsip,PJSIP HEPv3 Logger,PJSIP logging with Homer,+asterisk15-res-hep +asterisk15-pjsip,,res_hep_pjsip,,))
