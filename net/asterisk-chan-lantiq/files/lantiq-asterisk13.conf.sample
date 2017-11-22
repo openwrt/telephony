@@ -144,10 +144,37 @@ channels = 2
 ;
 ;
 ;
+; When dialing, the user may not want to wait for the interdigit timeout to elapse
+; after entering the last digit. Pressing the number sign key ("hash key", "pound key")
+; on the keypad may tell the channel driver that the entered number is complete.
+;
+;numsign_complete = off
+;
+;
+;
 ; Tone generator type (default: integrated)
 ; integrated	Use tapi tone generator
 ; asterisk	Use asterisk tone generator where possible
 ; media		Use media tone where possible
 ;
 ;tone_generator = integrated
+;
+;
+;
+; The channel driver informs Asterisk about supported codecs and their preference.
+; The default order ("ulaw, alaw, g722, g726, slin") and the offered codecs may be changed.
+; Of course only codecs supported by the TAPI firmware should be specified here.
+;
+; FYI: the first allowed codec is the preferred one. It seems that Asterisk regularly selects
+; the preferred codec for this channel, even if this means that Asterisk needs to translate.
+;
+; E.g. when Asterisk bridges a SIP channel offering alaw only, and this channel with codec
+; list "g722, alaw", then Asterisk may perform cpu stressing transcoding between alaw
+; and g722 instead of using the alaw codec of this channel.
+;
+;disallow=all
+;allow=alaw
+;allow=ulaw
+;allow=g722
+;allow=g726
 ;
