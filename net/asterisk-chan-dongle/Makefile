@@ -42,16 +42,29 @@ $(call Package/asterisk-chan-dongle/Default)
   VARIANT:=asterisk13
 endef
 
+define Package/asterisk15-chan-dongle
+$(call Package/asterisk-chan-dongle/Default)
+  DEPENDS+=asterisk15
+  VARIANT:=asterisk15
+endef
+
 define Package/description/Default
  Asterisk channel driver for Huawei UMTS 3G dongle.
 endef
 
 Package/asterisk13-chan-dongle/description = $(Package/description/Default)
+Package/asterisk15-chan-dongle/description = $(Package/description/Default)
 
 ifeq ($(BUILD_VARIANT),asterisk13)
   CHAN_DONGLE_AST_HEADERS:=$(STAGING_DIR)/usr/include/asterisk-13/include
   CONFIGURE_ARGS+= \
 	  --with-astversion=13
+endif
+
+ifeq ($(BUILD_VARIANT),asterisk15)
+  CHAN_DONGLE_AST_HEADERS:=$(STAGING_DIR)/usr/include/asterisk-15/include
+  CONFIGURE_ARGS+= \
+	  --with-astversion=15
 endif
 
 CONFIGURE_ARGS+= \
@@ -98,6 +111,7 @@ define Package/conffiles/Default
 endef
 
 Package/asterisk13-chan-dongle/conffiles = $(Package/conffiles/Default)
+Package/asterisk15-chan-dongle/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -107,5 +121,7 @@ define Package/Install/Default
 endef
 
 Package/asterisk13-chan-dongle/install = $(Package/Install/Default)
+Package/asterisk15-chan-dongle/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk13-chan-dongle))
+$(eval $(call BuildPackage,asterisk15-chan-dongle))
