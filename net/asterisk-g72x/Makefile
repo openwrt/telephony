@@ -42,11 +42,18 @@ $(call Package/asterisk-g72x/Default)
   VARIANT:=asterisk13
 endef
 
+define Package/asterisk15-codec-g729
+$(call Package/asterisk-g72x/Default)
+  DEPENDS+=asterisk15
+  VARIANT:=asterisk15
+endef
+
 define Package/description/Default
  Asterisk G.729 codec based on bcg729 implementation.
 endef
 
 Package/asterisk13-codec-g729/description = $(Package/description/Default)
+Package/asterisk15-codec-g729/description = $(Package/description/Default)
 
 CONFIGURE_ARGS+= \
 	--with-bcg729 \
@@ -58,6 +65,12 @@ CONFIGURE_ARGS+= \
 	--with-asterisk130
 endif
 
+ifeq ($(BUILD_VARIANT),asterisk15)
+CONFIGURE_ARGS+= \
+	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-15/include \
+	--with-asterisk150
+endif
+
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/codec_g729.so \
@@ -65,5 +78,7 @@ define Package/Install/Default
 endef
 
 Package/asterisk13-codec-g729/install = $(Package/Install/Default)
+Package/asterisk15-codec-g729/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk13-codec-g729))
+$(eval $(call BuildPackage,asterisk15-codec-g729))
