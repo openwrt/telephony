@@ -8,14 +8,14 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=chan-sccp-b
-PKG_VERSION:=v4.3.0-20170814
+PKG_NAME:=chan-sccp
+PKG_VERSION:=v4.3.0-20171123
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=016fee3a96b09d5404757f7b178af2e349e55bcc
+PKG_SOURCE_VERSION:=ed272e974897f075573a358d169e5c77889f5905
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
@@ -38,29 +38,30 @@ TARGET_LDFLAGS+= \
 	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv
 endif
 
-define Package/chan-sccp-b/Default
+define Package/chan-sccp/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=SCCP channel provider support
-  URL:=http://chan-sccp-b.sourceforge.net/
+  TITLE:=SCCP channel support
+  URL:=https://github.com/chan-sccp/chan-sccp
   DEPENDS:=+USE_UCLIBC:libiconv-full +libltdl
   PKG_BUILD_DEPENDS:=libiconv
 endef
 
-define Package/asterisk13-chan-sccp-b
-$(call Package/chan-sccp-b/Default)
+define Package/asterisk13-chan-sccp
+$(call Package/chan-sccp/Default)
   DEPENDS+= asterisk13
   VARIANT:=asterisk13
   CONFLICTS:=asterisk13-chan-skinny
 endef
 
 define Package/description/Default
- SCCP channel provider for asterisk. It delivers extended functionality for SCCP phones over chan_skinny delivered
- by asterisk by default.
+Replacement for the SCCP channel driver (chan_skinny) in Asterisk.
+Extended features include shared lines, presence / BLF, customizable
+feature buttons and custom device state.
 endef
 
-Package/asterisk13-chan-sccp-b/description = $(Package/description/Default)
+Package/asterisk13-chan-sccp/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
 	--disable-debug \
@@ -80,7 +81,15 @@ define Package/conffiles/Default
 /etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
+Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifeq ($(BUILD_VARIANT),asterisk13)
+	$(SED) 's|asterisk/iostream.h|asterisk/iostream.404|' \
+		$(PKG_BUILD_DIR)/autoconf/asterisk.m4
+endif
+endef
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -93,6 +102,6 @@ define Package/Install/Default
 	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
-Package/asterisk13-chan-sccp-b/install = $(Package/Install/Default)
+Package/asterisk13-chan-sccp/install = $(Package/Install/Default)
 
-$(eval $(call BuildPackage,asterisk13-chan-sccp-b))
+$(eval $(call BuildPackage,asterisk13-chan-sccp))
