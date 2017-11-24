@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-g72x
-PKG_VERSION:=1.4.1
-PKG_RELEASE:=3
+PKG_VERSION:=1.4.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-g72x-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://asterisk.hosting.lv/src/
-PKG_HASH:=1d1356202de12ee3e636d5146e0e905533b4bf4c6b68eaa7d7789cbaa305059c
+PKG_HASH:=0c6cb1a61d408c882ce3fe10db4d467407ce3863f672a91aa7d3aea082a23fbc
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-g72x-$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
@@ -31,15 +31,21 @@ define Package/asterisk-g72x/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=G.729 codec for Asterisk open source PBX
+  TITLE:=G.729 codec support
   URL:=http://asterisk.hosting.lv
-  DEPENDS:= +bcg729
+  DEPENDS:=+bcg729
 endef
 
 define Package/asterisk13-codec-g729
 $(call Package/asterisk-g72x/Default)
-  DEPENDS+= asterisk13
+  DEPENDS+=asterisk13
   VARIANT:=asterisk13
+endef
+
+define Package/asterisk15-codec-g729
+$(call Package/asterisk-g72x/Default)
+  DEPENDS+=asterisk15
+  VARIANT:=asterisk15
 endef
 
 define Package/description/Default
@@ -47,28 +53,32 @@ define Package/description/Default
 endef
 
 Package/asterisk13-codec-g729/description = $(Package/description/Default)
+Package/asterisk15-codec-g729/description = $(Package/description/Default)
+
+CONFIGURE_ARGS+= \
+	--with-bcg729 \
+	--enable-shared
 
 ifeq ($(BUILD_VARIANT),asterisk13)
-  MAKE_ARGS:= \
-	CC="$(TARGET_CC)" \
-	LD="$(TARGET_LD)" \
-	CFLAGS="$(TARGET_CFLAGS) -DASTERISK_VERSION_NUM=130000 -DLOW_MEMORY -D_XOPEN_SOURCE=600 $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/include/asterisk-13/include -DHAVE_CONFIG_H -I. -fPIC" \
-	LDFLAGS="$(TARGET_LDFLAGS)" \
-	DESTDIR="$(PKG_INSTALL_DIR)"
-
-  CONFIGURE_ARGS+=\
+CONFIGURE_ARGS+= \
 	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-13/include \
-	--with-asterisk130 \
-	--with-bcg729 \
-	--enable-shared \
-	$(MAKE_ARGS)
+	--with-asterisk130
+endif
+
+ifeq ($(BUILD_VARIANT),asterisk15)
+CONFIGURE_ARGS+= \
+	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-15/include \
+	--with-asterisk150
 endif
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/codec_g729.so $(1)/usr/lib/asterisk/modules/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/codec_g729.so \
+		$(1)/usr/lib/asterisk/modules/
 endef
 
 Package/asterisk13-codec-g729/install = $(Package/Install/Default)
+Package/asterisk15-codec-g729/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk13-codec-g729))
+$(eval $(call BuildPackage,asterisk15-codec-g729))
