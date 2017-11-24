@@ -1,9 +1,9 @@
 --- a/autoconf/extra.m4
 +++ b/autoconf/extra.m4
-@@ -472,17 +472,6 @@ AC_DEFUN([CS_ENABLE_OPTIMIZATION], [
+@@ -491,17 +491,6 @@ AC_DEFUN([CS_ENABLE_OPTIMIZATION], [
+ 			], SUPPORTED_CFLAGS)
  		])
- 	 	CPPFLAGS_saved="${CPPFLAGS_saved} -D_FORTIFY_SOURCE=2"
- 		GDB_FLAGS=""
+ 		AC_SUBST([strip_binaries])
 -	], [
 -	 	CFLAGS_saved="`echo ${CFLAGS_saved} |sed -e 's/\-O[0-9]\ \?//g' -e 's/[^|\ ]\-g[$|\ ]//g'`"
 -		optimize_flag="-O0"
