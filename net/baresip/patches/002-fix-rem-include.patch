@@ -1,0 +1,16 @@
+--- a/Makefile
++++ b/Makefile
+@@ -48,11 +48,11 @@ endif
+ 
+ CFLAGS    += -I. -Iinclude -I$(LIBRE_INC) -I$(SYSROOT)/include
+ CFLAGS    += -I$(LIBREM_PATH)/include
+-CFLAGS    += -I$(SYSROOT)/local/include/rem -I$(SYSROOT)/include/rem
++CFLAGS    += -I$(SYSROOT)/local/include/rem -I$(SYSROOT_ALT)/include/rem
+ 
+ CXXFLAGS  += -I. -Iinclude -I$(LIBRE_INC)
+ CXXFLAGS  += -I$(LIBREM_PATH)/include
+-CXXFLAGS  += -I$(SYSROOT)/local/include/rem -I$(SYSROOT)/include/rem
++CXXFLAGS  += -I$(SYSROOT)/local/include/rem -I$(SYSROOT_ALT)/include/rem
+ CXXFLAGS  += $(EXTRA_CXXFLAGS)
+ 
+ # XXX: common for C/C++
