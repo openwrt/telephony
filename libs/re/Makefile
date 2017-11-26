@@ -28,9 +28,9 @@ define Package/libre
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libopenssl +libpthread +zlib
+  DEPENDS:=+libopenssl +zlib
   TITLE:=Generic library for real-time communications with async IO support
-  URL:=http://www.creytiv.com/
+  URL:=http://www.creytiv.com
 endef
 
 # re.mk is used for this and all related packages (rem, restund and baresip).
@@ -43,29 +43,27 @@ endef
 # EXTRA_LFLAGS.
 
 ifneq ($(CONFIG_USE_GLIBC)$(CONFIG_USE_MUSL),)
-TARGET_CFLAGS += -D_GNU_SOURCE
+TARGET_CFLAGS+=-D_GNU_SOURCE
 endif
 
 MAKE_FLAGS+= \
-	HAVE_LIBRESOLV= \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1 \
-	OS=linux
+	RELEASE=1
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/share/re
-	$(CP) $(PKG_BUILD_DIR)/mk/re.mk $(1)/usr/share/re/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/re/re.mk $(1)/usr/share/re
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so} $(1)/usr/lib
 endef
 
 define Package/libre/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,libre))
