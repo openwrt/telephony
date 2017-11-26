@@ -63,6 +63,8 @@ define Package/restund/install
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/auth.so \
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/binding.so \
+		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/filedb.so \
+		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/restauth.so \
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/stat.so \
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/status.so \
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/syslog.so \
@@ -92,7 +94,7 @@ define BuildPlugin
   define Package/restund-mod-$(1)
     $$(call Package/restund/Default)
     TITLE:=restund $(2) module
-    DEPENDS:=restund $(4)
+    DEPENDS:=restund $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
   endef
 
   define Package/restund-mod-$(1)/install
@@ -109,4 +111,4 @@ endef
 
 $(eval $(call BuildPackage,restund))
 
-$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+PACKAGE_restund-mod-mysql:libmysqlclient))
+$(eval $(call BuildPlugin,mysql,MySQL database backend,mysql_ser,+libmysqlclient))
