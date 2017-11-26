@@ -13,7 +13,7 @@ PKG_VERSION:=0.5.6
 PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.creytiv.com/pub/
+PKG_SOURCE_URL:=http://www.creytiv.com/pub
 PKG_HASH:=148defef160842e0247af92c84bb0c8de4b36ffa68cf3a87c4cd7e510cddd00c
 
 PKG_LICENSE:=BSD-3-Clause
@@ -46,13 +46,13 @@ define Package/baresip/Default
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  URL:=http://www.creytiv.com/
+  URL:=http://www.creytiv.com
 endef
 
 define Package/baresip
 $(call Package/baresip/Default)
   TITLE:=Portable and modular SIP User-Agent with A/V support
-  DEPENDS:=+libre +librem +libpthread
+  DEPENDS:=+libre +librem
   MENU:=1
 endef
 
@@ -75,8 +75,6 @@ BARESIP_MOD_OPTIONS:= \
 	EXTRA_MODULES="dtmfio" \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
 
-TARGET_CFLAGS += $(FPIC) -D_GNU_SOURCE
-
 MAKE_FLAGS+= \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
@@ -86,18 +84,19 @@ MAKE_FLAGS+= \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
 	RELEASE=1 \
-	OS="linux" \
 	$(BARESIP_MOD_OPTIONS)
+
+TARGET_CFLAGS+=-D_GNU_SOURCE
 
 define Package/baresip/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/baresip $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/baresip $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/usr/lib/baresip/modules
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/{account,auloop,contact,ice,menu,stun,turn}.so \
-		$(1)/usr/lib/baresip/modules/.
+		$(1)/usr/lib/baresip/modules
 	$(INSTALL_DIR) $(1)/usr/share/baresip
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/baresip/* $(1)/usr/share/baresip/.
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/baresip/* $(1)/usr/share/baresip
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/baresip.init $(1)/etc/init.d/baresip
 endef
@@ -121,9 +120,9 @@ define BuildPlugin
   define Package/baresip-mod-$(1)/install
 	[ -z "$(3)" ] || $(INSTALL_DIR) $$(1)/usr/lib/baresip/modules
 	for f in $(3); do \
-		$(CP) \
+		$(INSTALL_DATA) \
 			$(PKG_INSTALL_DIR)/usr/lib/baresip/modules/$$$$$$$${f}.so \
-			$$(1)/usr/lib/baresip/modules/ ; \
+			$$(1)/usr/lib/baresip/modules; \
 	done
   endef
 
