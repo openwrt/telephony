@@ -28,9 +28,9 @@ define Package/librem
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libre +libpthread
+  DEPENDS:=+libre
   TITLE:=Audio and video processing media library
-  URL:=http://www.creytiv.com/
+  URL:=http://www.creytiv.com
 endef
 
 MAKE_FLAGS+= \
@@ -40,21 +40,18 @@ MAKE_FLAGS+= \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1 \
-	OS=linux
+	RELEASE=1
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/rem $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/rem $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.{a,so} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.{a,so} $(1)/usr/lib
 endef
 
 define Package/librem/install
-	rm -f $(BUILD_DIR)/$(PKG_NAME)
-	ln -sf $(PKG_NAME)-$(PKG_VERSION) $(BUILD_DIR)/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.so $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.so $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,librem))
