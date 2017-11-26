@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.5.6
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub/
@@ -19,6 +19,8 @@ PKG_HASH:=148defef160842e0247af92c84bb0c8de4b36ffa68cf3a87c4cd7e510cddd00c
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
+
+PKG_INSTALL:=1
 
 baresip-mods:= \
 	alsa \
@@ -75,23 +77,17 @@ BARESIP_MOD_OPTIONS:= \
 
 TARGET_CFLAGS += $(FPIC) -D_GNU_SOURCE
 
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
-		LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
-		LIBRE_SO="$(STAGING_DIR)/usr/lib" \
-		LIBREM_PATH="../rem" \
-		CC="$(TARGET_CC)" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		EXTRA_CFLAGS="$(TARGET_CFLAGS) -DOPENWRT" \
-		SYSROOT="$$$$($(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s#/include/pthread.h##p')" \
-		SYSROOT_ALT="$(STAGING_DIR)/usr" \
-		RELEASE=1 \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
-		OS="linux" \
-		$(BARESIP_MOD_OPTIONS) \
-		all install
-endef
+MAKE_FLAGS+= \
+	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
+	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
+	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
+	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
+	LIBREM_PATH="$(STAGING_DIR)/usr" \
+	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
+	SYSROOT_ALT="$(STAGING_DIR)/usr" \
+	RELEASE=1 \
+	OS="linux" \
+	$(BARESIP_MOD_OPTIONS)
 
 define Package/baresip/install
 	$(INSTALL_DIR) $(1)/usr/bin
