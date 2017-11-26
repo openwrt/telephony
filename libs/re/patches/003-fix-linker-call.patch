@@ -1,0 +1,11 @@
+--- a/mk/re.mk
++++ b/mk/re.mk
+@@ -235,7 +235,7 @@ ifeq ($(OS),linux)
+ 	LFLAGS		+= -fPIC
+ 	SH_LFLAGS	+= -shared
+ 	MOD_LFLAGS	+=
+-	APP_LFLAGS	+= -rdynamic
++	APP_LFLAGS	+= --export-dynamic
+ 	AR		:= ar
+ 	AFLAGS		:= crD
+ endif
