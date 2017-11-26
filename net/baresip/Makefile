@@ -102,7 +102,7 @@ define Package/baresip/install
 endef
 
 ##################
-# Baresip modules
+# bareSIP modules
 # 1. Name
 # 2. Title
 # 3. Files
@@ -113,8 +113,8 @@ define BuildPlugin
 
   define Package/baresip-mod-$(1)
     $$(call Package/baresip/Default)
-    TITLE:= baresip $(2) module
-    DEPENDS:= baresip $(4)
+    TITLE:=$(2)
+    DEPENDS:=baresip $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
   endef
 
   define Package/baresip-mod-$(1)/install
@@ -131,18 +131,18 @@ endef
 
 $(eval $(call BuildPackage,baresip))
 
-$(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+PACKAGE_baresip-mod-alsa:alsa-lib))
-$(eval $(call BuildPlugin,avcodec,FFmpeg video codecs,avcodec,+PACKAGE_baresip-mod-avcodec:libffmpeg-full))
-$(eval $(call BuildPlugin,avformat,FFmpeg video source,avformat,+PACKAGE_baresip-mod-avformat:libffmpeg-full))
-$(eval $(call BuildPlugin,cons,console UI,cons,))
+$(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+alsa-lib))
+$(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,+libffmpeg-full))
+$(eval $(call BuildPlugin,avformat,Video source using FFmpeg,avformat,+libffmpeg-full))
+$(eval $(call BuildPlugin,cons,UDP/TCP console UI driver,cons,))
 $(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
-$(eval $(call BuildPlugin,evdev,input event device UI,evdev,))
+$(eval $(call BuildPlugin,evdev,Linux input driver,evdev,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,g711,))
-$(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+PACKAGE_baresip-mod-g722:libspandsp))
-$(eval $(call BuildPlugin,g726,G.726 audio codec,g726,+PACKAGE_baresip-mod-g726:libspandsp))
-$(eval $(call BuildPlugin,httpd,Webserver UI module,httpd,))
-$(eval $(call BuildPlugin,opus,Opus audio codec,opus,+PACKAGE_baresip-mod-opus:libopus))
+$(eval $(call BuildPlugin,g722,G.722 audio codec,g722,+libspandsp))
+$(eval $(call BuildPlugin,g726,G.726 audio codec,g726,+libspandsp))
+$(eval $(call BuildPlugin,httpd,HTTP webserver UI-module,httpd,))
+$(eval $(call BuildPlugin,opus,OPUS Interactive audio codec,opus,+libopus))
 $(eval $(call BuildPlugin,oss,OSS audio driver,oss,))
-$(eval $(call BuildPlugin,stdio,standard I/O UI,stdio,))
-$(eval $(call BuildPlugin,v4l,Video4Linux video source,v4l,+PACKAGE_baresip-mod-v4l:libv4l))
-$(eval $(call BuildPlugin,v4l2,Video4Linux2 video source,v4l2,+PACKAGE_baresip-mod-v4l2:libv4l))
+$(eval $(call BuildPlugin,stdio,Standard input/output UI driver,stdio,))
+$(eval $(call BuildPlugin,v4l,Video4Linux video source,v4l,+libv4l))
+$(eval $(call BuildPlugin,v4l2,Video4Linux2 video source,v4l2,+libv4l))
