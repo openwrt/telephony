@@ -1,0 +1,11 @@
+--- a/include/re_types.h
++++ b/include/re_types.h
+@@ -47,7 +47,7 @@ typedef unsigned long long int    uint64
+ #endif /* __BIT_TYPES_DEFINED__ */
+ 
+ #endif /* __int8_t_defined */
+-#ifndef __ssize_t_defined
++#if !defined(__ssize_t_defined) && !defined(__DEFINED_ssize_t)
+ typedef long     ssize_t;
+ #define __ssize_t_defined
+ #endif

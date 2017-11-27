@@ -1,0 +1,14 @@
+--- a/Makefile
++++ b/Makefile
+@@ -99,9 +99,9 @@ all: $(MOD_BINS) $(BIN)
+ $(BIN): $(OBJS)
+ 	@echo "  LD      $@"
+ ifneq ($(GPROF),)
+-	@$(LD) $(LFLAGS) $(APP_LFLAGS) $^ ../re/libre.a $(LIBS) -o $@
++	@$(LD) $(LFLAGS) $(SH_LFLAGS) $(APP_LFLAGS) $^ ../re/libre.a $(LIBS) -o $@
+ else
+-	@$(LD) $(LFLAGS) $(APP_LFLAGS) $^ -L$(LIBRE_SO) -lre $(LIBS) -o $@
++	@$(LD) $(LFLAGS) $(SH_LFLAGS) $(APP_LFLAGS) $^ -L$(LIBRE_SO) -lre $(LIBS) -o $@
+ endif
+ 
+ $(BUILD)/%.o: %.c $(BUILD) Makefile $(APP_MK)

@@ -1,0 +1,14 @@
+--- a/Makefile
++++ b/Makefile
+@@ -199,9 +199,9 @@ libbaresip.pc:
+ $(BIN):	$(APP_OBJS)
+ 	@echo "  LD      $@"
+ ifneq ($(GPROF),)
+-	$(HIDE)$(LD) $(LFLAGS) $(APP_LFLAGS) $^ ../re/libre.a $(LIBS) -o $@
++	$(HIDE)$(LD) $(LFLAGS) $(SH_LFLAGS) $(APP_LFLAGS) $^ ../re/libre.a $(LIBS) -o $@
+ else
+-	$(HIDE)$(LD) $(LFLAGS) $(APP_LFLAGS) $^ \
++	$(HIDE)$(LD) $(LFLAGS) $(SH_LFLAGS) $(APP_LFLAGS) $^ \
+ 		-L$(LIBRE_SO) -lre $(LIBS) -o $@
+ endif
+ 

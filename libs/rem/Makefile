@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
 PKG_VERSION:=0.5.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -20,48 +20,38 @@ PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+PKG_INSTALL:=1
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/librem
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libre +libpthread
+  DEPENDS:=+libre
   TITLE:=Audio and video processing media library
-  URL:=http://www.creytiv.com/
+  URL:=http://www.creytiv.com
 endef
 
-TARGET_CFLAGS+=$(FPIC)
-
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		LIBRE_MK=$(STAGING_DIR)/usr/share/re/re.mk \
-		LIBRE_INC=$(STAGING_DIR)/usr/include/re \
-		LIBRE_SO=$(STAGING_DIR)/usr/lib \
-		CC="$(TARGET_CC)" \
-		EXTRA_CFLAGS="$(TARGET_CFLAGS) -DOPENWRT" \
-		EXTRA_LFLAGS="-lm" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		SYSROOT="$$$$($(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s#/include/pthread.h##p')" \
-		SYSROOT_ALT="$(STAGING_DIR)/usr" \
-		RELEASE=1 \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
-		OS=linux \
-		all install
-endef
+MAKE_FLAGS+= \
+	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
+	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
+	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
+	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
+	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
+	SYSROOT_ALT="$(STAGING_DIR)/usr" \
+	RELEASE=1
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/rem $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/rem $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.{a,so} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.{a,so} $(1)/usr/lib
 endef
 
 define Package/librem/install
-	rm -f $(BUILD_DIR)/$(PKG_NAME)
-	ln -sf $(PKG_NAME)-$(PKG_VERSION) $(BUILD_DIR)/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.so $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/librem.so $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,librem))
