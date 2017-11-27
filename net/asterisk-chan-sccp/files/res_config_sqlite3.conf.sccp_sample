@@ -1,5 +1,0 @@
-[asterisk]
-dbfile => /usr/lib/asterisk/realtime.sqlite3
-debug=yes
-requirements=warn
-;batch=1000

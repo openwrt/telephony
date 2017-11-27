@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp
 PKG_VERSION:=v4.3.0-20171123
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
@@ -50,14 +50,14 @@ endef
 
 define Package/asterisk13-chan-sccp
 $(call Package/chan-sccp/Default)
-  DEPENDS+= asterisk13
+  DEPENDS+=asterisk13
   VARIANT:=asterisk13
   CONFLICTS:=asterisk13-chan-skinny
 endef
 
 define Package/asterisk15-chan-sccp
 $(call Package/chan-sccp/Default)
-  DEPENDS+= asterisk15
+  DEPENDS+=asterisk15
   VARIANT:=asterisk15
   CONFLICTS:=asterisk15-chan-skinny
 endef
@@ -87,15 +87,14 @@ endif
 
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
-/etc/asterisk/extconfig.conf.sccp_sample
-/etc/asterisk/res_config_sqlite3.conf.sccp_sample
-/etc/asterisk/sccp_sqlite3.sql
-/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk15-chan-sccp/conffiles = $(Package/conffiles/Default)
 
+# Asterisk 13 gets mistaken for Asterisk 15 because it was patched to include
+# iostream support. To get it detected correctly make it impossible for the
+# build system to find the iostream header.
 define Build/Prepare
 	$(call Build/Prepare/Default)
 ifeq ($(BUILD_VARIANT),asterisk13)
@@ -106,13 +105,9 @@ endef
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(CP) ./files/sccp.conf $(1)/etc/asterisk/sccp.conf
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/sccp.conf $(1)/etc/asterisk
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
-	$(INSTALL_DATA) ./files/extconfig.conf.sccp_sample $(1)/etc/asterisk/extconfig.conf.sccp_sample
-	$(INSTALL_DATA) ./files/res_config_sqlite3.conf.sccp_sample $(1)/etc/asterisk/res_config_sqlite3.conf.sccp_sample
-	$(INSTALL_DATA) ./files/sccp_sqlite3.sql $(1)/etc/asterisk/sccp_sqlite3.sql
-	$(INSTALL_DATA) ./files/sccp.conf.realtime_sample $(1)/etc/asterisk/sccp.conf.realtime_sample
 endef
 
 Package/asterisk13-chan-sccp/install = $(Package/Install/Default)
