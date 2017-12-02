@@ -24,6 +24,23 @@ PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+MENUSELECT_CATEGORIES:= \
+	MENUSELECT_ADDONS \
+	MENUSELECT_APPS \
+	MENUSELECT_BRIDGES \
+	MENUSELECT_CDR \
+	MENUSELECT_CEL \
+	MENUSELECT_CHANNELS \
+	MENUSELECT_CODECS \
+	MENUSELECT_FORMATS \
+	MENUSELECT_FUNCS \
+	MENUSELECT_PBX \
+	MENUSELECT_RES \
+	MENUSELECT_UTILS \
+	MENUSELECT_AGIS
+
+AST_ENABLE:=
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -61,6 +78,9 @@ define BuildAsterisk13Module
   $$(call Package/asterisk13/Default)
     TITLE:=$(2) support
     DEPENDS:= asterisk13 $(patsubst +%,+PACKAGE_asterisk13-$(1):%,$(4))
+    ifneq ($$(CONFIG_PACKAGE_asterisk13-$(1)),)
+    AST_ENABLE+=$(6)
+    endif
   endef
 
   define Package/asterisk13-$(1)/conffiles
@@ -305,6 +325,18 @@ define Build/Compile
 	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	for cat in $(MENUSELECT_CATEGORIES); do \
+		cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+		--disable-category $$$$cat \
+		menuselect.makeopts; \
+	done
+	for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
+		cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+		--enable $$$$item \
+		menuselect.makeopts; \
+	done
 	cd "$(PKG_BUILD_DIR)" && \
 		./menuselect/menuselect \
 			--disable BUILD_NATIVE \
