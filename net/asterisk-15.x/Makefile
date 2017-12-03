@@ -148,7 +148,7 @@ define Package/asterisk15
 $(call Package/asterisk15/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+jansson +libedit +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
+  DEPENDS:=+jansson +libcap +libedit +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
 endef
 
 define Package/asterisk15/description
@@ -242,7 +242,7 @@ TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 CONFIGURE_ARGS+= \
 	--without-execinfo \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
-	--without-cap \
+	--with-cap="$(STAGING_DIR)/usr" \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr") \
 	--without-curses \
 	--with-gsm=internal \
