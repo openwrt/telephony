@@ -131,6 +131,11 @@ define Package/asterisk13/conffiles
 /etc/asterisk/acl.conf
 /etc/asterisk/cel.conf
 /etc/asterisk/ccss.conf
+/etc/asterisk/cli.conf
+/etc/asterisk/cli_permissions.conf
+/etc/asterisk/codecs.conf
+/etc/asterisk/dnsmgr.conf
+/etc/asterisk/dsp.conf
 /etc/asterisk/extconfig.conf
 /etc/asterisk/extensions.conf
 /etc/asterisk/features.conf
@@ -148,7 +153,8 @@ define Package/asterisk13/conffiles
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf cel.conf ccss.conf extconfig.conf \
+	asterisk.conf acl.conf cel.conf ccss.conf cli.conf \
+	cli_permissions.conf codecs.conf dnsmgr.conf dsp.conf extconfig.conf \
 	extensions.conf features.conf http.conf indications.conf \
 	logger.conf manager.conf modules.conf stasis.conf udptl.conf \
 	users.conf res_config_sqlite3.conf
@@ -473,7 +479,7 @@ $(eval $(call BuildAsterisk13Module,res-calendar-ews,EWS calendar,MS Exchange We
 $(eval $(call BuildAsterisk13Module,res-calendar-exchange,Exchange calendar,MS Exchange calendar integration,+asterisk13-res-calendar +libical +libiksemel +libneon,,res_calendar_exchange,,))
 $(eval $(call BuildAsterisk13Module,res-calendar-icalendar,iCalendar calendar,iCalendar calendar integration,+asterisk13-res-calendar +libical +libneon,,res_calendar_icalendar,,))
 $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
-$(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,Routines for integration with Homer using HEPv3,,,res_hep,,))
+$(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,Routines for integration with Homer using HEPv3,,hep.conf,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-pjsip,PJSIP HEPv3 Logger,PJSIP logging with Homer,+asterisk13-res-hep +asterisk13-pjsip,,res_hep_pjsip,,))
 $(eval $(call BuildAsterisk13Module,res-hep-rtcp,RTCP HEPv3 Logger,RTCP logging with Homer,+asterisk13-res-hep,,res_hep_rtcp,,))
 $(eval $(call BuildAsterisk13Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk13-res-fax +libspandsp +libtiff,,res_fax_spandsp,,))
@@ -489,7 +495,7 @@ $(eval $(call BuildAsterisk13Module,res-realtime,RealTime CLI,RealTime CLI,,,res
 $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))
 $(eval $(call BuildAsterisk13Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
-$(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,Sorcery backend modules for data access intended for using realtime as backend ,,,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
+$(eval $(call BuildAsterisk13Module,res-sorcery,Sorcery data layer,Sorcery backend modules for data access intended for using realtime as backend,,sorcery.conf,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-speech,Speech Recognition API,Support for the Asterisk Generic Speech Recognition API,,,res_speech,,))
 $(eval $(call BuildAsterisk13Module,res-srtp,SRTP Support,Secure RTP connection,+libsrtp2,,res_srtp,,))
 $(eval $(call BuildAsterisk13Module,res-stun-monitor,STUN monitoring,resource STUN Monitor,,res_stun_monitor.conf,res_stun_monitor,,))
