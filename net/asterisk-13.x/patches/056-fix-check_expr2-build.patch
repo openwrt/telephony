@@ -1,0 +1,10 @@
+--- a/utils/Makefile
++++ b/utils/Makefile
+@@ -179,7 +179,6 @@ check_expr2: $(ASTTOPDIR)/main/ast_expr2
+ 	$(CC) -g -o check_expr2 ast_expr2fz.o ast_expr2z.o -lm
+ 	$(ECHO_PREFIX) echo "   [RM] ast_expr2fz.o ast_expr2z.o"
+ 	rm ast_expr2z.o ast_expr2fz.o 
+-	./check_expr2 expr2.testinput
+ 
+ smsq: smsq.o strcompat.o
+ smsq: LIBS+=$(POPT_LIB)

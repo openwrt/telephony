@@ -69,6 +69,11 @@ define Package/asterisk13/install/sounds
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
+define Package/asterisk13/install/util-conffile
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
+endef
+
 define Package/$(PKG_NAME)/config
 	source "$(SOURCE)/Config.in"
 endef
@@ -99,6 +104,32 @@ $(foreach b,$(8),$(call Package/asterisk13/install/sbin,$$(1),$(b));)
   endef
 
   $$(eval $$(call BuildPackage,asterisk13-$(1)))
+endef
+
+define BuildAsterisk13Util
+  define Package/asterisk13-util-$(1)
+  $$(call Package/asterisk13/Default)
+    TITLE:=$(1) utility
+    DEPENDS:=asterisk13 $(patsubst +%,+PACKAGE_asterisk13-util-$(1):%,$(3))
+    ifneq ($$(CONFIG_PACKAGE_asterisk13-util-$(1)),)
+    AST_ENABLE+=$(1)
+    endif
+  endef
+
+  define Package/asterisk13-util-$(1)/conffiles
+$(subst $(space),$(newline),$(foreach c,$(4),/etc/$(c)))
+  endef
+
+  define Package/asterisk13-util-$(1)/description
+$(2)
+  endef
+
+  define Package/asterisk13-util-$(1)/install
+$(call Package/asterisk13/install/sbin,$$(1),$(1))
+$(foreach c,$(4),$(call Package/asterisk13/install/util-conffile,$$(1),$(c));)
+  endef
+
+  $$(eval $$(call BuildPackage,asterisk13-util-$(1)))
 endef
 
 define Package/asterisk13/Default
@@ -626,3 +657,25 @@ $(eval $(call BuildAsterisk13Module,res-timing-pthread,pthread Timing Interface,
 $(eval $(call BuildAsterisk13Module,res-timing-timerfd,Timerfd Timing Interface,Timing interface provided by Linux kernel,,,res_timing_timerfd,,))
 $(eval $(call BuildAsterisk13Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
 $(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related modules,+asterisk13-res-adsi +asterisk13-res-smdi,voicemail.conf,app_voicemail,vm-*,))
+
+################################
+# AST utils
+# Params:
+# 1 - Utility name
+# 2 - Description
+# 3 - Dependencies
+# 4 - Configuration files
+################################
+# $(eval $(call BuildAsterisk13Util,Utility,Description,Dependencies,Configuration Files))
+
+$(eval $(call BuildAsterisk13Util,aelparse,Check extensions.ael file.,,))
+$(eval $(call BuildAsterisk13Util,astcanary,Assures Asterisk no threads have gone missing.,,))
+$(eval $(call BuildAsterisk13Util,astdb2sqlite3,Convert astdb to SQLite 3.,,))
+$(eval $(call BuildAsterisk13Util,astdb2bdb,Convert astdb back to Berkeley DB 1.86.,,))
+$(eval $(call BuildAsterisk13Util,check_expr,Expression checker [older version].,,))
+$(eval $(call BuildAsterisk13Util,check_expr2,Expression checker [newer version].,,))
+$(eval $(call BuildAsterisk13Util,conf2ael,Convert .conf to .ael.,,))
+$(eval $(call BuildAsterisk13Util,muted,Listens for AMI events. Mutes soundcard during call.,,muted.conf))
+$(eval $(call BuildAsterisk13Util,smsq,Send messages from command line.,,))
+$(eval $(call BuildAsterisk13Util,stereorize,Merge two mono WAV-files to one stereo WAV-file.,,))
+$(eval $(call BuildAsterisk13Util,streamplayer,A utility for reading from a raw TCP stream [MOH source].,,))
