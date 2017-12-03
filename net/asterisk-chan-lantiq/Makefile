@@ -8,10 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-lantiq
-PKG_VERSION:=20171111
-PKG_RELEASE:=2
+PKG_VERSION:=20171128
+PKG_RELEASE:=1
 
 LANTIQ_AST13_VERSION:=5adf3d7774a75c88835f2f3daf824e2cda2c6e67
+LANTIQ_AST15_VERSION:=2eb991b66d135e6f22da30a2827918aed2d7b328
 
 PKG_LICENSE:=GPL-2.0
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
@@ -46,17 +47,25 @@ $(call Package/$(PKG_NAME)/Default)
   VARIANT:=asterisk13
 endef
 
+define Package/asterisk15-$(PKG_NAME)
+$(call Package/$(PKG_NAME)/Default)
+  DEPENDS+=asterisk15
+  VARIANT:=asterisk15
+endef
+
 define Package/description/Default
 An implementation of a Lantiq TAPI channel driver for Asterisk.
 endef
 
 Package/asterisk13-$(PKG_NAME)/description = $(Package/description/Default)
+Package/asterisk15-$(PKG_NAME)/description = $(Package/description/Default)
 
 define Package/conffiles/Default
 /etc/asterisk/lantiq.conf
 endef
 
 Package/asterisk13-$(PKG_NAME)/conffiles = $(Package/conffiles/Default)
+Package/asterisk15-$(PKG_NAME)/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -70,10 +79,16 @@ define Package/Install/Default
 endef
 
 Package/asterisk13-$(PKG_NAME)/install = $(Package/Install/Default)
+Package/asterisk15-$(PKG_NAME)/install = $(Package/Install/Default)
 
 ifeq ($(BUILD_VARIANT),asterisk13)
 CHAN_LANTIQ_AST_INCLUDES:=-I$(STAGING_DIR)/usr/include/asterisk-13/include
 CHAN_LANTIQ_VERSION:=$(LANTIQ_AST13_VERSION)
+endif
+
+ifeq ($(BUILD_VARIANT),asterisk15)
+CHAN_LANTIQ_AST_INCLUDES:=-I$(STAGING_DIR)/usr/include/asterisk-15/include
+CHAN_LANTIQ_VERSION:=$(LANTIQ_AST15_VERSION)
 endif
 
 define Build/Prepare
@@ -92,7 +107,7 @@ define Build/Compile
 	cd $(PKG_BUILD_DIR)/$(PKG_NAME)/src/channels && \
 	$(TARGET_CC) -o chan_lantiq.o -c chan_lantiq.c -MD -MT chan_lantiq.o \
 		-MF .chan_lantiq.o.d -MP -pthread \
-		$(TARGET_CFLAGS) \
+		$(TARGET_CFLAGS) -DAST_MODULE_SELF_SYM=__internal_chan_lantiq_self \
 		$(CHAN_LANTIQ_AST_INCLUDES) \
 		$(TARGET_CPPFLAGS) \
 		-Wall -Wstrict-prototypes -Wmissing-prototypes \
@@ -103,3 +118,4 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,asterisk13-$(PKG_NAME)))
+$(eval $(call BuildPackage,asterisk15-$(PKG_NAME)))
