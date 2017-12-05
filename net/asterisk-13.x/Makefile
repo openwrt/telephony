@@ -394,18 +394,20 @@ define Build/Compile
 	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
-	for cat in $(MENUSELECT_CATEGORIES); do \
-		cd "$(PKG_BUILD_DIR)" && \
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for cat in $(MENUSELECT_CATEGORIES); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --disable-category $$$$cat"; \
+		done; \
 		./menuselect/menuselect \
-		--disable-category $$$$cat \
-		menuselect.makeopts; \
-	done
-	for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
-		cd "$(PKG_BUILD_DIR)" && \
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --enable $$$$item"; \
+		done; \
 		./menuselect/menuselect \
-		--enable $$$$item \
-		menuselect.makeopts; \
-	done
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
 	cd "$(PKG_BUILD_DIR)" && \
 		./menuselect/menuselect \
 			--disable BUILD_NATIVE \
