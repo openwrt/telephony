@@ -1,0 +1,12 @@
+--- a/modules/status/status.c
++++ b/modules/status/status.c
+@@ -30,9 +30,6 @@ static void server_info(struct mbuf *mb)
+ 	mbuf_write_str(mb, "<table>\n");
+ 	mbuf_write_str(mb,
+ 		       " <tr><td>Version:</td><td>" VERSION "</td></tr>\n");
+-	mbuf_write_str(mb,
+-		       " <tr><td>Built:</td><td>" __DATE__ " " __TIME__
+-		       "</td></tr>\n");
+ 	mbuf_printf(mb, " <tr><td>Uptime:</td><td>%H</td></tr>\n",
+ 		    fmt_human_time, &uptime);
+ 	mbuf_write_str(mb, "</table>\n");
