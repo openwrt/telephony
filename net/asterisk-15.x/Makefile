@@ -240,6 +240,7 @@ endif
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-alsa),--with-asound="$(STAGING_DIR)/usr",--without-asound) \
 	--without-execinfo \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
 	--with-cap="$(STAGING_DIR)/usr" \
@@ -251,7 +252,6 @@ CONFIGURE_ARGS+= \
 	--without-isdnnet \
 	--without-misdn \
 	--without-nbs \
-	--with-pjproject="$(STAGING_DIR)/usr" \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
@@ -261,15 +261,14 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),--with-lua="$(STAGING_DIR)/usr",--without-lua) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pjsip),--with-pjproject="$(STAGING_DIR)/usr",--without-pjproject) \
 	--with-popt="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
 	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),--with-srtp="$(STAGING_DIR)/usr",--without-srtp) \
 	--without-suppserv \
 	--without-tds \
 	--without-termcap \
@@ -281,12 +280,44 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--enable-xmldoc
 
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speex
+else
+CONFIGURE_ARGS+= \
+	--with-speex="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speexdsp
+else
+CONFIGURE_ARGS+= \
+	--with-speexdsp="$(STAGING_DIR)/usr"
+endif
+
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),)
 CONFIGURE_ARGS+= \
 	--without-ogg
 else
 CONFIGURE_ARGS+= \
 	--with-ogg="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
+CONFIGURE_ARGS+= \
+	--without-srtp
+else
+CONFIGURE_ARGS+= \
+	--with-srtp="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk)$(CONFIG_PACKAGE_$(PKG_NAME)-res-sdp-translator-pjmedia),)
+CONFIGURE_ARGS+= \
+	--without-pjproject
+else
+CONFIGURE_ARGS+= \
+	--with-pjproject="$(STAGING_DIR)/usr"
 endif
 
 # res-calendar-ews requires both neon and neon29 detection
