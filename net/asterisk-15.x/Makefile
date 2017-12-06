@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
-PKG_VERSION:=15.1.2
-PKG_RELEASE:=2
+PKG_VERSION:=15.1.3
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=1fc7a55a56093d0eb3b12501b1ae60f3df148a926f5fc1c3f805b7fe1537a4ad
+PKG_HASH:=cfd7c49e42878b4f7de5af7baa9f43d39476f70d1848e5f158409400c31a0c3a
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -240,6 +240,7 @@ endif
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-alsa),--with-asound="$(STAGING_DIR)/usr",--without-asound) \
 	--without-execinfo \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
 	--with-cap="$(STAGING_DIR)/usr" \
@@ -251,7 +252,6 @@ CONFIGURE_ARGS+= \
 	--without-isdnnet \
 	--without-misdn \
 	--without-nbs \
-	--with-pjproject="$(STAGING_DIR)/usr" \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
@@ -261,15 +261,14 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),--with-lua="$(STAGING_DIR)/usr",--without-lua) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pjsip),--with-pjproject="$(STAGING_DIR)/usr",--without-pjproject) \
 	--with-popt="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
 	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),--with-srtp="$(STAGING_DIR)/usr",--without-srtp) \
 	--without-suppserv \
 	--without-tds \
 	--without-termcap \
@@ -281,12 +280,44 @@ CONFIGURE_ARGS+= \
 	--with-sounds-cache="$(DL_DIR)" \
 	--enable-xmldoc
 
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speex
+else
+CONFIGURE_ARGS+= \
+	--with-speex="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speexdsp
+else
+CONFIGURE_ARGS+= \
+	--with-speexdsp="$(STAGING_DIR)/usr"
+endif
+
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),)
 CONFIGURE_ARGS+= \
 	--without-ogg
 else
 CONFIGURE_ARGS+= \
 	--with-ogg="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
+CONFIGURE_ARGS+= \
+	--without-srtp
+else
+CONFIGURE_ARGS+= \
+	--with-srtp="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk)$(CONFIG_PACKAGE_$(PKG_NAME)-res-sdp-translator-pjmedia),)
+CONFIGURE_ARGS+= \
+	--without-pjproject
+else
+CONFIGURE_ARGS+= \
+	--with-pjproject="$(STAGING_DIR)/usr"
 endif
 
 # res-calendar-ews requires both neon and neon29 detection
@@ -370,23 +401,32 @@ define Build/Compile
 	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
 	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
-	for cat in $(MENUSELECT_CATEGORIES); do \
-		cd "$(PKG_BUILD_DIR)" && \
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for cat in $(MENUSELECT_CATEGORIES); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --disable-category $$$$cat"; \
+		done; \
 		./menuselect/menuselect \
-		--disable-category $$$$cat \
-		menuselect.makeopts; \
-	done
-	for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
-		cd "$(PKG_BUILD_DIR)" && \
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --enable $$$$item"; \
+		done; \
 		./menuselect/menuselect \
-		--enable $$$$item \
-		menuselect.makeopts; \
-	done
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
 	cd "$(PKG_BUILD_DIR)" && \
 		./menuselect/menuselect \
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK15_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
+	# Hack:
+	# When changing anything in MENUSELECT_CFLAGS the file ".lastclean"
+	# gets deleted. E.g. when compiling on x86 for x86 "--disable
+	# BUILD_NATIVE" changes MENUSELECT_CFLAGS and the file gets removed.
+	# But that will result in a rebuild attempt of menuselect which will
+	# likely fail. Prevent that by recreating ".lastclean".
+	$(CP) "$(PKG_BUILD_DIR)/.cleancount" "$(PKG_BUILD_DIR)/.lastclean"
 	$(call Build/Compile/Default,all install samples)
 endef
 
