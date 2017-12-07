@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
 PKG_VERSION:=0.5.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -35,6 +35,7 @@ endef
 
 MAKE_FLAGS+= \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
+	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
