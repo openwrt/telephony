@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
 PKG_VERSION:=0.5.6
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -41,6 +41,9 @@ endef
 # CFLAGS are picked up from the environment, as well as CPPFLAGS (and LD etc.).
 # But LDFLAGS aren't picked up, so they need to be handed over via
 # EXTRA_LFLAGS.
+#
+# LD is changed to TARGET_CC to fix build failures on x86 32bit. Without this
+# there's no linking to ssp, which results in undefined references.
 
 ifneq ($(CONFIG_USE_GLIBC)$(CONFIG_USE_MUSL),)
 TARGET_CFLAGS+=-D_GNU_SOURCE
@@ -48,6 +51,7 @@ endif
 
 MAKE_FLAGS+= \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
+	LD="$(TARGET_CC)" \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
 	RELEASE=1
