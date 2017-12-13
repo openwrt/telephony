@@ -50,6 +50,10 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/package.mk
 
+define Package/$(PKG_NAME)/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define Package/baresip/Default
   SECTION:=net
   CATEGORY:=Network
@@ -151,8 +155,8 @@ $(eval $(call BuildPackage,baresip))
 $(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+alsa-lib))
 $(eval $(call BuildPlugin,aubridge,Audio bridge module,aubridge,))
 $(eval $(call BuildPlugin,aufile,Audio module for using a WAV-file as audio input,aufile,))
-$(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,+libffmpeg-full +libx264))
-$(eval $(call BuildPlugin,avformat,Video source using FFmpeg,avformat,+libffmpeg-full))
+$(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,@BARESIP_WITH_FFMPEG +libffmpeg-full +libx264))
+$(eval $(call BuildPlugin,avformat,Video source using FFmpeg,avformat,@BARESIP_WITH_FFMPEG +libffmpeg-full))
 $(eval $(call BuildPlugin,cons,UDP/TCP console UI driver,cons,))
 $(eval $(call BuildPlugin,debug_cmd,Debug commands,debug_cmd,))
 $(eval $(call BuildPlugin,dtls_srtp,DTLS-SRTP end-to-end encryption,dtls_srtp,))
