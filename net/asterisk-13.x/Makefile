@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.18.3
-PKG_RELEASE:=2
+PKG_VERSION:=13.18.4
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=728db9e4ef34e3f0382c77e5eaa8780b52655377a0db395274667b73cf3a6a1d
+PKG_HASH:=a14c2132eaa4f581452cd6d4d5094639e67a28eb70102458c796660d704115e4
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
