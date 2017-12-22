@@ -246,7 +246,6 @@ PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_STABLE_MOD_AVAILABLE)) \
 	CONFIG_FS_STABLE_WITH_DEBUG \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
-	CONFIG_FS_STABLE_WITH_LIBEDIT \
 	CONFIG_FS_STABLE_WITH_LIBYUV \
 	CONFIG_FS_STABLE_WITH_MODCONF \
 	CONFIG_FS_STABLE_WITH_ODBC \
@@ -330,11 +329,11 @@ $(call Package/$(PKG_NAME)/Default)
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:= \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
-	  +FS_STABLE_WITH_LIBEDIT:libedit \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
 	  +libcurl \
+	  +libedit \
 	  +libopenssl \
 	  +libpcre \
 	  +libpthread \
@@ -601,27 +600,6 @@ endef
 define Package/$(PKG_NAME)-util-$(1)/install
 $(call Package/$(PKG_NAME)/install/bin,$$(1),$(1))
 endef
-ifeq ($(1)$(CONFIG_FS_STABLE_WITH_LIBEDIT),fs_cli)
-define Package/$(PKG_NAME)-util-$(1)/postinst
-#!/bin/sh
-if [ -z "$$$${IPKG_INSTROOT}" ]; then
-  echo
-  echo "o-------------------------------------------------------------------o"
-  echo "| fs_cli note                                                       |"
-  echo "o-------------------------------------------------------------------o"
-  echo "| Your FreeSWITCH was compiled without libedit support. Due to an   |"
-  echo "| interop issue it's possible that when you try to exit fs_cli with |"
-  echo "| Ctrl-D, you'll see messages flashing by and have to kill fs_cli   |"
-  echo "| manually. To avoid this you can either use Ctrl-C instead (fs_cli |"
-  echo "| needs to be started with '-i' for this to work; you could create  |"
-  echo "| an appropriate alias in /etc/profile) or type /exit, /quit or     |"
-  echo "| /bye.                                                             |"
-  echo "o-------------------------------------------------------------=^_^=-o"
-  echo
-fi
-exit 0
-endef
-endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
@@ -630,6 +608,7 @@ CONFIGURE_ARGS+= \
 	--disable-dependency-tracking \
 	--disable-static \
 	--disable-system-xmlrpc-c \
+	--enable-core-libedit-support \
 	--enable-fhs \
 	--with-cachedir=/tmp/$(PRG_NAME)/cache \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
@@ -637,7 +616,6 @@ CONFIGURE_ARGS+= \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
@@ -1051,7 +1029,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,clearmode,Clearmode,Clearmode codec pas
 $(eval $(call Package/$(PKG_NAME)/Module,cluechoo,Clue Choo,This demo module renders a Clue Choo train on the FreeSWITCH console.,+libncurses))
 $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides miscellaneous API commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
-$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. When\nFreeSWITCH is compiled without libedit support - this is not the\ndefault - mod_console has no effect because the init script starts\nFreeSWITCH with the console disabled to work around an\ninteroperability issue that causes high CPU load.,))
+$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cv,OpenCV,This module exposes opencv actions to enable computer vision actions.,+opencv @BROKEN)) # opencv package too stripped-down
 $(eval $(call Package/$(PKG_NAME)/Module,dahdi_codec,DAHDI codec,DAHDI codec module.,))

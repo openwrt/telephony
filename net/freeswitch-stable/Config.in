@@ -15,15 +15,6 @@ config FS_STABLE_WITH_FREETYPE
 	help
 	  Add FreeType support to FreeSWITCH
 
-config FS_STABLE_WITH_LIBEDIT
-	bool "Compile with libedit support"
-	default y
-	help
-	  Compile with libedit support to enable command-line history editing
-	  and curses functionality. Of course this feels nicer when interacting
-	  with FreeSWITCH (without it it doesn't feel very interactive at all),
-	  but it adds additional dependencies (libedit, libncursesw, terminfo).
-
 config FS_STABLE_WITH_LIBYUV
 	bool "Compile with libyuv support"
 	default y if x86_64
