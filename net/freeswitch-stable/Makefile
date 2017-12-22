@@ -376,10 +376,6 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
-ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
-	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
-			$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
-endif
 endef
 
 define Package/$(PKG_NAME)/postinst
