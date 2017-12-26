@@ -1,5 +1,9 @@
 ### FreeSWITCH configuration ###
 
+# Uncomment once you verified your configuration, otherwise the init script will
+# not start FreeSWITCH.
+#ENABLE_FREESWITCH="yes"
+
 #FS_USER=freeswitch
 #FS_GROUP=freeswitch
 

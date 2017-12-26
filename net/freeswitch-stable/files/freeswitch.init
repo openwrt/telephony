@@ -33,9 +33,9 @@ fs_dir_temp="${FS_DIR_TEMP:-/tmp/$FS/temp}"
 start_service() {
   local dir=
 
-  if [ -f "/etc/${FS}_disabled" ]; then
-    $LOGGER File \"/etc/${FS}_disabled\" exists
-    $LOGGER Remove it once your configuration is set up
+  if [ "$ENABLE_FREESWITCH" != yes ]; then
+    $LOGGER User configuration incomplete - not starting $FS
+    $LOGGER Check ENABLE_FREESWITCH in $DEFAULT
     exit 1
   fi
 

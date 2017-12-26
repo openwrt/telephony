@@ -380,8 +380,10 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-  # Prevent autostart of $(PRG_NAME)
-  touch $(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)_disabled
+  # Prevent $(PRG_NAME) from auto-starting after an upgrade. The modules may
+  # not be upgraded yet and the user configuration may need a revision.
+  sed -i '/^ENABLE_FREESWITCH="yes"/s/^/#/' \
+    $(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 
   echo
   echo "o-------------------------------------------------------------------o"
