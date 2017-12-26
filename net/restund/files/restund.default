@@ -1,0 +1,8 @@
+### restund init configuration ###
+
+# Uncomment once you verified your configuration, otherwise the init script will
+# not start restund.
+#ENABLE_RESTUND="yes"
+
+# The following is added to the command line when starting restund:
+OPTIONS=""

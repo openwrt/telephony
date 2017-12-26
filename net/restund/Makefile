@@ -39,6 +39,7 @@ define Package/restund
 $(call Package/restund/Default)
   TITLE:=Modular STUN/TURN server
   DEPENDS:=+libre
+  USERID:=$(PKG_NAME)=373:$(PKG_NAME)=373
 endef
 
 restund-mod-mysql:=USE_MYSQL
@@ -78,12 +79,29 @@ define Package/restund/install
 	$(SED) \
 		's|^\(module_path\)\([ \t]\+\).*$$$$|\1\2/usr/lib/restund/modules|g' \
 		$(1)/etc/restund.conf
+	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_CONF) ./files/restund.default $(1)/etc/default/restund
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/restund.init $(1)/etc/init.d/restund
 endef
 
 define Package/restund/conffiles
+/etc/default/restund
+/etc/init.d/restund
 /etc/restund.conf
+endef
+
+define Package/restund/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  chown $(PKG_NAME):$(PKG_NAME) /etc/restund.conf
+
+  # Prevent $(PKG_NAME) from auto-starting after an upgrade. The modules may
+  # not be upgraded yet and the user configuration may need a revision.
+  sed -i '/^ENABLE_RESTUND="yes"/s/^/#/' \
+    /etc/default/$(PKG_NAME)
+fi
+exit 0
 endef
 
 #
