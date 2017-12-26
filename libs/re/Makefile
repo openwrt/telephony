@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
 PKG_VERSION:=0.5.6
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -44,6 +44,9 @@ endef
 #
 # LD is changed to TARGET_CC to fix build failures on x86 32bit. Without this
 # there's no linking to ssp, which results in undefined references.
+
+# used by 001-extend-ninit-nclose-check.patch
+TARGET_CFLAGS+=-DOPENWRT
 
 ifneq ($(CONFIG_USE_GLIBC)$(CONFIG_USE_MUSL),)
 TARGET_CFLAGS+=-D_GNU_SOURCE
