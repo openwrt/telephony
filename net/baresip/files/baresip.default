@@ -1,0 +1,10 @@
+### bareSIP init configuration ###
+
+# Uncomment once you verified your configuration, otherwise the init script will
+# not start bareSIP.
+#ENABLE_BARESIP="yes"
+
+# The following is added to the command line when starting bareSIP:
+OPTIONS=""
+
+# The configuration for the daemon is done in /etc/baresip!
