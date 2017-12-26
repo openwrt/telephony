@@ -96,15 +96,17 @@ BARESIP_MOD_OPTIONS:= \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
 
 MAKE_FLAGS+= \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
 	LIBREM_PATH="$(STAGING_DIR)/usr" \
+	OS=linux \
+	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1 \
 	$(BARESIP_MOD_OPTIONS)
 
 TARGET_CFLAGS+=-D_GNU_SOURCE

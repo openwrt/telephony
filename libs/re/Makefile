@@ -53,11 +53,13 @@ TARGET_CFLAGS+=-D_GNU_SOURCE
 endif
 
 MAKE_FLAGS+= \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
+	OS=linux \
+	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
-	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1
+	SYSROOT_ALT="$(STAGING_DIR)/usr"
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/share/re
