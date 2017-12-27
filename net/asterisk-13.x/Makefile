@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.18.3
-PKG_RELEASE:=2
+PKG_VERSION:=13.18.4
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=728db9e4ef34e3f0382c77e5eaa8780b52655377a0db395274667b73cf3a6a1d
+PKG_HASH:=a14c2132eaa4f581452cd6d4d5094639e67a28eb70102458c796660d704115e4
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -591,7 +591,7 @@ $(eval $(call BuildAsterisk13Module,func-lock,Dialplan mutexes,dialplan mutexes,
 $(eval $(call BuildAsterisk13Module,func-math,Math functions,Math functions,,,func_math,,))
 $(eval $(call BuildAsterisk13Module,func-md5,MD5 digest dialplan functions,MD5 digest related dialplan functions,,,func_md5,,))
 $(eval $(call BuildAsterisk13Module,func-module,Simple module check function,Simple module check function,,,func_module,,))
-$(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,,,func_periodic_hook,,))
+$(eval $(call BuildAsterisk13Module,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,+$(PKG_NAME)-app-chanspy +$(PKG_NAME)-func-cut +$(PKG_NAME)-func-groupcount +$(PKG_NAME)-func-uri,,func_periodic_hook,,))
 $(eval $(call BuildAsterisk13Module,func-pitchshift,Audio effects dialplan functions,pitch shift audio effect,,,func_pitchshift,,))
 $(eval $(call BuildAsterisk13Module,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
 $(eval $(call BuildAsterisk13Module,func-rand,RAND dialplan function,RAND dialplan function,,,func_rand,,))
@@ -609,7 +609,7 @@ $(eval $(call BuildAsterisk13Module,func-version,Get Asterisk version/build info
 $(eval $(call BuildAsterisk13Module,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,func_vmcount,,))
 $(eval $(call BuildAsterisk13Module,func-volume,Technology independent volume control,technology independent volume control,,,func_volume,,))
 $(eval $(call BuildAsterisk13Module,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc res_odbc_transaction,,))
-$(eval $(call BuildAsterisk13Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,,extensions.ael,pbx_ael,,))
+$(eval $(call BuildAsterisk13Module,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,+$(PKG_NAME)-res-ael-share,extensions.ael,pbx_ael,,))
 $(eval $(call BuildAsterisk13Module,pbx-dundi,Dundi,provides Dundi Lookup service for Asterisk,,dundi.conf,pbx_dundi,,))
 $(eval $(call BuildAsterisk13Module,pbx-loopback,Loopback switch,loopback PBX module,,,pbx_loopback,,))
 $(eval $(call BuildAsterisk13Module,pbx-lua,Lua,provides Lua resources for Asterisk,+liblua,extensions.lua,pbx_lua,,))
@@ -664,12 +664,12 @@ $(eval $(call BuildAsterisk13Module,res-http-websocket,HTTP websocket support,We
 $(eval $(call BuildAsterisk13Module,res-limit,Resource limits,resource limits,,,res_limit,,))
 $(eval $(call BuildAsterisk13Module,res-manager-devicestate,Device state topic forwarder,list the current known device states,,,res_manager_devicestate,,))
 $(eval $(call BuildAsterisk13Module,res-manager-presencestate,Presence state topic forwarder,list the current known presence states,,,res_manager_presencestate,,))
-$(eval $(call BuildAsterisk13Module,res-monitor,Provide Monitor,Cryptographic Signature capability,,,res_monitor,,))
+$(eval $(call BuildAsterisk13Module,res-monitor,PBX channel monitoring,call monitoring resource,+$(PKG_NAME)-func-periodic-hook,,res_monitor,,))
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
 $(eval $(call BuildAsterisk13Module,res-mutestream,Mute audio stream resources,MUTESTREAM audiohooks,,,res_mutestream,,))
 $(eval $(call BuildAsterisk13Module,res-mwi-external,Core external MWI resource,core external MWI resource,,,res_mwi_external,,))
 $(eval $(call BuildAsterisk13Module,res-mwi-external-ami,AMI for external MWI,AMI wrapper for external MWI,+$(PKG_NAME)-res-mwi-external,,res_mwi_external_ami,,))
-$(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application,,res_parking.conf,res_parking,,))
+$(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application,+$(PKG_NAME)-bridge-holding,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsterisk13Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
 $(eval $(call BuildAsterisk13Module,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP Phone Provisioning,+asterisk13-pjsip +asterisk13-res-phoneprov,,res_pjsip_phoneprov_provider,,))
 $(eval $(call BuildAsterisk13Module,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
