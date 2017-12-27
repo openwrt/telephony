@@ -34,14 +34,16 @@ define Package/librem
 endef
 
 MAKE_FLAGS+= \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
+	OS=linux \
+	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
-	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1
+	SYSROOT_ALT="$(STAGING_DIR)/usr"
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
 PKG_VERSION:=0.4.12
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -39,6 +39,7 @@ define Package/restund
 $(call Package/restund/Default)
   TITLE:=Modular STUN/TURN server
   DEPENDS:=+libre
+  USERID:=$(PKG_NAME)=373:$(PKG_NAME)=373
 endef
 
 restund-mod-mysql:=USE_MYSQL
@@ -47,14 +48,16 @@ RESTUND_MOD_OPTIONS:= \
 	$(foreach m,$(restund-mods),$(restund-mod-$(m))=$(if $(CONFIG_PACKAGE_restund-mod-$(m)),1))
 
 MAKE_FLAGS+= \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
+	OS=linux \
+	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1 \
 	$(RESTUND_MOD_OPTIONS)
 
 define Package/restund/install
@@ -76,12 +79,29 @@ define Package/restund/install
 	$(SED) \
 		's|^\(module_path\)\([ \t]\+\).*$$$$|\1\2/usr/lib/restund/modules|g' \
 		$(1)/etc/restund.conf
+	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_CONF) ./files/restund.default $(1)/etc/default/restund
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/restund.init $(1)/etc/init.d/restund
 endef
 
 define Package/restund/conffiles
+/etc/default/restund
+/etc/init.d/restund
 /etc/restund.conf
+endef
+
+define Package/restund/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  chown $(PKG_NAME):$(PKG_NAME) /etc/restund.conf
+
+  # Prevent $(PKG_NAME) from auto-starting after an upgrade. The modules may
+  # not be upgraded yet and the user configuration may need a revision.
+  sed -i '/^ENABLE_RESTUND="yes"/s/^/#/' \
+    /etc/default/$(PKG_NAME)
+fi
+exit 0
 endef
 
 #

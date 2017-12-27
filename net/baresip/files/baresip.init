@@ -1,14 +1,91 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2010-2011 OpenWrt.org
-# Copyright (C) 2010 Alfred E. Heggestad
-#
+# Copyright (C) 2017 OpenWrt.org
 
 START=92
 
-start() {
-	service_start /usr/bin/baresip -d
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+DAEMON=baresip
+DEFAULT=/etc/default/$DAEMON
+LOGGER="/usr/bin/logger -p user.err -s -t $DAEMON"
+OPTIONS=
+PROG=/usr/bin/$DAEMON
+TIMEOUT=30
+
+[ -f $DEFAULT ] && . $DEFAULT
+
+start_service() {
+  local dir=
+
+  if [ "$ENABLE_BARESIP" != yes ]; then
+    $LOGGER User configuration incomplete - not starting $DAEMON
+    $LOGGER Check ENABLE_BARESIP in $DEFAULT
+    exit 1
+  fi
+
+  procd_open_instance
+  procd_set_param command $PROG
+  procd_append_param command \
+    -f /etc/$DAEMON \
+    $OPTIONS
+  procd_set_param pidfile /var/run/${DAEMON}.pid
+  # forward stderr to logd
+  procd_set_param stderr 1
+  # forward stdout to logd
+  #procd_set_param stdout 1
+  procd_set_param user $DAEMON
+  procd_close_instance
 }
 
-stop() {
-	service_stop /usr/bin/baresip
+stop_service() {
+  local retval=
+  local mypid=
+  local timeout=$TIMEOUT
+
+  pgrep $DAEMON &> /dev/null
+  [ $? -ne 0 ] && exit 0
+
+  [ -f /var/run/${DAEMON}.pid ]
+  retval=$?
+
+  # init script could find itself in a scenario where baresip was started
+  # very recently, so make it wait a while for a pid file to appear
+  while [ $retval -ne 0 -a $timeout -gt 0 ]; do
+    sleep 1
+    [ -f /var/run/${DAEMON}.pid ]
+    retval=$?
+    timeout=$(($timeout-1))
+  done
+
+  [ $retval -eq 0 ] || {
+    $LOGGER PID file does not exist
+    exit 1
+  }
+
+  mypid=$(cat /var/run/${DAEMON}.pid)
+
+  [ "$mypid" -gt 1 ] 2> /dev/null || {
+    $LOGGER PID file contains garbage
+    exit 1
+  }
+
+  timeout=$TIMEOUT
+  kill $mypid 2>/dev/null
+  pgrep $DAEMON | grep -w $mypid &>/dev/null
+  retval=$?
+
+  while [ $retval -eq 0 -a $timeout -gt 0 ]; do
+    sleep 10
+    pgrep $DAEMON | grep -w $mypid &>/dev/null
+    retval=$?
+    [ $retval -eq 0 ] && kill $mypid 2>/dev/null
+    timeout=$(($timeout-10))
+  done
+
+  [ $retval -ne 1 ] && {
+    $LOGGER Failed to stop $DAEMON
+    exit 1
+  }
 }

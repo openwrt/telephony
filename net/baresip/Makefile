@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.5.6
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -65,6 +65,7 @@ define Package/baresip
 $(call Package/baresip/Default)
   TITLE:=Portable and modular SIP User-Agent with A/V support
   DEPENDS:=+libre +librem
+  USERID:=$(PKG_NAME)=374:$(PKG_NAME)=374
   MENU:=1
 endef
 
@@ -96,15 +97,17 @@ BARESIP_MOD_OPTIONS:= \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
 
 MAKE_FLAGS+= \
+	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
 	LIBREM_PATH="$(STAGING_DIR)/usr" \
+	OS=linux \
+	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	RELEASE=1 \
 	$(BARESIP_MOD_OPTIONS)
 
 TARGET_CFLAGS+=-D_GNU_SOURCE
@@ -118,8 +121,36 @@ define Package/baresip/install
 		$(1)/usr/lib/baresip/modules
 	$(INSTALL_DIR) $(1)/usr/share/baresip
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/baresip/* $(1)/usr/share/baresip
+	$(INSTALL_DIR) $(1)/etc/baresip
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/docs/examples/{accounts,config,contacts} $(1)/etc/baresip
+	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_CONF) ./files/baresip.default $(1)/etc/default/baresip
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/baresip.init $(1)/etc/init.d/baresip
+endef
+
+define Package/baresip/conffiles
+/etc/baresip/accounts
+/etc/baresip/config
+/etc/baresip/contacts
+/etc/default/baresip
+/etc/init.d/baresip
+endef
+
+define Package/baresip/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  chown $(PKG_NAME):$(PKG_NAME) \
+    /etc/baresip/accounts \
+    /etc/baresip/config \
+    /etc/baresip/contacts
+
+  # Prevent $(PKG_NAME) from auto-starting after an upgrade. The modules may
+  # not be upgraded yet and the user configuration may need a revision.
+  sed -i '/^ENABLE_BARESIP="yes"/s/^/#/' \
+    /etc/default/$(PKG_NAME)
+fi
+exit 0
 endef
 
 ##################
