@@ -12,17 +12,18 @@ PKG_VERSION:=1.0.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SAVANNAH/linphone/plugins/sources
+PKG_SOURCE_URL:=https://www.linphone.org/releases/sources/bcg729
 PKG_HASH:=1a0fbf1ff91470037e83fa67976f940ebb601e4cc525859c754f4e7ffc24c307
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_INSTALL:=1
+CMAKE_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/bcg729
   SUBMENU:=Telephony
@@ -41,18 +42,19 @@ define Package/bcg729/description
 endef
 
 TARGET_CFLAGS += $(FPIC)
-CONFIGURE_ARGS += \
-	--enable-shared \
-	--enable-static=no \
-	--disable-msplugin
+
+CMAKE_OPTIONS += \
+	-DENABLE_SHARED=YES \
+	-DENABLE_STATIC=NO \
+	-DENABLE_TESTS=NO
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) -R $(PKG_INSTALL_DIR)/usr/include/bcg729 $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/include/bcg729
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/bcg729/*.h $(1)/usr/include/bcg729
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libbcg729.pc $(1)/usr/lib/pkgconfig/
+	$(INSTALL_DIR) $(1)/usr/lib/cmake/Bcg729
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/Bcg729/cmake/*.cmake $(1)/usr/lib/cmake/Bcg729
 endef
 
 define Package/bcg729/install
