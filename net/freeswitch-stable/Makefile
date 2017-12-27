@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.19
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -246,7 +246,6 @@ PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_STABLE_MOD_AVAILABLE)) \
 	CONFIG_FS_STABLE_WITH_DEBUG \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
-	CONFIG_FS_STABLE_WITH_LIBEDIT \
 	CONFIG_FS_STABLE_WITH_LIBYUV \
 	CONFIG_FS_STABLE_WITH_MODCONF \
 	CONFIG_FS_STABLE_WITH_ODBC \
@@ -330,11 +329,11 @@ $(call Package/$(PKG_NAME)/Default)
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:= \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
-	  +FS_STABLE_WITH_LIBEDIT:libedit \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
 	  +libcurl \
+	  +libedit \
 	  +libopenssl \
 	  +libpcre \
 	  +libpthread \
@@ -376,17 +375,15 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
-ifeq ($(CONFIG_FS_STABLE_WITH_LIBEDIT),)
-	$(SED) '/^  #procd_append_param command -nc -nf$$$$/s/#//' \
-			$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
-endif
 endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-  # Prevent autostart of $(PRG_NAME)
-  touch $(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)_disabled
+  # Prevent $(PRG_NAME) from auto-starting after an upgrade. The modules may
+  # not be upgraded yet and the user configuration may need a revision.
+  sed -i '/^ENABLE_FREESWITCH="yes"/s/^/#/' \
+    $(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
 
   echo
   echo "o-------------------------------------------------------------------o"
@@ -605,27 +602,6 @@ endef
 define Package/$(PKG_NAME)-util-$(1)/install
 $(call Package/$(PKG_NAME)/install/bin,$$(1),$(1))
 endef
-ifeq ($(1)$(CONFIG_FS_STABLE_WITH_LIBEDIT),fs_cli)
-define Package/$(PKG_NAME)-util-$(1)/postinst
-#!/bin/sh
-if [ -z "$$$${IPKG_INSTROOT}" ]; then
-  echo
-  echo "o-------------------------------------------------------------------o"
-  echo "| fs_cli note                                                       |"
-  echo "o-------------------------------------------------------------------o"
-  echo "| Your FreeSWITCH was compiled without libedit support. Due to an   |"
-  echo "| interop issue it's possible that when you try to exit fs_cli with |"
-  echo "| Ctrl-D, you'll see messages flashing by and have to kill fs_cli   |"
-  echo "| manually. To avoid this you can either use Ctrl-C instead (fs_cli |"
-  echo "| needs to be started with '-i' for this to work; you could create  |"
-  echo "| an appropriate alias in /etc/profile) or type /exit, /quit or     |"
-  echo "| /bye.                                                             |"
-  echo "o-------------------------------------------------------------=^_^=-o"
-  echo
-fi
-exit 0
-endef
-endif
 $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
 endef
 
@@ -634,6 +610,7 @@ CONFIGURE_ARGS+= \
 	--disable-dependency-tracking \
 	--disable-static \
 	--disable-system-xmlrpc-c \
+	--enable-core-libedit-support \
 	--enable-fhs \
 	--with-cachedir=/tmp/$(PRG_NAME)/cache \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
@@ -641,18 +618,18 @@ CONFIGURE_ARGS+= \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBEDIT,core-libedit-support) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_DEBUG,debug) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBYUV,libyuv) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_PGSQL,core-pgsql-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
+	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_VPX,libvpx) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
-	$(if $(CONFIG_FS_STABLE_WITH_DEBUG),,--disable-debug) \
 	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
-	$(if $(CONFIG_FS_STABLE_WITH_LIBYUV),,--disable-libyuv) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),--enable-core-pgsql-support,--without-pgsql) \
-	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
-	$(if $(CONFIG_FS_STABLE_WITH_VPX),,--disable-libvpx)
+	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),,--without-pgsql) \
+	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png)
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
 CONFIGURE_ARGS+= \
@@ -1055,7 +1032,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,clearmode,Clearmode,Clearmode codec pas
 $(eval $(call Package/$(PKG_NAME)/Module,cluechoo,Clue Choo,This demo module renders a Clue Choo train on the FreeSWITCH console.,+libncurses))
 $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides miscellaneous API commands.,))
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
-$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console. When\nFreeSWITCH is compiled without libedit support - this is not the\ndefault - mod_console has no effect because the init script starts\nFreeSWITCH with the console disabled to work around an\ninteroperability issue that causes high CPU load.,))
+$(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cv,OpenCV,This module exposes opencv actions to enable computer vision actions.,+opencv @BROKEN)) # opencv package too stripped-down
 $(eval $(call Package/$(PKG_NAME)/Module,dahdi_codec,DAHDI codec,DAHDI codec module.,))

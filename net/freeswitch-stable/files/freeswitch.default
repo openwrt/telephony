@@ -1,5 +1,9 @@
 ### FreeSWITCH configuration ###
 
+# Uncomment once you verified your configuration, otherwise the init script will
+# not start FreeSWITCH.
+#ENABLE_FREESWITCH="yes"
+
 #FS_USER=freeswitch
 #FS_GROUP=freeswitch
 
@@ -16,8 +20,8 @@
 #FS_DIR_STORAGE="/tmp/freeswitch/storage"
 #FS_DIR_TEMP="/tmp/freeswitch/temp"
 
-# The following is appended to the command line when starting FreeSWITCH:
-OPTIONS="-np -nonat"
+# The following is added to the command line when starting FreeSWITCH:
+OPTIONS="-nonat -np"
 
 ### Hotplug configuration ###
 
