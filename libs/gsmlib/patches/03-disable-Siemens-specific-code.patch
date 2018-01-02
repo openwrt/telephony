@@ -1,0 +1,11 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -13,7 +13,7 @@
+ 
+ ACLOCAL_AMFLAGS = -I m4
+ 
+-SUBDIRS_ =	po gsmlib apps tests doc scripts win32 ext
++SUBDIRS_ =	po gsmlib apps tests doc scripts win32
+ 
+ EXTRA_DIST =	gsmlib.spec
+ 

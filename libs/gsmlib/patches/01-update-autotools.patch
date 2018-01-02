@@ -1,0 +1,40 @@
+Description: Update autotools-related stuff.
+
+--- a/configure.in
++++ b/configure.in
+@@ -15,6 +15,7 @@ AC_INIT(gsmlib/gsm_error.h)
+ 
+ dnl Other
+ AC_CONFIG_AUX_DIR(scripts)
++AC_CONFIG_MACRO_DIR([m4])
+ AC_PROG_INSTALL
+ 
+ dnl check for libintl
+@@ -34,6 +35,8 @@ if test "$CXXFLAGS" = ""; then
+    CXXFLAGS="-O2"
+ fi
+ 
++AC_USE_SYSTEM_EXTENSIONS
++
+ dnl comment out this line to get extensive debugging output and asserts
+ dnl CXXFLAGS="-DNDEBUG $CXXFLAGS"
+ 
+--- /dev/null
++++ b/po/Makevars
+@@ -0,0 +1,5 @@
++DOMAIN = $(PACKAGE)
++
++subdir = po
++top_builddir = ..
++
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -11,6 +11,8 @@
+ # * Created: 21.5.1999
+ # *************************************************************************
+ 
++ACLOCAL_AMFLAGS = -I m4
++
+ SUBDIRS_ =	po gsmlib apps tests doc scripts win32 ext
+ 
+ EXTRA_DIST =	gsmlib.spec
