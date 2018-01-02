@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.19
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -272,6 +272,14 @@ FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 
 FS_STABLE_PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
+# musl and glibc include their own iconv, but uclibc does not
+ifneq ($(CONFIG_USE_UCLIBC),)
+TARGET_CPPFLAGS+= \
+	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
+TARGET_LDFLAGS += \
+	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib
+endif
+
 define Download/files
 define Download/$(1)
   FILE:=$(2)
@@ -332,6 +340,7 @@ $(call Package/$(PKG_NAME)/Default)
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
+	  +USE_UCLIBC:libiconv-full \
 	  +libcurl \
 	  +libedit \
 	  +libopenssl \
