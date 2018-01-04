@@ -241,6 +241,8 @@ FS_STABLE_MOD_AVAILABLE:= \
 	yaml \
 	yuv
 
+LIBFTDM:=libfreetdm
+
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(FS_STABLE_MISC_AVAILABLE)) \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_STABLE_MOD_AVAILABLE)) \
@@ -257,6 +259,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
+	CONFIG_PACKAGE_$(LIBFTDM) \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
@@ -309,6 +312,24 @@ define Package/$(PKG_NAME)/install/mod
 	$(INSTALL_DIR) $(1)$(FS_STABLE_MOD_DIR)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_MOD_DIR)/mod_$(2).so \
 						$(1)$(FS_STABLE_MOD_DIR)
+endef
+
+define Package/$(LIBFTDM)
+  CATEGORY:=Libraries
+  DEPENDS:=$(PKG_NAME)
+  SECTION:=libs
+  SUBMENU:=Telephony
+  TITLE:=TDM signaling and media API
+  URL:=https://www.$(PRG_NAME).org
+endef
+
+define Package/$(LIBFTDM)/description
+Provides a unified interface to hardware TDM cards and ss7 stacks for
+FreeSWITCH.
+endef
+
+define Package/$(LIBFTDM)/install
+$(call Package/$(PKG_NAME)/install/lib,$(1),$(LIBFTDM))
 endef
 
 define Package/$(PKG_NAME)/config
@@ -922,6 +943,12 @@ endef
 
 define Build/Compile
 	$(call Build/Compile/Default)
+# FreeTDM is only compiled/installed automatically if mod_freetdm is selected
+ifneq ($(CONFIG_PACKAGE_$(LIBFTDM)),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-freetdm),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/freetdm)
+endif
+endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
 endif
@@ -932,6 +959,11 @@ endef
 
 define Build/Install
 	$(call Build/Install/Default)
+ifneq ($(CONFIG_PACKAGE_$(LIBFTDM)),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-freetdm),)
+	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/freetdm install)
+endif
+endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
 endif
@@ -948,8 +980,15 @@ define Build/InstallDev
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
 						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+ifneq ($(CONFIG_PACKAGE_$(LIBFTDM)),)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/freetdm.pc \
+						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+endif
 endef
 
+$(eval $(call BuildPackage,$(LIBFTDM)))
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
