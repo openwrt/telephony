@@ -504,7 +504,7 @@ $(eval $(call BuildAsterisk15Module,app-softhangup,Hang up requested channel,Sof
 $(eval $(call BuildAsterisk15Module,app-speech,Dialplan Speech,Dialplan Speech Applications,+asterisk15-res-speech,,app_speech_utils,,))
 $(eval $(call BuildAsterisk15Module,app-stack,Stack applications,Stack applications Gosub Return etc.,+asterisk15-res-agi,,app_stack,,))
 $(eval $(call BuildAsterisk15Module,app-stasis,Stasis dialplan,Stasis dialplan application,+$(PKG_NAME)-res-stasis,,app_stasis,,))
-$(eval $(call BuildAsterisk15Module,app-statsd,statsd dialplan,statsd dialplan,+$(PKG_NAME)-res_statsd,,app_statsd,,))
+$(eval $(call BuildAsterisk15Module,app-statsd,statsd dialplan,statsd dialplan,+$(PKG_NAME)-res-statsd,,app_statsd,,))
 $(eval $(call BuildAsterisk15Module,app-stream-echo,Stream echo,stream echo,,,app_stream_echo,,))
 $(eval $(call BuildAsterisk15Module,app-system,System exec,support for executing system commands,,,app_system,,))
 $(eval $(call BuildAsterisk15Module,app-talkdetect,File playback with audio detect,for file playback with audio detect,,,app_talkdetect,,))
