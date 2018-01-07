@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.19
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -163,6 +163,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	g723_1 \
 	g729 \
 	graylog2 \
+	gsmopen \
 	h26x \
 	hash \
 	hiredis \
@@ -285,6 +286,14 @@ FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 
 FS_STABLE_PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
+# musl and glibc include their own iconv, but uclibc does not
+ifneq ($(CONFIG_USE_UCLIBC),)
+TARGET_CPPFLAGS+= \
+	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
+TARGET_LDFLAGS += \
+	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib
+endif
+
 define Download/files
 define Download/$(1)
   FILE:=$(2)
@@ -369,6 +378,7 @@ $(call Package/$(PKG_NAME)/Default)
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
+	  +USE_UCLIBC:libiconv-full \
 	  +libcurl \
 	  +libedit \
 	  +libopenssl \
@@ -963,6 +973,13 @@ ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx),)
 endif
 endif
 
+# Hack for mod_gsmopen - it has a build-time dep on mod_spandsp
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-gsmopen),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp),)
+	$(SED) '/mod_spandsp$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
+endif
+endif
+
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-unimrcp),)
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-sofia),)
@@ -1153,6 +1170,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,fsv,FSV,This module provides dialplan a
 $(eval $(call Package/$(PKG_NAME)/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g729,G.729 passthrough,G.729 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,graylog2,Graylog2 logger,GELF logger for Graylog2 and Logstash.,))
+$(eval $(call Package/$(PKG_NAME)/Module,gsmopen,GSM endpoint,GSMopen is a channel driver that allows an SMS to be sent to and from\nFreeSWITCH as well as incoming and outgoing GSM voice calls.,+gsmlib +libctb +libjpeg +liblzma))
 $(eval $(call Package/$(PKG_NAME)/Module,h26x,H.26x passthrough,H.26x video codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a\nlimit backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,+libhiredis))
