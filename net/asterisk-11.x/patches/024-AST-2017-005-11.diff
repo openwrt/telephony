@@ -1,0 +1,195 @@
+From dc4c130439f053592b86f0b35c1fb219a0dc6587 Mon Sep 17 00:00:00 2001
+From: Joshua Colp <jcolp@digium.com>
+Date: Mon, 22 May 2017 15:36:38 +0000
+Subject: [PATCH] res_rtp_asterisk: Only learn a new source in learn state.
+
+This change moves the logic which learns a new source address
+for RTP so it only occurs in the learning state. The learning
+state is entered on initial allocation of RTP or if we are
+told that the remote address for the media has changed. While
+in the learning state if we continue to receive media from
+the original source we restart the learning process. It is
+only once we receive a sufficient number of RTP packets from
+the new source that we will switch to it. Once this is done
+the closed state is entered where all packets that do not
+originate from the expected source are dropped.
+
+The learning process has also been improved to take into
+account the time between received packets so a flood of them
+while in the learning state does not cause media to be switched.
+
+Finally RTCP now drops packets which are not for the learned
+SSRC if strict RTP is enabled.
+
+ASTERISK-27013
+
+Change-Id: I56a96e993700906355e79bc880ad9d4ad3ab129c
+---
+
+diff --git a/res/res_rtp_asterisk.c b/res/res_rtp_asterisk.c
+index 4cdc750..4881171 100644
+--- a/res/res_rtp_asterisk.c
++++ b/res/res_rtp_asterisk.c
+@@ -201,6 +201,7 @@
+ struct rtp_learning_info {
+ 	int max_seq;	/*!< The highest sequence number received */
+ 	int packets;	/*!< The number of remaining packets before the source is accepted */
++	struct timeval received; /*!< The time of the last received packet */
+ };
+ 
+ #ifdef HAVE_OPENSSL_SRTP
+@@ -286,7 +287,6 @@
+ 	 * but these are in place to keep learning mode sequence values sealed from their normal counterparts.
+ 	 */
+ 	struct rtp_learning_info rtp_source_learn;	/* Learning mode track for the expected RTP source */
+-	struct rtp_learning_info alt_source_learn;	/* Learning mode tracking for a new RTP source after one has been chosen */
+ 
+ 	struct rtp_red *red;
+ 
+@@ -2357,6 +2357,7 @@
+ {
+ 	info->max_seq = seq - 1;
+ 	info->packets = learning_min_sequential;
++	memset(&info->received, 0, sizeof(info->received));
+ }
+ 
+ /*!
+@@ -2371,6 +2372,13 @@
+  */
+ static int rtp_learning_rtp_seq_update(struct rtp_learning_info *info, uint16_t seq)
+ {
++	if (!ast_tvzero(info->received) && ast_tvdiff_ms(ast_tvnow(), info->received) < 5) {
++		/* During the probation period the minimum amount of media we'll accept is
++		 * 10ms so give a reasonable 5ms buffer just in case we get it sporadically.
++		 */
++		return 1;
++	}
++
+ 	if (seq == info->max_seq + 1) {
+ 		/* packet is in sequence */
+ 		info->packets--;
+@@ -2379,6 +2387,7 @@
+ 		info->packets = learning_min_sequential - 1;
+ 	}
+ 	info->max_seq = seq;
++	info->received = ast_tvnow();
+ 
+ 	return (info->packets == 0);
+ }
+@@ -2540,7 +2549,6 @@
+ 	rtp->strict_rtp_state = (strictrtp ? STRICT_RTP_LEARN : STRICT_RTP_OPEN);
+ 	if (strictrtp) {
+ 		rtp_learning_seq_init(&rtp->rtp_source_learn, (uint16_t)rtp->seqno);
+-		rtp_learning_seq_init(&rtp->alt_source_learn, (uint16_t)rtp->seqno);
+ 	}
+ 
+ 	/* Create a new socket for us to listen on and use */
+@@ -3910,16 +3918,6 @@
+ 
+ 	packetwords = res / 4;
+ 
+-	if (ast_rtp_instance_get_prop(instance, AST_RTP_PROPERTY_NAT)) {
+-		/* Send to whoever sent to us */
+-		if (ast_sockaddr_cmp(&rtp->rtcp->them, &addr)) {
+-			ast_sockaddr_copy(&rtp->rtcp->them, &addr);
+-			if (rtpdebug)
+-				ast_debug(0, "RTCP NAT: Got RTCP from other end. Now sending to address %s\n",
+-					  ast_sockaddr_stringify(&rtp->rtcp->them));
+-		}
+-	}
+-
+ 	ast_debug(1, "Got RTCP report of %d bytes\n", res);
+ 
+ 	while (position < packetwords) {
+@@ -3939,6 +3937,24 @@
+ 			if (rtpdebug)
+ 				ast_debug(1, "RTCP Read too short\n");
+ 			return &ast_null_frame;
++		}
++
++		if ((rtp->strict_rtp_state != STRICT_RTP_OPEN) && (ntohl(rtcpheader[i + 1]) != rtp->themssrc)) {
++			/* Skip over this RTCP record as it does not contain the correct SSRC */
++			position += (length + 1);
++			ast_debug(1, "%p -- Received RTCP report from %s, dropping due to strict RTP protection. Received SSRC '%u' but expected '%u'\n",
++				rtp, ast_sockaddr_stringify(&addr), ntohl(rtcpheader[i + 1]), rtp->themssrc);
++			continue;
++		}
++
++		if (ast_rtp_instance_get_prop(instance, AST_RTP_PROPERTY_NAT)) {
++			/* Send to whoever sent to us */
++			if (ast_sockaddr_cmp(&rtp->rtcp->them, &addr)) {
++				ast_sockaddr_copy(&rtp->rtcp->them, &addr);
++				if (rtpdebug)
++					ast_debug(0, "RTCP NAT: Got RTCP from other end. Now sending to address %s\n",
++						ast_sockaddr_stringify(&rtp->rtcp->them));
++			}
+ 		}
+ 
+ 		if (rtcp_debug_test_addr(&addr)) {
+@@ -4330,24 +4346,11 @@
+ 
+ 	/* If strict RTP protection is enabled see if we need to learn the remote address or if we need to drop the packet */
+ 	if (rtp->strict_rtp_state == STRICT_RTP_LEARN) {
+-		ast_debug(1, "%p -- Probation learning mode pass with source address %s\n", rtp, ast_sockaddr_stringify(&addr));
+-		/* For now, we always copy the address. */
+-		ast_sockaddr_copy(&rtp->strict_rtp_address, &addr);
+-
+-		/* Send the rtp and the seqno from header to rtp_learning_rtp_seq_update to see whether we can exit or not*/
+-		if (rtp_learning_rtp_seq_update(&rtp->rtp_source_learn, seqno)) {
+-			ast_debug(1, "%p -- Probation at seq %d with %d to go; discarding frame\n",
+-				rtp, rtp->rtp_source_learn.max_seq, rtp->rtp_source_learn.packets);
+-			return &ast_null_frame;
+-		}
+-
+-		ast_verb(4, "%p -- Probation passed - setting RTP source address to %s\n", rtp, ast_sockaddr_stringify(&addr));
+-		rtp->strict_rtp_state = STRICT_RTP_CLOSED;
+-	}
+-	if (rtp->strict_rtp_state == STRICT_RTP_CLOSED) {
+ 		if (!ast_sockaddr_cmp(&rtp->strict_rtp_address, &addr)) {
+-			/* Always reset the alternate learning source */
+-			rtp_learning_seq_init(&rtp->alt_source_learn, seqno);
++			/* We are learning a new address but have received traffic from the existing address,
++			 * accept it but reset the current learning for the new source so it only takes over
++			 * once sufficient traffic has been received. */
++			rtp_learning_seq_init(&rtp->rtp_source_learn, seqno);
+ 		} else {
+ 			/* Hmm, not the strict address. Perhaps we're getting audio from the alternate? */
+ 			if (!ast_sockaddr_cmp(&rtp->alt_rtp_address, &addr)) {
+@@ -4359,15 +4362,21 @@
+ 				 * it, that means we've stopped getting RTP from the original source and we should
+ 				 * switch to it.
+ 				 */
+-				if (rtp_learning_rtp_seq_update(&rtp->alt_source_learn, seqno)) {
++				if (rtp_learning_rtp_seq_update(&rtp->rtp_source_learn, seqno)) {
+ 					ast_debug(1, "%p -- Received RTP packet from %s, dropping due to strict RTP protection. Will switch to it in %d packets\n",
+-							rtp, ast_sockaddr_stringify(&addr), rtp->alt_source_learn.packets);
++							rtp, ast_sockaddr_stringify(&addr), rtp->rtp_source_learn.packets);
+ 					return &ast_null_frame;
+ 				}
+-				ast_verb(4, "%p -- Switching RTP source address to %s\n", rtp, ast_sockaddr_stringify(&addr));
+ 				ast_sockaddr_copy(&rtp->strict_rtp_address, &addr);
+ 			}
++
++			ast_verb(4, "%p -- Probation passed - setting RTP source address to %s\n", rtp, ast_sockaddr_stringify(&addr));
++			rtp->strict_rtp_state = STRICT_RTP_CLOSED;
+ 		}
++	} else if (rtp->strict_rtp_state == STRICT_RTP_CLOSED && ast_sockaddr_cmp(&rtp->strict_rtp_address, &addr)) {
++		ast_debug(1, "%p -- Received RTP packet from %s, dropping due to strict RTP protection.\n",
++			rtp, ast_sockaddr_stringify(&addr));
++		return &ast_null_frame;
+ 	}
+ 
+ 	/* If symmetric RTP is enabled see if the remote side is not what we expected and change where we are sending audio */
+@@ -4762,7 +4771,11 @@
+ 
+ 	rtp->rxseqno = 0;
+ 
+-	if (strictrtp && rtp->strict_rtp_state != STRICT_RTP_OPEN) {
++	if (strictrtp && rtp->strict_rtp_state != STRICT_RTP_OPEN && !ast_sockaddr_isnull(addr) &&
++		ast_sockaddr_cmp(addr, &rtp->strict_rtp_address)) {
++		/* We only need to learn a new strict source address if we've been told the source is
++		 * changing to something different.
++		 */
+ 		rtp->strict_rtp_state = STRICT_RTP_LEARN;
+ 		rtp_learning_seq_init(&rtp->rtp_source_learn, rtp->seqno);
+ 	}
