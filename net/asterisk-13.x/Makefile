@@ -50,6 +50,10 @@ define Package/asterisk13/install/sounds
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
 endef
 
+define Package/$(PKG_NAME)/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define BuildAsterisk13Module
   define Package/asterisk13-$(1)
   $$(call Package/asterisk13/Default)
@@ -269,6 +273,19 @@ define Build/Compile
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOST)/include/libxml2" \
 		LDFLAGS="$(HOST_LDFLAGS) -lxml2"
+	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+			--disable BUILD_NATIVE \
+			$(if $(CONFIG_ASTERISK13_LOW_MEMORY),--enable LOW_MEMORY) \
+			menuselect.makeopts
+	# Hack:
+	# When changing anything in MENUSELECT_CFLAGS the file ".lastclean"
+	# gets deleted. E.g. when compiling on x86 for x86 "--disable
+	# BUILD_NATIVE" changes MENUSELECT_CFLAGS and the file gets removed.
+	# But that will result in a rebuild attempt of menuselect which will
+	# likely fail. Prevent that by recreating ".lastclean".
+	$(CP) "$(PKG_BUILD_DIR)/.cleancount" "$(PKG_BUILD_DIR)/.lastclean"
 	$(call Build/Compile/Default,all install samples)
 endef
 
