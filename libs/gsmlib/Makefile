@@ -19,6 +19,9 @@ PKG_SOURCE_VERSION:=cd5442de07cfe052316ede58640ef81b20627276
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
+# Needed to get a fresh copy of gettext's Makefile.in.in
+PKG_BUILD_DEPENDS:=gettext-full/host
+
 PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
