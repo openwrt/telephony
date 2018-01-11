@@ -1,0 +1,26 @@
+--- a/autoconf/extra.m4
++++ b/autoconf/extra.m4
+@@ -460,23 +460,8 @@ AC_DEFUN([CS_ENABLE_OPTIMIZATION], [
+ 	AC_MSG_NOTICE([--enable-optimization: ${enable_optimization}]) 
+ 	AC_MSG_NOTICE([--enable-debug: ${enable_debug}])
+ 
+-	if test -n "${CPPFLAGS_saved}"; then
+-	 	CPPFLAGS_saved="${CPPFLAGS_saved} -U_FORTIFY_SOURCE"
+- 	else 
+- 		CPPFLAGS_saved="-U_FORTIFY_SOURCE"
+- 	fi
+ 	if test "$enable_optimization" == "no"; then 
+ 		strip_binaries="no"
+-		optimize_flag="-O0"
+-		case "${CC}" in
+-			*gcc*)
+-				AX_CHECK_COMPILE_FLAG(-Og, [
+-					optimize_flag="-Og"
+-				])
+-			;;
+-		esac
+-		CFLAGS_saved="${CFLAGS_saved} ${optimize_flag} "
+-		CPPFLAGS_saved="${CPPFLAGS_saved} ${optimize_flag}"
+ 	else
+ 		strip_binaries="yes"
+ 		CFLAGS_saved="${CFLAGS_saved} -O2 "
