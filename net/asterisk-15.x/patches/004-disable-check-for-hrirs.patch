@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2722,7 +2722,7 @@ else
+@@ -2739,7 +2739,7 @@ else
  fi
  
  # conf_bridge (binaural rendering): check if HRIRs are available
