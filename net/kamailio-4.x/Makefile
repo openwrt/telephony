@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
 PKG_VERSION:=4.4.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -33,7 +33,7 @@ define Package/kamailio4/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.kamailio.org/
-  DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2 +hiredis
+  DEPENDS:=$(ICONV_DEPENDS) +libncurses +libpthread +libreadline +libxml2
 endef
 
 define Package/kamailio4
@@ -126,7 +126,7 @@ $(eval $(call BuildKamailio4Module,benchmark,Config benchmark,,))
 $(eval $(call BuildKamailio4Module,cfgutils,Config utilities,,))
 $(eval $(call BuildKamailio4Module,cfg_db,Load core and module parameters from database,,+kamailio4-mod-db-sqlite))
 $(eval $(call BuildKamailio4Module,cfg_rpc,Update core and module parameters at runtime via RPC interface,,))
-$(eval $(call BuildKamailio4Module,cnxcc,Limit call duration,,+kamailio4-mod-dialog +libhiredis +libevent2))
+$(eval $(call BuildKamailio4Module,cnxcc,Limit call duration,,@BROKEN +kamailio4-mod-dialog +libhiredis +libevent2)) # hiredis not available on Chaos Calmer
 $(eval $(call BuildKamailio4Module,corex,Legacy functions,,))
 $(eval $(call BuildKamailio4Module,ctl,BINRPC transport interface,,))
 $(eval $(call BuildKamailio4Module,db_flatstore,Fast writing-only text database-backed,,))
