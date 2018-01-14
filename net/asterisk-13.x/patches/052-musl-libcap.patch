@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -181,6 +181,9 @@ case "${host_os}" in
+@@ -180,6 +180,9 @@ case "${host_os}" in
       linux-gnu*)
       OSARCH=linux-gnu
       ;;
@@ -10,7 +10,7 @@
       kfreebsd*-gnu)
       OSARCH=kfreebsd-gnu
       ;;
-@@ -1414,9 +1417,11 @@ if test "${PBX_BFD}" = "0"; then
+@@ -1423,9 +1426,11 @@ if test "${PBX_BFD}" = "0"; then
    AST_EXT_LIB_CHECK([BFD], [bfd], [bfd_check_format], [bfd.h], [-ldl -liberty -lz])
  fi
  
