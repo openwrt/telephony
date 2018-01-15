@@ -1,0 +1,397 @@
+From 31676ce058596b57e10fbf83ff1817ca7907c3b1 Mon Sep 17 00:00:00 2001
+From: Corey Farrell <git@cfware.com>
+Date: Sat, 01 Jul 2017 20:24:27 -0400
+Subject: [PATCH] AST-2017-006: Fix app_minivm application MinivmNotify command injection
+
+An admin can configure app_minivm with an externnotify program to be run
+when a voicemail is received.  The app_minivm application MinivmNotify
+uses ast_safe_system() for this purpose which is vulnerable to command
+injection since the Caller-ID name and number values given to externnotify
+can come from an external untrusted source.
+
+* Add ast_safe_execvp() function.  This gives modules the ability to run
+external commands with greater safety compared to ast_safe_system().
+Specifically when some parameters are filled by untrusted sources the new
+function does not allow malicious input to break argument encoding.  This
+may be of particular concern where CALLERID(name) or CALLERID(num) may be
+used as a parameter to a script run by ast_safe_system() which could
+potentially allow arbitrary command execution.
+
+* Changed app_minivm.c:run_externnotify() to use the new ast_safe_execvp()
+instead of ast_safe_system() to avoid command injection.
+
+* Document code injection potential from untrusted data sources for other
+shell commands that are under user control.
+
+ASTERISK-27103
+
+Change-Id: I7552472247a84cde24e1358aaf64af160107aef1
+---
+
+diff --git a/README-SERIOUSLY.bestpractices.txt b/README-SERIOUSLY.bestpractices.txt
+index 281d0d3..d63f1df 100644
+--- a/README-SERIOUSLY.bestpractices.txt
++++ b/README-SERIOUSLY.bestpractices.txt
+@@ -94,6 +94,13 @@
+ ways in which you can mitigate this impact: stricter pattern matching, or using
+ the FILTER() dialplan function.
+ 
++The CALLERID(num) and CALLERID(name) values are other commonly used values that
++are sources of data potentially supplied by outside sources.  If you use these
++values as parameters to the System(), MixMonitor(), or Monitor() applications
++or the SHELL() dialplan function, you can allow injection of arbitrary operating
++system command execution.  The FILTER() dialplan function is available to remove
++dangerous characters from untrusted strings to block the command injection.
++
+ Strict Pattern Matching
+ -----------------------
+ 
+diff --git a/apps/app_minivm.c b/apps/app_minivm.c
+index ecdf9c6..8edc132 100644
+--- a/apps/app_minivm.c
++++ b/apps/app_minivm.c
+@@ -1741,21 +1741,35 @@
+ /*! \brief Run external notification for voicemail message */
+ static void run_externnotify(struct ast_channel *chan, struct minivm_account *vmu)
+ {
+-	char arguments[BUFSIZ];
++	char fquser[AST_MAX_CONTEXT * 2];
++	char *argv[5] = { NULL };
++	struct ast_party_caller *caller;
++	char *cid;
++	int idx;
+ 
+-	if (ast_strlen_zero(vmu->externnotify) && ast_strlen_zero(global_externnotify))
++	if (ast_strlen_zero(vmu->externnotify) && ast_strlen_zero(global_externnotify)) {
+ 		return;
++	}
+ 
+-	snprintf(arguments, sizeof(arguments), "%s %s@%s %s %s&", 
+-		ast_strlen_zero(vmu->externnotify) ? global_externnotify : vmu->externnotify, 
+-		vmu->username, vmu->domain,
+-		(ast_channel_caller(chan)->id.name.valid && ast_channel_caller(chan)->id.name.str)
+-			? ast_channel_caller(chan)->id.name.str : "",
+-		(ast_channel_caller(chan)->id.number.valid && ast_channel_caller(chan)->id.number.str)
+-			? ast_channel_caller(chan)->id.number.str : "");
++	snprintf(fquser, sizeof(fquser), "%s@%s", vmu->username, vmu->domain);
+ 
+-	ast_debug(1, "Executing: %s\n", arguments);
+-	ast_safe_system(arguments);
++	caller = ast_channel_caller(chan);
++	idx = 0;
++	argv[idx++] = ast_strlen_zero(vmu->externnotify) ? global_externnotify : vmu->externnotify;
++	argv[idx++] = fquser;
++	cid = S_COR(caller->id.name.valid, caller->id.name.str, NULL);
++	if (cid) {
++		argv[idx++] = cid;
++	}
++	cid = S_COR(caller->id.number.valid, caller->id.number.str, NULL);
++	if (cid) {
++		argv[idx++] = cid;
++	}
++	argv[idx] = NULL;
++
++	ast_debug(1, "Executing: %s %s %s %s\n",
++		argv[0], argv[1], argv[2] ?: "", argv[3] ?: "");
++	ast_safe_execvp(1, argv[0], argv);
+ }
+ 
+ /*!\internal
+diff --git a/apps/app_mixmonitor.c b/apps/app_mixmonitor.c
+index 89a1d8c..96adb9a 100644
+--- a/apps/app_mixmonitor.c
++++ b/apps/app_mixmonitor.c
+@@ -127,6 +127,11 @@
+ 				<para>Will be executed when the recording is over.</para>
+ 				<para>Any strings matching <literal>^{X}</literal> will be unescaped to <variable>X</variable>.</para>
+ 				<para>All variables will be evaluated at the time MixMonitor is called.</para>
++				<warning><para>Do not use untrusted strings such as <variable>CALLERID(num)</variable>
++				or <variable>CALLERID(name)</variable> as part of the command parameters.  You
++				risk a command injection attack executing arbitrary commands if the untrusted
++				strings aren't filtered to remove dangerous characters.  See function
++				<variable>FILTER()</variable>.</para></warning>
+ 			</parameter>
+ 		</syntax>
+ 		<description>
+@@ -143,6 +148,11 @@
+ 					<para>Will contain the filename used to record.</para>
+ 				</variable>
+ 			</variablelist>
++			<warning><para>Do not use untrusted strings such as <variable>CALLERID(num)</variable>
++			or <variable>CALLERID(name)</variable> as part of ANY of the application's
++			parameters.  You risk a command injection attack executing arbitrary commands
++			if the untrusted strings aren't filtered to remove dangerous characters.  See
++			function <variable>FILTER()</variable>.</para></warning>
+ 		</description>
+ 		<see-also>
+ 			<ref type="application">Monitor</ref>
+diff --git a/apps/app_system.c b/apps/app_system.c
+index 7fe453d..e868a07 100644
+--- a/apps/app_system.c
++++ b/apps/app_system.c
+@@ -48,6 +48,11 @@
+ 		<syntax>
+ 			<parameter name="command" required="true">
+ 				<para>Command to execute</para>
++				<warning><para>Do not use untrusted strings such as <variable>CALLERID(num)</variable>
++				or <variable>CALLERID(name)</variable> as part of the command parameters.  You
++				risk a command injection attack executing arbitrary commands if the untrusted
++				strings aren't filtered to remove dangerous characters.  See function
++				<variable>FILTER()</variable>.</para></warning>
+ 			</parameter>
+ 		</syntax>
+ 		<description>
+@@ -73,6 +78,11 @@
+ 		<syntax>
+ 			<parameter name="command" required="true">
+ 				<para>Command to execute</para>
++				<warning><para>Do not use untrusted strings such as <variable>CALLERID(num)</variable>
++				or <variable>CALLERID(name)</variable> as part of the command parameters.  You
++				risk a command injection attack executing arbitrary commands if the untrusted
++				strings aren't filtered to remove dangerous characters.  See function
++				<variable>FILTER()</variable>.</para></warning>
+ 			</parameter>
+ 		</syntax>
+ 		<description>
+diff --git a/configs/minivm.conf.sample b/configs/minivm.conf.sample
+index 55a39c8..3dcd59d 100644
+--- a/configs/minivm.conf.sample
++++ b/configs/minivm.conf.sample
+@@ -51,7 +51,7 @@
+ ; If you need to have an external program, i.e. /usr/bin/myapp called when a
+ ; voicemail is received by the server. The arguments are
+ ;
+-; 	<app> <username@domain> <callerid-number> <callerid-name>
++; 	<app> <username@domain> <callerid-name> <callerid-number>
+ ;
+ ;externnotify=/usr/bin/myapp
+ ; The character set for voicemail messages can be specified here
+diff --git a/funcs/func_shell.c b/funcs/func_shell.c
+index e403efc..79b7f99 100644
+--- a/funcs/func_shell.c
++++ b/funcs/func_shell.c
+@@ -84,6 +84,11 @@
+ 		<syntax>
+ 			<parameter name="command" required="true">
+ 				<para>The command that the shell should execute.</para>
++				<warning><para>Do not use untrusted strings such as <variable>CALLERID(num)</variable>
++				or <variable>CALLERID(name)</variable> as part of the command parameters.  You
++				risk a command injection attack executing arbitrary commands if the untrusted
++				strings aren't filtered to remove dangerous characters.  See function
++				<variable>FILTER()</variable>.</para></warning>
+ 			</parameter>
+ 		</syntax>
+ 		<description>
+diff --git a/include/asterisk/app.h b/include/asterisk/app.h
+index d10a0a6..8cdaea1 100644
+--- a/include/asterisk/app.h
++++ b/include/asterisk/app.h
+@@ -577,9 +577,34 @@
+ int ast_vm_test_create_user(const char *context, const char *mailbox);
+ #endif
+ 
+-/*! \brief Safely spawn an external program while closing file descriptors
+-	\note This replaces the \b system call in all Asterisk modules
+-*/
++/*!
++ * \brief Safely spawn an external program while closing file descriptors
++ *
++ * \note This replaces the \b execvp call in all Asterisk modules
++ *
++ * \param dualfork Non-zero to simulate running the program in the
++ * background by forking twice.  The option provides similar
++ * functionality to the '&' in the OS shell command "cmd &".  The
++ * option allows Asterisk to run a reaper loop to watch the first fork
++ * which immediately exits after spaning the second fork.  The actual
++ * program is run in the second fork.
++ * \param file execvp(file, argv) file parameter
++ * \param argv execvp(file, argv) argv parameter
++ */
++int ast_safe_execvp(int dualfork, const char *file, char *const argv[]);
++
++/*!
++ * \brief Safely spawn an OS shell command while closing file descriptors
++ *
++ * \note This replaces the \b system call in all Asterisk modules
++ *
++ * \param s - OS shell command string to execute.
++ *
++ * \warning Command injection can happen using this call if the passed
++ * in string is created using untrusted data from an external source.
++ * It is best not to use untrusted data.  However, the caller could
++ * filter out dangerous characters to avoid command injection.
++ */
+ int ast_safe_system(const char *s);
+ 
+ /*!
+diff --git a/main/asterisk.c b/main/asterisk.c
+index ce1d153..92256bd 100644
+--- a/main/asterisk.c
++++ b/main/asterisk.c
+@@ -1102,12 +1102,10 @@
+ 	ast_mutex_unlock(&safe_system_lock);
+ }
+ 
+-int ast_safe_system(const char *s)
++/*! \brief fork and perform other preparations for spawning applications */
++static pid_t safe_exec_prep(int dualfork)
+ {
+ 	pid_t pid;
+-	int res;
+-	struct rusage rusage;
+-	int status;
+ 
+ #if defined(HAVE_WORKING_FORK) || defined(HAVE_WORKING_VFORK)
+ 	ast_replace_sigchld();
+@@ -1129,35 +1127,102 @@
+ 		cap_free(cap);
+ #endif
+ #ifdef HAVE_WORKING_FORK
+-		if (ast_opt_high_priority)
++		if (ast_opt_high_priority) {
+ 			ast_set_priority(0);
++		}
+ 		/* Close file descriptors and launch system command */
+ 		ast_close_fds_above_n(STDERR_FILENO);
+ #endif
+-		execl("/bin/sh", "/bin/sh", "-c", s, (char *) NULL);
+-		_exit(1);
+-	} else if (pid > 0) {
++		if (dualfork) {
++#ifdef HAVE_WORKING_FORK
++			pid = fork();
++#else
++			pid = vfork();
++#endif
++			if (pid < 0) {
++				/* Second fork failed. */
++				/* No logger available. */
++				_exit(1);
++			}
++
++			if (pid > 0) {
++				/* This is the first fork, exit so the reaper finishes right away. */
++				_exit(0);
++			}
++
++			/* This is the second fork.  The first fork will exit immediately so
++			 * Asterisk doesn't have to wait for completion.
++			 * ast_safe_system("cmd &") would run in the background, but the '&'
++			 * cannot be added with ast_safe_execvp, so we have to double fork.
++			 */
++		}
++	}
++
++	if (pid < 0) {
++		ast_log(LOG_WARNING, "Fork failed: %s\n", strerror(errno));
++	}
++#else
++	ast_log(LOG_WARNING, "Fork failed: %s\n", strerror(ENOTSUP));
++	pid = -1;
++#endif
++
++	return pid;
++}
++
++/*! \brief wait for spawned application to complete and unreplace sigchld */
++static int safe_exec_wait(pid_t pid)
++{
++	int res = -1;
++
++#if defined(HAVE_WORKING_FORK) || defined(HAVE_WORKING_VFORK)
++	if (pid > 0) {
+ 		for (;;) {
++			struct rusage rusage;
++			int status;
++
+ 			res = wait4(pid, &status, 0, &rusage);
+ 			if (res > -1) {
+ 				res = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+ 				break;
+-			} else if (errno != EINTR)
++			}
++			if (errno != EINTR) {
+ 				break;
++			}
+ 		}
+-	} else {
+-		ast_log(LOG_WARNING, "Fork failed: %s\n", strerror(errno));
+-		res = -1;
+ 	}
+ 
+ 	ast_unreplace_sigchld();
+-#else /* !defined(HAVE_WORKING_FORK) && !defined(HAVE_WORKING_VFORK) */
+-	res = -1;
+ #endif
+ 
+ 	return res;
+ }
+ 
++int ast_safe_execvp(int dualfork, const char *file, char *const argv[])
++{
++	pid_t pid = safe_exec_prep(dualfork);
++
++	if (pid == 0) {
++		execvp(file, argv);
++		_exit(1);
++		/* noreturn from _exit */
++	}
++
++	return safe_exec_wait(pid);
++}
++
++int ast_safe_system(const char *s)
++{
++	pid_t pid = safe_exec_prep(0);
++
++	if (pid == 0) {
++		execl("/bin/sh", "/bin/sh", "-c", s, (char *) NULL);
++		_exit(1);
++		/* noreturn from _exit */
++	}
++
++	return safe_exec_wait(pid);
++}
++
+ /*!
+  * \brief enable or disable a logging level to a specified console
+  */
+diff --git a/res/res_monitor.c b/res/res_monitor.c
+index 76c43e1..12f478a 100644
+--- a/res/res_monitor.c
++++ b/res/res_monitor.c
+@@ -57,17 +57,17 @@
+ 		<syntax>
+ 			<parameter name="file_format" argsep=":">
+ 				<argument name="file_format" required="true">
+-					<para>optional, if not set, defaults to <literal>wav</literal></para>
++					<para>Optional.  If not set, defaults to <literal>wav</literal></para>
+ 				</argument>
+ 				<argument name="urlbase" />
+ 			</parameter>
+ 			<parameter name="fname_base">
+-				<para>if set, changes the filename used to the one specified.</para>
++				<para>If set, changes the filename used to the one specified.</para>
+ 			</parameter>
+ 			<parameter name="options">
+ 				<optionlist>
+ 					<option name="m">
+-						<para>when the recording ends mix the two leg files into one and
++						<para>When the recording ends mix the two leg files into one and
+ 						delete the two leg files. If the variable <variable>MONITOR_EXEC</variable>
+ 						is set, the application referenced in it will be executed instead of
+ 						soxmix/sox and the raw leg files will NOT be deleted automatically.
+@@ -78,6 +78,13 @@
+ 						will be passed on as additional arguments to <variable>MONITOR_EXEC</variable>.
+ 						Both <variable>MONITOR_EXEC</variable> and the Mix flag can be set from the
+ 						administrator interface.</para>
++						<warning><para>Do not use untrusted strings such as
++						<variable>CALLERID(num)</variable> or <variable>CALLERID(name)</variable>
++						as part of <variable>MONITOR_EXEC</variable> or
++						<variable>MONITOR_EXEC_ARGS</variable>.  You risk a command injection
++						attack executing arbitrary commands if the untrusted strings aren't
++						filtered to remove dangerous characters.  See function
++						<variable>FILTER()</variable>.</para></warning>
+ 					</option>
+ 					<option name="b">
+ 						<para>Don't begin recording unless a call is bridged to another channel.</para>
