@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.18.4
+PKG_VERSION:=13.19.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=a14c2132eaa4f581452cd6d4d5094639e67a28eb70102458c796660d704115e4
+PKG_HASH:=57b3f37f7c9f557754b6e67b183922a4957c832dc9150ae4024aedc4948d53d0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -242,6 +242,7 @@ endif
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
+	--disable-xmldoc \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-alsa),--with-asound="$(STAGING_DIR)/usr",--without-asound) \
 	--without-execinfo \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
@@ -278,8 +279,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
-	--with-sounds-cache="$(DL_DIR)" \
-	--enable-xmldoc
+	--with-sounds-cache="$(DL_DIR)"
 
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
 CONFIGURE_ARGS+= \
