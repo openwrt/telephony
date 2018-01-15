@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
 PKG_VERSION:=1.4.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=srtp-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=@SF/srtp
