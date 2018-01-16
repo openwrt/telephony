@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.9.1
+PKG_VERSION:=13.18.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
-PKG_MD5SUM:=76c42992a79f41ec467ed20500e8b249
+PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases/
+PKG_MD5SUM:=4ad2a5ab1dd12cba5f37fca52961aa2a
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -217,7 +217,6 @@ CONFIGURE_ARGS+= \
 	--without-tds \
 	--without-termcap \
 	--without-tinfo \
-	--with-uuid="$(STAGING_DIR)/usr" \
 	--without-vorbis \
 	--without-vpb \
 	--with-z="$(STAGING_DIR)/usr" \
