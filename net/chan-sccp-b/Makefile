@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=chan-sccp-b
 PKG_REV:=6647
 PKG_VERSION:=v4.2.3-r$(PKG_REV)
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://svn.code.sf.net/p/chan-sccp-b/code/branches/v4.2
@@ -19,13 +19,31 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_PROTO:=svn
 
-PKG_FIXUP:=autoreconf -fi
+PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-1.0
 PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+PKG_INSTALL:=1
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_BUILD_DEPENDS:=libiconv
+
 include $(INCLUDE_DIR)/package.mk
+
+# musl and glibc include their own iconv, but uclibc does not
+ifneq ($(CONFIG_USE_UCLIBC),)
+TARGET_CPPFLAGS+= \
+	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
+TARGET_LDFLAGS+= \
+	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv
+endif
+
+CONFIGURE_ARGS += \
+	--enable-optimization=no \
+	--enable-debug=no
 
 define Package/chan-sccp-b/Default
   SUBMENU:=Telephony
@@ -33,7 +51,7 @@ define Package/chan-sccp-b/Default
   CATEGORY:=Network
   TITLE:=SCCP channel provider support
   URL:=http://chan-sccp-b.sourceforge.net/
-  DEPENDS:= +libltdl
+  DEPENDS:=+USE_UCLIBC:libiconv-full +libltdl
 endef
 
 define Package/asterisk13-chan-sccp-b
@@ -81,13 +99,6 @@ endef
 
 Package/asterisk11-chan-sccp-b/conffiles = $(Package/conffiles/Default)
 Package/asterisk13-chan-sccp-b/conffiles = $(Package/conffiles/Default)
-
-define Build/Compile
-	$(MAKE) -C "$(PKG_BUILD_DIR)" \
-		CFLAGS="$(CFLAGS) -I$(PKG_BUILD_DIR)/src -DLOW_MEMORY" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		all install
-endef
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
