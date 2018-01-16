@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk11
 PKG_VERSION:=11.22.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -144,6 +144,20 @@ $(foreach m,$(AST_CFG_FILES),$(call Package/asterisk11/install/conffile,$(1),$(m
 $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk11/install/module,$(1),$(m));)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
+endef
+
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| Asterisk 11 WARNING                                               |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Asterisk 11 is end-of-life. You should upgrade to Asterisk 13.    |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 define Package/asterisk11-sounds
