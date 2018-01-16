@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.18.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases/
@@ -211,7 +211,6 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),--with-lua="$(STAGING_DIR)/usr",--without-lua) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pjsip),--with-pjproject,--without-pjproject) \
 	--with-popt="$(STAGING_DIR)/usr" \
 	--without-pwlib \
 	--without-radius \
@@ -220,7 +219,6 @@ CONFIGURE_ARGS+= \
 	--without-sdl \
 	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),--with-srtp="$(STAGING_DIR)/usr",--without-srtp) \
 	--without-suppserv \
 	--without-tds \
 	--without-termcap \
@@ -230,6 +228,22 @@ CONFIGURE_ARGS+= \
 	--with-z="$(STAGING_DIR)/usr" \
 	--with-sounds-cache="$(DL_DIR)" \
 	--enable-xmldoc
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
+CONFIGURE_ARGS+= \
+	--without-srtp
+else
+CONFIGURE_ARGS+= \
+	--with-srtp="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk),)
+CONFIGURE_ARGS+= \
+	--without-pjproject
+else
+CONFIGURE_ARGS+= \
+	--with-pjproject="$(STAGING_DIR)/usr"
+endif
 
 CONFIGURE_VARS += \
 	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
@@ -406,6 +420,7 @@ $(eval $(call BuildAsterisk13Module,res-agi,Asterisk Gateway Interface,Support f
 $(eval $(call BuildAsterisk13Module,res-calendar,Calendaring API,Calendaring support (ICal and Google Calendar),,calendar.conf,res_calendar,,))
 $(eval $(call BuildAsterisk13Module,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
 $(eval $(call BuildAsterisk13Module,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+asterisk13-res-timing-pthread,res_fax.conf,res_fax,,))
+$(eval $(call BuildAsterisk13Module,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+asterisk13-res-fax +libspandsp +libtiff,,res_fax_spandsp,,))
 $(eval $(call BuildAsterisk13Module,res-hep,HEPv3 API,Routines for integration with Homer using HEPv3,,hep.conf,res_hep,,))
 $(eval $(call BuildAsterisk13Module,res-hep-pjsip,PJSIP HEPv3 Logger,PJSIP logging with Homer,+asterisk13-res-hep +asterisk13-pjsip,,res_hep_pjsip,,))
 $(eval $(call BuildAsterisk13Module,res-hep-rtcp,RTCP HEPv3 Logger,RTCP logging with Homer,+asterisk13-res-hep,,res_hep_rtcp,,))
@@ -414,6 +429,7 @@ $(eval $(call BuildAsterisk13Module,res-monitor,PBX channel monitoring,call moni
 $(eval $(call BuildAsterisk13Module,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
 $(eval $(call BuildAsterisk13Module,res-parking,Phone Parking,Phone Parking application,+$(PKG_NAME)-bridge-holding,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsterisk13Module,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
+$(eval $(call BuildAsterisk13Module,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp,pjproject.conf,res_pjproject,,))
 $(eval $(call BuildAsterisk13Module,res-realtime,Realtime,Realtime Interface,,,res_realtime,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk13Module,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))
