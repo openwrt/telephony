@@ -86,8 +86,7 @@ CONFIGURE_ARGS += \
 	--without-external-pa \
 	--without-external-webrtc
 
-TARGET_LDFLAGS+=-lc $(LIBGCC) -lm
-TARGET_CFLAGS+=$(EXTRA_CFLAGS) $(TARGET_CPPFLAGS) $(EXTRA_CPPFLAGS)
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Build/Compile
 	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)
@@ -104,6 +103,7 @@ define Build/InstallDev
 
 	$(foreach m,$(PJPROJECT_LIBS),$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(m)* $(1)/usr/lib/;)
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(SED) 's|$(TARGET_CFLAGS)||g' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc $(1)/usr/lib/pkgconfig/
 endef
 
