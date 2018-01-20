@@ -277,7 +277,7 @@ include $(INCLUDE_DIR)/package.mk
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
-$(call include_mk, python-host.mk)
+include $(TOPDIR)/feeds/packages/lang/python/python-host.mk
 include $(FS_STABLE_PERL_FEED)/perlmod.mk
 
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
