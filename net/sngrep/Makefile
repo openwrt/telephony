@@ -24,6 +24,8 @@ PKG_MIRROR_HASH:=a6cee2caa108a618134fe87d7c04862e93aa2fdf9647d81dfe4abe91a6c9c19
 
 PKG_FIXUP:=autoreconf
 
+PKG_INSTALL:=1
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sngrep
@@ -44,8 +46,8 @@ CONFIGURE_ARGS += \
 	--enable-unicode \
 
 define Package/sngrep/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/sngrep $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sngrep $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,sngrep))
