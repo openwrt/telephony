@@ -46,6 +46,10 @@ It supports SIP UDP and TCP transports (when each message is delivered
 in one packet).
 endef
 
+define Package/sngrep/conffiles
+/etc/sngreprc
+endef
+
 CONFIGURE_ARGS += \
 	--enable-eep \
 	--enable-ipv6 \
@@ -54,6 +58,8 @@ CONFIGURE_ARGS += \
 	--with-pcre
 
 define Package/sngrep/install
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/sngreprc $(1)/etc
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sngrep $(1)/usr/bin
 endef
