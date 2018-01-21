@@ -17,6 +17,7 @@ PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
 PKG_VERSION:=1.7.0
+PKG_RELEASE:=2
 
 
 #
@@ -98,11 +99,9 @@ FS_MOD_AVAILABLE:= \
 	expr \
 	fifo \
 	file-string \
-	flite \
 	format-cdr \
 	freetdm \
 	fsk \
-	fsv \
 	g723-1 \
 	g729 \
 	graylog2 \
@@ -110,11 +109,9 @@ FS_MOD_AVAILABLE:= \
 	h26x \
 	h323 \
 	hash \
-	hiredis \
 	html5 \
 	httapi \
 	http-cache \
-	ilbc \
 	isac \
 	java \
 	json-cdr \
@@ -126,7 +123,6 @@ FS_MOD_AVAILABLE:= \
 	loopback \
 	lua \
 	managed \
-	memcache \
 	mongo \
 	mp4 \
 	mp4v \
@@ -141,7 +137,6 @@ FS_MOD_AVAILABLE:= \
 	posix-timer \
 	prefix \
 	python \
-	radius-cdr \
 	rayo \
 	redis \
 	rss \
@@ -161,8 +156,6 @@ FS_MOD_AVAILABLE:= \
 	say-th \
 	say-zh \
 	shell-stream \
-	silk \
-	siren \
 	skel \
 	skinny \
 	skypopen \
@@ -198,11 +191,19 @@ FS_MOD_AVAILABLE:= \
 	xml-cdr \
 	xml-curl \
 	xml-ldap \
-	xml-radius \
 	xml-rpc \
 	xml-scgi \
 	yaml \
 
+#	flite \
+#	fsv \
+#	hiredis \
+#	ilbc \
+#	memcache \
+#	radius-cdr \
+#	silk \
+#	siren \
+#	xml-radius \
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_LATEST_HEAD \
@@ -219,7 +220,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_FIXED_POINT \
 	CONFIG_FS_WITH_LOCAL_SOURCE \
 	CONFIG_FS_WITH_LIBVPX \
-	CONFIG_FS_WITH_LIBYUV \
 	CONFIG_FS_WITH_LZMA \
 	CONFIG_FS_WITH_MYSQL \
 	CONFIG_FS_WITH_ODBC \
@@ -231,7 +231,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_PYTHON \
 	CONFIG_FS_WITH_PYTHON_PATH \
 	CONFIG_FS_WITH_SILENT_RULES \
-	CONFIG_FS_WITH_SQLITE2 \
 	CONFIG_FS_WITH_SQLITE3 \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_SRTP_GENERIC_AESICM \
@@ -268,7 +267,7 @@ define Package/$(PKG_NAME)
   $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   TITLE:=FreeSWITCH open source telephony platform ($(PKG_SOURCE_VERSION_SHORT))
-  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libfreetype +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpng +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE2:libsqlite2 +FS_WITH_SQLITE3:libsqlite3 +libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
+  DEPENDS:=+FS_WITH_CORE_LIBEDIT_SUPPORT:libedit +FS_WITH_OPENSSL:libopenssl +libcurl +libdb47 +libfreetype +libgdbm $(ICONV_DEPENDS) $(INTL_DEPENDS) +libjpeg +libncurses +libopenldap +libpcre +libpng +libpthread +librt +libspeex +libspeexdsp +FS_WITH_SQLITE3:libsqlite3 +libsrtp +SSP_SUPPORT:libssp +libstdcpp +libuuid +PACKAGE_$(PKG_NAME)-mod-perl:perl
 endef
 
 
@@ -354,7 +353,6 @@ define Package/$(PKG_NAME)-collection-upstream-defaults
 		+$(PKG_NAME)-mod-g729 \
 		+$(PKG_NAME)-mod-hash \
 		+$(PKG_NAME)-mod-http-cache \
-		+$(PKG_NAME)-mod-ilbc \
 		+$(PKG_NAME)-mod-local-stream \
 		+$(PKG_NAME)-mod-lua \
 		+$(PKG_NAME)-mod-native-file \
@@ -580,7 +578,6 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_FHS,fhs) \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_IPV6,ipv6) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LIBVPX,libvpx) \
-	$(call autoconf_bool,CONFIG_FS_WITH_LIBYUV,libyuv) \
 	$(call autoconf_bool,CONFIG_FS_WITH_LZMA,lzma) \
 	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_OPT,optimization) \
@@ -607,7 +604,6 @@ CONFIGURE_ARGS+= \
 	$(if ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-curl)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-cdr)|$(CONFIG_PACKAGE_$(PKG_NAME)-mod-xml-curl)),--with-libcurl="$(STAGING_DIR)/usr",--without-libcurl) \
 	--with$(if $(CONFIG_FS_WITH_MYSQL),,out)-mysql \
 	--with$(if $(CONFIG_FS_WITH_POSTGRESQL),,out)-pgsql \
-	--with$(if $(CONFIG_FS_WITH_SQLITE2),,out)-sqlite2 \
 	--with$(if $(CONFIG_FS_WITH_SQLITE3),,out)-sqlite3 \
 
 
@@ -970,10 +966,10 @@ $(eval $(call BuildPlugin,event-zmq,Socket Event Handler By Zero MQ,vanilla,,,,+
 $(eval $(call BuildPlugin,expr,Expression Evaluation,vanilla,,,,))
 $(eval $(call BuildPlugin,fifo,FIFO,vanilla,,,,))
 $(eval $(call BuildPlugin,file-string,Streaming Multiple Sound Files Sequentially,vanilla,,,,@OBSOLETE)) # merged into dptools
-$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package repo
+#$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package repo
 $(eval $(call BuildPlugin,format-cdr,XML CDR Module to files or curl,vanilla,,,,))
 $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
-$(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,+libyuv @BROKEN)) # Requires unsupported libyuv.
+#$(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,+libyuv @BROKEN)) # Requires unsupported libyuv.
 $(eval $(call BuildPlugin,g723-1,G.723.1 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,g729,G.729 Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,graylog2,Graylog2 GELF logger,vanilla,,,,))
@@ -981,11 +977,11 @@ $(eval $(call BuildPlugin,gsmopen,GSM Modem compatible Endpoint,mod,,,alsa,+FS_W
 $(eval $(call BuildPlugin,h26x,H26X Linear Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,h323,H323 Endpoint,mod,,,,@BROKEN)) # Req. H323Plus v1.24.x or newer
 $(eval $(call BuildPlugin,hash,API For Manipulating A Hash Table,vanilla,,,,))
-$(eval $(call BuildPlugin,hiredis,Redis DB access,vanilla,,,,+hiredis @BROKEN))
+#$(eval $(call BuildPlugin,hiredis,Redis DB access,vanilla,,,,+hiredis @BROKEN))
 #$(eval $(call BuildPlugin,html5,HTML5 Endpoint Module,vanilla,,,,)) # defunct?
 $(eval $(call BuildPlugin,httapi,HT Telephony API and HTTP Caching,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,http-cache,HTTP GET With Caching,mod,,,,+libcurl)) # ~/conf
-$(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,+libilbc @BROKEN)) # Requires unsupported libilbc.
+#$(eval $(call BuildPlugin,ilbc,ILBC Codec,vanilla,,,,+libilbc @BROKEN)) # Requires unsupported libilbc.
 $(eval $(call BuildPlugin,isac,iSAC Codec,vanilla,,,,))
 $(eval $(call BuildPlugin,java,Java Language Interface,vanilla,,,,@BROKEN)) # needs java
 $(eval $(call BuildPlugin,json-cdr,JSon-CDR Interface,mod,,,,+libcurl))
@@ -997,7 +993,7 @@ $(eval $(call BuildPlugin,logfile,File Logger,vanilla,,,,))
 $(eval $(call BuildPlugin,loopback,Loopback to Dialplan Endpoint,vanilla,,,,))
 $(eval $(call BuildPlugin,lua,LUA Language Interface,vanilla,,,,+liblua))
 $(eval $(call BuildPlugin,managed,Media Switching Software Library,vanilla,,,,+glib2 @BROKEN)) # needs Mono
-$(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req host libmemcached
+#$(eval $(call BuildPlugin,memcache,MemCached Interface,vanilla,,,,+libmemcached @BROKEN)) # Req host libmemcached
 $(eval $(call BuildPlugin,mongo,A Document-Oriented Database,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,mp4,MP4 File Format Support For Video,vanilla,,,,@BROKEN)) # needs host libmp4v2
 $(eval $(call BuildPlugin,mp4v,MP4 CoDec Support For Video,vanilla,,,,))
@@ -1012,7 +1008,7 @@ $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
 $(eval $(call BuildPlugin,prefix,longest-prefix match in store,mod,,,,))
 $(eval $(call BuildPlugin,python,Python Language Interface,vanilla,,lib/python$(PYTHON3_VERSION)/site-packages/freeswitch.py,,+FS_WITH_PYTHON:python3 @FS_WITH_PYTHON))
-$(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
+#$(eval $(call BuildPlugin,radius-cdr,Radius-CDR interface,vanilla,,,,@BROKEN)) # fails in freeradius-client
 $(eval $(call BuildPlugin,rayo,Rayo server & node implementation,vanilla,,,,))
 $(eval $(call BuildPlugin,redis,Redis limit backend,vanilla,,,,))
 $(eval $(call BuildPlugin,rss,RRS Feeds via TTS,vanilla,,,,))
@@ -1032,8 +1028,8 @@ $(eval $(call BuildPlugin,say-ru,Russian Say,vanilla,,,,))
 $(eval $(call BuildPlugin,say-th,Thai Say,vanilla,,,,))
 $(eval $(call BuildPlugin,say-zh,Chineese Say,vanilla,,,,))
 $(eval $(call BuildPlugin,shell-stream,Streaming Audio Through CLI,vanilla,,,,))
-$(eval $(call BuildPlugin,silk,Skype(TM) SILK Codec Module,vanilla,,,,+libsilk @BROKEN)) # Requires unsupported libsilk
-$(eval $(call BuildPlugin,siren,G.722.1 Codec,vanilla,,,,+libg7221 @BROKEN)) # Requires unsupported libg7221
+#$(eval $(call BuildPlugin,silk,Skype(TM) SILK Codec Module,vanilla,,,,+libsilk @BROKEN)) # Requires unsupported libsilk
+#$(eval $(call BuildPlugin,siren,G.722.1 Codec,vanilla,,,,+libg7221 @BROKEN)) # Requires unsupported libg7221
 $(eval $(call BuildPlugin,skel,Template For New Module,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,skinny,Skinny Call Control Protocol (SCCP),vanilla,,,,))
 $(eval $(call BuildPlugin,skypopen,Skype Compatible Endpoint,mod,,,,@FEATURE_drawing-backend_libX11))
@@ -1070,6 +1066,6 @@ $(eval $(call BuildPlugin,xml-cdr,XML-CDR Handler,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl Gateway,vanilla,,,,+libcurl))
 $(eval $(call BuildPlugin,xml-ldap,LDAP-XML Gateway,vanilla,,,,+PACKAGE_$(PKG_NAME)-mod-ldap:libopenldap))
 $(eval $(call BuildPlugin,xml-rpc,XML-RPC Interface,vanilla,,,,))
-$(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
+#$(eval $(call BuildPlugin,xml-radius,Radius authentication and authorization,vanilla,,,,+freeradius-client @BROKEN)) # freeradius-client isn't yet supported by OpenWRT.
 $(eval $(call BuildPlugin,xml-scgi,SCGI XML Gateway,vanilla,,,,))
 $(eval $(call BuildPlugin,yaml,YAML language,vanilla,,,,+libyaml))
