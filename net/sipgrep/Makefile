@@ -29,15 +29,18 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sipgrep
-  SECTION:=net
-  CATEGORY:=Network
+  SECTION:=utils
+  CATEGORY:=Utilities
+  SUBMENU:=Telephony
   DEPENDS:=+libpcap +libpcre +libncursesw
-  TITLE:=Display and Troubleshoot SIP signaling in CLI
+  TITLE:=Command line tool to sniff, capture, display SIP messages
   URL:=https://github.com/sipcapture/sipgrep
 endef
 
 define Package/sipgrep/description
-  SipGrep is a utility for displaying and troubleshooting SIP signaling.
+Powerful pcap-aware command line tool to sniff, capture, display and
+troubleshoot SIP signaling over IP networks, allowing the user to
+specify extended regular expressions matching against SIP headers.
 endef
 
 CONFIGURE_ARGS += \
