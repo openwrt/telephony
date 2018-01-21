@@ -29,16 +29,21 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sngrep
-  SECTION:=net
-  CATEGORY:=Network
+  SECTION:=utils
+  CATEGORY:=Utilities
+  SUBMENU:=Telephony
   DEPENDS:=+libpcap +libpthread +libpcre +libncursesw
-  TITLE:=Display SIP calls message flows
+  TITLE:=Ncurses SIP messages flow viewer
   URL:=https://github.com/irontec/sngrep
 endef
 
 define Package/sngrep/description
-  sngrep is a tool for displaying SIP calls message flows from terminal.
-  It supports live capture to display realtime SIP packets and can also be used as PCAP viewer.
+sngrep displays SIP messages grouped by Call-Id into flow diagrams. It
+can be used as an offline pcap viewer or for online capture using
+libpcap functions.
+
+It supports SIP UDP and TCP transports (when each message is delivered
+in one packet).
 endef
 
 CONFIGURE_ARGS += \
