@@ -24,6 +24,8 @@ PKG_MIRROR_HASH:=a9131ae443bdce760e3dadd83dcf115d51a894381fc18461cbe62522618418f
 
 PKG_FIXUP:=autoreconf
 
+PKG_INSTALL:=1
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sipgrep
@@ -42,8 +44,8 @@ CONFIGURE_ARGS += \
 	--enable-ncurses
 
 define Package/sipgrep/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/sipgrep $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sipgrep $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,sipgrep))
