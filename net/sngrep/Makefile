@@ -32,7 +32,7 @@ define Package/sngrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libpcap +libpthread +libpcre +libncursesw
+  DEPENDS:=+libncursesw +libopenssl +libpcap +libpcre
   TITLE:=Ncurses SIP messages flow viewer
   URL:=https://github.com/irontec/sngrep
 endef
@@ -47,8 +47,11 @@ in one packet).
 endef
 
 CONFIGURE_ARGS += \
-	--with-pcre \
+	--enable-eep \
+	--enable-ipv6 \
 	--enable-unicode \
+	--with-openssl \
+	--with-pcre
 
 define Package/sngrep/install
 	$(INSTALL_DIR) $(1)/usr/bin
