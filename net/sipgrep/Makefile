@@ -32,7 +32,7 @@ define Package/sipgrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libpcap +libpcre +libncursesw
+  DEPENDS:=+libpcap +libpcre
   TITLE:=Command line tool to sniff, capture, display SIP messages
   URL:=https://github.com/sipcapture/sipgrep
 endef
@@ -44,7 +44,7 @@ specify extended regular expressions matching against SIP headers.
 endef
 
 CONFIGURE_ARGS += \
-	--enable-ncurses
+	--enable-ipv6
 
 define Package/sipgrep/install
 	$(INSTALL_DIR) $(1)/usr/bin
