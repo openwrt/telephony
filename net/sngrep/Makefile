@@ -9,18 +9,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sngrep
-PKG_VERSION=1.4.4-rc2
+PKG_VERSION=1.4.5
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=COPYING
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/irontec/sngrep
-PKG_SOURCE_SUBDIR=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=cf5e1da49d00bc7ab1afe9d63daa240db2b9b19c
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_MIRROR_HASH:=a6cee2caa108a618134fe87d7c04862e93aa2fdf9647d81dfe4abe91a6c9c19f
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/irontec/$(PKG_NAME)/releases/download/v$(PKG_VERSION)
+PKG_HASH:=16f1566f4507ba560c7461cc7ff1c1653beb14b8baf7846269bbb4880564e57f
 
 PKG_FIXUP:=autoreconf
 
