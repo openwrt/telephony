@@ -1,5 +1,6 @@
 #
-# Copyright (C) 2016 Daniel Engberg <daniel.engberg.lists@pyret.net>
+# Copyright (C) 2016 - 2018 Daniel Engberg <daniel.engberg.lists@pyret.net>
+# Copyright (C) 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,8 +11,8 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=sngrep
 PKG_VERSION=1.4.4-rc2
 PKG_RELEASE:=1
-PKG_MAINTAINER:=Daniel Engberg <daniel.engberg.lists@pyret.net>
-PKG_LICENSE:=GPL-3.0
+PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=COPYING
 
 PKG_SOURCE_PROTO:=git
