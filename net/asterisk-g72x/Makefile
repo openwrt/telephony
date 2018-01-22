@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-g72x
 PKG_VERSION:=1.3
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-g72x-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://asterisk.hosting.lv/src/
@@ -22,6 +22,8 @@ PKG_INSTALL:=1
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=README.md
 PKG_MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -53,36 +55,20 @@ endef
 Package/asterisk11-codec-g729/description = $(Package/description/Default)
 Package/asterisk13-codec-g729/description = $(Package/description/Default)
 
-ifeq ($(BUILD_VARIANT),asterisk11)
-  MAKE_ARGS:= \
-	CC="$(TARGET_CC)" \
-	LD="$(TARGET_LD)" \
-	CFLAGS="$(TARGET_CFLAGS) -DASTERISK_VERSION_NUM=110000 -DLOW_MEMORY -D_XOPEN_SOURCE=600 $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/include/asterisk-11/include -DHAVE_CONFIG_H -I. -fPIC" \
-	LDFLAGS="$(TARGET_LDFLAGS)" \
-	DESTDIR="$(PKG_INSTALL_DIR)"
-
-  CONFIGURE_ARGS+=\
-	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-11/include \
-	--with-asterisk100 \
+CONFIGURE_ARGS += \
 	--with-bcg729 \
-	--enable-shared \
-	$(MAKE_ARGS)
+	--enable-shared
+
+ifeq ($(BUILD_VARIANT),asterisk11)
+CONFIGURE_ARGS += \
+	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-11/include \
+	--with-asterisk100
 endif
 
 ifeq ($(BUILD_VARIANT),asterisk13)
-  MAKE_ARGS:= \
-	CC="$(TARGET_CC)" \
-	LD="$(TARGET_LD)" \
-	CFLAGS="$(TARGET_CFLAGS) -DASTERISK_VERSION_NUM=130000 -DLOW_MEMORY -D_XOPEN_SOURCE=600 $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/include/asterisk-13/include -DHAVE_CONFIG_H -I. -fPIC" \
-	LDFLAGS="$(TARGET_LDFLAGS)" \
-	DESTDIR="$(PKG_INSTALL_DIR)"
-
-  CONFIGURE_ARGS+=\
+CONFIGURE_ARGS += \
 	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-13/include \
-	--with-asterisk130 \
-	--with-bcg729 \
-	--enable-shared \
-	$(MAKE_ARGS)
+	--with-asterisk130
 endif
 
 define Package/Install/Default
