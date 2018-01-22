@@ -1,0 +1,117 @@
+From a503e4879cab7e35069e5481e0864b64b55e223d Mon Sep 17 00:00:00 2001
+From: Corey Farrell <git@cfware.com>
+Date: Mon, 8 Aug 2016 08:47:12 -0400
+Subject: [PATCH] Prevent leak of dialog RTP/SRTP instances.
+
+In some scenarios dialog_initialize_rtp can be called multiple times on
+the same dialog.  This can cause RTP instances to be leaked along with
+multiple file descriptors for each instance.
+
+ASTERISK-26272 #close
+
+Change-Id: Id716c2b87762d890c062b42538524a95067018a8
+---
+ channels/chan_sip.c | 61 ++++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 39 insertions(+), 22 deletions(-)
+
+diff --git a/channels/chan_sip.c b/channels/chan_sip.c
+index 9eaed58..2c29c9e 100644
+--- a/channels/chan_sip.c
++++ b/channels/chan_sip.c
+@@ -5697,6 +5697,38 @@ static void copy_socket_data(struct sip_socket *to_sock, const struct sip_socket
+ 	*to_sock = *from_sock;
+ }
+ 
++/*! Cleanup the RTP and SRTP portions of a dialog
++ *
++ * \note This procedure excludes vsrtp as it is initialized differently.
++ */
++static void dialog_clean_rtp(struct sip_pvt *p)
++{
++	if (p->rtp) {
++		ast_rtp_instance_destroy(p->rtp);
++		p->rtp = NULL;
++	}
++
++	if (p->vrtp) {
++		ast_rtp_instance_destroy(p->vrtp);
++		p->vrtp = NULL;
++	}
++
++	if (p->trtp) {
++		ast_rtp_instance_destroy(p->trtp);
++		p->trtp = NULL;
++	}
++
++	if (p->srtp) {
++		sip_srtp_destroy(p->srtp);
++		p->srtp = NULL;
++	}
++
++	if (p->tsrtp) {
++		sip_srtp_destroy(p->tsrtp);
++		p->tsrtp = NULL;
++	}
++}
++
+ /*! \brief Initialize DTLS-SRTP support on an RTP instance */
+ static int dialog_initialize_dtls_srtp(const struct sip_pvt *dialog, struct ast_rtp_instance *rtp, struct sip_srtp **srtp)
+ {
+@@ -5744,6 +5776,9 @@ static int dialog_initialize_rtp(struct sip_pvt *dialog)
+ 		return 0;
+ 	}
+ 
++	/* Make sure previous RTP instances/FD's do not leak */
++	dialog_clean_rtp(dialog);
++
+ 	ast_sockaddr_copy(&bindaddr_tmp, &bindaddr);
+ 	if (!(dialog->rtp = ast_rtp_instance_new(dialog->engine, sched, &bindaddr_tmp, NULL))) {
+ 		return -1;
+@@ -6408,18 +6443,10 @@ static void sip_pvt_dtor(void *vdoomed)
+ 		ast_free(p->notify);
+ 		p->notify = NULL;
+ 	}
+-	if (p->rtp) {
+-		ast_rtp_instance_destroy(p->rtp);
+-		p->rtp = NULL;
+-	}
+-	if (p->vrtp) {
+-		ast_rtp_instance_destroy(p->vrtp);
+-		p->vrtp = NULL;
+-	}
+-	if (p->trtp) {
+-		ast_rtp_instance_destroy(p->trtp);
+-		p->trtp = NULL;
+-	}
++
++	/* Free RTP and SRTP instances */
++	dialog_clean_rtp(p);
++
+ 	if (p->udptl) {
+ 		ast_udptl_destroy(p->udptl);
+ 		p->udptl = NULL;
+@@ -6455,21 +6482,11 @@ static void sip_pvt_dtor(void *vdoomed)
+ 
+ 	destroy_msg_headers(p);
+ 
+-	if (p->srtp) {
+-		sip_srtp_destroy(p->srtp);
+-		p->srtp = NULL;
+-	}
+-
+ 	if (p->vsrtp) {
+ 		sip_srtp_destroy(p->vsrtp);
+ 		p->vsrtp = NULL;
+ 	}
+ 
+-	if (p->tsrtp) {
+-		sip_srtp_destroy(p->tsrtp);
+-		p->tsrtp = NULL;
+-	}
+-
+ 	if (p->directmediaacl) {
+ 		p->directmediaacl = ast_free_acl_list(p->directmediaacl);
+ 	}
+-- 
+2.5.5
+
