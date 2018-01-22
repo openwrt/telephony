@@ -77,11 +77,6 @@ menu "Configuration"
       help
 	Compile libs/apr-util with PostgreSQL support.
 
-    config FS_WITH_SQLITE2
-      bool "SQLITE2"
-      help
-	Compile libs/apr-util with SQLITE2 support.
-
     config FS_WITH_SQLITE3
       bool "SQLITE3"
       help
@@ -160,12 +155,6 @@ menu "Configuration"
     default y
     help
 	Compile to build libs/libvpx.
-
-  config FS_WITH_LIBYUV
-    bool "Enable building libyuv"
-    default y
-    help
-	Compile to build libs/libyuv.
 
   config FS_WITH_LZMA
     bool "Enable liblzma usage in libtiff"
