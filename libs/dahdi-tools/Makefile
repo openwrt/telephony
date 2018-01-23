@@ -44,6 +44,7 @@ define Package/dahdi-tools-libtonezone
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=DAHDI tonezone library
+  DEPENDS+=+libpthread
 endef
 
 TARGET_CFLAGS += $(FPIC)
