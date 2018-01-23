@@ -21,17 +21,18 @@
  		export apr_cv_mutex_robust_shared=yes
  	 ;;
      esac
-@@ -409,9 +409,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
-     APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC)
-     APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC)
+@@ -419,10 +419,6 @@ elif test "x${ax_cv_c_compiler_vendor}"
+     APR_ADDTO(SWITCH_AM_CFLAGS, -fPIC -ffast-math)
+     APR_ADDTO(SWITCH_AM_CXXFLAGS, -fPIC -ffast-math)
      AC_SUBST([AM_MOD_AVMD_CXXFLAGS], [-std=gnu99])      # FS-8809, needed for MAP_POPULATE
 -    if test "$ac_cv_gcc_supports_w_no_unused_result" = yes; then
 -      APR_ADDTO(SWITCH_AM_CFLAGS, -Werror)
+-      APR_ADDTO(SWITCH_AM_CFLAGS, -Wno-unused-result)
 -    fi
-     if test "${enable_64}" = "yes"; then
- 	case "$host" in
-              *darwin*)
-@@ -912,7 +909,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
+     if test "$ac_cv_gcc_supports_w_no_misleading_indentation" = yes; then
+       APR_ADDTO(SWITCH_AM_CFLAGS, -Wno-misleading-indentation)
+     fi
+@@ -948,7 +944,6 @@ AC_CHECK_LIB(pthread, pthread_setschedpa
  
  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket))
  
@@ -39,48 +40,73 @@
  AC_CHECK_LIB(util, openpty, [AC_DEFINE(HAVE_OPENPTY, 1, [Define if you have openpty()])])
  
  AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[
-@@ -1487,16 +1483,16 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
+@@ -1560,18 +1555,18 @@ AM_CONDITIONAL([HAVE_MYSQL],[test "$foun
  # perl checks
  #
  
 -AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl=yes],[ac_cv_have_perl=no])
-+AC_CHECK_PROG(PERL,[perl],[ac_cv_have_perl=yes],[ac_cv_have_perl=no],[${STAGING_DIR}/host/usr/bin])
+-
+-# -a "x$ac_cv_have_EXTERN_h" != "xno"
++AC_CHECK_PROG(PERL,[perl],[yes],[no],[${STAGING_DIR_HOSTPKG}/usr/bin])
 +PERL=$as_dir/$ac_word$ac_exec_ext
  
- # -a "x$ac_cv_have_EXTERN_h" != "xno"
- 
- if test "x$ac_cv_have_perl" != "xno"; then
+-if test "x$ac_cv_have_perl" != "xno"; then
 -   PERL=perl
 -   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlib}'`"
 -   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlib}'`/CORE"
-+   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlibexp}'`"
-+   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlibexp}'`/CORE"
-    PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
+-   PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
 -   PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's|-arch x86_64 -arch i386||'` -DEMBED_PERL"
-+   PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's| -I/usr/local/include||g'` -DEMBED_PERL"
-    PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
-    PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
+-   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
+-   PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
++if test "x$ac_cv_prog_PERL" != "xno"; then
++   PERL_VERSION="`$PERL -e 'print substr($^V, 1)' | cut -d. -f1,2`"
++   PERL_SITEDIR_LOCAL="`$PERL -MConfig -e 'print $Config{archlibexp}'`"
++   PERL_SITEDIR="`find ${STAGING_DIR}/usr -name $PERL_VERSION -print`"
++   PERL_LIBDIR="-L$PERL_SITEDIR/CORE"
++   PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}' | sed -e 's|-lnsl ||g;s| -lgdbm_compat||g'`"
++   PERL_CFLAGS="-w -DMULTIPLICITY -D_REENTRANT -D_GNU_SOURCE -DPERL_USE_SAFE_PUTENV `$PERL -MExtUtils::Embed -e ccopts | sed -e \"s|$PERL_SITEDIR_LOCAL|$PERL_SITEDIR|g;s| -I/usr/local/include||g\"` -DEMBED_PERL"
++   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e \"s| $PERL_SITEDIR_LOCAL/auto/NDBM_File/NDBM_File.a||g;s| $PERL_SITEDIR_LOCAL/auto/ODBM_File/ODBM_File.a||g;s|$PERL_SITEDIR_LOCAL|$PERL_SITEDIR|g;s|.a |.so |g;s|-lnsl ||g;s|-lgdbm_compat ||g;s|/usr/local|${STAGING_DIR}/usr|g\"`"
++   PERL_INC="-I$PERL_SITEDIR/CORE"
  
-@@ -1511,6 +1507,7 @@ if test "x$ac_cv_have_perl" != "xno"; th
-    AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PERL_CFLAGS"
+@@ -1581,34 +1576,39 @@ if test "x$ac_cv_have_perl" != "xno"; th
+ 
+    save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$PERL_LDFLAGS"
+-   AC_CHECK_LIB([perl], [perl_alloc], ac_cv_use_libperl=yes, ac_cv_use_libperl=no)
++   AC_CHECK_LIB([perl], [perl_alloc], [ac_cv_use_libperl=yes], [ac_cv_use_libperl=no])
     LDFLAGS="$save_LDFLAGS"
  
 +   AC_SUBST(PERL)
     AC_SUBST(PERL_SITEDIR)
++   AC_SUBST(PERL_SITEDIR_LOCAL)
     AC_SUBST(PERL_LIBDIR)
     AC_SUBST(PERL_LIBS)
-@@ -1526,16 +1523,16 @@ AM_CONDITIONAL([HAVE_PERL],[test "x$ac_c
+    AC_SUBST(PERL_CFLAGS)
+    AC_SUBST(PERL_LDFLAGS)
+    AC_SUBST(PERL_INC)
++   AC_SUBST(PERL_VERSION)
+ fi
+ 
+-AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_have_perl" != "xno" -a "x$ac_cv_have_EXTERN_h" != "xno" -a "x$ac_cv_use_libperl" != "xno"])
++AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_prog_PERL" = "xyes" -a "x$ac_cv_have_EXTERN_h" = "xyes" -a "x$ac_cv_use_libperl" = "xyes"])
++#AM_CONDITIONAL([HAVE_PERL],[test "x$ac_cv_prog_PERL" != "xno" -a "x$ac_cv_have_EXTERN_h" != "xno"])
+ 
+ #
+ # php checks
  #
  
  AC_CHECK_PROG(PHP,php,[ac_cv_have_php=yes],[ac_cv_have_php=no])
 -AC_CHECK_PROG(PHP_CONFIG,php-config,[ac_cv_have_php_config=yes],[ac_cv_have_php_config=no])
-+AC_CHECK_PROG(PHP_CONFIG,php-config,[ac_cv_have_php_config=yes],[ac_cv_have_php_config=no],[${STAGING_DIR}/host/usr/bin])
++dnl AC_CHECK_PROG(PHP_CONFIG,php-config,[ac_cv_have_php_config=yes],[ac_cv_have_php_config=no],[${STAGING_DIR}/usr/bin])
++AC_CHECK_PROG(PHP_CONFIG,php7-config,[ac_cv_have_php_config=yes],[ac_cv_have_php_config=no],[${STAGING_DIR}/usr/bin])
  AM_CONDITIONAL([HAVE_PHP],[test "x$ac_cv_have_php" != "xno" -a "x$ac_cv_have_php_config" != "xno"])
  
  if test "x$ac_cv_have_php" != "xno" -a "x$ac_cv_have_php_config" != "xno"; then
     PHP=php
 -   PHP_CONFIG=php-config
-+   PHP_CONFIG=${STAGING_DIR}/host/usr/bin/php-config
++   PHP_CONFIG=${STAGING_DIR}/usr/bin/php7-config
     PHP_LDFLAGS="`$PHP_CONFIG --ldflags`"
     PHP_LIBS="`$PHP_CONFIG --libs | sed -r 's/ ?-l(bz2|pcre|xml2|gssapi_krb5|krb5|k5crypto|com_err|history|z|readline|gmp|ssl|crypto)//g'`"
     PHP_EXT_DIR="`$PHP_CONFIG --extension-dir`"
@@ -89,12 +115,21 @@
     PHP_INI_DIR="`$PHP_CONFIG --configure-options | tr " " "\n" | grep -- --with-config-file-scan-dir | cut -f2 -d=`"
     PHP_CFLAGS="`$PHP_CONFIG --includes`"
     AC_SUBST(PHP_LDFLAGS)
-@@ -1569,12 +1566,12 @@ then
+@@ -1623,7 +1623,7 @@ fi
+ # Python checks for mod_python
+ #
+ AC_ARG_WITH(
+-	[python],
++	[python3],
+ 	[AS_HELP_STRING([--with-python], [Use system provided version of python (default: try)])],
+ 	[with_python="$withval"],
+ 	[with_python="try"]
+@@ -1642,17 +1642,18 @@ then
  		AC_MSG_RESULT([$with_python])
  		AC_SUBST([PYTHON], ["$with_python"])
  	else
 -		AC_PATH_PROG([PYTHON], ["python"], ["no"], ["$PATH:/usr/bin:/usr/local/bin"])
-+		AC_PATH_PROG([PYTHON], ["python3"], ["no"], ["$PATH:${STAGING_DIR}/host/bin:/usr/bin:/usr/local/bin"])
++		AC_PATH_PROG([PYTHON], ["python3"], ["no"], ["${STAGING_DIR_HOSTPKG}/bin"])
  	fi
  
  	if test "$PYTHON" != "no" ; then
@@ -104,13 +139,19 @@
  
  		if test -z "$PYTHON_VER" ; then
  			AC_MSG_ERROR([Unable to detect python version])
-@@ -1593,12 +1590,12 @@ then
+ 		fi
+ 		AC_MSG_RESULT([$PYTHON_VER])
++		AC_SUBST([PYTHON_VER], [$PYTHON_VER])
+ 
+ 		AC_MSG_CHECKING([for python distutils])
+ 		python_result="`$PYTHON -c 'import distutils;' 2>&1`"
+@@ -1666,12 +1667,12 @@ then
  		if test "$python_has_distutils" != "no" ; then
  			AC_MSG_CHECKING([location of site-packages])
  
 -			PYTHON_SITE_DIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));'`"
 +			if test -d "`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));'`" ; then
-+				PYTHON_SITE_DIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));' | sed -e 's|\(^.*\)/host|/usr|g'`"
++				PYTHON_SITE_DIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));'`"
  
 -			if test -z "$PYTHON_SITE_DIR" ; then
 -				AC_MSG_ERROR([Unable to detect python site-packages path])
@@ -122,16 +163,16 @@
  			fi
  			AC_MSG_RESULT([$PYTHON_SITE_DIR])
  			AC_SUBST([PYTHON_SITE_DIR], [$PYTHON_SITE_DIR])
-@@ -1606,10 +1603,10 @@ then
+@@ -1679,10 +1680,10 @@ then
  			#
  			# python distutils found, get settings from python directly
  			#
 -			PYTHON_CFLAGS="`$PYTHON -c 'from distutils import sysconfig; flags = [[\"-I\" + sysconfig.get_python_inc(0), \"-I\" + sysconfig.get_python_inc(1), \" \".join(sysconfig.get_config_var(\"CFLAGS\").split())]]; print(\" \".join(flags));' | sed -e 's/-arch i386//g;s/-arch x86_64//g'`"
-+			PYTHON_CFLAGS="`$PYTHON -c 'from distutils import sysconfig; flags = [[\"-I\" + sysconfig.get_python_inc(0), \"-I\" + sysconfig.get_python_inc(1), \" \".join(sysconfig.get_config_var(\"CFLAGS\").split())]]; print(\" \".join(flags));' | sed -e 's|host|usr|g'`"
++			PYTHON_CFLAGS="`$PYTHON -c 'from distutils import sysconfig; flags = [[\"-I\" + sysconfig.get_python_inc(0), \"-I\" + sysconfig.get_python_inc(1), \" \".join(sysconfig.get_config_var(\"CFLAGS\").split())]]; print(\" \".join(flags));'`"
  			PYTHON_LDFLAGS="`$PYTHON -c 'from distutils import sysconfig; libs = sysconfig.get_config_var(\"LIBS\").split() + sysconfig.get_config_var(\"SYSLIBS\").split(); libs.append(\"-lpython\"+sysconfig.get_config_var(\"VERSION\")); print(\" \".join(libs));'`"
  			PYTHON_LIB="`$PYTHON -c 'from distutils import sysconfig; print(\"python\" + sysconfig.get_config_var(\"VERSION\"));'`"
 -			PYTHON_LIBDIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_config_var(\"LIBDIR\"));'`"
-+			PYTHON_LIBDIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_config_var(\"LIBDIR\"));' | sed -e 's|host|usr|g'`"
++			PYTHON_LIBDIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_config_var(\"LIBDIR\"));' | sed -e 's|\(^.*\)/staging_dir/hostpkg|/${STAGING_DIR}/usr|g'`"
  
  			# handle python being installed into /usr/local
  			AC_MSG_CHECKING([python libdir])

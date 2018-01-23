@@ -241,7 +241,7 @@ menu "Configuration"
     depends on PACKAGE_freeswitch-mod-erlang-event
     string
     prompt "path to erlang installed directory"
-    default "$$(STAGING_DIR)/host/lib/erlang"
+    default "$$(STAGING_DIR_HOSTPKG)/lib/erlang"
     help
 	Specify the path to erlang libraries.
 
@@ -262,7 +262,7 @@ menu "Configuration"
     depends on FS_WITH_PYTHON
     string
     prompt "full path to binary python$(PYTHON3_VERSION)"
-    default "$$(STAGING_DIR)/host/bin/python$(PYTHON3_VERSION)"
+    default "$$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON3_VERSION)"
     help
         Specify the full path to binary python$(PYTHON3-VERSION).
 

@@ -8,15 +8,10 @@
 include $(TOPDIR)/rules.mk
 
 
-ifneq ($(PACKAGE_$(PKG_NAME)-mod-perl),)
-include $(TOPDIR)/feeds/packages/lang/perl/perlmod.mk
-endif
-
-
 PKG_NAME:=freeswitch
 PKG_SOURCE_PROTO:=git
 PKG_DISTNAME:=$(PKG_NAME)_$(PKG_SOURCE_PROTO)
-PKG_VERSION:=1.7.0
+PKG_VERSION:=1.9.0
 
 
 #
@@ -27,7 +22,7 @@ PKG_SOURCE_URL:=https://$(PKG_NAME).org/stash/scm/fs/$(PKG_NAME).git
 PATCH_DIR:=./patches/$(CONFIG_LIBC)
 
 
-FS_WITH_DEFAULT_HEAD:=cc0a062204cb51311619cd37f51b32b2f266729f
+FS_WITH_DEFAULT_HEAD:=7f9e6f3e4b174d7c9e7455d0e3e7b475bb2c1818
 FS_WITH_DEFAULT_HEAD_SHORT:=$(shell echo $(FS_WITH_DEFAULT_HEAD)|cut -b -7)
 PKG_SOURCE_VERSION:=$(if $(CONFIG_FS_WITH_LATEST_HEAD),$(shell git ls-remote $(PKG_SOURCE_URL) HEAD | cut -f1),$(FS_WITH_DEFAULT_HEAD))
 PKG_SOURCE_VERSION_SHORT:=$(shell echo $(PKG_SOURCE_VERSION)|cut -b -7)
@@ -40,8 +35,10 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
 TAR_OPTIONS+= --strip-components=1 -C $(PKG_BUILD_DIR)
 
 
+PKG_BUILD_DEPENDS:=swig/host
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=0
+PKG_USE_MIPS16:=0
 
 
 PKG_LICENSE:=MPL-1.1
@@ -244,8 +241,11 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
+include $(TOPDIR)/feeds/packages/lang/perl/perlmod.mk
+
+
 ifneq ($(CONFIG_FS_WITH_PYTHON),)
-$(call include_mk, python3-package.mk)
+include $(TOPDIR)/feeds/packages/lang/python/python3-package.mk
 endif
 
 
@@ -260,7 +260,7 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   SUBMENU:=Telephony
   URL:=http://www.$(PKG_NAME).org/
-  MAINTAINER:=Mazi Lo <openwrt.mazilo@recursor.net>
+  MAINTAINER:=Mazi Lo <openwrt.mazilo@xoxy.net>
 endef
 
 
@@ -340,9 +340,7 @@ define Package/$(PKG_NAME)-collection-upstream-defaults
   $(call Package/$(PKG_NAME)/Default)
   TITLE:=FS upstream def sample conf
   DEPENDS:= $(PKG_NAME) \
-		+$(PKG_NAME)-config-upstream-defaults \
 		+$(PKG_NAME)-mod-callcenter \
-		+$(PKG_NAME)-mod-codec2 \
 		+$(PKG_NAME)-mod-commands \
 		+$(PKG_NAME)-mod-conference \
 		+$(PKG_NAME)-mod-curl \
@@ -354,7 +352,6 @@ define Package/$(PKG_NAME)-collection-upstream-defaults
 		+$(PKG_NAME)-mod-g729 \
 		+$(PKG_NAME)-mod-hash \
 		+$(PKG_NAME)-mod-http-cache \
-		+$(PKG_NAME)-mod-ilbc \
 		+$(PKG_NAME)-mod-local-stream \
 		+$(PKG_NAME)-mod-lua \
 		+$(PKG_NAME)-mod-native-file \
@@ -375,7 +372,6 @@ define Package/$(PKG_NAME)-collection-minimal
   DEFAULT:=y
   DEPENDS:= $(PKG_NAME) \
 		+$(PKG_NAME)-config-minimal \
-		+$(PKG_NAME)-mod-codec2 \
 		+$(PKG_NAME)-mod-commands \
 		+$(PKG_NAME)-mod-dialplan-xml \
 		+$(PKG_NAME)-mod-dptools \
@@ -595,7 +591,6 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_APR_THREADS,threads) \
 	$(call autoconf_bool,CONFIG_FS_WITH_VISIBILITY,visibility) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp && CONFIG_FS_WITH_FIXED_POINT,fixed-point) \
-	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp,builtin-tiff) \
 	$(call autoconf_bool,CONFIG_PACKAGE_$(PKG_NAME)-mod-timerfd,timerfd-wrapper) \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)/usr/lib") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
@@ -894,12 +889,14 @@ define BuildPlugin
 
   define Package/$(PKG_NAME)-mod-$(1)/postinst
 #!/bin/sh
-sed -i -e 's|^\([ \t]*\)<!-- *\(.*\)"mod_$(subst -,_,$(1))"\(.*\) *-->\(.*\)$$$$|\1\2"mod_$(subst -,_,$(1))"\3\4|' $$$${IPKG_INSTROOT}/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
+sed -i -e 's#[^ \t]\(,*\)\(.*\)"mod_console"/>\(.*\)$$$$#\1<load module="mod_console"/>#g' $$$${IPKG_INSTROOT}/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
+exit 0
   endef
 
   define Package/$(PKG_NAME)-mod-$(1)/prerm
 #!/bin/sh
-sed -i -e 's|^\([ \t]*\)\(.*\)"mod_$(subst -,_,$(1))"\(.*\)$$$$|\1<!-- \2"mod_$(subst -,_,$(1))"\3 -->|' $$$${IPKG_INSTROOT}/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
+sed -i -e 's#[^ \t]\(,*\)\(.*\)"mod_console"/>\(.*\)$$$$#\1<!-- <load module="mod_console"/> -->#g' $$$${IPKG_INSTROOT}/etc/$(PKG_NAME)/autoload_configs/modules.conf.xml
+exit 0
   endef
 
   $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
@@ -1006,7 +1003,7 @@ $(eval $(call BuildPlugin,nibblebill,Credit / Debit Billing,vanilla,,,,))
 $(eval $(call BuildPlugin,opus,Opus CoDec,vanilla,,,,+libopus))
 $(eval $(call BuildPlugin,oreka,Media Recording with Oreka,vanilla,,,,))
 $(eval $(call BuildPlugin,png,play a png as video with audio,vanilla,,,,+libpng))
-$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/$(PERL_VERSION)/$(PKG_NAME).la lib/perl5/$(PERL_VERSION)/$(PKG_NAME).pm lib/perl5/$(PERL_VERSION)/$(PKG_NAME).so,,+perl +libdb47 +libgdbm @BROKEN))
+$(eval $(call BuildPlugin,perl,Perl Language Interface,vanilla,,lib/perl5/$(PERL_VERSION)/CORE/$(PKG_NAME).la lib/perl5/$(PERL_VERSION)/CORE/$(PKG_NAME).pm lib/perl5/$(PERL_VERSION)/CORE/$(PKG_NAME).so,,+perl +libdb47 +libgdbm))
 $(eval $(call BuildPlugin,portaudio,Portaudio To Sound Card Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,portaudio-stream,Portaudio Streaming Interface,vanilla,,,alsa,+FS_WITH_ALSA:alsa-lib @FS_WITH_ALSA @BROKEN)) # needs portaudio
 $(eval $(call BuildPlugin,posix-timer,POSIX Compliant Soft Timer,vanilla,,,,))
@@ -1045,7 +1042,7 @@ $(eval $(call BuildPlugin,snmp,SNMP AgentX Subagent,vanilla,,,,+libnetsnmp))
 $(eval $(call BuildPlugin,snom,SNOM specific features,vanilla,,,,))
 $(eval $(call BuildPlugin,sofia,SOFIA SIP,mod,,,,)) # ~/conf
 $(eval $(call BuildPlugin,sonar,Sonar Ping Timer,vanilla,,,,))
-$(eval $(call BuildPlugin,spandsp,Span DSP,mod,,,,+libjpeg +FS_WITH_LZMA:liblzma @FS_WITH_LZMA)) # ~/conf
+$(eval $(call BuildPlugin,spandsp,Span DSP,mod,,,,+libjpeg +FS_WITH_LZMA:liblzma @FS_WITH_LZMA +libtiff)) # ~/conf
 $(eval $(call BuildPlugin,spidermonkey,JavaScript,vanilla,,,,@BROKEN)) # fails in js
 $(eval $(call BuildPlugin,spidermonkey-core_db,JavaScript DB,vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,spidermonkey-curl,JavaScript Curl,vanilla,,,,@BROKEN))
@@ -1062,7 +1059,7 @@ $(eval $(call BuildPlugin,translate,Translate,vanilla,,,,))
 $(eval $(call BuildPlugin,tts-commandline,ASR TTS Command Interface,vanilla,,,,))
 $(eval $(call BuildPlugin,unimrcp,UniMRCP (MRCP Client),vanilla,,,,@BROKEN))
 $(eval $(call BuildPlugin,valet-parking,Valet Parking Application,vanilla,,,,))
-$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/$(PERL_VERSION)/MCAST.so lib/perl5/$(PERL_VERSION)/MCAST.la lib/perl5/$(PERL_VERSION)/MCAST.pm,perl rtc,+perl @BROKEN))
+$(eval $(call BuildPlugin,verto,HTML5 Verto interface,vanilla,,lib/perl5/$(PERL_VERSION)/CORE/MCAST.la lib/perl5/$(PERL_VERSION)/CORE/MCAST.pm lib/perl5/$(PERL_VERSION)/CORE/MCAST.so,perl rtc,+perl))
 $(eval $(call BuildPlugin,vmd,VoiceMail Beep Detection,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail,VoiceMail,vanilla,,,,))
 $(eval $(call BuildPlugin,voicemail-ivr,VoiceMail IVR,vanilla,,,,))

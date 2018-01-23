@@ -1,11 +1,20 @@
 --- a/src/mod/languages/mod_python/Makefile.am
 +++ b/src/mod/languages/mod_python/Makefile.am
+@@ -2,7 +2,7 @@ include $(top_srcdir)/build/modmake.rule
+ MODNAME=mod_python
+ 
+ PYMOD=freeswitch
+-PYTHON_SITE_DIR=@PYTHON_SITE_DIR@
++PYTHON_SITE_DIR=/usr/lib/python@PYTHON_VER@/site-packages
+ 
+ SWIGCFILE=../../../switch_swig.c
+ SWIGIFILE=../../../switch_swig.i
 @@ -20,7 +20,7 @@ swigclean: clean
  	rm -f mod_python_wrap.* freeswitch.py
  
  mod_python_wrap.cpp: mod_python_extra.c hack.diff 
 -	swig2.0 -python -c++ -I../../../../src/include -oh mod_python_wrap.h -o mod_python_wrap.cpp mod_python.i
-+	${STAGING_DIR}/host/bin/swig -python -c++ -I../../../../src/include -oh mod_python_wrap.h -o mod_python_wrap.cpp mod_python.i
++	${STAGING_DIR_HOSTPKG}/bin/swig -python -c++ -I../../../../src/include -oh mod_python_wrap.h -o mod_python_wrap.cpp mod_python.i
  	echo "#include \"mod_python_extra.c\"" >> mod_python_wrap.cpp
  	patch -s -p0 -i hack.diff
  

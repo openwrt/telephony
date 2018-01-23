@@ -6,5 +6,5 @@
  #applications/mod_rss
 +#applications/mod_skel
  applications/mod_sms
+ #applications/mod_sms_flowroute
  #applications/mod_snapshot
- #applications/mod_snom
