@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bcg729
 PKG_VERSION:=1.0.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.linphone.org/releases/sources/bcg729
@@ -31,7 +31,6 @@ define Package/bcg729
   CATEGORY:=Libraries
   TITLE:=Software G729A encoder and decoder library written in C
   URL:=http://www.linphone.org/technical-corner/bcg729.html
-  DEPENDS:=@BUILD_PATENTED
 endef
 
 define Package/bcg729/description
