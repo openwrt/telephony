@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.19
-PKG_RELEASE:=3
+PKG_VERSION:=1.6.20
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=e8d271a0d876ba4cca551682af0a4f5047bfd79438fcebdcc17d00711c04a8ff
+PKG_HASH:=dbb0f73109171bd381772b247b8ef581f6a176964619082a1fe031b004086f6b
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
@@ -24,6 +24,8 @@ PKG_BUILD_DEPENDS:= \
 	libjpeg \
 	perl/host \
 	python/host
+
+PKG_FIXUP:=autoreconf
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
 #PKG_BUILD_PARALLEL:=1
@@ -986,12 +988,6 @@ ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-sofia),)
 	$(SED) '/mod_sofia$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
 endif
 endif
-endef
-
-define Build/Configure
-	$(FIND) $(PKG_BUILD_DIR) -name missing -type f -exec rm {} \;
-	cd $(PKG_BUILD_DIR); $(AM_TOOL_PATHS) ./rebootstrap.sh
-	$(call Build/Configure/Default)
 endef
 
 define Build/Compile
