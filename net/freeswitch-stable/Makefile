@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.20
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -940,6 +940,8 @@ FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 define Build/Prepare
 	$(call Build/Prepare/Default)
 
+	$(RM) -r $(PKG_BUILD_DIR)/libs/tiff-*
+
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#event_handlers/mod_event_test' >> $(PKG_BUILD_DIR)/modules.conf
@@ -1167,7 +1169,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,fsv,FSV,This module provides dialplan a
 $(eval $(call Package/$(PKG_NAME)/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g729,G.729 passthrough,G.729 codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,graylog2,Graylog2 logger,GELF logger for Graylog2 and Logstash.,))
-$(eval $(call Package/$(PKG_NAME)/Module,gsmopen,GSM endpoint,GSMopen is a channel driver that allows an SMS to be sent to and from\nFreeSWITCH as well as incoming and outgoing GSM voice calls.,+gsmlib +libctb +libjpeg +liblzma))
+$(eval $(call Package/$(PKG_NAME)/Module,gsmopen,GSM endpoint,GSMopen is a channel driver that allows an SMS to be sent to and from\nFreeSWITCH as well as incoming and outgoing GSM voice calls.,+gsmlib +libctb +libjpeg +liblzma +libtiff))
 $(eval $(call Package/$(PKG_NAME)/Module,h26x,H.26x passthrough,H.26x video codec passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a\nlimit backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,+libhiredis))
@@ -1231,7 +1233,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,snmp,SNMP,An SNMP stats reporter.,+libn
 $(eval $(call Package/$(PKG_NAME)/Module,snom,SNOM,This module implements features specific to SNOM phones.,))
 $(eval $(call Package/$(PKG_NAME)/Module,sofia,Sofia SIP,SIP module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,sonar,Sonar,This module measures the latency on an audio link by sending audible\naudio sonar pings.,))
-$(eval $(call Package/$(PKG_NAME)/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec\nfunctionality.,+libjpeg +liblzma))
+$(eval $(call Package/$(PKG_NAME)/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec\nfunctionality.,+libjpeg +liblzma +libtiff))
 $(eval $(call Package/$(PKG_NAME)/Module,spy,User Spy,This module adds the ability to monitor the audio of a channel.,))
 $(eval $(call Package/$(PKG_NAME)/Module,ssml,SSML,mod_ssml is a FreeSWITCH module that renders SSML into audio. This\nmodule requires a text-to-speech module for speech synthesis.,))
 $(eval $(call Package/$(PKG_NAME)/Module,stress,Stress,This module attempts to detect voice stress on an audio channel.,))

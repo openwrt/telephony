@@ -136,22 +136,3 @@
  
  #Set default language
  AC_LANG_C
---- a/libs/tiff-4.0.2/configure.ac
-+++ b/libs/tiff-4.0.2/configure.ac
-@@ -30,11 +30,13 @@ AC_CONFIG_AUX_DIR(config)
- AC_CONFIG_MACRO_DIR(m4)
- AC_LANG(C)
- AC_PROG_LIBTOOL
-+m4_include(../apr/build/apr_common.m4)
- m4_include(m4/acinclude.m4)
- 
--CFLAGS="$CFLAGS $CONFIGURE_CFLAGS"
--CXXFLAGS="$CXXFLAGS $CONFIGURE_CXXFLAGS"
--LDFLAGS="$LDFLAGS $CONFIGURE_LDFLAGS"
-+APR_ADDTO(CFLAGS, [$CONFIGURE_CFLAGS])
-+APR_ADDTO(CPPFLAGS, [$CONFIGURE_CPPFLAGS])
-+APR_ADDTO(CXXFLAGS, [$CONFIGURE_CXXFLAGS])
-+APR_ADDTO(LDFLAGS, [$CONFIGURE_LDFLAGS])
- 
- dnl Compute the canonical host (run-time) system type variable
- AC_CANONICAL_HOST
