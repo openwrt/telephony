@@ -1,0 +1,92 @@
+commit 7a4c76119114b82d26dab5d5adfe5a2429e32434
+Author: Mike Jerris <mike@jerris.com>
+Date:   Thu Mar 16 11:29:08 2017 -0500
+
+    FS-10074: [libtiff] remove more libtiff references
+
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -1700,27 +1700,6 @@ Copyright: 2007 <robs@users.sourceforge.
+  2007-2009 Erik de Castro Lopo <erikd@mega-nerd.com>
+ License: LGPL-2+
+ 
+-Files: libs/tiff-4.0.2/*
+-Copyright: 1988-1997 Sam Leffler
+- 1991-1997 Silicon Graphics, Inc.
+- 2006-2010 Richard Nolde
+- 1999-2000 Frank Warmerdam
+- 1990 by Digital Equipment Corporation, Maynard, Massachusetts.
+- 1990 by Sun Microsystems, Inc.
+- Joris Van Damme <info@awaresystems.be>
+- AWare Systems <http://www.awaresystems.be/>
+-License: MIT/X11 (BSD like)
+-
+-Files: libs/tiff-4.0.2/port/getopt.c
+- libs/tiff-4.0.2/port/strcasecmp.c
+- libs/tiff-4.0.2/port/lfind.c
+-Copyright: 1987, 1993, 1994, The Regents of the University of California.
+-License: BSD-3-clause
+-
+-Files: libs/tiff-4.0.2/port/strtoull.c
+-Copyright: 1992, 1993, The Regents of the University of California.
+-License: BSD-4-clause
+-
+ Files: src/switch_dso.c
+ Copyright: 2008 Michael Jerris
+ License: BSD-like
+--- a/debian/license-reconcile.yml
++++ b/debian/license-reconcile.yml
+@@ -186,21 +186,6 @@ Rules:
+    Copyright: 1999-2009 Erik de Castro Lopo <erikd@mega-nerd.com>
+    Justification: prevent false-psitive copyright detection
+   -
+-   Glob: libs/tiff-4.0.2/libtiff/tif_tile.c
+-   Matches: Copyright\s(c)\s1991-1997\sSam\sLeffler
+-   Matches: copyright\snotices\sand\sthis\spermission\snotice\sappear\sin
+-   Copyright: 1991-1997 Sam Leffler
+-  -
+-   Glob: libs/tiff-4.0.2/*
+-   Matches: Additions\s\(c\)\sRichard\sNolde\s2006-2010
+-   Matches: copyright\snotices\sand\sthis\spermission\snotice\sappear\sin
+-   Copyright: 2006-2010 Richard Nolde
+-  -
+-   Glob: libs/tiff-4.0.2/libtiff/tiffvers.h
+-   Matches: 1988-1996\sSam\sLeffler..Copyright\s\(c\)\s1991-1996\sSilicon\sGraphics,\sInc.
+-   Copyright: 1991-1996 Sam Leffler
+-   Copyright: 1991-1996 Silicon Graphics, Inc
+-  -
+    Glob: src/mod/endpoints/mod_khomp/*
+    Matches: The\scontents\sof\sthis\sfile\sare\ssubject\sto\sthe\sMozilla\sPublic\sLicense\sVersion\s1.1
+    Matches: Alternatively,\sthe\scontents\sof\sthis\sfile\smay\sbe\sused\sunder\sthe\sterms\sof\sthe
+--- a/docs/Doxygen.conf
++++ b/docs/Doxygen.conf
+@@ -1240,15 +1240,9 @@ SEARCH_INCLUDES        = YES
+ # contain include files that are not input files but should be processed by
+ # the preprocessor.
+ 
+-INCLUDE_PATH           =../libs/apr ../libs/apr-util \
+-			../libs/iksemel ../libs/ilbc ../libs/js \
+-			../libs/libg722_1 ../libs/libnatpmp \
+-			../libs/libsndfile ../libs/miniupnpc  \
+-			../libs/portaudio ../libs/sofia-sip ../libs/spandsp \
+-			../libs/srtp \
+-			../libs/tiff-4.0.2 ../libs/udns \
+-			../libs/unimrcp ../libs/voipcodecs ../libs/win32 \
+-			../libs/xmlrpc-c
++INCLUDE_PATH           =../libs/apr ../libs/apr-util ../libs/iksemel ../libs/libnatpmp \
++			../libs/miniupnpc ../libs/sofia-sip ../libs/spandsp \
++			../libs/srtp ../libs/unimrcp ../libs/win32 ../libs/xmlrpc-c
+ 
+ # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
+ # patterns (like *.h and *.hpp) to filter out the header-files in the
+--- a/rebootstrap.sh
++++ b/rebootstrap.sh
+@@ -8,7 +8,7 @@ BGJOB=false
+ VERBOSE=false
+ BASEDIR=`pwd`;
+ LIBDIR=${BASEDIR}/libs;
+-SUBDIRS="apr libzrtp iksemel libdingaling sofia-sip srtp freetdm spandsp unimrcp tiff-4.0.2 fs";
++SUBDIRS="apr libzrtp iksemel libdingaling sofia-sip srtp freetdm spandsp unimrcp fs";
+ 
+ while getopts 'jhd:v' o; do 
+   case "$o" in
