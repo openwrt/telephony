@@ -1,0 +1,11 @@
+--- a/libs/ilbc/Makefile.in
++++ b/libs/ilbc/Makefile.in
+@@ -6,7 +6,7 @@ AR  := ar
+ SED := sed
+ DEFS :=
+ INCLUDES := -I@top_srcdir@
+-CFLAGS := @CFLAGS@ -O3 -funroll-loops -fomit-frame-pointer -fsigned-char @MODULE_CFLAGS@
++CFLAGS := @CFLAGS@ -fsigned-char @MODULE_CFLAGS@
+ LDFLAGS:= @LDFLAGS@
+ 
+ PROGS=
