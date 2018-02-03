@@ -37,7 +37,7 @@ Date:   Tue Mar 14 17:39:05 2017 -0500
  	cd libs/spandsp && sh ./configure.gnu $(MY_DEFAULT_ARGS)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1984,7 +1984,6 @@ AC_CONFIG_SUBDIRS([libs/libdingaling])
+@@ -1969,7 +1969,6 @@ AC_CONFIG_SUBDIRS([libs/libdingaling])
  AC_CONFIG_SUBDIRS([libs/sofia-sip])
  AC_CONFIG_SUBDIRS([libs/freetdm])
  AC_CONFIG_SUBDIRS([libs/unimrcp])
