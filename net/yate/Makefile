@@ -12,7 +12,7 @@ RELEASEVER:=6.0.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -58,7 +58,8 @@ define Package/$(PKG_NAME)-scripts-perl
   $(call Package/yate/Default)
   DEPENDS += $(PKG_NAME) \
 	  +PACKAGE_$(PKG_NAME)-scripts-perl:$(PKG_NAME)-mod-extmodule \
-	  +PACKAGE_$(PKG_NAME)-scripts-perl:perlbase-data
+	  +PACKAGE_$(PKG_NAME)-scripts-perl:perlbase-data \
+	  @!arc
   TITLE:= Perl module for Yate
 endef
 
@@ -230,8 +231,8 @@ $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,,,y))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,,,y))
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,,,y))
 $(eval $(call BuildPlugin,ilbccodec,,iLBC Codec,))
-$(eval $(call BuildPlugin,ilbcwebrtc,,iLBC Codec from the WebRTC project,))
-$(eval $(call BuildPlugin,isaccodec,,internet Speech Audio Codec,))
+$(eval $(call BuildPlugin,ilbcwebrtc,,iLBC Codec from the WebRTC project,@!arc))
+$(eval $(call BuildPlugin,isaccodec,,internet Speech Audio Codec,@!arc))
 $(eval $(call BuildPlugin,isupmangler,sig,ISUP parameter mangling in a STP,,,y))
 $(eval $(call BuildPlugin,jabberclient,client,Jabber Client,,,y))
 $(eval $(call BuildPlugin,jabberserver,jabber,Jabber Server,,,y))
@@ -251,7 +252,7 @@ $(eval $(call BuildPlugin,osschan,client,OSS Sound Channel,))
 $(eval $(call BuildPlugin,park,server,Call Parking,))
 $(eval $(call BuildPlugin,pbx,,PBX Message Handlers,))
 $(eval $(call BuildPlugin,pbxassist,server,Full featured PBX and IVR,,,y))
-$(eval $(call BuildPlugin,pgsqldb,server,PostgrestSQL Backend DB,+libpq))
+$(eval $(call BuildPlugin,pgsqldb,server,PostgrestSQL Backend DB,@!arc +libpq))
 $(eval $(call BuildPlugin,presence,server,Presence,,,y))
 $(eval $(call BuildPlugin,queues,server,Call Distribution and Queues from Database,,,y))
 $(eval $(call BuildPlugin,queuesnotify,server,Notify when queued call status changes,,,y))
