@@ -9,12 +9,19 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=dahdi-linux
-PKG_VERSION:=2.11.1
+PKG_VERSION:=2.11.1-20180111
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-linux/releases
-PKG_HASH:=f59f382365118205e77d2874f1c0e1546e936247bcc45f07a43bc21778bee9df
+#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+#PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-linux/releases
+#PKG_HASH:=f59f382365118205e77d2874f1c0e1546e936247bcc45f07a43bc21778bee9df
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=https://github.com/asterisk/dahdi-linux.git
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=26597a5cac2930c191ae540c03c7406745c03e36
+PKG_MIRROR_HASH:=0eaad3c3ed63efa61e6b807bd70e9b5287271f5dd63af9f41c026a5f979b81d3
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
