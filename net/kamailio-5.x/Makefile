@@ -28,6 +28,8 @@ TARGET_CFLAGS += $(FPIC) -DVERSION_NODATE=1
 PREBUILT_STAMP=$(STAGING_DIR)/stamp/.$(PKG_NAME)_prebuilt
 TAR_CMD:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components 1 $(TAR_OPTIONS)
 
+INCL_MODULES:=
+
 define Package/kamailio5/Default
   SECTION:=net
   CATEGORY:=Network
@@ -94,14 +96,15 @@ define BuildKamailio5Module
     $$(call Package/kamailio5/Default)
     TITLE:=$(2) for Kamailio5
     DEPENDS:=kamailio5 $(patsubst +%,+PACKAGE_kamailio5-mod-$(subst _,-,$(1)):%,$(4))
+    ifneq ($$(CONFIG_PACKAGE_kamailio5-mod-$(subst _,-,$(1))),)
+    INCL_MODULES+=$(1)
+    endif
   endef
 
   define Package/kamailio5-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio5/install/module,$$(1),$(1))
 $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
   endef
-
-  INCL_MODULES+=$(1)
 
 $$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef
@@ -113,7 +116,8 @@ PKG_MAKE_ARGS:= \
 	data_dir=/usr/share/kamailio/ \
 	lib_dir=/usr/lib/kamailio/ \
 	modules_dir=/usr/lib/kamailio/ \
-	include_modules="$(INCL_MODULES)" \
+	group_include="standard" \
+	include_modules="$$(INCL_MODULES)" \
 	cfg_target:=/etc/kamailio/ \
 	TLS_HOOKS=1 \
 	extra_defs="-DUSE_PTHREAD_MUTEX " \
