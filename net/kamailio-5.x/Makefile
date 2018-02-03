@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2017 OpenWrt.org
-# Copyright (C) 2017 Jiri Slachta
+# Copyright (C) 2017 - 2018 OpenWrt.org
+# Copyright (C) 2017 - 2018 Jiri Slachta
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -27,6 +27,8 @@ include $(INCLUDE_DIR)/package.mk
 TARGET_CFLAGS += $(FPIC) -DVERSION_NODATE=1
 PREBUILT_STAMP=$(STAGING_DIR)/stamp/.$(PKG_NAME)_prebuilt
 TAR_CMD:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components 1 $(TAR_OPTIONS)
+
+INCL_MODULES:=
 
 define Package/kamailio5/Default
   SECTION:=net
@@ -93,17 +95,49 @@ define BuildKamailio5Module
   define Package/kamailio5-mod-$(subst _,-,$(1))
     $$(call Package/kamailio5/Default)
     TITLE:=$(2) for Kamailio5
-    DEPENDS:=kamailio5 $(4)
+    DEPENDS:=kamailio5 $(patsubst +%,+PACKAGE_kamailio5-mod-$(subst _,-,$(1)):%,$(4))
+    ifneq ($$(CONFIG_PACKAGE_kamailio5-mod-$(subst _,-,$(1))),)
+    INCL_MODULES+=$(1)
+    endif
   endef
 
   define Package/kamailio5-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio5/install/module,$$(1),$(1))
 $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
   endef
-
-  INCL_MODULES+=$(1)
-  KAM_MODULES+=kamailio5-mod-$(subst _,-,$(1))
+$$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef
+
+PKG_MAKE_ARGS:= \
+	prefix=/ \
+	cfg_dir=/etc/kamailio/ \
+	bin_dir=/usr/sbin/ \
+	data_dir=/usr/share/kamailio/ \
+	lib_dir=/usr/lib/kamailio/ \
+	modules_dir=/usr/lib/kamailio/ \
+	group_include="standard" \
+	include_modules="$$(INCL_MODULES)" \
+	cfg_target:=/etc/kamailio/ \
+	TLS_HOOKS=1 \
+	extra_defs="-DUSE_PTHREAD_MUTEX " \
+	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
+	LOCALBASE="$(STAGING_DIR)/usr" \
+	SYSBASE="$(STAGING_DIR)/usr" \
+	PCREDEFS:="$(TARGET_CPPFLAGS)" \
+	PCRELIBS:="$(TARGET_LDFLAGS)" \
+	CROSS_COMPILE=$(TARGET_CROSS) \
+	CC="$(TARGET_CC)" \
+	ARCH="$(ARCH)"  \
+	DESTDIR=$(PKG_INSTALL_DIR) \
+	EXTRA_LIBS="-L$(STAGING_DIR)/usr/lib/" \
+	quiet=verbose
+
+define Build/Compile
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) all
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) install
+endef
+
+$(eval $(call BuildPackage,kamailio5))
 
 ################################
 # Kamailio module parameters
@@ -136,7 +170,7 @@ $(eval $(call BuildKamailio5Module,corex,Legacy functions,,))
 $(eval $(call BuildKamailio5Module,ctl,BINRPC transport interface,,))
 $(eval $(call BuildKamailio5Module,db_flatstore,fast write-only text DB-backend,,))
 $(eval $(call BuildKamailio5Module,db_mysql,MySQL DB-backend,,+libmysqlclient,mysql))
-$(eval $(call BuildKamailio5Module,db_postgres,PostgreSQL DB-backend,,+libpq,postgres))
+$(eval $(call BuildKamailio5Module,db_postgres,PostgreSQL DB-backend,,@!arc +libpq,postgres))
 $(eval $(call BuildKamailio5Module,db_sqlite,SQLite DB-backend,,+libsqlite3,db_sqlite))
 $(eval $(call BuildKamailio5Module,db_text,Text DB-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio5Module,db_unixodbc,UnixODBC DB-backend,,+unixodbc))
@@ -222,34 +256,3 @@ $(eval $(call BuildKamailio5Module,xcap_client,XCAP Client,,+libcurl))
 $(eval $(call BuildKamailio5Module,xlog,Advanced logger,,))
 $(eval $(call BuildKamailio5Module,xmlrpc,XML RPC module,,+libxml2))
 $(eval $(call BuildKamailio5Module,xmpp,SIP-to-XMPP Gateway,,+kamailio5-mod-tm +libexpat))
-
-PKG_MAKE_ARGS:= \
-	prefix=/ \
-	cfg_dir=/etc/kamailio/ \
-	bin_dir=/usr/sbin/ \
-	data_dir=/usr/share/kamailio/ \
-	lib_dir=/usr/lib/kamailio/ \
-	modules_dir=/usr/lib/kamailio/ \
-	include_modules="$(INCL_MODULES)" \
-	cfg_target:=/etc/kamailio/ \
-	TLS_HOOKS=1 \
-	extra_defs="-DUSE_PTHREAD_MUTEX " \
-	CFLAGS="$(TARGET_CFLAGS)" \
-	LOCALBASE="$(STAGING_DIR)/usr" \
-	SYSBASE="$(STAGING_DIR)/usr" \
-	PCREDEFS:="$(TARGET_CPPFLAGS)" \
-	PCRELIBS:="$(TARGET_LDFLAGS)" \
-	CROSS_COMPILE=$(TARGET_CROSS) \
-	CC="$(TARGET_CC)" \
-	ARCH="$(ARCH)"  \
-	DESTDIR=$(PKG_INSTALL_DIR) \
-	EXTRA_LIBS="-L$(STAGING_DIR)/usr/lib/" \
-	quiet=verbose
-
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) all
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) install
-endef
-
-$(eval $(call BuildPackage,kamailio5))
-$(foreach m,$(KAM_MODULES),$(eval $(call BuildPackage,$(m))))
