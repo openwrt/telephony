@@ -93,7 +93,7 @@ define BuildKamailio5Module
   define Package/kamailio5-mod-$(subst _,-,$(1))
     $$(call Package/kamailio5/Default)
     TITLE:=$(2) for Kamailio5
-    DEPENDS:=kamailio5 $(4)
+    DEPENDS:=kamailio5 $(patsubst +%,+PACKAGE_kamailio5-mod-$(subst _,-,$(1)):%,$(4))
   endef
 
   define Package/kamailio5-mod-$(subst _,-,$(1))/install
