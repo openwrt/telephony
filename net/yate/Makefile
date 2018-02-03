@@ -86,39 +86,39 @@ endef
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
-	--enable-strings \
-	--enable-poll \
-	--enable-inline \
-	--enable-atomics \
-	--disable-sse2 \
+	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
-	--enable-resolver \
-	--enable-internalregex \
 	--disable-dahdi \
 	--disable-zaptel \
 	--disable-wpcard \
 	--disable-tdmcard \
 	--disable-wanpipe \
 	--enable-ilbc \
-	--enable-ilbc-webrtc \
-	--enable-isac-float \
-	--disable-isac-fixed \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
 	--enable-rtti \
-	--with-libpq="$(STAGING_DIR)/usr" \
-	--with-mysql="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql="$(STAGING_DIR)/usr",--without-mysql) \
 	--without-wphwec \
 	--without-libgsm \
 	--without-amrnb \
-	--with-spandsp="$(STAGING_DIR)/usr/include" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan),--with-spandsp="$(STAGING_DIR)/usr/include",--without-spandsp) \
 	--without-pwlib \
 	--without-openh323 \
-	--with-openssl \
-	--with-zlib="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl),--with-openssl,--without-openssl) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress),--with-zlib="$(STAGING_DIR)/usr",--without-zlib) \
 	--without-libqt4 \
 	--without-qtstatic \
 	--without-coredumper \
 	--without-doxygen \
 	--without-kdoc
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-isaccodec),)
+CONFIGURE_ARGS+=$(if $(CONFIG_SOFT_FLOAT),--disable-isac-float --enable-isac-fixed,--disable-isac-fixed --enable-isac-float)
+else
+CONFIGURE_ARGS+= \
+	--disable-isac-fixed \
+	--disable-isac-float
+endif
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
