@@ -82,13 +82,8 @@ define Package/$(PKG_NAME)-collection-basic
    TITLE := Basic Yate Server
 endef
 
-ifneq ($(CONFIG_USE_MUSL),)
-  LIBNSL:=
-else
-  LIBNSL:=-lnsl
-endif
-
-TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include $(if $(CONFIG_BIG_ENDIAN),-DBIGENDIAN,)
+# Otherwise yate ignores CPPFLAGS
+TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
 	--enable-strings \
@@ -124,10 +119,6 @@ CONFIGURE_ARGS+= \
 	--without-coredumper \
 	--without-doxygen \
 	--without-kdoc
-
-CONFIGURE_VARS+= \
-	LDFLAGS="$$$$LDFLAGS -nodefaultlibs" \
-	LIBS="-lc -luClibc++ -lpthread -lresolv -ldl -lm -lc $(LIBGCC_S) $(LIBNSL)"
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
