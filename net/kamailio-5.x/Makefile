@@ -105,7 +105,6 @@ define BuildKamailio5Module
 $(call Package/kamailio5/install/module,$$(1),$(1))
 $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
   endef
-
 $$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef
 
@@ -171,7 +170,7 @@ $(eval $(call BuildKamailio5Module,corex,Legacy functions,,))
 $(eval $(call BuildKamailio5Module,ctl,BINRPC transport interface,,))
 $(eval $(call BuildKamailio5Module,db_flatstore,fast write-only text DB-backend,,))
 $(eval $(call BuildKamailio5Module,db_mysql,MySQL DB-backend,,+libmysqlclient,mysql))
-$(eval $(call BuildKamailio5Module,db_postgres,PostgreSQL DB-backend,,+libpq,postgres))
+$(eval $(call BuildKamailio5Module,db_postgres,PostgreSQL DB-backend,,@!arc +libpq,postgres))
 $(eval $(call BuildKamailio5Module,db_sqlite,SQLite DB-backend,,+libsqlite3,db_sqlite))
 $(eval $(call BuildKamailio5Module,db_text,Text DB-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio5Module,db_unixodbc,UnixODBC DB-backend,,+unixodbc))
