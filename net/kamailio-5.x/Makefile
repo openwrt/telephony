@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2017 OpenWrt.org
-# Copyright (C) 2017 Jiri Slachta
+# Copyright (C) 2017 - 2018 OpenWrt.org
+# Copyright (C) 2017 - 2018 Jiri Slachta
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -102,8 +102,39 @@ $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
   endef
 
   INCL_MODULES+=$(1)
-  KAM_MODULES+=kamailio5-mod-$(subst _,-,$(1))
+
+$$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef
+
+PKG_MAKE_ARGS:= \
+	prefix=/ \
+	cfg_dir=/etc/kamailio/ \
+	bin_dir=/usr/sbin/ \
+	data_dir=/usr/share/kamailio/ \
+	lib_dir=/usr/lib/kamailio/ \
+	modules_dir=/usr/lib/kamailio/ \
+	include_modules="$(INCL_MODULES)" \
+	cfg_target:=/etc/kamailio/ \
+	TLS_HOOKS=1 \
+	extra_defs="-DUSE_PTHREAD_MUTEX " \
+	CFLAGS="$(TARGET_CFLAGS)" \
+	LOCALBASE="$(STAGING_DIR)/usr" \
+	SYSBASE="$(STAGING_DIR)/usr" \
+	PCREDEFS:="$(TARGET_CPPFLAGS)" \
+	PCRELIBS:="$(TARGET_LDFLAGS)" \
+	CROSS_COMPILE=$(TARGET_CROSS) \
+	CC="$(TARGET_CC)" \
+	ARCH="$(ARCH)"  \
+	DESTDIR=$(PKG_INSTALL_DIR) \
+	EXTRA_LIBS="-L$(STAGING_DIR)/usr/lib/" \
+	quiet=verbose
+
+define Build/Compile
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) all
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) install
+endef
+
+$(eval $(call BuildPackage,kamailio5))
 
 ################################
 # Kamailio module parameters
@@ -222,34 +253,3 @@ $(eval $(call BuildKamailio5Module,xcap_client,XCAP Client,,+libcurl))
 $(eval $(call BuildKamailio5Module,xlog,Advanced logger,,))
 $(eval $(call BuildKamailio5Module,xmlrpc,XML RPC module,,+libxml2))
 $(eval $(call BuildKamailio5Module,xmpp,SIP-to-XMPP Gateway,,+kamailio5-mod-tm +libexpat))
-
-PKG_MAKE_ARGS:= \
-	prefix=/ \
-	cfg_dir=/etc/kamailio/ \
-	bin_dir=/usr/sbin/ \
-	data_dir=/usr/share/kamailio/ \
-	lib_dir=/usr/lib/kamailio/ \
-	modules_dir=/usr/lib/kamailio/ \
-	include_modules="$(INCL_MODULES)" \
-	cfg_target:=/etc/kamailio/ \
-	TLS_HOOKS=1 \
-	extra_defs="-DUSE_PTHREAD_MUTEX " \
-	CFLAGS="$(TARGET_CFLAGS)" \
-	LOCALBASE="$(STAGING_DIR)/usr" \
-	SYSBASE="$(STAGING_DIR)/usr" \
-	PCREDEFS:="$(TARGET_CPPFLAGS)" \
-	PCRELIBS:="$(TARGET_LDFLAGS)" \
-	CROSS_COMPILE=$(TARGET_CROSS) \
-	CC="$(TARGET_CC)" \
-	ARCH="$(ARCH)"  \
-	DESTDIR=$(PKG_INSTALL_DIR) \
-	EXTRA_LIBS="-L$(STAGING_DIR)/usr/lib/" \
-	quiet=verbose
-
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) all
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) install
-endef
-
-$(eval $(call BuildPackage,kamailio5))
-$(foreach m,$(KAM_MODULES),$(eval $(call BuildPackage,$(m))))
