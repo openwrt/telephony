@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2014 OpenWrt.org
+# Copyright (C) 2006-2018 OpenWrt.org
 # Copyright (C) 2006-2011 SMBPhone
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -56,7 +56,9 @@ endef
 
 define Package/$(PKG_NAME)-scripts-perl
   $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) $(PKG_NAME)-mod-extmodule +perlbase-data
+  DEPENDS += $(PKG_NAME) \
+	  +PACKAGE_$(PKG_NAME)-scripts-perl:$(PKG_NAME)-mod-extmodule \
+	  +PACKAGE_$(PKG_NAME)-scripts-perl:perlbase-data
   TITLE:= Perl module for Yate
 endef
 
@@ -69,14 +71,14 @@ endef
 define Package/$(PKG_NAME)-collection-basic
   $(call Package/yate/Default)
   DEPENDS += $(PKG_NAME) \
-	+$(PKG_NAME)-sounds \
-	+$(PKG_NAME)-mod-dumbchan \
-	+$(PKG_NAME)-mod-regfile \
-	+$(PKG_NAME)-mod-regexroute \
-	+$(PKG_NAME)-mod-rmanager \
-	+$(PKG_NAME)-mod-tonegen \
-	+$(PKG_NAME)-mod-yrtpchan \
-	+$(PKG_NAME)-mod-ysipchan
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-sounds \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-dumbchan \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-regfile \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-regexroute \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-rmanager \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-tonegen \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-yrtpchan \
+	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-ysipchan
    TITLE := Basic Yate Server
 endef
 
@@ -167,7 +169,7 @@ endef
 define BuildPlugin
   define Package/$(PKG_NAME)-mod-$(1)
     $(call Package/yate/Default)
-    DEPENDS:= $(PKG_NAME) $(4)
+    DEPENDS:= $(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
     TITLE:=$(3)
   endef
 
