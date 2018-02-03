@@ -83,9 +83,6 @@ define Package/$(PKG_NAME)-collection-basic
    TITLE := Basic Yate Server
 endef
 
-# Otherwise yate ignores CPPFLAGS
-TARGET_CFLAGS += $(TARGET_CPPFLAGS)
-
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
