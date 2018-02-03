@@ -37,7 +37,8 @@ define Package/libosip2/description
  GNU oSIP library, a Session Initiation Protocol (SIP) implementation.
 endef
 
-TARGET_CFLAGS += $(FPIC)
+# toolchain __arc__ define conflicts with libosip2 source
+TARGET_CFLAGS += $(FPIC) $(if $(CONFIG_arc),-U__arc__)
 
 CONFIGURE_ARGS += \
 	--enable-shared \
