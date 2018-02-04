@@ -57,7 +57,7 @@ define Package/kamailio5/install
 		$(PKG_INSTALL_DIR)/usr/sbin/kam{ailio,cmd,ctl,dbctl} \
 		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
-	$(INSTALL_BIN) \
+	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib*.so* \
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
