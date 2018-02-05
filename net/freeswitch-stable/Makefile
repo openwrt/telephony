@@ -343,6 +343,10 @@ define Package/$(PKG_NAME)/install/mod
 						$(1)$(FS_STABLE_MOD_DIR)
 endef
 
+define Package/$(PKG_NAME)/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define Package/$(PKG_LIBFTDM)/Default
   SECTION:=libs
   CATEGORY:=Libraries
@@ -380,10 +384,6 @@ define Package/$(PKG_LIBFTDM)-ftmod-$(1)/install
 $(call Package/$(PKG_LIBFTDM)/install/ftmod,$$(1),$(1))
 endef
 $$(eval $$(call BuildPackage,$(PKG_LIBFTDM)-ftmod-$(1)))
-endef
-
-define Package/$(PKG_NAME)/config
-	source "$(SOURCE)/Config.in"
 endef
 
 define Package/$(PKG_NAME)/Default
