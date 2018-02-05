@@ -110,7 +110,7 @@ CONFIGURE_ARGS+= \
 	--without-doxygen \
 	--without-kdoc
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-isaccodec),)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec),)
 CONFIGURE_ARGS+=$(if $(CONFIG_SOFT_FLOAT),--disable-isac-float --enable-isac-fixed,--disable-isac-fixed --enable-isac-float)
 else
 CONFIGURE_ARGS+= \
