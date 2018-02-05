@@ -676,7 +676,6 @@ endef
 CONFIGURE_ARGS+= \
 	--srcdir=$(PKG_BUILD_DIR) \
 	--disable-dependency-tracking \
-	--disable-silent-rules \
 	--disable-static \
 	--disable-system-xmlrpc-c \
 	--enable-core-libedit-support \
