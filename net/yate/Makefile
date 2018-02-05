@@ -12,7 +12,7 @@ RELEASEVER:=6.0.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -228,8 +228,8 @@ $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,,,y))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,,,y))
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,,,y))
 $(eval $(call BuildPlugin,ilbccodec,,iLBC Codec,))
-$(eval $(call BuildPlugin,ilbcwebrtc,,iLBC Codec from the WebRTC project,@!arc))
-$(eval $(call BuildPlugin,isaccodec,,internet Speech Audio Codec,@!arc))
+$(eval $(call BuildPlugin,ilbcwebrtc,,iLBC Codec from the WebRTC project,))
+$(eval $(call BuildPlugin,isaccodec,,internet Speech Audio Codec,))
 $(eval $(call BuildPlugin,isupmangler,sig,ISUP parameter mangling in a STP,,,y))
 $(eval $(call BuildPlugin,jabberclient,client,Jabber Client,,,y))
 $(eval $(call BuildPlugin,jabberserver,jabber,Jabber Server,,,y))
