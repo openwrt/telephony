@@ -998,12 +998,12 @@ endif
 endef
 
 define Build/Compile
-	$(call Build/Compile/Default)
-# FreeTDM is only compiled/installed automatically if mod_freetdm is selected
+# Compile FreeTDM first
 ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-freetdm),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/$(FTDM))
 endif
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
+	$(call Build/Compile/Default)
 endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
@@ -1014,11 +1014,12 @@ endif
 endef
 
 define Build/Install
-	$(call Build/Install/Default)
+# Again, FreeTDM first
 ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-freetdm),)
 	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/$(FTDM) install)
 endif
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
+	$(call Build/Install/Default)
 endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
@@ -1028,19 +1029,30 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 endif
 endef
 
-define Build/InstallDev
+define Build/InstallDev/$(PKG_LIBFTDM)
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(FTDM).pc \
+						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+endef
+
+define Build/InstallDev/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_INCLUDES_DIR)
-	$(INSTALL_DIR) $(1)$(FS_STABLE_PKGCONFIG_DIR)
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_STABLE_INCLUDES_DIR)/*.h \
 						$(1)$(FS_STABLE_INCLUDES_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
 						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)$(FS_STABLE_PKGCONFIG_DIR)
 ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(FTDM).pc \
-						$(1)$(FS_STABLE_PKGCONFIG_DIR)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+	$(call Build/InstallDev/$(PKG_LIBFTDM),$(1))
+endif
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
+	$(call Build/InstallDev/$(PKG_NAME),$(1))
 endif
 endef
 
