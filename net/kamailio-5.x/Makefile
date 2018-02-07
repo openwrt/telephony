@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.0.4
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -118,18 +118,14 @@ PKG_MAKE_ARGS:= \
 	group_include="standard" \
 	include_modules="$$(INCL_MODULES)" \
 	cfg_target:=/etc/kamailio/ \
-	TLS_HOOKS=1 \
-	extra_defs="-DUSE_PTHREAD_MUTEX " \
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
+	LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
 	LOCALBASE="$(STAGING_DIR)/usr" \
 	SYSBASE="$(STAGING_DIR)/usr" \
-	PCREDEFS:="$(TARGET_CPPFLAGS)" \
-	PCRELIBS:="$(TARGET_LDFLAGS)" \
 	CROSS_COMPILE=$(TARGET_CROSS) \
 	CC="$(TARGET_CC)" \
 	ARCH="$(ARCH)"  \
 	DESTDIR=$(PKG_INSTALL_DIR) \
-	EXTRA_LIBS="-L$(STAGING_DIR)/usr/lib/" \
 	quiet=verbose
 
 define Build/Compile
@@ -176,7 +172,7 @@ $(eval $(call BuildKamailio5Module,db_text,Text DB-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio5Module,db_unixodbc,UnixODBC DB-backend,,+unixodbc))
 $(eval $(call BuildKamailio5Module,debugger,Interactive config file debugger,,))
 $(eval $(call BuildKamailio5Module,dialog,Dialog support,,+kamailio5-mod-rr +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,dialplan,Dialplan management,,))
+$(eval $(call BuildKamailio5Module,dialplan,Dialplan management,,+libpcre))
 $(eval $(call BuildKamailio5Module,dispatcher,Dispatcher,,))
 $(eval $(call BuildKamailio5Module,diversion,Diversion header insertion,,))
 $(eval $(call BuildKamailio5Module,domain,Multi-domain support,,))
