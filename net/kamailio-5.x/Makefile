@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.0.4
-PKG_RELEASE:=3
+PKG_VERSION:=5.1.1
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=71f1b560721f9c2bed9f7cbd3b4c08d8defd2daa8fd28ce55d3938781a654a13
+PKG_HASH:=96f15fd639d6ea2f4f9921e83ecddff0ac42732f2709bcf7269d591952676fc4
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -47,7 +47,6 @@ endef
 define Package/kamailio5/conffiles
 /etc/default/kamailio
 /etc/kamailio/kamailio.cfg
-/etc/kamailio/dictionary.kamailio
 /etc/kamailio/kamctlrc
 endef
 
@@ -61,21 +60,17 @@ define Package/kamailio5/install
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib*.so* \
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/kamailio
-	$(CP) \
-		$(PKG_BUILD_DIR)/etc/{dictionary.kamailio,kamailio.cfg,kamailio-basic.cfg} \
-		$(1)/etc/kamailio/
-	$(CP) \
-		$(PKG_BUILD_DIR)/utils/kamctl/kamctlrc \
+	$(INSTALL_CONF) \
+		$(PKG_INSTALL_DIR)/etc/kamailio/{kamailio.cfg,kamctlrc} \
 		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
-	$(CP) \
+	$(INSTALL_CONF) \
 		./files/kamailio.default \
 		$(1)/etc/default/kamailio
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
 		$(1)/etc/init.d/kamailio
-	$(INSTALL_DIR) $(1)/usr/lib/kamailio
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/

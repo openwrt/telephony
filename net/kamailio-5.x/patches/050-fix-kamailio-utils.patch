@@ -8,7 +8,7 @@
  #
 --- a/utils/kamctl/kamctlrc
 +++ b/utils/kamctl/kamctlrc
-@@ -151,3 +151,6 @@
+@@ -160,3 +160,6 @@
  ## Extra start options - default is: not set
  # example: start Kamailio with 64MB share memory: STARTOPTIONS="-m 64"
  # STARTOPTIONS=
@@ -23,8 +23,8 @@
  #
  # control tool for maintaining Kamailio databases
  #
---- kamailio5-5.0.2/utils/kamctl/kamdbctl.base	2017-06-26 13:57:13.000000000 +0200
-+++ kamailio5-x/utils/kamctl/kamdbctl.base	2017-08-13 20:17:54.033561438 +0200
+--- a/utils/kamctl/kamdbctl.base
++++ b/utils/kamctl/kamdbctl.base
 @@ -33,19 +33,19 @@ INSTALL_DBUID_TABLES=${INSTALL_DBUID_TAB
  
  # Used by dbtext and db_berkeley to define tables to be created, used by
