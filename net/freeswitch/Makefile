@@ -966,7 +966,7 @@ $(eval $(call BuildPlugin,event-zmq,Socket Event Handler By Zero MQ,vanilla,,,,+
 $(eval $(call BuildPlugin,expr,Expression Evaluation,vanilla,,,,))
 $(eval $(call BuildPlugin,fifo,FIFO,vanilla,,,,))
 $(eval $(call BuildPlugin,file-string,Streaming Multiple Sound Files Sequentially,vanilla,,,,@OBSOLETE)) # merged into dptools
-$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package repo
+#$(eval $(call BuildPlugin,flite,Festival TTS,vanilla,,,,+flite @BROKEN)) # flite is from old package repo
 $(eval $(call BuildPlugin,format-cdr,XML CDR Module to files or curl,vanilla,,,,))
 $(eval $(call BuildPlugin,fsk,Bell-202 1200-Baud FSK Decoder,vanilla,,,,))
 #$(eval $(call BuildPlugin,fsv,Video Player / Recorder,vanilla,,,,+libyuv @BROKEN)) # Requires unsupported libyuv.
