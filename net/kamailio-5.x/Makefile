@@ -51,6 +51,7 @@ define Package/kamailio5/conffiles
 endef
 
 define Package/kamailio5/install
+$(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1),$(c));)
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/kam{ailio,cmd,ctl,dbctl} \
@@ -59,10 +60,6 @@ define Package/kamailio5/install
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib*.so* \
 		$(1)/usr/lib/kamailio/
-	$(INSTALL_DIR) $(1)/etc/kamailio
-	$(INSTALL_CONF) \
-		$(PKG_INSTALL_DIR)/etc/kamailio/{kamailio.cfg,kamctlrc} \
-		$(1)/etc/kamailio/
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_CONF) \
 		./files/kamailio.default \
@@ -74,6 +71,11 @@ define Package/kamailio5/install
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/
+endef
+
+define Package/kamailio5/install/conffile
+	$(INSTALL_DIR) $(1)/etc/kamailio
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/kamailio/$(2) $(1)/etc/kamailio
 endef
 
 define Package/kamailio5/install/dbfiles
@@ -95,9 +97,12 @@ define BuildKamailio5Module
     INCL_MODULES+=$(1)
     endif
   endef
-
+  define Package/kamailio5-mod-$(subst _,-,$(1))/conffiles
+$(subst $(space),$(newline),$(foreach c,$(6),/etc/kamailio/$(c)))
+  endef
   define Package/kamailio5-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio5/install/module,$$(1),$(1))
+$(foreach c,$(6),$(call Package/kamailio5/install/conffile,$$(1),$(c));)
 $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
   endef
 $$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
@@ -138,6 +143,7 @@ $(eval $(call BuildPackage,kamailio5))
 # 3 - Module description
 # 4 - Dependencies
 # 5 - Kamailio DB files
+# 6 - Configuration files
 ################################
 
 $(eval $(call BuildKamailio5Module,acc,Accounting,,+kamailio5-mod-tm))
@@ -232,7 +238,7 @@ $(eval $(call BuildKamailio5Module,stun,STUN server support,,))
 $(eval $(call BuildKamailio5Module,sst,SIP Session Timer,,+kamailio5-mod-dialog +kamailio5-mod-sl))
 $(eval $(call BuildKamailio5Module,tcpops,TCP options tweaking operations,,))
 $(eval $(call BuildKamailio5Module,textops,Text operations,,))
-$(eval $(call BuildKamailio5Module,tls,TLS operations,,+libopenssl))
+$(eval $(call BuildKamailio5Module,tls,TLS operations,,+libopenssl,,tls.cfg))
 $(eval $(call BuildKamailio5Module,topoh,Topology hiding,,+kamailio5-mod-rr))
 $(eval $(call BuildKamailio5Module,tm,Transaction,,))
 $(eval $(call BuildKamailio5Module,tmx,Transaction module extensions,,))
