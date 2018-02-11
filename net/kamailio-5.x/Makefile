@@ -130,6 +130,7 @@ PKG_MAKE_ARGS:= \
 	include_modules="$$(INCL_MODULES)" \
 	cfg_target:=/etc/kamailio/ \
 	lib_target=/usr/lib/kamailio/ \
+	run_target=/var/run/kamailio/ \
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
 	LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
 	LOCALBASE="$(STAGING_DIR)/usr" \
