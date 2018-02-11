@@ -105,6 +105,11 @@ $(subst $(space),$(newline),$(foreach c,$(6),/etc/kamailio/$(c)))
 $(call Package/kamailio5/install/module,$$(1),$(1))
 $(foreach c,$(6),$(call Package/kamailio5/install/conffile,$$(1),$(c));)
 $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
+  ifeq ($(1),snmpstats)
+	$(INSTALL_DIR) $$(1)/usr/share/snmp/mibs
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/snmp/mibs/* \
+					$$(1)/usr/share/snmp/mibs
+  endif
   endef
 $$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef

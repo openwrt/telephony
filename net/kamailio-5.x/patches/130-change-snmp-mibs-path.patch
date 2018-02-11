@@ -1,0 +1,11 @@
+--- a/src/modules/snmpstats/Makefile
++++ b/src/modules/snmpstats/Makefile
+@@ -16,7 +16,7 @@ ifeq ($(BUILDER),)
+ 	INSTALLMIBDIR =  $(share_prefix)/share/snmp/mibs
+ else
+ 	BUILDAGENTLIBS = $(shell net-snmp-config --netsnmp-agent-libs)
+-	INSTALLMIBDIR = $(basedir)$(shell net-snmp-config --prefix)/share/snmp/mibs
++	INSTALLMIBDIR = $(basedir)/usr/share/snmp/mibs
+ endif
+ 
+ ifeq ($(EMBEDDED_PERL),1)
