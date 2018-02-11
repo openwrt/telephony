@@ -337,7 +337,7 @@ $(eval $(call BuildKamailio5Module,websocket,WebSocket transport layer,,+kamaili
 $(eval $(call BuildKamailio5Module,xcap_client,XCAP Client,,+libcurl))
 $(eval $(call BuildKamailio5Module,xcap_server,XCAP server implementation,,+kamailio5-mod-xhttp +kamailio5-mod-sl))
 $(eval $(call BuildKamailio5Module,xhttp,Basic HTTP request handling server,,+kamailio5-mod-sl))
-$(eval $(call BuildKamailio5Module,xhttp_pi,HTTP provisioning interface,,+kamailio5-mod-xhttp))
+$(eval $(call BuildKamailio5Module,xhttp_pi,HTTP provisioning interface,,+kamailio5-mod-xhttp,xhttp_pi,pi_framework.xml))
 $(eval $(call BuildKamailio5Module,xhttp_rpc,RPC commands handling over HTTP,,+kamailio5-mod-xhttp))
 $(eval $(call BuildKamailio5Module,xlog,Advanced logger,,))
 $(eval $(call BuildKamailio5Module,xmlops,XML operations,,))
