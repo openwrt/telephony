@@ -116,6 +116,9 @@ endef
 
 TARGET_CPPFLAGS+=$(if $(CONFIG_PACKAGE_kamailio5-mod-app-python),-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION))
 
+# "lib_target" is specified in order for the modules to get a proper
+# RPATH, as otherwise they would not find the internal libraries.
+
 PKG_MAKE_ARGS:= \
 	prefix=/ \
 	cfg_dir=/etc/kamailio/ \
@@ -126,6 +129,7 @@ PKG_MAKE_ARGS:= \
 	group_include="standard" \
 	include_modules="$$(INCL_MODULES)" \
 	cfg_target:=/etc/kamailio/ \
+	lib_target=/usr/lib/kamailio/ \
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
 	LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
 	LOCALBASE="$(STAGING_DIR)/usr" \
