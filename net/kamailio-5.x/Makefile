@@ -118,8 +118,24 @@ endef
 
 TARGET_CPPFLAGS+=$(if $(CONFIG_PACKAGE_kamailio5-mod-app-python),-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION))
 
+# Kamailio always builds a baseline of packages. The "standard" group is
+# the lightest baseline.
+
+# "uid_gflags" is added to the list of modules to have at least one
+# module that kicks off the build of the internal libsrdb2. The module
+# has no other extra dependencies.
+#
+# The same is done with:
+#   "ims_diameter_server" -> libkamailio_ims
+#   "carrierroute" -> libtrie
+
 # "lib_target" is specified in order for the modules to get a proper
 # RPATH, as otherwise they would not find the internal libraries.
+
+EXTRA_MODULES:= \
+	$(if $(CONFIG_PACKAGE_kamailio5-mod-carrierroute),,carrierroute) \
+	$(if $(CONFIG_PACKAGE_kamailio5-mod-ims-diameter-server),,ims_diameter_server) \
+	$(if $(CONFIG_PACKAGE_kamailio5-mod-uid-gflags),,uid_gflags)
 
 PKG_MAKE_ARGS:= \
 	prefix=/ \
@@ -129,7 +145,7 @@ PKG_MAKE_ARGS:= \
 	lib_dir=/usr/lib/kamailio/ \
 	modules_dir=/usr/lib/kamailio/ \
 	group_include="standard" \
-	include_modules="$$(INCL_MODULES)" \
+	include_modules="$$(INCL_MODULES) $(EXTRA_MODULES)" \
 	cfg_target=/etc/kamailio/ \
 	lib_target=/usr/lib/kamailio/ \
 	run_target=/var/run/kamailio/ \
