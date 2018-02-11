@@ -91,6 +91,20 @@ define Package/kamailio5/install/module
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so* $(1)/usr/lib/kamailio/modules/
 endef
 
+define Package/kamailio5-kambdb_recover
+$(call Package/kamailio5/Default)
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=kamailio5 kambdb_recover
+  DEPENDS:=kamailio5 +PACKAGE_kamailio5-kambdb_recover:kamailio5-mod-db-berkeley
+endef
+
+define Package/kamailio5-kambdb_recover/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/kambdb_recover \
+					$(1)/usr/sbin/kambdb_recover
+endef
+
 define Package/kamailio5-libkamailio-ims
 $(call Package/kamailio5/Default)
   SECTION:=lib
@@ -194,6 +208,7 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,kamailio5))
+$(eval $(call BuildPackage,kamailio5-kambdb_recover))
 $(eval $(call BuildPackage,kamailio5-libkamailio-ims))
 $(eval $(call BuildPackage,kamailio5-libtrie))
 
