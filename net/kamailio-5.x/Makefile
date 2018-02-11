@@ -25,7 +25,9 @@ include $(INCLUDE_DIR)/nls.mk
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/feeds/packages/lang/python/python-host.mk
 
-TARGET_CFLAGS += $(FPIC) -DVERSION_NODATE=1
+# Build reproducibly
+TARGET_CFLAGS += -DVERSION_NODATE=1
+
 PREBUILT_STAMP=$(STAGING_DIR)/stamp/.$(PKG_NAME)_prebuilt
 TAR_CMD:=$(HOST_TAR) -C $(PKG_BUILD_DIR) --strip-components 1 $(TAR_OPTIONS)
 
@@ -142,8 +144,9 @@ PKG_MAKE_ARGS:= \
 	quiet=verbose
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) all
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) install
+	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) cfg
+	$(MAKE) -C $(PKG_BUILD_DIR) quiet=verbose all
+	$(MAKE) -C $(PKG_BUILD_DIR) quiet=verbose install
 endef
 
 $(eval $(call BuildPackage,kamailio5))
