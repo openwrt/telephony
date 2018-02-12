@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.1.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -91,46 +91,40 @@ define Package/kamailio5/install/module
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so* $(1)/usr/lib/kamailio/modules/
 endef
 
-define Package/kamailio5-kambdb_recover
+define Package/kamailio5-lib-libkamailio-ims
 $(call Package/kamailio5/Default)
-  SECTION:=utils
-  CATEGORY:=Utilities
-  TITLE:=kamailio5 kambdb_recover
-  DEPENDS:=kamailio5 +PACKAGE_kamailio5-kambdb_recover:kamailio5-mod-db-berkeley
-endef
-
-define Package/kamailio5-kambdb_recover/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/kambdb_recover \
-					$(1)/usr/sbin/kambdb_recover
-endef
-
-define Package/kamailio5-libkamailio-ims
-$(call Package/kamailio5/Default)
-  SECTION:=lib
-  CATEGORY:=Libraries
-  TITLE:=kamailio5 IMS library
+  TITLE:=Kamailio5 IMS library
   DEPENDS:=kamailio5
 endef
 
-define Package/kamailio5-libkamailio-ims/install
+define Package/kamailio5-lib-libkamailio-ims/install
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/libkamailio_ims.so* \
 						$(1)/usr/lib/kamailio
 endef
 
-define Package/kamailio5-libtrie
+define Package/kamailio5-lib-libtrie
 $(call Package/kamailio5/Default)
-  SECTION:=lib
-  CATEGORY:=Libraries
-  TITLE:=kamailio5 trie library
+  TITLE:=Kamailio5 digital tree library
   DEPENDS:=kamailio5
 endef
 
-define Package/kamailio5-libtrie/install
+define Package/kamailio5-lib-libtrie/install
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/libtrie.so* \
 					$(1)/usr/lib/kamailio
+endef
+
+define Package/kamailio5-util-kambdb_recover
+$(call Package/kamailio5/Default)
+  TITLE:=Kamailio5 Berkeley DB recovery utility
+  DEPENDS:=kamailio5 +PACKAGE_kamailio5-util-kambdb_recover:kamailio5-mod-db-berkeley
+endef
+
+define Package/kamailio5-util-kambdb_recover/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/kambdb_recover \
+				$(1)/usr/sbin/kambdb_recover
 endef
 
 define BuildKamailio5Module
@@ -208,9 +202,9 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,kamailio5))
-$(eval $(call BuildPackage,kamailio5-kambdb_recover))
-$(eval $(call BuildPackage,kamailio5-libkamailio-ims))
-$(eval $(call BuildPackage,kamailio5-libtrie))
+$(eval $(call BuildPackage,kamailio5-lib-libkamailio-ims))
+$(eval $(call BuildPackage,kamailio5-lib-libtrie))
+$(eval $(call BuildPackage,kamailio5-util-kambdb_recover))
 
 ################################
 # Kamailio module parameters
@@ -243,7 +237,7 @@ $(eval $(call BuildKamailio5Module,benchmark,Config benchmark,,))
 $(eval $(call BuildKamailio5Module,blst,Blacklisting API for config,,))
 $(eval $(call BuildKamailio5Module,call_control,Call Control,,+kamailio5-mod-dialog +kamailio5-mod-pv))
 $(eval $(call BuildKamailio5Module,call_obj,Call identification support,,))
-$(eval $(call BuildKamailio5Module,carrierroute,Carrier Route,,+kamailio5-libtrie))
+$(eval $(call BuildKamailio5Module,carrierroute,Carrier Route,,+kamailio5-lib-libtrie))
 $(eval $(call BuildKamailio5Module,cdp,C Diameter Peer,,))
 $(eval $(call BuildKamailio5Module,cdp_avp,CDP AVP helper module,,+kamailio5-mod-cdp))
 $(eval $(call BuildKamailio5Module,cfgutils,Config utilities,,))
@@ -287,16 +281,16 @@ $(eval $(call BuildKamailio5Module,h350,H.350,,+kamailio5-mod-ldap +libopenldap)
 $(eval $(call BuildKamailio5Module,htable,Hash Table,,))
 $(eval $(call BuildKamailio5Module,http_client,HTTP client using CURL,,+libcurl))
 $(eval $(call BuildKamailio5Module,imc,IM conferencing,,+kamailio5-mod-db-mysql +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_auth,IMS authentication module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_charging,IMS charging component module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_auth,IMS authentication module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_charging,IMS charging component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,ims_dialog,IMS dialog tracking module,,+kamailio5-mod-rr +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_diameter_server,IMS DIAMETER server module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
-$(eval $(call BuildKamailio5Module,ims_icscf,IMS ICSCF component module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-sl +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_isc,IMS ISC component module,,+kamailio5-libkamailio-ims +kamailio5-mod-ims-usrloc-scscf +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_ocs,MS OCS component module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
-$(eval $(call BuildKamailio5Module,ims_qos,IMS Diameter Rx interface between PCSCF and PCRF functions,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-ims-dialog +kamailio5-mod-ims-usrloc-pcscf +kamailio5-mod-tm))
-$(eval $(call BuildKamailio5Module,ims_registrar_pcscf,MS PCSCF registrar module,,+kamailio5-libkamailio-ims +kamailio5-mod-ims-usrloc-pcscf))
-$(eval $(call BuildKamailio5Module,ims_registrar_scscf,IMS SCSCF registrar module,,+kamailio5-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-ims-usrloc-scscf +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_diameter_server,IMS DIAMETER server module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
+$(eval $(call BuildKamailio5Module,ims_icscf,IMS ICSCF component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-sl +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_isc,IMS ISC component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-ims-usrloc-scscf +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_ocs,MS OCS component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
+$(eval $(call BuildKamailio5Module,ims_qos,IMS Diameter Rx interface between PCSCF and PCRF functions,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-ims-dialog +kamailio5-mod-ims-usrloc-pcscf +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_registrar_pcscf,MS PCSCF registrar module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-ims-usrloc-pcscf))
+$(eval $(call BuildKamailio5Module,ims_registrar_scscf,IMS SCSCF registrar module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-ims-usrloc-scscf +kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,ims_usrloc_pcscf,IMS PCSCF usrloc module,,))
 $(eval $(call BuildKamailio5Module,ims_usrloc_scscf,IMS SCSCF usrloc module,,))
 $(eval $(call BuildKamailio5Module,ipops,IP and IPv6 operations,,))
@@ -398,7 +392,7 @@ $(eval $(call BuildKamailio5Module,uid_domain,Domains management,,))
 $(eval $(call BuildKamailio5Module,uid_gflags,Global attributes and flags,,))
 $(eval $(call BuildKamailio5Module,uid_uri_db,Database URI operations,,))
 $(eval $(call BuildKamailio5Module,uri_db,Database-backend SIP URI checking,,))
-$(eval $(call BuildKamailio5Module,userblacklist,User blacklists,,+kamailio5-libtrie))
+$(eval $(call BuildKamailio5Module,userblacklist,User blacklists,,+kamailio5-lib-libtrie))
 $(eval $(call BuildKamailio5Module,usrloc,User location,,))
 $(eval $(call BuildKamailio5Module,utils,Misc utilities,,+libcurl +libxml2))
 $(eval $(call BuildKamailio5Module,uuid,UUID utilities,,+libuuid))
