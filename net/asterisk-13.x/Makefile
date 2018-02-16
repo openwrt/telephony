@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 - 2018 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
-# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.19.0
+PKG_VERSION:=13.19.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=57b3f37f7c9f557754b6e67b183922a4957c832dc9150ae4024aedc4948d53d0
+PKG_HASH:=ff64118f9b9e5b3c84d09105a24751af573976718ce4bfd641075eb01b56dc63
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
