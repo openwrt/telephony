@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010-2017 OpenWrt.org
+# Copyright (C) 2010-2018 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.5.6
-PKG_RELEASE:=5
+PKG_VERSION:=0.5.8
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=148defef160842e0247af92c84bb0c8de4b36ffa68cf3a87c4cd7e510cddd00c
+PKG_HASH:=d9f11da50fd6c9359ab478618b5d3c132474a838fe9f668c249f9d5a07f26662
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -189,6 +189,7 @@ $(eval $(call BuildPlugin,aufile,Audio module for using a WAV-file as audio inpu
 $(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,@BARESIP_WITH_FFMPEG +libffmpeg-full +libx264))
 $(eval $(call BuildPlugin,avformat,Video source using FFmpeg,avformat,@BARESIP_WITH_FFMPEG +libffmpeg-full))
 $(eval $(call BuildPlugin,cons,UDP/TCP console UI driver,cons,))
+$(eval $(call BuildPlugin,ctrl_tcp,TCP control interface,ctrl_tcp,))
 $(eval $(call BuildPlugin,debug_cmd,Debug commands,debug_cmd,))
 $(eval $(call BuildPlugin,dtls_srtp,DTLS-SRTP end-to-end encryption,dtls_srtp,))
 $(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
