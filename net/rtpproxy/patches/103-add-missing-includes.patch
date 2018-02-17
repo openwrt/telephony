@@ -1,0 +1,36 @@
+--- a/src/rtpp_record.c
++++ b/src/rtpp_record.c
+@@ -48,6 +48,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
++#include "config.h"
+ #include "rtp.h"
+ #include "rtp_packet.h"
+ #include "rtpp_log.h"
+@@ -67,6 +68,7 @@
+ #include "rtpp_session.h"
+ #include "rtpp_stream.h"
+ #include "rtpp_time.h"
++#include "rtpp_util.h"
+ #include "rtpp_pipe.h"
+ #include "rtpp_netaddr.h"
+ 
+--- a/modules/acct_csv/rtpp_acct_csv.c
++++ b/modules/acct_csv/rtpp_acct_csv.c
+@@ -38,6 +38,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
++#include "config.h"
+ #include "rtpp_ssrc.h"
+ #include "rtpa_stats.h"
+ #include "rtpp_monotime.h"
+@@ -50,6 +51,7 @@
+ #include "rtpp_module.h"
+ #include "rtpp_netaddr.h"
+ #include "rtpp_network.h"
++#include "rtpp_util.h"
+ #include "rtpp_cfg_stable.h"
+ 
+ #define SSRC_STRLEN 11
