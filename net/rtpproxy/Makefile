@@ -29,13 +29,24 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/rtpproxy
+define Package/rtpproxy/Default
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
+  URL:=http://www.rtpproxy.org/
+endef
+
+define Package/rtpproxy
+$(call Package/rtpproxy/Default)
   DEPENDS:=+libpthread +librt
   TITLE:=RTP (Realtime Transport Protocol) proxy
-  URL:=http://www.rtpproxy.org/
+  MENU:=1
+endef
+
+define Package/rtpproxy-mod-acct_csv
+$(call Package/rtpproxy/Default)
+  DEPENDS:=rtpproxy
+  TITLE:=RTPproxy accounting module
 endef
 
 CONFIGURE_VARS += \
@@ -52,4 +63,11 @@ define Package/rtpproxy/install
 	$(INSTALL_BIN) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
 endef
 
+define Package/rtpproxy-mod-acct_csv/install
+	$(INSTALL_DIR) $(1)/usr/lib/rtpproxy
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/rtpproxy/rtpp_acct_csv.so \
+							$(1)/usr/lib/rtpproxy
+endef
+
 $(eval $(call BuildPackage,rtpproxy))
+$(eval $(call BuildPackage,rtpproxy-mod-acct_csv))
