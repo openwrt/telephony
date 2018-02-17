@@ -23,6 +23,8 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_CHECK_FORMAT_SECURITY:=0
 PKG_INSTALL:=1
 
+PKG_FIXUP:=autoreconf
+
 PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
@@ -51,6 +53,9 @@ endef
 
 CONFIGURE_VARS += \
         ac_cv_lib_bcg729_initBcg729EncoderChannel=no
+
+# Otherwise OpenWrt's CPPFLAGS are ignored
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Package/rtpproxy/install
 	$(INSTALL_DIR) $(1)/usr/bin
