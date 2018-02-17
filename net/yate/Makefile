@@ -27,6 +27,9 @@ PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
 
+# Yate currently does not compile with FORTIFY_SOURCE enabled
+PKG_FORTIFY_SOURCE:=0
+
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
@@ -82,6 +85,9 @@ define Package/$(PKG_NAME)-collection-basic
 	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-ysipchan
    TITLE := Basic Yate Server
 endef
+
+# Otherwise yate ignores CPPFLAGS
+TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_x86_64),--enable-sse2) \
