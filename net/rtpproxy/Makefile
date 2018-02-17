@@ -45,6 +45,11 @@ $(call Package/rtpproxy/Default)
   MENU:=1
 endef
 
+define Package/rtpproxy/conffiles
+/etc/init.d/rtpproxy
+/etc/config/rtpproxy
+endef
+
 define Package/rtpproxy-mod-acct_csv
 $(call Package/rtpproxy/Default)
   DEPENDS:=rtpproxy
@@ -65,7 +70,7 @@ define Package/rtpproxy/install
 	$(INSTALL_BIN) ./files/rtpproxy.init $(1)/etc/init.d/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_BIN) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
+	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
 endef
 
 define Package/rtpproxy-mod-acct_csv/install
