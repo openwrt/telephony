@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2009-2010 OpenWrt.org
+# Copyright (C) 2009-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcapsipdump
 PKG_VERSION:=0.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/pcapsipdump
@@ -18,14 +18,13 @@ PKG_HASH:=4d4dc2664963c08de40da47ca0dcd1eeae09edc42241bd6daa7ff8c59089dce9
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=LICENSE
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pcapsipdump
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=+libpcap $(CXX_DEPENDS)
+  DEPENDS:=+libpcap +libstdcpp
   TITLE:=SIP sessions dumping tool
   URL:=http://sourceforge.net/projects/pcapsipdump/
 endef
@@ -36,15 +35,9 @@ define Package/pcapsipdump/description
  (even if there is thousands of concurrect SIP sessions).
 endef
 
-TARGET_CC=$(TARGET_CXX)
-
-define Build/Compile
-	$(TARGET_CONFIGURE_OPTS) \
-		$(MAKE) -C $(PKG_BUILD_DIR) \
-		CPPFLAGS="$(TARGET_CXXFLAGS) $(TARGET_CPPFLAGS) -fno-rtti"  \
-		LDFLAGS="$(TARGET_LDFLAGS)" \
-		LIBS="-lpcap"
-endef
+MAKE_VARS += \
+	CC="$(TARGET_CXX)" \
+	CPPFLAGS="$(TARGET_CXXFLAGS) -fno-rtti $(TARGET_CPPFLAGS)"
 
 define Package/pcapsipdump/install
 	$(INSTALL_DIR) $(1)/usr/bin
