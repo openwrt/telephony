@@ -98,7 +98,6 @@ CONFIGURE_ARGS+= \
 	--disable-wanpipe \
 	--enable-ilbc \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
-	--enable-rtti \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql="$(STAGING_DIR)/usr",--without-mysql) \
 	--without-wphwec \
