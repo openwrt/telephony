@@ -30,7 +30,6 @@ PKG_INSTALL:=1
 # Yate currently does not compile with FORTIFY_SOURCE enabled
 PKG_FORTIFY_SOURCE:=0
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -42,7 +41,7 @@ endef
 
 define Package/$(PKG_NAME)
   $(call Package/yate/Default)
-  DEPENDS:=+libpthread $(CXX_DEPENDS)
+  DEPENDS:=+libpthread +libstdcpp
   TITLE:=Yet Another Telephony Engine
   MENU:=1
 endef
