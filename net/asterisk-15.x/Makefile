@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
-PKG_VERSION:=15.2.0
+PKG_VERSION:=15.2.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=5ab2c80e3cb1a933013415d49dbb100e5d2045aeaf926f8eb0ed3b77460a6d83
+PKG_HASH:=35f87bd3f9f02a0f669a837e3b1b93f1e668390694c064194a49d454fa77d94e
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
