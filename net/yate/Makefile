@@ -12,7 +12,7 @@ RELEASEVER:=6.0.0
 
 PKG_NAME:=yate
 PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -27,7 +27,9 @@ PKG_FIXUP:=autoreconf
 
 PKG_INSTALL:=1
 
-include $(INCLUDE_DIR)/uclibc++.mk
+# Yate currently does not compile with FORTIFY_SOURCE enabled
+PKG_FORTIFY_SOURCE:=0
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -39,7 +41,7 @@ endef
 
 define Package/$(PKG_NAME)
   $(call Package/yate/Default)
-  DEPENDS:=+libpthread $(CXX_DEPENDS)
+  DEPENDS:=+libpthread +libstdcpp
   TITLE:=Yet Another Telephony Engine
   MENU:=1
 endef
@@ -83,6 +85,9 @@ define Package/$(PKG_NAME)-collection-basic
    TITLE := Basic Yate Server
 endef
 
+# Otherwise yate ignores CPPFLAGS
+TARGET_CFLAGS += $(TARGET_CPPFLAGS)
+
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
@@ -93,7 +98,6 @@ CONFIGURE_ARGS+= \
 	--disable-wanpipe \
 	--enable-ilbc \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
-	--enable-rtti \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql="$(STAGING_DIR)/usr",--without-mysql) \
 	--without-wphwec \
@@ -209,6 +213,7 @@ $(eval $(call BuildPlugin,cache,server,CNAM and LNP memory caches,,,y))
 $(eval $(call BuildPlugin,callcounters,server,Count Active Call Legs,,,y))
 $(eval $(call BuildPlugin,callfork,,Call Forker,,,y))
 $(eval $(call BuildPlugin,callgen,,Call Generator,))
+$(eval $(call BuildPlugin,camel_map,sig,MAP/CAMEL TCAP <-> XML translators,,,y))
 $(eval $(call BuildPlugin,ccongestion,server,Accept Status from Installed Engine Monitors,,,y))
 $(eval $(call BuildPlugin,cdrbuild,,Call Detail Record Builder,,,y))
 $(eval $(call BuildPlugin,cdrcombine,,Call Detail Records per call instead of per call leg,))
@@ -224,6 +229,7 @@ $(eval $(call BuildPlugin,enumroute,,ENUM Routing,,,y))
 $(eval $(call BuildPlugin,eventlogs,server,Write events and alarms to log files,,,y))
 $(eval $(call BuildPlugin,extmodule,,External Module Handler,,/usr/share/yate/scripts/echo.sh,y))
 $(eval $(call BuildPlugin,faxchan,,Spandsp Fax Channel,+libspandsp))
+$(eval $(call BuildPlugin,fileinfo,,File Info Holder,,,y))
 $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,,,y))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,,,y))
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,,,y))
@@ -260,6 +266,8 @@ $(eval $(call BuildPlugin,rmanager,,Yate Remote Management,,,y))
 $(eval $(call BuildPlugin,sigtransport,server,SIGTRAN (SS7 over IP) connection provider,,,y))
 $(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,,,y))
 $(eval $(call BuildPlugin,sipfeatures,server,SIP Features (SUBSCRIBE/NOTIFY),,,y))
+$(eval $(call BuildPlugin,sqlitedb,server,SQLite Support,+libsqlite3,,y))
+$(eval $(call BuildPlugin,ss7_lnp_ansi,sig,Query LNP Databases,,,y))
 $(eval $(call BuildPlugin,subscription,server,Subcription handler and presence notifier,,,y))
 $(eval $(call BuildPlugin,tdmcard,server,TDM Cards Signalling and Data Driver,@BROKEN)) # Missing TDM libraries
 $(eval $(call BuildPlugin,tonedetect,,Detectors for Various Tones,))
