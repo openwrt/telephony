@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2014 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -38,7 +38,7 @@ define Package/libosip2/description
 endef
 
 # toolchain __arc__ define conflicts with libosip2 source
-TARGET_CFLAGS += $(FPIC) $(if $(CONFIG_arc),-U__arc__)
+TARGET_CFLAGS += $(if $(CONFIG_arc),-U__arc__)
 
 CONFIGURE_ARGS += \
 	--enable-shared \
