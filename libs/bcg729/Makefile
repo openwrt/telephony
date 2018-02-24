@@ -40,7 +40,7 @@ define Package/bcg729/description
  source code in any kind.
 endef
 
-# Otherwise spandsp ignores OpenWrt's CPPFLAGS
+# Otherwise OpenWrt's CPPFLAGS are ignored
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CMAKE_OPTIONS += \
