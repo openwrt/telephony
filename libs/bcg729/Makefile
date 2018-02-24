@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2006-2017 OpenWrt.org
+# Copyright (C) 2006-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -40,9 +40,11 @@ define Package/bcg729/description
  source code in any kind.
 endef
 
-TARGET_CFLAGS += $(FPIC)
+# Otherwise spandsp ignores OpenWrt's CPPFLAGS
+TARGET_CFLAGS += $(FPIC) $(TARGET_CPPFLAGS)
 
 CMAKE_OPTIONS += \
+	-DCMAKE_VERBOSE_MAKEFILE=TRUE \
 	-DENABLE_SHARED=YES \
 	-DENABLE_STATIC=NO \
 	-DENABLE_TESTS=NO
