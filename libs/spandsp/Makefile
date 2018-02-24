@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2014 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -32,8 +32,6 @@ define Package/libspandsp
   TITLE:=spandsp library
   DEPENDS:=+libtiff
 endef
-
-TARGET_CFLAGS += $(FPIC)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
