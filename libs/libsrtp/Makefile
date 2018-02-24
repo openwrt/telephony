@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
 PKG_VERSION:=1.6.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/cisco/libsrtp.git
@@ -64,7 +64,7 @@ endef
 define Package/libsrtp/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libsrtp.so.* \
+		$(PKG_INSTALL_DIR)/usr/lib/libsrtp.so* \
 		$(1)/usr/lib/
 endef
 
