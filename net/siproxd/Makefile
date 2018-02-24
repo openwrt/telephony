@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -72,7 +72,7 @@ define BuildPlugin
 
   define Package/siproxd-mod-$(1)/install
 	$(INSTALL_DIR) $$(1)/usr/lib/siproxd
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1)*.so* $$(1)/usr/lib/siproxd
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1).so $$(1)/usr/lib/siproxd
   endef
 
   $$(eval $$(call BuildPackage,siproxd-mod-$(1)))
