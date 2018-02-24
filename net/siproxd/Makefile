@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014-2017 OpenWrt.org
+# Copyright (C) 2014-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -48,11 +48,11 @@ endef
 
 CONFIGURE_ARGS+= \
 	--with-libosip-prefix="$(STAGING_DIR)/usr" \
+	--disable-ltdl-convenience \
 	--disable-doc
 
 MAKE_FLAGS+= \
-	SUBDIRS="src scripts contrib" \
-	LIBLTDL="$(STAGING_DIR)/usr/lib/libltdl.la" \
+	SUBDIRS="src scripts contrib"
 
 define Package/siproxd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
