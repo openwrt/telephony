@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bcg729
 PKG_VERSION:=1.0.4
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.linphone.org/releases/sources/bcg729
@@ -41,7 +41,7 @@ define Package/bcg729/description
 endef
 
 # Otherwise spandsp ignores OpenWrt's CPPFLAGS
-TARGET_CFLAGS += $(FPIC) $(TARGET_CPPFLAGS)
+TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CMAKE_OPTIONS += \
 	-DCMAKE_VERBOSE_MAKEFILE=TRUE \
