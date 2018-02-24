@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2006-2017 OpenWrt.org
+# Copyright (C) 2006-2018 OpenWrt.org
 # Copyright (C) 2011 Victor Seva <linuxmaniac@torreviejawireless.org>
-# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -27,7 +27,6 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
-TARGET_CFLAGS += $(FPIC)
 CONFIGURE_ARGS += \
 	--disable-stdout \
 	--enable-syslog
