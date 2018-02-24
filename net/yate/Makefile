@@ -91,8 +91,7 @@ TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
-	--disable-dahdi \
-	--disable-zaptel \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard),,--disable-dahdi --disable-zaptel) \
 	--disable-wpcard \
 	--disable-tdmcard \
 	--disable-wanpipe \
@@ -284,5 +283,6 @@ $(eval $(call BuildPlugin,ysipchan,,SIP Channel,,,y))
 $(eval $(call BuildPlugin,ysnmpagent,server,SNMP Protocol Agent,,/usr/share/yate/data/NULL-TEAM-MIB.txt /usr/share/yate/data/snmp_mib.conf /usr/share/yate/data/YATE-MIB.txt,y))
 $(eval $(call BuildPlugin,ysockschan,,SOCKS Channel,,,y))
 $(eval $(call BuildPlugin,ystunchan,,STUN Support,,,y))
+$(eval $(call BuildPlugin,zapcard,server,Zaptel PRI/TDM/FXS/FXO cards,@!aarch64 +kmod-dahdi,,y))
 $(eval $(call BuildPlugin,zlibcompress,,Zlib Compression,+zlib,,y))
 
