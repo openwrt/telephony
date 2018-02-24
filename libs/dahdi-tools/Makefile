@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2014 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -46,20 +46,12 @@ define Package/dahdi-tools-libtonezone
   TITLE:=DAHDI tonezone library
 endef
 
-TARGET_CFLAGS += $(FPIC)
-EXTRA_CFLAGS:= $(TARGET_CPPFLAGS)
-
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-		$(TARGET_CONFIGURE_OPTS) \
 		HOSTCC="$(HOSTCC)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
-		CFLAGS="$(TARGET_CFLAGS) -I. -DBUILDING_TONEZONE -I$(STAGING_DIR)/usr/include" \
-		KSRC="$(LINUX_DIR)" \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		INSTALL_PREFIX="$(PKG_INSTALL_DIR)" \
-		DAHDI_INCLUDE="$(STAGING_DIR)/usr/include" \
-		CONFIGURE_SILENT="--silent" \
+		CFLAGS="$(TARGET_CFLAGS)" \
+		CPPFLAGS="$(TARGET_CPPFLAGS)" \
 		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune
 endef
 
