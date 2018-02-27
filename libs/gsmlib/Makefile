@@ -20,8 +20,8 @@ PKG_MIRROR_HASH:=bc24d7ddcb5f4b5f9160351d9f38cf6f35f3feef969f675f883b32d04c8c80f
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
-# Needed to get a fresh copy of gettext's Makefile.in.in
-PKG_BUILD_DEPENDS:=gettext-full/host
+# Need Makefile.in.in from gettext-full/host and po.m4 from gettext-full
+PKG_BUILD_DEPENDS:=gettext-full/host gettext-full
 
 PKG_FIXUP:=autoreconf
 
