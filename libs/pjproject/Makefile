@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2006-2017 OpenWrt.org
+# Copyright (C) 2006-2018 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
-# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.7.1
+PKG_VERSION:=2.7.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
-PKG_HASH:=59fabc62a02b2b80857297cfb10e2c68c473f4a0acc6e848cfefe8421f2c3126
+PKG_HASH:=9c2c828abab7626edf18e04b041ef274bfaa86f99adf2c25ff56f1509e813772
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
