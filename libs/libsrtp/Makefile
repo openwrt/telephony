@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2006-2017 OpenWrt.org
+# Copyright (C) 2006-2018 OpenWrt.org
 # Copyright (C) 2011 Victor Seva <linuxmaniac@torreviejawireless.org>
-# Copyright (C) 2017 Jiri Slachta <jiri@slachta.eu>
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
 PKG_VERSION:=1.6.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/cisco/libsrtp.git
@@ -27,7 +27,6 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
-TARGET_CFLAGS += $(FPIC)
 CONFIGURE_ARGS += \
 	--disable-stdout \
 	--enable-syslog
@@ -65,7 +64,7 @@ endef
 define Package/libsrtp/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libsrtp.so.* \
+		$(PKG_INSTALL_DIR)/usr/lib/libsrtp.so* \
 		$(1)/usr/lib/
 endef
 
