@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -927,19 +927,6 @@ AC_LINK_IFELSE(
+@@ -965,19 +965,6 @@ AC_LINK_IFELSE(
    ]
  )
  
@@ -20,4 +20,3 @@
  LIBS="$save_LIBS"
  CFLAGS="$save_CFLAGS"
  if test "${ac_cv_pthread_rwlock_timedwrlock}" = "yes"; then
-
