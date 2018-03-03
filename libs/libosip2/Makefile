@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 OpenWrt.org
+# Copyright (C) 2014 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libosip2
 PKG_VERSION:=5.0.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/osip
@@ -38,7 +38,7 @@ define Package/libosip2/description
 endef
 
 # toolchain __arc__ define conflicts with libosip2 source
-TARGET_CFLAGS += $(FPIC) $(if $(CONFIG_arc),-U__arc__)
+TARGET_CFLAGS += $(if $(CONFIG_arc),-U__arc__)
 
 CONFIGURE_ARGS += \
 	--enable-shared \
@@ -68,7 +68,7 @@ endef
 
 define Package/libosip2/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libosip{,parser}2.so $(PKG_INSTALL_DIR)/usr/lib/libosip{,parser}2.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libosip{,parser}2.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libosip2))
