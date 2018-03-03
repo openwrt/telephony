@@ -8,11 +8,9 @@
 
 include $(TOPDIR)/rules.mk
 
-RELEASEVER:=6.0.0
-
 PKG_NAME:=yate
-PKG_VERSION:=$(RELEASEVER)-1
-PKG_RELEASE:=4
+PKG_VERSION:=6.0.0-1
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -91,8 +89,7 @@ TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
-	--disable-dahdi \
-	--disable-zaptel \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard),,--disable-dahdi --disable-zaptel) \
 	--disable-wpcard \
 	--disable-tdmcard \
 	--disable-wanpipe \
@@ -126,14 +123,13 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	
 	for yatelib in "" asn sig mgcp jabber script; do \
-		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib ;\
-		$(LN) ./libyate$$$${yatelib}.so.$(RELEASEVER) $(1)/usr/lib/libyate$$$${yatelib}.so ;\
+		$(CP) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so* $(1)/usr/lib ;\
 	done
 	
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/yate $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/yate/yate.conf $(1)/etc/$(PKG_NAME)/yate.conf
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/yate/yate.conf $(1)/etc/$(PKG_NAME)/yate.conf
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/yate.init $(1)/etc/init.d/yate
 endef
@@ -179,7 +175,7 @@ $(if $(6),/etc/yate/$(1).conf)
 	$$(INSTALL_BIN) $$(PKG_INSTALL_DIR)/usr/lib/yate/$(2)/$(1).yate $$(1)/usr/lib/yate/$(2)/$(1).yate
 	if [ -f $$(PKG_INSTALL_DIR)/etc/yate/$(1).conf ]; then \
 		$$(INSTALL_DIR) $$(1)/etc/yate ;\
-		$$(INSTALL_DATA) $$(PKG_INSTALL_DIR)/etc/yate/$(1).conf $$(1)/etc/yate/ ;\
+		$$(INSTALL_CONF) $$(PKG_INSTALL_DIR)/etc/yate/$(1).conf $$(1)/etc/yate/ ;\
 	fi
 	$(if $(5),$(foreach extra_file,$(5),\
 		$(INSTALL_DIR) $$(1)$(dir $(extra_file)) ; \
@@ -284,5 +280,6 @@ $(eval $(call BuildPlugin,ysipchan,,SIP Channel,,,y))
 $(eval $(call BuildPlugin,ysnmpagent,server,SNMP Protocol Agent,,/usr/share/yate/data/NULL-TEAM-MIB.txt /usr/share/yate/data/snmp_mib.conf /usr/share/yate/data/YATE-MIB.txt,y))
 $(eval $(call BuildPlugin,ysockschan,,SOCKS Channel,,,y))
 $(eval $(call BuildPlugin,ystunchan,,STUN Support,,,y))
+$(eval $(call BuildPlugin,zapcard,server,Zaptel PRI/TDM/FXS/FXO cards,@!aarch64 +kmod-dahdi,,y))
 $(eval $(call BuildPlugin,zlibcompress,,Zlib Compression,+zlib,,y))
 
