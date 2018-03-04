@@ -1,11 +1,17 @@
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -550,7 +550,7 @@ libs/libzrtp/libzrtp.a:
+@@ -549,8 +549,13 @@ libs/libedit/src/.libs/libedit.a:
+ libs/libzrtp/libzrtp.a:
  	cd libs/libzrtp && $(MAKE)
  
++# !!! OpenWrt was here !!!
++# - added CROSS and set target to generic-gnu for cross-compile
++# - added CPPFLAGS to CFLAGS, otherwise they would be ignored
++# - disabled optimizations that would override OpenWrt's CFLAGS
++# - added a size limit like Debian does to address CVE-2017-0641
  libs/libvpx/Makefile:
 -	cd libs/libvpx && CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --extra-cflags="$(VISIBILITY_FLAG)"
-+	cd libs/libvpx && CROSS="$(CROSS)" CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --target=generic-gnu --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --extra-cflags="$(VISIBILITY_FLAG)"
++	cd libs/libvpx && CROSS="$(CROSS)" CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(CPPFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --target=generic-gnu --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --extra-cflags="$(VISIBILITY_FLAG)" --disable-optimizations --size-limit=16384x16384
  
  libs/libvpx/libvpx.a: libs/libvpx/Makefile
  	@cd libs/libvpx && $(MAKE)

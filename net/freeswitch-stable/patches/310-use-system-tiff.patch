@@ -14,7 +14,7 @@ Date:   Tue Mar 14 17:39:05 2017 -0500
  if ENABLE_LIBVPX
  CORE_CFLAGS += -DSWITCH_HAVE_VPX
  endif
-@@ -731,11 +730,6 @@ sndfile-reconf:
+@@ -736,11 +735,6 @@ sndfile-reconf:
  	cd libs/libsndfile && ./config.status --recheck
  	cd libs/libsndfile && ./config.status
  
@@ -26,7 +26,7 @@ Date:   Tue Mar 14 17:39:05 2017 -0500
  python-reconf:
  	rm -f src/mod/languages/mod_python/Makefile
  	./config.status
-@@ -757,7 +751,7 @@ iks-reconf:
+@@ -762,7 +756,7 @@ iks-reconf:
  	cd libs/iksemel && sh ./configure.gnu $(MY_DEFAULT_ARGS)
  	$(MAKE) mod_dingaling-clean
  
