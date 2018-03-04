@@ -957,24 +957,6 @@ define Build/Prepare
 	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_ZEROMQ_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
-	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
-	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_V8_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx),)
@@ -998,6 +980,25 @@ endif
 endef
 
 define Build/Compile
+# Copy some source files if certain modules are selected
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event_zmq),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_ZEROMQ_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx)$(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_POCKETSPHINX_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXBASE_FILE) $(PKG_BUILD_DIR)/libs
+	$(CP) $(DL_DIR)/$(FS_STABLE_SPHINXMODEL_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius_cdr),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
+	$(CP) $(DL_DIR)/$(FS_STABLE_V8_FILE) $(PKG_BUILD_DIR)/libs
+endif
+
 # Compile FreeTDM first
 ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/$(FTDM))
