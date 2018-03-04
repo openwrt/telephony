@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -28,6 +28,7 @@ PKG_INSTALL:=1
 # Yate currently does not compile with FORTIFY_SOURCE enabled
 PKG_FORTIFY_SOURCE:=0
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -39,7 +40,7 @@ endef
 
 define Package/$(PKG_NAME)
   $(call Package/yate/Default)
-  DEPENDS:=+libpthread +libstdcpp
+  DEPENDS:=+libpthread $(CXX_DEPENDS)
   TITLE:=Yet Another Telephony Engine
   MENU:=1
 endef

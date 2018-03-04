@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcapsipdump
 PKG_VERSION:=0.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/pcapsipdump
@@ -18,13 +18,14 @@ PKG_HASH:=4d4dc2664963c08de40da47ca0dcd1eeae09edc42241bd6daa7ff8c59089dce9
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=LICENSE
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pcapsipdump
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=+libpcap +libstdcpp
+  DEPENDS:=+libpcap $(CXX_DEPENDS)
   TITLE:=SIP sessions dumping tool
   URL:=http://sourceforge.net/projects/pcapsipdump/
 endef
