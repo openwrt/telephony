@@ -78,46 +78,6 @@ FS_STABLE_TZ_DIR:=$(FS_STABLE_DATA_DIR)/tz
 FTDM:=freetdm
 PKG_LIBFTDM:=lib$(FTDM)-stable
 
-LIBFTDM_FTMOD_AVAILABLE:= \
-	analog \
-	analog_em \
-	libpri \
-	pritap \
-	skel \
-	zt
-
-# Maintain a list of all non-module packages so they can be added to
-# PKG_CONFIG_DEPENDS.
-FS_STABLE_MISC_AVAILABLE:= \
-	example-curl \
-	example-insideout \
-	example-minimal \
-	example-rayo \
-	example-sbc \
-	example-softphone \
-	example-testing \
-	example-vanilla \
-	lang-de \
-	lang-en \
-	lang-es \
-	lang-fr \
-	lang-he \
-	lang-pt \
-	lang-ru \
-	lang-sv \
-	misc-fonts \
-	misc-grammar \
-	misc-hotplug \
-	misc-images \
-	misc-perl-esl \
-	misc-python-esl \
-	misc-timezones \
-	util-fs_cli \
-	util-fs_encode \
-	util-fs_ivrd \
-	util-gentls_cert \
-	util-tone2wav
-
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -258,23 +218,23 @@ FS_STABLE_MOD_AVAILABLE:= \
 	yuv
 
 PKG_CONFIG_DEPENDS:= \
-	$(patsubst %,CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-%,$(LIBFTDM_FTMOD_AVAILABLE)) \
-	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(FS_STABLE_MISC_AVAILABLE)) \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-mod-%,$(FS_STABLE_MOD_AVAILABLE)) \
 	CONFIG_FS_STABLE_WITH_DEBUG \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
 	CONFIG_FS_STABLE_WITH_LIBYUV \
-	CONFIG_FS_STABLE_WITH_MODCONF \
 	CONFIG_FS_STABLE_WITH_ODBC \
 	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
-	CONFIG_FS_STABLE_WITH_V8 \
 	CONFIG_FS_STABLE_WITH_V8_SNAPSHOT \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_$(PKG_LIBFTDM) \
+	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri \
+	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap \
+	CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl \
+	CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
