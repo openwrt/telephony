@@ -949,13 +949,16 @@ define Build/Prepare
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#event_handlers/mod_event_test' >> $(PKG_BUILD_DIR)/modules.conf
+
+	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
+		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
+endef
+
+define Build/Configure
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(m)),
 		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
-
-	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
-		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
@@ -977,6 +980,8 @@ ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-sofia),)
 	$(SED) '/mod_sofia$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
 endif
 endif
+
+	$(call Build/Configure/Default)
 endef
 
 define Build/Compile
