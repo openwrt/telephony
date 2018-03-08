@@ -36,9 +36,10 @@ define Package/pcapsipdump/description
  (even if there is thousands of concurrect SIP sessions).
 endef
 
-MAKE_VARS += \
+MAKE_FLAGS += \
 	CC="$(TARGET_CXX)" \
-	CPPFLAGS="$(TARGET_CXXFLAGS) -fno-rtti $(TARGET_CPPFLAGS)"
+	CPPFLAGS="$(TARGET_CXXFLAGS) -fno-rtti $(TARGET_CPPFLAGS)" \
+	LIBS="-lpcap"
 
 define Package/pcapsipdump/install
 	$(INSTALL_DIR) $(1)/usr/bin
