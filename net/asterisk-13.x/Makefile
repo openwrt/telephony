@@ -372,6 +372,13 @@ AST_MENUSELECT_OPTS = \
 	--without-curses \
 	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
 
+define Build/menuselect
+	CC="$(HOSTCC)" \
+	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
+	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
+endef
+
 define Build/Configure
 	cd $(PKG_BUILD_DIR); \
 		./bootstrap.sh
@@ -389,11 +396,9 @@ define Build/Configure
 endef
 
 define Build/Compile
-	CC="$(HOSTCC)" \
-	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
-	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
-	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
-	$(MAKE) -C "$(PKG_BUILD_DIR)" menuselect-tree
+	$(call Build/menuselect)
+	$(call Build/Compile/Default,menuselect-tree)
+
 	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
 		for cat in $(MENUSELECT_CATEGORIES); do \
 			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --disable-category $$$$cat"; \
