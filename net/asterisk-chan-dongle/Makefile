@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-chan-dongle
-PKG_VERSION:=1.1-20170913
-PKG_RELEASE:=2
+PKG_VERSION:=1.1-20180305
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=4ef5ad7eea7245a031101875be08b924aa1e151b
-PKG_MIRROR_HASH:=cbff4a4d9e78cc5ef91bd00d8e68cbe5f6e131dc568395085780c87d05a6cb1c
+PKG_SOURCE_VERSION:=fe2861efde02d0c53dafbf29f9fc71e214d6f605
+PKG_MIRROR_HASH:=5278572c398b8f5b1101a37fcfdb5621f7e81bd1858be462ce71685728b33001
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
@@ -25,6 +25,8 @@ PKG_LICENSE_FILES:=COPYRIGHT.txt LICENSE.txt
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+
+MODULES_DIR:=/usr/lib/asterisk/modules
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -83,6 +85,7 @@ TARGET_LDFLAGS+=$(if $(CONFIG_USE_UCLIBC),-L$(STAGING_DIR)/usr/lib/libiconv-full
 # $CHAN_DONGLE_ICONV_INC used by 200-fix-iconv-detection.patch
 CONFIGURE_VARS += \
 	CHAN_DONGLE_ICONV_INC="$(TOOLCHAIN_DIR)/include $(STAGING_DIR)/usr/lib/libiconv-full/include" \
+	DESTDIR="$(MODULES_DIR)" \
 	ac_cv_type_size_t=yes \
 	ac_cv_type_ssize_t=yes
 
@@ -96,8 +99,8 @@ Package/asterisk15-chan-dongle/conffiles = $(Package/conffiles/Default)
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/dongle.conf $(1)/etc/asterisk
-	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_dongle.so $(1)/usr/lib/asterisk/modules
+	$(INSTALL_DIR) $(1)$(MODULES_DIR)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_dongle.so $(1)$(MODULES_DIR)
 endef
 
 Package/asterisk13-chan-dongle/install = $(Package/Install/Default)
