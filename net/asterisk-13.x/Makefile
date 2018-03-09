@@ -709,13 +709,13 @@ $(eval $(call BuildAsterisk13Module,voicemail,Voicemail,voicemail related module
 ################################
 # $(eval $(call BuildAsterisk13Util,Utility,Description,Dependencies,Configuration Files))
 
-$(eval $(call BuildAsterisk13Util,aelparse,Check extensions.ael file.,,))
+$(eval $(call BuildAsterisk13Util,aelparse,Check extensions.ael file.,+$(PKG_NAME)-pbx-ael,))
 $(eval $(call BuildAsterisk13Util,astcanary,Assures Asterisk no threads have gone missing.,,))
 $(eval $(call BuildAsterisk13Util,astdb2sqlite3,Convert astdb to SQLite 3.,,))
 $(eval $(call BuildAsterisk13Util,astdb2bdb,Convert astdb back to Berkeley DB 1.86.,,))
 $(eval $(call BuildAsterisk13Util,check_expr,Expression checker [older version].,,))
 $(eval $(call BuildAsterisk13Util,check_expr2,Expression checker [newer version].,,))
-$(eval $(call BuildAsterisk13Util,conf2ael,Convert .conf to .ael.,,))
+$(eval $(call BuildAsterisk13Util,conf2ael,Convert .conf to .ael.,+$(PKG_NAME)-pbx-ael,))
 $(eval $(call BuildAsterisk13Util,muted,Listens for AMI events. Mutes soundcard during call.,,muted.conf))
 $(eval $(call BuildAsterisk13Util,smsq,Send messages from command line.,,))
 $(eval $(call BuildAsterisk13Util,stereorize,Merge two mono WAV-files to one stereo WAV-file.,,))
