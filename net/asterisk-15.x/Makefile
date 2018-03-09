@@ -425,13 +425,15 @@ define Build/Compile
 			--disable BUILD_NATIVE \
 			$(if $(CONFIG_ASTERISK15_LOW_MEMORY),--enable LOW_MEMORY) \
 			menuselect.makeopts
-	# Hack:
+
 	# When changing anything in MENUSELECT_CFLAGS the file ".lastclean"
 	# gets deleted. E.g. when compiling on x86 for x86 "--disable
 	# BUILD_NATIVE" changes MENUSELECT_CFLAGS and the file gets removed.
 	# But that will result in a rebuild attempt of menuselect which will
-	# likely fail. Prevent that by recreating ".lastclean".
-	$(CP) "$(PKG_BUILD_DIR)/.cleancount" "$(PKG_BUILD_DIR)/.lastclean"
+	# likely fail. Prevent that by recreating ".lastclean" and menuselect.
+	$(call Build/Compile/Default,.lastclean)
+	$(call Build/menuselect)
+
 	$(call Build/Compile/Default,all install samples)
 endef
 
