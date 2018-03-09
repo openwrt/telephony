@@ -28,6 +28,17 @@ PKG_INSTALL:=1
 # Yate currently does not compile with FORTIFY_SOURCE enabled
 PKG_FORTIFY_SOURCE:=0
 
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqld \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress \
+	CONFIG_SOFT_FLOAT
+
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
