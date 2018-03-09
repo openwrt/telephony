@@ -93,17 +93,6 @@ endef
 Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk15-chan-sccp/conffiles = $(Package/conffiles/Default)
 
-# Asterisk 13 gets mistaken for Asterisk 15 because it was patched to include
-# iostream support. To get it detected correctly make it impossible for the
-# build system to find the iostream header.
-define Build/Prepare
-	$(call Build/Prepare/Default)
-ifeq ($(BUILD_VARIANT),asterisk13)
-	$(SED) 's|asterisk/iostream.h|asterisk/iostream.404|' \
-		$(PKG_BUILD_DIR)/autoconf/asterisk.m4
-endif
-endef
-
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/sccp.conf $(1)/etc/asterisk
