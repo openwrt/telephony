@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -74,38 +74,17 @@ CONFIGURE_ARGS+= \
 TARGET_CFLAGS+= \
 	-I$(CHAN_DONGLE_AST_HEADERS)
 
+MAKE_FLAGS+=LD="$(TARGET_CC)"
+
 # musl and glibc include their own iconv, but uclibc does not
-ifneq ($(CONFIG_USE_UCLIBC),)
-TARGET_CPPFLAGS+= \
-	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
-endif
-
-# -DAST_MODULE_SELF_SYM=__internal_chan_dongle_self to fix Asterisk 14
-# compile issues
-CHAN_DONGLE_EXTRA_CFLAGS:= \
-	-Wno-old-style-declaration \
-	-I$(PKG_BUILD_DIR) \
-	-DAST_MODULE_SELF_SYM=__internal_chan_dongle_self \
-	$(TARGET_CPPFLAGS) \
-	-D_GNU_SOURCE \
-	-DHAVE_CONFIG_H \
-	$(FPIC)
-
-MAKE_ARGS:= \
-	CC="$(TARGET_CC)" \
-	LD="$(TARGET_CC)" \
-	CFLAGS="$(TARGET_CFLAGS) $(CHAN_DONGLE_EXTRA_CFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS) $(if $(CONFIG_USE_UCLIBC),-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv)"
+TARGET_CPPFLAGS+=$(if $(CONFIG_USE_UCLIBC),-I$(STAGING_DIR)/usr/lib/libiconv-full/include)
+TARGET_LDFLAGS+=$(if $(CONFIG_USE_UCLIBC),-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv)
 
 # $CHAN_DONGLE_ICONV_INC used by 200-fix-iconv-detection.patch
 CONFIGURE_VARS += \
 	CHAN_DONGLE_ICONV_INC="$(TOOLCHAIN_DIR)/include $(STAGING_DIR)/usr/lib/libiconv-full/include" \
 	ac_cv_type_size_t=yes \
 	ac_cv_type_ssize_t=yes
-
-define Build/Compile
-	$(MAKE) $(PKG_JOBS) -C "$(PKG_BUILD_DIR)" $(MAKE_ARGS)
-endef
 
 define Package/conffiles/Default
 /etc/asterisk/dongle.conf
