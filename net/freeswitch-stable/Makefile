@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.20
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -237,6 +237,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl \
 	CONFIG_SOFT_FLOAT
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
@@ -359,6 +360,7 @@ $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:= \
+	  $(CXX_DEPENDS) \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
@@ -373,7 +375,6 @@ $(call Package/$(PKG_NAME)/Default)
 	  +libspeex \
 	  +libspeexdsp \
 	  +libsqlite3 \
-	  +libstdcpp \
 	  +libuuid \
 	  +zlib
   CONFLICTS:=$(PRG_NAME)
@@ -1141,7 +1142,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,esl,Single ESL,This module adds an API 
 $(eval $(call Package/$(PKG_NAME)/Module,event_multicast,Multicast Event,Multicast Event System for FreeSWITCH.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_socket,Event socket,Sends events via a single socket. Needed for fs_cli.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_test,Event test,Event demo module.,))
-$(eval $(call Package/$(PKG_NAME)/Module,event_zmq,ZMQ event,ZMQ event module.,))
+$(eval $(call Package/$(PKG_NAME)/Module,event_zmq,ZMQ event,ZMQ event module.,@!USE_UCLIBCXX))
 $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support for expression evaluation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
@@ -1225,7 +1226,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,tone_stream,Tone stream,Tone generation
 $(eval $(call Package/$(PKG_NAME)/Module,translate,Number translation,This module implements number translation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
-$(eval $(call Package/$(PKG_NAME)/Module,v8,V8,This package contains mod_v8 for FreeSWITCH.,@FS_STABLE_WITH_V8 @arm||i386||mipsel||x86_64))
+$(eval $(call Package/$(PKG_NAME)/Module,v8,V8,This package contains mod_v8 for FreeSWITCH.,@!USE_UCLIBCXX @FS_STABLE_WITH_V8 @arm||i386||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
