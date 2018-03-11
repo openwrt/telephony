@@ -19,6 +19,8 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
+PKG_FLAGS:=nonshared
+
 include $(INCLUDE_DIR)/package.mk
 
 define Download/github
@@ -38,7 +40,7 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=kmod-ltq-vmmc
+  DEPENDS:=+kmod-ltq-vmmc
 endef
 
 define Package/asterisk13-$(PKG_NAME)
