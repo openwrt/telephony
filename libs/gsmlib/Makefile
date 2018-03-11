@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gsmlib
 PKG_VERSION:=1.10-20140304
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/vbouchaud/gsmlib.git
@@ -31,6 +31,7 @@ PKG_LICENSE:=LGPL-2.1+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)/Default
@@ -43,7 +44,7 @@ $(call Package/$(PKG_NAME)/Default)
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=GSM mobile phone access lib
-  DEPENDS:=+libstdcpp
+  DEPENDS:=$(CXX_DEPENDS)
 endef
 
 define Package/gsm-utils
