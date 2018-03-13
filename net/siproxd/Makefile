@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014-2017 OpenWrt.org
+# Copyright (C) 2014-2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -48,11 +48,11 @@ endef
 
 CONFIGURE_ARGS+= \
 	--with-libosip-prefix="$(STAGING_DIR)/usr" \
+	--disable-ltdl-convenience \
 	--disable-doc
 
 MAKE_FLAGS+= \
-	SUBDIRS="src scripts contrib" \
-	LIBLTDL="$(STAGING_DIR)/usr/lib/libltdl.la" \
+	SUBDIRS="src scripts contrib"
 
 define Package/siproxd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
@@ -72,7 +72,7 @@ define BuildPlugin
 
   define Package/siproxd-mod-$(1)/install
 	$(INSTALL_DIR) $$(1)/usr/lib/siproxd
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1)*.so* $$(1)/usr/lib/siproxd
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1).so $$(1)/usr/lib/siproxd
   endef
 
   $$(eval $$(call BuildPackage,siproxd-mod-$(1)))
