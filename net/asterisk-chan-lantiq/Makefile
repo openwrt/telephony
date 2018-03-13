@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 - 2018 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,16 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-lantiq
-PKG_VERSION:=20171128
+PKG_VERSION:=20180215
 PKG_RELEASE:=1
 
-LANTIQ_AST13_VERSION:=5adf3d7774a75c88835f2f3daf824e2cda2c6e67
-LANTIQ_AST15_VERSION:=2eb991b66d135e6f22da30a2827918aed2d7b328
+LANTIQ_AST13_VERSION:=f0d7ca7df8e5df802c5bcb79643e3bdc3956c190
+LANTIQ_AST15_VERSION:=c9d68dd06fcd46ac7985df45f8c2b8833e658f8e
 
 PKG_LICENSE:=GPL-2.0
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+
+PKG_FLAGS:=nonshared
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -38,7 +40,7 @@ define Package/$(PKG_NAME)/Default
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=kmod-ltq-vmmc
+  DEPENDS:=+kmod-ltq-vmmc
 endef
 
 define Package/asterisk13-$(PKG_NAME)
