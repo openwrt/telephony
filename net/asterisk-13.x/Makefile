@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.19.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -313,6 +313,7 @@ PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(UTILS_AVAILABLE)) \
 	CONFIG_ASTERISK13_LOW_MEMORY
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
 
@@ -422,7 +423,7 @@ define Package/asterisk13
 $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+jansson +libcap +libedit +libncurses +libopenssl +libsqlite3 +libstdcpp +libuuid +libxml2 +zlib
+  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libncurses +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
 endef
 
 define Package/asterisk13/description
