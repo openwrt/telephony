@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
 PKG_VERSION:=2.7.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
@@ -27,6 +27,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_CONFIG_DEPENDS:=CONFIG_SOFT_FLOAT
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pjproject/Default
@@ -34,7 +35,7 @@ define Package/pjproject/Default
   CATEGORY:=Libraries
   SUBMENU:=Telephony
   URL:=http://www.pjsip.org
-  DEPENDS:=+libopenssl +libuuid +libstdcpp +libpthread
+  DEPENDS:=$(CXX_DEPENDS) +libopenssl +libuuid +libpthread
 endef
 
 define Package/pjproject/install/lib
