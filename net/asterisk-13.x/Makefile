@@ -422,7 +422,7 @@ define Package/asterisk13
 $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+jansson +libcap +libedit +libncurses +libopenssl +libpopt +libsqlite3 +libstdcpp +libuuid +libxml2 +libxslt +zlib
+  DEPENDS:=+jansson +libcap +libedit +libncurses +libopenssl +libsqlite3 +libstdcpp +libuuid +libxml2 +zlib
 endef
 
 define Package/asterisk13/description
@@ -536,7 +536,7 @@ CONFIGURE_ARGS+= \
 	--without-osptk \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),--with-lua="$(STAGING_DIR)/usr",--without-lua) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
-	--with-popt="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-util-smsq),--with-popt="$(STAGING_DIR)/usr",--without-popt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
 	--without-pwlib \
 	--without-radius \
@@ -770,7 +770,7 @@ $(eval $(call BuildAsterisk13Module,app-sayunixtime,Say Unix time,an application
 $(eval $(call BuildAsterisk13Module,app-senddtmf,Send DTMF digits,Sends arbitrary DTMF digits,,,app_senddtmf,,))
 $(eval $(call BuildAsterisk13Module,app-sendtext,Send text,transmit a text message,,,app_sendtext,,))
 $(eval $(call BuildAsterisk13Module,app-skel,Skeleton [sample],skeleton for development of an Asterisk application,,app_skel.conf,app_skel,,))
-$(eval $(call BuildAsterisk13Module,app-sms,SMS,SMS support (ETSI ES 201 912 protocol 1),+libpopt +libstdcpp,,app_sms,,))
+$(eval $(call BuildAsterisk13Module,app-sms,SMS,SMS support (ETSI ES 201 912 protocol 1),,,app_sms,,))
 $(eval $(call BuildAsterisk13Module,app-softhangup,Hang up requested channel,SoftHangup application,,,app_softhangup,,))
 $(eval $(call BuildAsterisk13Module,app-speech,Dialplan Speech,Dialplan Speech Applications,+asterisk13-res-speech,,app_speech_utils,,))
 $(eval $(call BuildAsterisk13Module,app-stack,Stack applications,Stack applications Gosub Return etc.,+asterisk13-res-agi,,app_stack,,))
@@ -996,6 +996,6 @@ $(eval $(call BuildAsterisk13Util,check_expr,Expression checker [older version].
 $(eval $(call BuildAsterisk13Util,check_expr2,Expression checker [newer version].,,))
 $(eval $(call BuildAsterisk13Util,conf2ael,Convert .conf to .ael.,+$(PKG_NAME)-pbx-ael,))
 $(eval $(call BuildAsterisk13Util,muted,Listens for AMI events. Mutes soundcard during call.,,muted.conf))
-$(eval $(call BuildAsterisk13Util,smsq,Send messages from command line.,,))
+$(eval $(call BuildAsterisk13Util,smsq,Send messages from command line.,+libpopt,))
 $(eval $(call BuildAsterisk13Util,stereorize,Merge two mono WAV-files to one stereo WAV-file.,,))
 $(eval $(call BuildAsterisk13Util,streamplayer,A utility for reading from a raw TCP stream [MOH source].,,))
