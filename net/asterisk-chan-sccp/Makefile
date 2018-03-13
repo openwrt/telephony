@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 - 2017 OpenWrt.org
+# Copyright (C) 2016 - 2018 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,14 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp
-PKG_VERSION:=v4.3.0-20171123
-PKG_RELEASE:=3
+PKG_VERSION:=v4.3.0-20180308
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=ed272e974897f075573a358d169e5c77889f5905
-PKG_MIRROR_HASH:=b2fa296e532154b864164a9bc8d64a40dddef2940902b61c3726c77f56b4e74e
+PKG_SOURCE_VERSION:=7764d2f2b65e62329ceff501b06a2eb2db68dafb
+PKG_MIRROR_HASH:=39047994c85b4bb7e8e85d9c93b3a3a5517576b594f9898970e93d741f850e37
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
@@ -92,17 +92,6 @@ endef
 
 Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk15-chan-sccp/conffiles = $(Package/conffiles/Default)
-
-# Asterisk 13 gets mistaken for Asterisk 15 because it was patched to include
-# iostream support. To get it detected correctly make it impossible for the
-# build system to find the iostream header.
-define Build/Prepare
-	$(call Build/Prepare/Default)
-ifeq ($(BUILD_VARIANT),asterisk13)
-	$(SED) 's|asterisk/iostream.h|asterisk/iostream.404|' \
-		$(PKG_BUILD_DIR)/autoconf/asterisk.m4
-endif
-endef
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
