@@ -1,0 +1,22 @@
+--- a/build.mak.in
++++ b/build.mak.in
+@@ -293,7 +293,6 @@ export APP_LDLIBS := $(PJSUA_LIB_LDLIB)
+ 	$(PJLIB_LDLIB) \
+ 	@LIBS@
+ export APP_LDXXLIBS := $(PJSUA2_LIB_LDLIB) \
+-	-lstdc++ \
+ 	$(APP_LDLIBS)
+ 
+ # Here are the variabels to use if application is using the library
+--- a/pjsip/build/Makefile
++++ b/pjsip/build/Makefile
+@@ -152,8 +152,7 @@ export PJSUA2_LIB_LDFLAGS += $(PJSUA_LIB
+ 			     $(PJNATH_LDLIB) \
+ 			     $(PJLIB_UTIL_LDLIB) \
+ 			     $(PJLIB_LDLIB) \
+-			     $(_LDFLAGS) \
+-			     -lstdc++
++			     $(_LDFLAGS)
+ 
+ 
+ ###############################################################################
