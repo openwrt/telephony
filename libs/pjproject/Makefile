@@ -25,6 +25,8 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
+PKG_CONFIG_DEPENDS:=CONFIG_SOFT_FLOAT
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pjproject/Default
