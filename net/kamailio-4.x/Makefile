@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 OpenWrt.org
+# Copyright (C) 2016 - 2018 OpenWrt.org
 # Copyright (C) 2013-2016 CESNET,z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio4
-PKG_VERSION:=4.4.0
+PKG_VERSION:=4.4.7
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
+PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src/
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_MD5SUM:=e9fa206f67346a6b01c015d76ec2db9d
+PKG_MD5SUM:=76d5ce257da9ee89fd66b697cb674260
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
