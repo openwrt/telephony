@@ -57,27 +57,17 @@ apply_defaults() {
 
 	default_conf sip_listen_port 5060
 	default_conf daemonize 1
-	default_conf silence_log 1
 	default_conf user nobody
 	default_conf registration_file "$siproxd_registration_prefix$sec.reg"
 	default_conf autosave_registrations 300
 	default_conf pid_file "$siproxd_pid_dir/siproxd-$sec.pid"
-	default_conf rtp_proxy_enable 1
 	default_conf rtp_port_low 7070
 	default_conf rtp_port_high 7089
 	default_conf rtp_timeout 300
 	default_conf rtp_dscp 46
-	default_conf sip_dscp 0
-	default_conf rtp_input_dejitter 0
-	default_conf rtp_output_dejitter 0
 	default_conf tcp_timeout 600
-	default_conf tcp_connect_timeout 500
 	default_conf tcp_keepalive 20
 	default_conf default_expires 600
-	default_conf debug_level 0x00000000
-	default_conf debug_port 0
-	default_conf ua_string Siproxd-UA
-	default_conf use_rport 0
 	default_conf plugindir "/usr/lib/siproxd/"
 }
 
