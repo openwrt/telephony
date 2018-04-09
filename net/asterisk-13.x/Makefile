@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.19.2
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -54,7 +54,7 @@ MODULES_AVAILABLE:= \
 	app-controlplayback \
 	app-dahdiras \
 	app-dictate \
-	app-directed_pickup \
+	app-directed-pickup \
 	app-directory \
 	app-disa \
 	app-dumpchan \
@@ -310,7 +310,7 @@ AST_ENABLE:=
 
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(MODULES_AVAILABLE)) \
-	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(UTILS_AVAILABLE)) \
+	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(subst _,-,$(UTILS_AVAILABLE))) \
 	CONFIG_ASTERISK13_LOW_MEMORY
 
 include $(INCLUDE_DIR)/uclibc++.mk
@@ -380,29 +380,29 @@ $(foreach b,$(8),$(call Package/asterisk13/install/sbin,$$(1),$(b));)
 endef
 
 define BuildAsterisk13Util
-  define Package/asterisk13-util-$(1)
+  define Package/asterisk13-util-$(subst _,-,$(1))
   $$(call Package/asterisk13/Default)
     TITLE:=$(1) utility
-    DEPENDS:=asterisk13 $(patsubst +%,+PACKAGE_asterisk13-util-$(1):%,$(3))
-    ifneq ($$(CONFIG_PACKAGE_asterisk13-util-$(1)),)
+    DEPENDS:=asterisk13 $(patsubst +%,+PACKAGE_asterisk13-util-$(subst _,-,$(1)):%,$(3))
+    ifneq ($$(CONFIG_PACKAGE_asterisk13-util-$(subst _,-,$(1))),)
     AST_ENABLE+=$(1)
     endif
   endef
 
-  define Package/asterisk13-util-$(1)/conffiles
+  define Package/asterisk13-util-$(subst _,-,$(1))/conffiles
 $(subst $(space),$(newline),$(foreach c,$(4),/etc/$(c)))
   endef
 
-  define Package/asterisk13-util-$(1)/description
+  define Package/asterisk13-util-$(subst _,-,$(1))/description
 $(2)
   endef
 
-  define Package/asterisk13-util-$(1)/install
+  define Package/asterisk13-util-$(subst _,-,$(1))/install
 $(call Package/asterisk13/install/sbin,$$(1),$(1))
 $(foreach c,$(4),$(call Package/asterisk13/install/util-conffile,$$(1),$(c));)
   endef
 
-  $$(eval $$(call BuildPackage,asterisk13-util-$(1)))
+  $$(eval $$(call BuildPackage,asterisk13-util-$(subst _,-,$(1))))
 endef
 
 define Package/asterisk13/Default
@@ -740,7 +740,7 @@ $(eval $(call BuildAsterisk13Module,app-confbridge,ConfBridge,Software bridge fo
 $(eval $(call BuildAsterisk13Module,app-controlplayback,Control playback,trivial application to control playback of a sound file,,,app_controlplayback,,))
 $(eval $(call BuildAsterisk13Module,app-dahdiras,Execute an ISDN RAS,support for executing an ISDN RAS using DAHDI,+asterisk13-chan-dahdi,,app_dahdiras,,))
 $(eval $(call BuildAsterisk13Module,app-dictate,Virtual dictation machine,virtual dictation machine application,,,app_dictate,,))
-$(eval $(call BuildAsterisk13Module,app-directed_pickup,Directed call pickup,support for directed call pickup,,,app_directed_pickup,,))
+$(eval $(call BuildAsterisk13Module,app-directed-pickup,Directed call pickup,support for directed call pickup,,,app_directed_pickup,,))
 $(eval $(call BuildAsterisk13Module,app-directory,Extension directory,provide a directory of extensions,,,app_directory,,))
 $(eval $(call BuildAsterisk13Module,app-disa,Direct Inward System Access,Direct Inward System Access,,,app_disa,,))
 $(eval $(call BuildAsterisk13Module,app-dumpchan,Dump info about channel,application to dump channel variables,,,app_dumpchan,,))
