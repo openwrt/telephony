@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.5.8
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -46,7 +46,7 @@ baresip-mods:= \
 	v4l2
 
 PKG_CONFIG_DEPENDS:= \
-	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(baresip-mods)) \
+	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(subst _,-,$(baresip-mods)))
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -94,7 +94,7 @@ baresip-mod-v4l2      := USE_V4L2
 BARESIP_MOD_OPTIONS:= \
 	MOD_AUTODETECT= \
 	EXTRA_MODULES="dtmfio" \
-	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(m)),1))
+	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(subst _,-,$(m))),1))
 
 MAKE_FLAGS+= \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
@@ -163,13 +163,13 @@ endef
 
 define BuildPlugin
 
-  define Package/baresip-mod-$(1)
+  define Package/baresip-mod-$(subst _,-,$(1))
     $$(call Package/baresip/Default)
     TITLE:=$(2)
-    DEPENDS:=baresip $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
+    DEPENDS:=baresip $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(subst _,-,$(1)):%,$(4))
   endef
 
-  define Package/baresip-mod-$(1)/install
+  define Package/baresip-mod-$(subst _,-,$(1))/install
 	[ -z "$(3)" ] || $(INSTALL_DIR) $$(1)/usr/lib/baresip/modules
 	for f in $(3); do \
 		$(INSTALL_DATA) \
@@ -178,7 +178,7 @@ define BuildPlugin
 	done
   endef
 
-  $$(eval $$(call BuildPackage,baresip-mod-$(1)))
+  $$(eval $$(call BuildPackage,baresip-mod-$(subst _,-,$(1))))
 endef
 
 $(eval $(call BuildPackage,baresip))
