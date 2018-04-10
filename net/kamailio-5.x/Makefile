@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.1.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -310,16 +310,15 @@ define Package/kamailio5-lib-libtrie/install
 					$(1)/usr/lib/kamailio
 endef
 
-define Package/kamailio5-util-kambdb_recover
+define Package/kamailio5-util-kambdb-recover
 $(call Package/kamailio5/Default)
   TITLE:=Kamailio5 Berkeley DB recovery utility
-  DEPENDS:=kamailio5 +PACKAGE_kamailio5-util-kambdb_recover:kamailio5-mod-db-berkeley
+  DEPENDS:=kamailio5 +PACKAGE_kamailio5-util-kambdb-recover:kamailio5-mod-db-berkeley
 endef
 
-define Package/kamailio5-util-kambdb_recover/install
+define Package/kamailio5-util-kambdb-recover/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/kambdb_recover \
-				$(1)/usr/sbin/kambdb_recover
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/kambdb_recover $(1)/usr/sbin
 endef
 
 define BuildKamailio5Module
@@ -399,7 +398,7 @@ endef
 $(eval $(call BuildPackage,kamailio5))
 $(eval $(call BuildPackage,kamailio5-lib-libkamailio-ims))
 $(eval $(call BuildPackage,kamailio5-lib-libtrie))
-$(eval $(call BuildPackage,kamailio5-util-kambdb_recover))
+$(eval $(call BuildPackage,kamailio5-util-kambdb-recover))
 
 ################################
 # Kamailio module parameters
