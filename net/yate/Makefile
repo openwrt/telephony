@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -168,21 +168,21 @@ define Build/InstallDev
 endef
 
 define BuildPlugin
-  define Package/$(PKG_NAME)-mod-$(1)
+  define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))
     $(call Package/yate/Default)
-    DEPENDS:= $(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(1):%,$(4))
+    DEPENDS:= $(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-mod-$(subst _,-,$(1)):%,$(4))
     TITLE:=$(3)
   endef
 
-  define Package/$(PKG_NAME)-mod-$(1)/conffiles
+  define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/conffiles
 $(if $(6),/etc/yate/$(1).conf)
   endef
   
-  define Package/$(PKG_NAME)-mod-$(1)/description
+  define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/description
     $(3) module for $(PKG_NAME)
   endef
   
-  define Package/$(PKG_NAME)-mod-$(1)/install
+  define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/install
 	$$(INSTALL_DIR) $$(1)/usr/lib/yate/$(2)
 	$$(INSTALL_BIN) $$(PKG_INSTALL_DIR)/usr/lib/yate/$(2)/$(1).yate $$(1)/usr/lib/yate/$(2)/$(1).yate
 	if [ -f $$(PKG_INSTALL_DIR)/etc/yate/$(1).conf ]; then \
@@ -195,7 +195,7 @@ $(if $(6),/etc/yate/$(1).conf)
 	),)
   endef
 
-  $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(1)))
+  $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(subst _,-,$(1))))
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
