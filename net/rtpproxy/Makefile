@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
 PKG_VERSION:=2.1.0-20170914
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
@@ -50,7 +50,7 @@ define Package/rtpproxy/conffiles
 /etc/config/rtpproxy
 endef
 
-define Package/rtpproxy-mod-acct_csv
+define Package/rtpproxy-mod-acct-csv
 $(call Package/rtpproxy/Default)
   DEPENDS:=rtpproxy
   TITLE:=RTPproxy accounting module
@@ -73,11 +73,11 @@ define Package/rtpproxy/install
 	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
 endef
 
-define Package/rtpproxy-mod-acct_csv/install
+define Package/rtpproxy-mod-acct-csv/install
 	$(INSTALL_DIR) $(1)/usr/lib/rtpproxy
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/rtpproxy/rtpp_acct_csv.so \
 							$(1)/usr/lib/rtpproxy
 endef
 
 $(eval $(call BuildPackage,rtpproxy))
-$(eval $(call BuildPackage,rtpproxy-mod-acct_csv))
+$(eval $(call BuildPackage,rtpproxy-mod-acct-csv))
