@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
-PKG_VERSION:=15.2.2
-PKG_RELEASE:=4
+PKG_VERSION:=15.3.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=32abab738127dcd57feed3b3574e6f10dbf624baf5509882313e0c64636fd354
+PKG_HASH:=f424f89f23b72f267ff9baab82d449bebbbf00c54e54fcd06b8fca13788b012c
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -276,7 +276,6 @@ MODULES_AVAILABLE:= \
 	res-resolver-unbound \
 	res-rtp-asterisk \
 	res-rtp-multicast \
-	res-sdp-translator-pjmedia \
 	res-security-log \
 	res-smdi \
 	res-snmp \
@@ -593,7 +592,7 @@ CONFIGURE_ARGS+= \
 	--with-srtp="$(STAGING_DIR)/usr"
 endif
 
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk)$(CONFIG_PACKAGE_$(PKG_NAME)-res-sdp-translator-pjmedia),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk),)
 CONFIGURE_ARGS+= \
 	--without-pjproject
 else
@@ -672,7 +671,6 @@ define Build/Configure
 		./bootstrap.sh
 	$(call Build/Configure/Default)
 	cd $(PKG_BUILD_DIR)/menuselect; \
-		./bootstrap.sh; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
@@ -979,7 +977,6 @@ $(eval $(call BuildAsterisk15Module,res-realtime,RealTime CLI,RealTime CLI,,,res
 $(eval $(call BuildAsterisk15Module,res-resolver-unbound,Unbound DNS resolver,Unbound DNS resolver,+libunbound,resolver_unbound.conf,res_resolver_unbound,,))
 $(eval $(call BuildAsterisk15Module,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk15Module,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))
-$(eval $(call BuildAsterisk15Module,res-sdp-translator-pjmedia,PJMEDIA SDP translator,PJMEDIA SDP translator,+libpjsua2,,res_sdp_translator_pjmedia,,))
 $(eval $(call BuildAsterisk15Module,res-security-log,Security event logging,security event logging,,,res_security_log,,))
 $(eval $(call BuildAsterisk15Module,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
 $(eval $(call BuildAsterisk15Module,res-snmp,SNMP [Sub]Agent for Asterisk,SNMP Agent / SubAgent,+libnetsnmp,res_snmp.conf,res_snmp,,))
