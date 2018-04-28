@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.19.2
-PKG_RELEASE:=4
+PKG_VERSION:=13.20.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=aab4bf95eea21a3864015d2a49a02e13e9f191f6a68acb0f7b1619da86ce3fb2
+PKG_HASH:=a3d6d953f844867ea11e0be22ee6225049cd4f5870df6ab23454623bcfbc94d5
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -657,7 +657,6 @@ define Build/Configure
 		./bootstrap.sh
 	$(call Build/Configure/Default)
 	cd $(PKG_BUILD_DIR)/menuselect; \
-		./bootstrap.sh; \
 		CC="$(HOSTCC)" \
 		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
 		CONFIG_SITE= \
