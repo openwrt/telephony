@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15-chan-lantiq
 PKG_VERSION:=20180215
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/kochstefan/asterisk_channel_lantiq.git
@@ -27,12 +27,12 @@ PKG_FLAGS:=nonshared
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
-  SUBMENU:=Telephony
+  SUBMENU:=Telephony Lantiq
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=asterisk15 +kmod-ltq-vmmc
+  DEPENDS:=+asterisk15 +kmod-ltq-vmmc
 endef
 
 define Package/$(PKG_NAME)/description
