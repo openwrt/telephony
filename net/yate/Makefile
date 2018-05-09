@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -108,7 +108,7 @@ CONFIGURE_ARGS+= \
 	--enable-ilbc \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql="$(STAGING_DIR)/usr",--without-mysql) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql=yes,--with-mysql=no) \
 	--without-wphwec \
 	--without-libgsm \
 	--without-amrnb \
