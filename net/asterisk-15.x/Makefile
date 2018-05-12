@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
 PKG_VERSION:=15.3.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -342,11 +342,6 @@ define Package/asterisk15/install/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/$(2) $(1)/usr/sbin/
 endef
 
-define Package/asterisk15/install/sounds
-	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
-endef
-
 define Package/asterisk15/install/util-conffile
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
@@ -377,7 +372,6 @@ This package provides support for '$(3)' in Asterisk.
   define Package/asterisk15-$(1)/install
 $(foreach c,$(5),$(call Package/asterisk15/install/conffile,$$(1),$(c));)
 $(foreach m,$(6),$(call Package/asterisk15/install/module,$$(1),$(m));)
-$(foreach s,$(7),$(call Package/asterisk15/install/sounds,$$(1),$(s));)
 $(foreach b,$(8),$(call Package/asterisk15/install/sbin,$$(1),$(b));)
   endef
 
@@ -487,22 +481,6 @@ $(foreach m,$(AST_EMB_MODULES),$(call Package/asterisk15/install/module,$(1),$(m
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
 endef
 
-define Package/asterisk15-sounds
-$(call Package/asterisk15/Default)
-  TITLE:=Sounds support
-  DEPENDS:=asterisk15
-endef
-
-define Package/asterisk15-sounds/description
-This package provides the sound-files for Asterisk-15.
-endef
-
-define Package/asterisk15-sounds/install
-	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
-	rm -f $(1)/usr/share/asterisk/sounds/vm-*
-endef
-
 ifneq ($(CONFIG_PACKAGE_asterisk15-chan-dahdi),)
   CONFIGURE_ARGS+= \
 	--with-dahdi="$(STAGING_DIR)/usr" \
@@ -557,8 +535,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-resolver-unbound),--with-unbound="$(STAGING_DIR)/usr",--without-unbound) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
 	--without-vpb \
-	--with-z="$(STAGING_DIR)/usr" \
-	--with-sounds-cache="$(DL_DIR)"
+	--with-z="$(STAGING_DIR)/usr"
 
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
 CONFIGURE_ARGS+= \
@@ -723,7 +700,6 @@ define Build/InstallDev
 endef
 
 $(eval $(call BuildPackage,asterisk15))
-$(eval $(call BuildPackage,asterisk15-sounds))
 
 ################################
 # AST modules
@@ -734,10 +710,10 @@ $(eval $(call BuildPackage,asterisk15-sounds))
 # 4 - Module dependencies
 # 5 - conf files
 # 6 - module files
-# 7 - sound files
+# 7 - currently not used
 # 8 - binary files
 ################################
-#$(eval $(call BuildAsterisk15Module,subname,title,module description,module dependencies,conf files,module files,sound files,binary files))
+#$(eval $(call BuildAsterisk15Module,subname,title,module description,module dependencies,conf files,module files,not used,binary files))
 
 $(eval $(call BuildAsterisk15Module,app-adsiprog,ADSI programming,program Asterisk ADSI scripts into phone,+$(PKG_NAME)-res-adsi,adsi.conf asterisk.adsi telcordia-1.adsi,app_adsiprog,,))
 $(eval $(call BuildAsterisk15Module,app-agent-pool,Call center agent pool,call center agent pool,,agents.conf,app_agent_pool,,))
@@ -997,7 +973,7 @@ $(eval $(call BuildAsterisk15Module,res-timing-dahdi,DAHDI Timing Interface,DAHD
 $(eval $(call BuildAsterisk15Module,res-timing-pthread,pthread Timing Interface,POSIX pthreads Timing Interface,,,res_timing_pthread,,))
 $(eval $(call BuildAsterisk15Module,res-timing-timerfd,Timerfd Timing Interface,Timing interface provided by Linux kernel,,,res_timing_timerfd,,))
 $(eval $(call BuildAsterisk15Module,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
-$(eval $(call BuildAsterisk15Module,voicemail,Voicemail,voicemail related modules,+asterisk15-res-adsi +asterisk15-res-smdi,voicemail.conf,app_voicemail,vm-*,))
+$(eval $(call BuildAsterisk15Module,voicemail,Voicemail,voicemail related modules,+asterisk15-res-adsi +asterisk15-res-smdi,voicemail.conf,app_voicemail,,))
 
 ################################
 # AST utils
