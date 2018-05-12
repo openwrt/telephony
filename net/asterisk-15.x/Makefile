@@ -522,7 +522,6 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-util-smsq),--with-popt="$(STAGING_DIR)/usr",--without-popt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
-	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \
