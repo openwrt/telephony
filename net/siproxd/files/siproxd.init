@@ -95,6 +95,7 @@ siproxd_cb() {
 			# Initialize section processing and save section name.
 			"siproxd")
 				sec="$2"
+				secs="$secs $sec"
 				if [ -f "$siproxd_conf_prefix$sec.conf" ]; then
 					rm "$siproxd_conf_prefix$sec.conf"
 				fi
@@ -102,25 +103,27 @@ siproxd_cb() {
 					"$siproxd_conf_prefix$sec.conf"
 			;;
 			# Parse OpenWRT interface names (e.g. "wan") and apply defaults,
-			# using saved section name.
+			# using saved section names.
 			"")
-				local chrootjail
-				local pid_file
+				for sec in $secs; do
+					local chrootjail
+					local pid_file
 
-				setup_networks "$sec"
-				apply_defaults "$sec"
+					setup_networks "$sec"
+					apply_defaults "$sec"
 
-				config_get chrootjail "$sec" chrootjail
-				if [ -n "$chrootjail" ]; then
-					if [ ! -d "$chrootjail" ]; then
-						mkdir -p "$chrootjail"
-						chmod 0755 "$chrootjail"
+					config_get chrootjail "$sec" chrootjail
+					if [ -n "$chrootjail" ]; then
+						if [ ! -d "$chrootjail" ]; then
+							mkdir -p "$chrootjail"
+							chmod 0755 "$chrootjail"
+						fi
 					fi
-				fi
 
-				config_get pid_file "$sec" pid_file
-				SERVICE_PID_FILE="$pid_file" service_start \
-				$siproxd_bin --config "$siproxd_conf_prefix$sec.conf"
+					config_get pid_file "$sec" pid_file
+					SERVICE_PID_FILE="$pid_file" service_start \
+					$siproxd_bin --config "$siproxd_conf_prefix$sec.conf"
+				done
 			;;
 		esac
 		return 0
