@@ -226,8 +226,7 @@ CONFIGURE_ARGS+= \
 	--without-tinfo \
 	--without-vorbis \
 	--without-vpb \
-	--with-z="$(STAGING_DIR)/usr" \
-	--with-sounds-cache="$(DL_DIR)"
+	--with-z="$(STAGING_DIR)/usr"
 
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
 CONFIGURE_ARGS+= \
