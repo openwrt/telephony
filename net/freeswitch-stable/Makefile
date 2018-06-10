@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.20
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -750,6 +750,12 @@ else
 CONFIGURE_VARS+= \
 	ac_cv_have_perl=no \
 	ac_cv_prog_PERL=false
+endif
+
+ifeq ($(CONFIG_USE_GLIBC),y)
+	PERL_LIBS+= -L$(STAGING_DIR)/lib -lbsd
+	CONFIGURE_VARS+= \
+		ac_cv_lib_perl_perl_alloc=yes
 endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)

@@ -1,0 +1,1349 @@
+From f55129f9580c53b0311d021ae4e21f2a46e17896 Mon Sep 17 00:00:00 2001
+From: Eneas U de Queiroz <cote2004-github@yahoo.com>
+Date: Sun, 10 Jun 2018 16:29:10 -0300
+Subject: [PATCH] Add compatiblity with openssl 1.1.0
+
+This patch was based on the current master branch, even though it is not
+a simple backport.
+
+Signed-off-by: Eneas U de Queiroz <cote2004-github@yahoo.com>
+---
+ libs/iksemel/src/stream.c                          |   2 +
+ libs/sofia-sip/libsofia-sip-ua/tport/tport_tls.c   |   9 +-
+ libs/sofia-sip/libsofia-sip-ua/tport/ws.c          |  21 ++-
+ libs/srtp/crypto/cipher/aes_gcm_ossl.c             |  39 +++--
+ libs/srtp/crypto/cipher/aes_icm_ossl.c             |  21 ++-
+ libs/srtp/crypto/hash/hmac.c                       |  12 +-
+ libs/srtp/crypto/hash/hmac_ossl.c                  | 170 +++++++++------------
+ libs/srtp/crypto/include/aes_gcm_ossl.h            |   2 +-
+ libs/srtp/crypto/include/aes_icm_ossl.h            |   2 +-
+ libs/srtp/crypto/include/hmac.h                    |   8 +-
+ libs/srtp/crypto/include/sha1.h                    |  34 ++++-
+ libs/xmlrpc-c/lib/abyss/src/socket_openssl.c       |   2 +
+ src/include/switch_ssl.h                           |   5 +
+ src/mod/endpoints/mod_rtmp/handshake.h             |  10 ++
+ src/mod/endpoints/mod_verto/mod_verto.c            |  10 ++
+ src/mod/endpoints/mod_verto/ws.c                   |  21 ++-
+ .../mod_event_multicast/mod_event_multicast.c      |  33 ++++
+ src/mod/xml_int/mod_xml_rpc/ws.c                   |  18 ++-
+ src/switch_core.c                                  |   4 +
+ src/switch_core_cert.c                             |  26 +++-
+ src/switch_rtp.c                                   |  57 ++++++-
+ 21 files changed, 351 insertions(+), 155 deletions(-)
+
+diff --git a/libs/iksemel/src/stream.c b/libs/iksemel/src/stream.c
+index a35f29223a..92e8cb1876 100644
+--- a/libs/iksemel/src/stream.c
++++ b/libs/iksemel/src/stream.c
+@@ -314,8 +314,10 @@ handshake (struct stream_data *data)
+ 	int ret;
+ 	int finished;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	SSL_library_init();
+ 	SSL_load_error_strings();
++#endif
+ 	
+ 	if (data->flags & SF_SERVER) {
+ 		data->ssl_ctx = SSL_CTX_new(TLSv1_server_method());
+diff --git a/libs/sofia-sip/libsofia-sip-ua/tport/tport_tls.c b/libs/sofia-sip/libsofia-sip-ua/tport/tport_tls.c
+index f931ead1f8..f9ae002715 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/tport/tport_tls.c
++++ b/libs/sofia-sip/libsofia-sip-ua/tport/tport_tls.c
+@@ -44,6 +44,7 @@
+ 
+ #include <openssl/lhash.h>
+ #include <openssl/bn.h>
++#include <openssl/dh.h>
+ #include <openssl/x509.h>
+ #include <openssl/x509v3.h>
+ #include <openssl/ssl.h>
+@@ -95,8 +96,10 @@ static int tls_ex_data_idx = -1; /* see SSL_get_ex_new_index(3ssl) */
+ static void
+ tls_init_once(void)
+ {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+   SSL_library_init();
+   SSL_load_error_strings();
++#endif
+   tls_ex_data_idx = SSL_get_ex_new_index(0, "sofia-sip private data", NULL, NULL, NULL);
+ }
+ 
+@@ -505,7 +508,7 @@ tls_t *tls_init_master(tls_issues_t *ti)
+     return NULL;
+   }
+ 
+-  RAND_pseudo_bytes(sessionId, sizeof(sessionId));
++  RAND_bytes(sessionId, sizeof(sessionId));
+ 
+   if (!SSL_CTX_set_session_id_context(tls->ctx,
+                                  (void*) sessionId,
+@@ -516,7 +519,11 @@ tls_t *tls_init_master(tls_issues_t *ti)
+   if (ti->CAfile != NULL) {
+     SSL_CTX_set_client_CA_list(tls->ctx,
+                                SSL_load_client_CA_file(ti->CAfile));
++#if OPENSSL_VERSION_NUMBER >= 0x10100000
++    if (SSL_CTX_get_client_CA_list(tls->ctx) == NULL)
++#else
+     if (tls->ctx->client_CA == NULL)
++#endif
+       tls_log_errors(3, "tls_init_master", 0);
+   }
+ 
+diff --git a/libs/sofia-sip/libsofia-sip-ua/tport/ws.c b/libs/sofia-sip/libsofia-sip-ua/tport/ws.c
+index 1ec39f399d..45a37ee7d4 100644
+--- a/libs/sofia-sip/libsofia-sip-ua/tport/ws.c
++++ b/libs/sofia-sip/libsofia-sip-ua/tport/ws.c
+@@ -39,6 +39,7 @@ void deinit_ssl(void)
+ }
+ 
+ #else
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ static unsigned long pthreads_thread_id(void);
+ static void pthreads_locking_callback(int mode, int type, const char *file, int line);
+ 
+@@ -94,9 +95,10 @@ static unsigned long pthreads_thread_id(void)
+ {
+ 	return (unsigned long) pthread_self();
+ }
+-
++#endif
+ 
+ void init_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	SSL_library_init();
+ 
+ 
+@@ -112,6 +114,12 @@ void init_ssl(void) {
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_SSLv3);
+ 	/* Disable TLSv1 */
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_TLSv1);
++#else
++	ws_globals.ssl_method = TLS_server_method();   /* create server instance */
++	ws_globals.ssl_ctx = SSL_CTX_new(ws_globals.ssl_method);         /* create context */
++	assert(ws_globals.ssl_ctx);
++	SSL_CTX_set_min_proto_version(ws_globals.ssl_ctx, TLS1_1_VERSION);
++#endif
+ 	/* Disable Compression CRIME (Compression Ratio Info-leak Made Easy) */
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_COMPRESSION);
+ 	/* set the local certificate from CertFile */
+@@ -125,12 +133,16 @@ void init_ssl(void) {
+ 
+ 	SSL_CTX_set_cipher_list(ws_globals.ssl_ctx, "HIGH:!DSS:!aNULL@STRENGTH");
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_setup();
++#endif
+ }
+ 
+ 
+ void deinit_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_cleanup();
++#endif
+ }
+ 
+ #endif
+@@ -235,12 +247,7 @@ static void sha1_digest(char *digest, unsigned char *in)
+ 
+ static void sha1_digest(unsigned char *digest, char *in)
+ {
+-	SHA_CTX sha;
+-
+-	SHA1_Init(&sha);
+-	SHA1_Update(&sha, in, strlen(in));
+-	SHA1_Final(digest, &sha);
+-
++	SHA1((unsigned char *)in, strlen(in), digest);
+ }
+ 
+ #endif
+diff --git a/libs/srtp/crypto/cipher/aes_gcm_ossl.c b/libs/srtp/crypto/cipher/aes_gcm_ossl.c
+index 7ce52d001d..a74d500bd2 100644
+--- a/libs/srtp/crypto/cipher/aes_gcm_ossl.c
++++ b/libs/srtp/crypto/cipher/aes_gcm_ossl.c
+@@ -111,6 +111,12 @@ err_status_t aes_gcm_openssl_alloc (cipher_t **c, int key_len, int tlen)
+     *c = (cipher_t*)allptr;
+     (*c)->state = allptr + sizeof(cipher_t);
+     gcm = (aes_gcm_ctx_t *)(*c)->state;
++    gcm->ctx = EVP_CIPHER_CTX_new();
++    if (gcm->ctx == NULL) {
++       crypto_free(*c);
++       *c = NULL;
++       return err_status_alloc_fail;
++    }
+ 
+     /* increment ref_count */
+     switch (key_len) {
+@@ -132,7 +138,6 @@ err_status_t aes_gcm_openssl_alloc (cipher_t **c, int key_len, int tlen)
+ 
+     /* set key size        */
+     (*c)->key_len = key_len;
+-    EVP_CIPHER_CTX_init(&gcm->ctx);
+ 
+     return (err_status_ok);
+ }
+@@ -147,7 +152,7 @@ err_status_t aes_gcm_openssl_dealloc (cipher_t *c)
+ 
+     ctx = (aes_gcm_ctx_t*)c->state;
+     if (ctx) {
+-	EVP_CIPHER_CTX_cleanup(&ctx->ctx);
++	EVP_CIPHER_CTX_free(ctx->ctx);
+         /* decrement ref_count for the appropriate engine */
+         switch (ctx->key_size) {
+         case AES_256_KEYSIZE:
+@@ -193,7 +198,11 @@ err_status_t aes_gcm_openssl_context_init (aes_gcm_ctx_t *c, const uint8_t *key)
+ 
+     debug_print(mod_aes_gcm, "key:  %s", v128_hex_string((v128_t*)&c->key));
+ 
+-    EVP_CIPHER_CTX_cleanup(&c->ctx);
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++    EVP_CIPHER_CTX_cleanup(c->ctx);
++#else
++    EVP_CIPHER_CTX_reset(c->ctx);
++#endif
+ 
+     return (err_status_ok);
+ }
+@@ -228,19 +237,19 @@ err_status_t aes_gcm_openssl_set_iv (aes_gcm_ctx_t *c, void *iv,
+         break;
+     }
+ 
+-    if (!EVP_CipherInit_ex(&c->ctx, evp, NULL, (const unsigned char*)&c->key.v8,
++    if (!EVP_CipherInit_ex(c->ctx, evp, NULL, (const unsigned char*)&c->key.v8,
+                            NULL, (c->dir == direction_encrypt ? 1 : 0))) {
+         return (err_status_init_fail);
+     }
+ 
+     /* set IV len  and the IV value, the followiong 3 calls are required */
+-    if (!EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_SET_IVLEN, 12, 0)) {
++    if (!EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_SET_IVLEN, 12, 0)) {
+         return (err_status_init_fail);
+     }
+-    if (!EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_SET_IV_FIXED, -1, iv)) {
++    if (!EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_SET_IV_FIXED, -1, iv)) {
+         return (err_status_init_fail);
+     }
+-    if (!EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_IV_GEN, 0, iv)) {
++    if (!EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_IV_GEN, 0, iv)) {
+         return (err_status_init_fail);
+     }
+ 
+@@ -264,9 +273,9 @@ err_status_t aes_gcm_openssl_set_aad (aes_gcm_ctx_t *c, unsigned char *aad,
+      * Set dummy tag, OpenSSL requires the Tag to be set before
+      * processing AAD
+      */
+-    EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_SET_TAG, c->tag_len, aad);
++    EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_SET_TAG, c->tag_len, aad);
+ 
+-    rv = EVP_Cipher(&c->ctx, NULL, aad, aad_len);
++    rv = EVP_Cipher(c->ctx, NULL, aad, aad_len);
+     if (rv != aad_len) {
+         return (err_status_algo_fail);
+     } else {
+@@ -292,7 +301,7 @@ err_status_t aes_gcm_openssl_encrypt (aes_gcm_ctx_t *c, unsigned char *buf,
+     /*
+      * Encrypt the data
+      */
+-    EVP_Cipher(&c->ctx, buf, buf, *enc_len);
++    EVP_Cipher(c->ctx, buf, buf, *enc_len);
+ 
+     return (err_status_ok);
+ }
+@@ -314,12 +323,12 @@ err_status_t aes_gcm_openssl_get_tag (aes_gcm_ctx_t *c, unsigned char *buf,
+     /*
+      * Calculate the tag
+      */
+-    EVP_Cipher(&c->ctx, NULL, NULL, 0);
++    EVP_Cipher(c->ctx, NULL, NULL, 0);
+ 
+     /*
+      * Retreive the tag
+      */
+-    EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_GET_TAG, c->tag_len, buf);
++    EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_GET_TAG, c->tag_len, buf);
+ 
+     /*
+      * Increase encryption length by desired tag size
+@@ -348,14 +357,14 @@ err_status_t aes_gcm_openssl_decrypt (aes_gcm_ctx_t *c, unsigned char *buf,
+     /*
+      * Set the tag before decrypting
+      */
+-    EVP_CIPHER_CTX_ctrl(&c->ctx, EVP_CTRL_GCM_SET_TAG, c->tag_len, 
++    EVP_CIPHER_CTX_ctrl(c->ctx, EVP_CTRL_GCM_SET_TAG, c->tag_len, 
+ 	                buf + (*enc_len - c->tag_len));
+-    EVP_Cipher(&c->ctx, buf, buf, *enc_len - c->tag_len);
++    EVP_Cipher(c->ctx, buf, buf, *enc_len - c->tag_len);
+ 
+     /*
+      * Check the tag
+      */
+-    if (EVP_Cipher(&c->ctx, NULL, NULL, 0)) {
++    if (EVP_Cipher(c->ctx, NULL, NULL, 0)) {
+         return (err_status_auth_fail);
+     }
+ 
+diff --git a/libs/srtp/crypto/cipher/aes_icm_ossl.c b/libs/srtp/crypto/cipher/aes_icm_ossl.c
+index 1e1860d093..f5a23e246c 100644
+--- a/libs/srtp/crypto/cipher/aes_icm_ossl.c
++++ b/libs/srtp/crypto/cipher/aes_icm_ossl.c
+@@ -133,6 +133,12 @@ err_status_t aes_icm_openssl_alloc (cipher_t **c, int key_len, int tlen)
+     *c = (cipher_t*)allptr;
+     (*c)->state = allptr + sizeof(cipher_t);
+     icm = (aes_icm_ctx_t*)(*c)->state;
++    icm->ctx = EVP_CIPHER_CTX_new();
++    if (icm->ctx == NULL) {
++      crypto_free(*c);
++      *c = NULL;
++      return err_status_alloc_fail;
++    }
+ 
+     /* increment ref_count */
+     switch (key_len) {
+@@ -158,7 +164,6 @@ err_status_t aes_icm_openssl_alloc (cipher_t **c, int key_len, int tlen)
+ 
+     /* set key size        */
+     (*c)->key_len = key_len;
+-    EVP_CIPHER_CTX_init(&icm->ctx);
+ 
+     return err_status_ok;
+ }
+@@ -180,7 +185,7 @@ err_status_t aes_icm_openssl_dealloc (cipher_t *c)
+      */
+     ctx = (aes_icm_ctx_t*)c->state;
+     if (ctx != NULL) {
+-        EVP_CIPHER_CTX_cleanup(&ctx->ctx);
++        EVP_CIPHER_CTX_free(ctx->ctx);
+         /* decrement ref_count for the appropriate engine */
+         switch (ctx->key_size) {
+         case AES_256_KEYSIZE:
+@@ -250,7 +255,11 @@ err_status_t aes_icm_openssl_context_init (aes_icm_ctx_t *c, const uint8_t *key)
+     debug_print(mod_aes_icm, "key:  %s", v128_hex_string((v128_t*)&c->key));
+     debug_print(mod_aes_icm, "offset: %s", v128_hex_string(&c->offset));
+ 
+-    EVP_CIPHER_CTX_cleanup(&c->ctx);
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++    EVP_CIPHER_CTX_cleanup(c->ctx);
++#else
++    EVP_CIPHER_CTX_reset(c->ctx);
++#endif
+ 
+     return err_status_ok;
+ }
+@@ -289,7 +298,7 @@ err_status_t aes_icm_openssl_set_iv (aes_icm_ctx_t *c, void *iv, int dir)
+         break;
+     }
+ 
+-    if (!EVP_EncryptInit_ex(&c->ctx, evp,
++    if (!EVP_EncryptInit_ex(c->ctx, evp,
+                             NULL, c->key.v8, c->counter.v8)) {
+         return err_status_fail;
+     } else {
+@@ -311,12 +320,12 @@ err_status_t aes_icm_openssl_encrypt (aes_icm_ctx_t *c, unsigned char *buf, unsi
+ 
+     debug_print(mod_aes_icm, "rs0: %s", v128_hex_string(&c->counter));
+ 
+-    if (!EVP_EncryptUpdate(&c->ctx, buf, &len, buf, *enc_len)) {
++    if (!EVP_EncryptUpdate(c->ctx, buf, &len, buf, *enc_len)) {
+         return err_status_cipher_fail;
+     }
+     *enc_len = len;
+ 
+-    if (!EVP_EncryptFinal_ex(&c->ctx, buf, (int*)&len)) {
++    if (!EVP_EncryptFinal_ex(c->ctx, buf, (int*)&len)) {
+         return err_status_cipher_fail;
+     }
+     *enc_len += len;
+diff --git a/libs/srtp/crypto/hash/hmac.c b/libs/srtp/crypto/hash/hmac.c
+index 4f389fe18e..6e2c1a0687 100644
+--- a/libs/srtp/crypto/hash/hmac.c
++++ b/libs/srtp/crypto/hash/hmac.c
+@@ -109,9 +109,10 @@ hmac_dealloc(auth_t *a) {
+ }
+ 
+ err_status_t
+-hmac_init(hmac_ctx_t *state, const uint8_t *key, int key_len) {
++hmac_init(void *statev, const uint8_t *key, int key_len) {
+   int i;
+   uint8_t ipad[64]; 
++  hmac_ctx_t *state = (hmac_ctx_t *)statev;
+   
+     /*
+    * check key length - note that we don't support keys larger
+@@ -147,7 +148,8 @@ hmac_init(hmac_ctx_t *state, const uint8_t *key, int key_len) {
+ }
+ 
+ err_status_t
+-hmac_start(hmac_ctx_t *state) {
++hmac_start(void *statev) {
++  hmac_ctx_t *state = (hmac_ctx_t *)statev;
+     
+   memcpy(&state->ctx, &state->init_ctx, sizeof(sha1_ctx_t));
+ 
+@@ -155,7 +157,8 @@ hmac_start(hmac_ctx_t *state) {
+ }
+ 
+ err_status_t
+-hmac_update(hmac_ctx_t *state, const uint8_t *message, int msg_octets) {
++hmac_update(void *statev, const uint8_t *message, int msg_octets) {
++  hmac_ctx_t *state = (hmac_ctx_t *)statev;
+ 
+   debug_print(mod_hmac, "input: %s", 
+ 	      octet_string_hex_string(message, msg_octets));
+@@ -167,8 +170,9 @@ hmac_update(hmac_ctx_t *state, const uint8_t *message, int msg_octets) {
+ }
+ 
+ err_status_t
+-hmac_compute(hmac_ctx_t *state, const void *message,
++hmac_compute(void *statev, const void *message,
+ 	     int msg_octets, int tag_len, uint8_t *result) {
++  hmac_ctx_t *state = (hmac_ctx_t *)statev;
+   uint32_t hash_value[5];
+   uint32_t H[5];
+   int i;
+diff --git a/libs/srtp/crypto/hash/hmac_ossl.c b/libs/srtp/crypto/hash/hmac_ossl.c
+index dcf91b57ea..4a55c9b994 100644
+--- a/libs/srtp/crypto/hash/hmac_ossl.c
++++ b/libs/srtp/crypto/hash/hmac_ossl.c
+@@ -8,7 +8,7 @@
+  */
+ /*
+  *
+- * Copyright(c) 2013, Cisco Systems, Inc.
++ * Copyright(c) 2013-2017, Cisco Systems, Inc.
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -43,8 +43,13 @@
+  */
+ 
+ #include "hmac.h"
++#include "auth.h"
+ #include "alloc.h"
++#include "err.h"
+ #include <openssl/evp.h>
++#include <openssl/hmac.h>
++
++#define SHA1_DIGEST_SIZE		20
+ 
+ /* the debug module for authentiation */
+ 
+@@ -58,40 +63,52 @@ err_status_t
+ hmac_alloc (auth_t **a, int key_len, int out_len)
+ {
+     extern auth_type_t hmac;
+-    uint8_t *pointer;
+-    hmac_ctx_t *new_hmac_ctx;
+ 
+     debug_print(mod_hmac, "allocating auth func with key length %d", key_len);
+     debug_print(mod_hmac, "                          tag length %d", out_len);
+ 
+-    /*
+-     * check key length - note that we don't support keys larger
+-     * than 20 bytes yet
+-     */
+-    if (key_len > 20) {
++    /* check output length - should be less than 20 bytes */
++    if (out_len > SHA1_DIGEST_SIZE) {
+         return err_status_bad_param;
+     }
+ 
+-    /* check output length - should be less than 20 bytes */
+-    if (out_len > 20) {
+-        return err_status_bad_param;
++/* OpenSSL 1.1.0 made HMAC_CTX an opaque structure, which must be allocated
++   using HMAC_CTX_new.  But this function doesn't exist in OpenSSL 1.0.x. */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++    {
++	/* allocate memory for auth and hmac_ctx_t structures */
++	uint8_t *pointer;
++	HMAC_CTX *new_hmac_ctx;
++	pointer = (uint8_t*)crypto_alloc(sizeof(HMAC_CTX) + sizeof(auth_t));
++	if (pointer == NULL) {
++	    return err_status_alloc_fail;
++	}
++	*a = (auth_t*)pointer;
++	(*a)->state = pointer + sizeof(auth_t);
++	new_hmac_ctx = (HMAC_CTX*)((*a)->state);
++
++	HMAC_CTX_init(new_hmac_ctx);
+     }
+ 
+-    /* allocate memory for auth and hmac_ctx_t structures */
+-    pointer = (uint8_t*)crypto_alloc(sizeof(hmac_ctx_t) + sizeof(auth_t));
+-    if (pointer == NULL) {
+-        return err_status_alloc_fail;
++#else
++    *a = (auth_t*)crypto_alloc(sizeof(auth_t));
++    if (*a == NULL) {
++	return err_status_alloc_fail;
+     }
+ 
++    (*a)->state =  HMAC_CTX_new();
++    if ((*a)->state == NULL) {
++	crypto_free(*a);
++	*a = NULL;
++	return err_status_alloc_fail;
++    }
++#endif
++
+     /* set pointers */
+-    *a = (auth_t*)pointer;
+     (*a)->type = &hmac;
+-    (*a)->state = pointer + sizeof(auth_t);
+     (*a)->out_len = out_len;
+     (*a)->key_len = key_len;
+     (*a)->prefix_len = 0;
+-    new_hmac_ctx = (hmac_ctx_t*)((*a)->state);
+-    memset(new_hmac_ctx, 0, sizeof(hmac_ctx_t));
+ 
+     /* increment global count of all hmac uses */
+     hmac.ref_count++;
+@@ -103,19 +120,22 @@ err_status_t
+ hmac_dealloc (auth_t *a)
+ {
+     extern auth_type_t hmac;
+-    hmac_ctx_t *hmac_ctx;
++    HMAC_CTX *hmac_ctx;
+ 
+-    hmac_ctx = (hmac_ctx_t*)a->state;
+-    if (hmac_ctx->ctx_initialized) {
+-        EVP_MD_CTX_cleanup(&hmac_ctx->ctx);
+-    }
+-    if (hmac_ctx->init_ctx_initialized) {
+-        EVP_MD_CTX_cleanup(&hmac_ctx->init_ctx);
+-    }
++    hmac_ctx = (HMAC_CTX*)a->state;
++
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++    HMAC_CTX_cleanup(hmac_ctx);
+ 
+     /* zeroize entire state*/
+     octet_string_set_to_zero((uint8_t*)a,
+-                             sizeof(hmac_ctx_t) + sizeof(auth_t));
++                             sizeof(HMAC_CTX) + sizeof(auth_t));
++#else
++    HMAC_CTX_free(hmac_ctx);
++
++    /* zeroize entire state*/
++    octet_string_set_to_zero((uint8_t*)a, sizeof(auth_t));
++#endif
+ 
+     /* free memory */
+     crypto_free(a);
+@@ -127,110 +147,68 @@ hmac_dealloc (auth_t *a)
+ }
+ 
+ err_status_t
+-hmac_init (hmac_ctx_t *state, const uint8_t *key, int key_len)
++hmac_init (void *statev, const uint8_t *key, int key_len)
+ {
+-    int i;
+-    uint8_t ipad[64];
++    HMAC_CTX *state = (HMAC_CTX *)statev;
+ 
+-    /*
+-     * check key length - note that we don't support keys larger
+-     * than 20 bytes yet
+-     */
+-    if (key_len > 20) {
+-        return err_status_bad_param;
+-    }
++    if (HMAC_Init_ex(state, key, key_len, EVP_sha1(), NULL) == 0)
++	return err_status_auth_fail;
+ 
+-    /*
+-     * set values of ipad and opad by exoring the key into the
+-     * appropriate constant values
+-     */
+-    for (i = 0; i < key_len; i++) {
+-        ipad[i] = key[i] ^ 0x36;
+-        state->opad[i] = key[i] ^ 0x5c;
+-    }
+-    /* set the rest of ipad, opad to constant values */
+-    for (; i < 64; i++) {
+-        ipad[i] = 0x36;
+-        ((uint8_t*)state->opad)[i] = 0x5c;
+-    }
+-
+-    debug_print(mod_hmac, "ipad: %s", octet_string_hex_string(ipad, 64));
+-
+-    /* initialize sha1 context */
+-    sha1_init(&state->init_ctx);
+-    state->init_ctx_initialized = 1;
+-
+-    /* hash ipad ^ key */
+-    sha1_update(&state->init_ctx, ipad, 64);
+     return (hmac_start(state));
+ }
+ 
+ err_status_t
+-hmac_start (hmac_ctx_t *state)
++hmac_start (void *statev)
+ {
+-    if (state->ctx_initialized) {
+-        EVP_MD_CTX_cleanup(&state->ctx);
+-    }
+-    if (!EVP_MD_CTX_copy(&state->ctx, &state->init_ctx)) {
++    HMAC_CTX *state = (HMAC_CTX *)statev;
++
++    if (HMAC_Init_ex(state, NULL, 0, NULL, NULL) == 0)
+         return err_status_auth_fail;
+-    } else {
+-        state->ctx_initialized = 1;
+-        return err_status_ok;
+-    }
++
++    return err_status_ok;
+ }
+ 
+ err_status_t
+-hmac_update (hmac_ctx_t *state, const uint8_t *message, int msg_octets)
++hmac_update (void *statev, const uint8_t *message, int msg_octets)
+ {
++    HMAC_CTX *state = (HMAC_CTX *)statev;
+ 
+     debug_print(mod_hmac, "input: %s",
+                 octet_string_hex_string(message, msg_octets));
+ 
+-    /* hash message into sha1 context */
+-    sha1_update(&state->ctx, message, msg_octets);
++    if (HMAC_Update(state, message, msg_octets) == 0)
++	return err_status_auth_fail;
+ 
+     return err_status_ok;
+ }
+ 
+ err_status_t
+-hmac_compute (hmac_ctx_t *state, const void *message,
++hmac_compute (void *statev, const void *message,
+               int msg_octets, int tag_len, uint8_t *result)
+ {
+-    uint32_t hash_value[5];
+-    uint32_t H[5];
++    HMAC_CTX *state = (HMAC_CTX *)statev;
++    uint8_t hash_value[SHA1_DIGEST_SIZE];
+     int i;
++    unsigned int len;
+ 
+     /* check tag length, return error if we can't provide the value expected */
+-    if (tag_len > 20) {
++    if (tag_len > SHA1_DIGEST_SIZE) {
+         return err_status_bad_param;
+     }
+ 
+     /* hash message, copy output into H */
+-    sha1_update(&state->ctx, message, msg_octets);
+-    sha1_final(&state->ctx, H);
+-
+-    /*
+-     * note that we don't need to debug_print() the input, since the
+-     * function hmac_update() already did that for us
+-     */
+-    debug_print(mod_hmac, "intermediate state: %s",
+-                octet_string_hex_string((uint8_t*)H, 20));
+-
+-    /* re-initialize hash context */
+-    sha1_init(&state->ctx);
+-
+-    /* hash opad ^ key  */
+-    sha1_update(&state->ctx, (uint8_t*)state->opad, 64);
++    if (HMAC_Update(state, message, msg_octets) == 0)
++	return err_status_auth_fail;
+ 
+-    /* hash the result of the inner hash */
+-    sha1_update(&state->ctx, (uint8_t*)H, 20);
++    if (HMAC_Final(state, hash_value, &len) == 0)
++	return err_status_auth_fail;
+ 
+-    /* the result is returned in the array hash_value[] */
+-    sha1_final(&state->ctx, hash_value);
++    if (len < tag_len)
++	return err_status_auth_fail;
+ 
+     /* copy hash_value to *result */
+     for (i = 0; i < tag_len; i++) {
+-        result[i] = ((uint8_t*)hash_value)[i];
++        result[i] = hash_value[i];
+     }
+ 
+     debug_print(mod_hmac, "output: %s",
+diff --git a/libs/srtp/crypto/include/aes_gcm_ossl.h b/libs/srtp/crypto/include/aes_gcm_ossl.h
+index 8e7711dc52..4f49b51c7b 100644
+--- a/libs/srtp/crypto/include/aes_gcm_ossl.h
++++ b/libs/srtp/crypto/include/aes_gcm_ossl.h
+@@ -55,7 +55,7 @@ typedef struct {
+   v256_t   key;
+   int      key_size;
+   int      tag_len;
+-  EVP_CIPHER_CTX ctx;
++  EVP_CIPHER_CTX* ctx;
+   cipher_direction_t dir;
+ } aes_gcm_ctx_t;
+ 
+diff --git a/libs/srtp/crypto/include/aes_icm_ossl.h b/libs/srtp/crypto/include/aes_icm_ossl.h
+index 89da7e0693..72586d6db9 100644
+--- a/libs/srtp/crypto/include/aes_icm_ossl.h
++++ b/libs/srtp/crypto/include/aes_icm_ossl.h
+@@ -63,7 +63,7 @@ typedef struct {
+     v128_t offset;                 /* initial offset value             */
+     v256_t key;
+     int key_size;
+-    EVP_CIPHER_CTX ctx;
++    EVP_CIPHER_CTX* ctx;
+ } aes_icm_ctx_t;
+ 
+ err_status_t aes_icm_openssl_set_iv(aes_icm_ctx_t *c, void *iv, int dir);
+diff --git a/libs/srtp/crypto/include/hmac.h b/libs/srtp/crypto/include/hmac.h
+index 875f45c649..b957443221 100644
+--- a/libs/srtp/crypto/include/hmac.h
++++ b/libs/srtp/crypto/include/hmac.h
+@@ -66,16 +66,16 @@ err_status_t
+ hmac_dealloc(auth_t *a);
+ 
+ err_status_t
+-hmac_init(hmac_ctx_t *state, const uint8_t *key, int key_len);
++hmac_init(void *statev, const uint8_t *key, int key_len);
+ 
+ err_status_t
+-hmac_start(hmac_ctx_t *state);
++hmac_start(void *statev);
+ 
+ err_status_t
+-hmac_update(hmac_ctx_t *state, const uint8_t *message, int msg_octets);
++hmac_update(void *statev, const uint8_t *message, int msg_octets);
+ 
+ err_status_t
+-hmac_compute(hmac_ctx_t *state, const void *message,
++hmac_compute(void *statev, const void *message,
+ 	     int msg_octets, int tag_len, uint8_t *result);
+ 
+ 
+diff --git a/libs/srtp/crypto/include/sha1.h b/libs/srtp/crypto/include/sha1.h
+index 3708fd9cdb..6a8a81176d 100644
+--- a/libs/srtp/crypto/include/sha1.h
++++ b/libs/srtp/crypto/include/sha1.h
+@@ -51,8 +51,6 @@
+ #ifdef OPENSSL
+ #include <openssl/evp.h>
+ 
+-typedef EVP_MD_CTX sha1_ctx_t;
+-
+ /*
+  * sha1_init(&ctx) initializes the SHA1 context ctx
+  *
+@@ -67,6 +65,12 @@ typedef EVP_MD_CTX sha1_ctx_t;
+  *
+  */
+ 
++/* OpenSSL 1.1.0 made EVP_MD_CTX an opaque structure, which must be allocated
++   using EVP_MD_CTX_new. But this function doesn't exist in OpenSSL 1.0.x. */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++
++typedef EVP_MD_CTX sha1_ctx_t;
++
+ static inline void sha1_init (sha1_ctx_t *ctx)
+ {
+     EVP_MD_CTX_init(ctx);
+@@ -83,7 +87,33 @@ static inline void sha1_final (sha1_ctx_t *ctx, uint32_t *output)
+     unsigned int len = 0;
+ 
+     EVP_DigestFinal(ctx, (unsigned char*)output, &len);
++    EVP_MD_CTX_cleanup(ctx);
++}
++
++# else
++
++typedef EVP_MD_CTX* sha1_ctx_t;
++
++static inline void sha1_init (sha1_ctx_t *ctx)
++{
++    *ctx = EVP_MD_CTX_new();
++    EVP_DigestInit(*ctx, EVP_sha1());
+ }
++
++static inline void sha1_update (sha1_ctx_t *ctx, const uint8_t *M, int octets_in_msg)
++{
++    EVP_DigestUpdate(*ctx, M, octets_in_msg);
++}
++
++static inline void sha1_final (sha1_ctx_t *ctx, uint32_t *output)
++{
++    unsigned int len = 0;
++
++    EVP_DigestFinal(*ctx, (unsigned char*)output, &len);
++    EVP_MD_CTX_free(*ctx);
++}
++#endif
++
+ #else
+ #include "datatypes.h"
+ 
+diff --git a/libs/xmlrpc-c/lib/abyss/src/socket_openssl.c b/libs/xmlrpc-c/lib/abyss/src/socket_openssl.c
+index 3082851b04..58219503f5 100644
+--- a/libs/xmlrpc-c/lib/abyss/src/socket_openssl.c
++++ b/libs/xmlrpc-c/lib/abyss/src/socket_openssl.c
+@@ -91,9 +91,11 @@ connected(int const fd) {
+ void
+ SocketOpensslInit(const char ** const errorP) {
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	SSL_load_error_strings();
+         /* readable error messages, don't call this if memory is tight */
+ 	SSL_library_init();   /* initialize library */
++#endif
+ 
+ 	/* actions_to_seed_PRNG(); */
+ 
+diff --git a/src/include/switch_ssl.h b/src/include/switch_ssl.h
+index 3f4d6d696e..4675297165 100644
+--- a/src/include/switch_ssl.h
++++ b/src/include/switch_ssl.h
+@@ -46,6 +46,9 @@
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #include <openssl/bio.h>
++#include <openssl/rsa.h>
++#include <openssl/bn.h>
++#include <openssl/dh.h>
+ 
+ SWITCH_DECLARE(int) switch_core_cert_extract_fingerprint(X509* x509, dtls_fingerprint_t *fp);
+ 
+@@ -53,7 +56,9 @@ SWITCH_DECLARE(int) switch_core_cert_extract_fingerprint(X509* x509, dtls_finger
+ static inline int switch_core_cert_extract_fingerprint(void* x509, dtls_fingerprint_t *fp) { return 0; }
+ #endif
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ SWITCH_DECLARE(void) switch_ssl_destroy_ssl_locks(void);
+ SWITCH_DECLARE(void) switch_ssl_init_ssl_locks(void);
++#endif
+ 
+ #endif
+diff --git a/src/mod/endpoints/mod_rtmp/handshake.h b/src/mod/endpoints/mod_rtmp/handshake.h
+index f33ad9fd08..05e2e5634c 100644
+--- a/src/mod/endpoints/mod_rtmp/handshake.h
++++ b/src/mod/endpoints/mod_rtmp/handshake.h
+@@ -42,9 +42,15 @@
+ #if OPENSSL_VERSION_NUMBER < 0x0090800 || !defined(SHA256_DIGEST_LENGTH)
+ #error Your OpenSSL is too old, need 0.9.8 or newer with SHA256
+ #endif
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ #define HMAC_setup(ctx, key, len)	HMAC_CTX_init(&ctx); HMAC_Init_ex(&ctx, key, len, EVP_sha256(), 0)
+ #define HMAC_crunch(ctx, buf, len)	HMAC_Update(&ctx, buf, len)
+ #define HMAC_finish(ctx, dig, dlen) HMAC_Final(&ctx, dig, &dlen); HMAC_CTX_cleanup(&ctx)
++#else
++#define HMAC_setup(ctx, key, len)ctx=HMAC_CTX_new(); HMAC_Init_ex(ctx, key, len, EVP_sha256(), 0)
++#define HMAC_crunch(ctx, buf, len)HMAC_Update(ctx, buf, len)
++#define HMAC_finish(ctx, dig, dlen) HMAC_Final(ctx, dig, &dlen); HMAC_CTX_free(ctx)
++#endif
+ 
+ #define FP10
+ #define RTMP_SIG_SIZE 1536
+@@ -152,7 +158,11 @@ static getoff *digoff[] = {GetDigestOffset1, GetDigestOffset2};
+ static void HMACsha256(const uint8_t *message, size_t messageLen, const uint8_t *key, size_t keylen, uint8_t *digest)
+ {
+ 	unsigned int digestLen;
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	HMAC_CTX ctx;
++#else
++	HMAC_CTX *ctx;
++#endif
+ 
+ 	HMAC_setup(ctx, key, (int)keylen);
+ 	HMAC_crunch(ctx, message, messageLen);
+diff --git a/src/mod/endpoints/mod_verto/mod_verto.c b/src/mod/endpoints/mod_verto/mod_verto.c
+index d0b3a4a9ba..5d605598dc 100644
+--- a/src/mod/endpoints/mod_verto/mod_verto.c
++++ b/src/mod/endpoints/mod_verto/mod_verto.c
+@@ -162,13 +162,16 @@ static void close_socket(ws_socket_t *sock)
+ }
+ 
+ void verto_broadcast(const char *event_channel, cJSON *json, const char *key, switch_event_channel_id_t id);
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ static int ssl_init = 0;
++#endif
+ 
+ static int verto_init_ssl(verto_profile_t *profile) 
+ {
+ 	const char *err = "";
+ 	int i = 0;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	if (!ssl_init) {
+ 		SSL_library_init();
+ 		ssl_init = 1;
+@@ -186,6 +189,13 @@ static int verto_init_ssl(verto_profile_t *profile)
+ 	SSL_CTX_set_options(profile->ssl_ctx, SSL_OP_NO_SSLv3);
+ 	/* Disable TLSv1 */
+ 	SSL_CTX_set_options(profile->ssl_ctx, SSL_OP_NO_TLSv1);
++#else
++	profile->ssl_method = TLS_server_method();   /* create server instance */
++	profile->ssl_ctx = SSL_CTX_new(profile->ssl_method);         /* create context */
++	profile->ssl_ready = 1;
++	assert(profile->ssl_ctx);
++	SSL_CTX_set_min_proto_version(profile->ssl_ctx, TLS1_1_VERSION);
++#endif
+ 	/* Disable Compression CRIME (Compression Ratio Info-leak Made Easy) */
+ 	SSL_CTX_set_options(profile->ssl_ctx, SSL_OP_NO_COMPRESSION);
+ 
+diff --git a/src/mod/endpoints/mod_verto/ws.c b/src/mod/endpoints/mod_verto/ws.c
+index ca67145740..d7fad2ea33 100644
+--- a/src/mod/endpoints/mod_verto/ws.c
++++ b/src/mod/endpoints/mod_verto/ws.c
+@@ -39,6 +39,7 @@ void deinit_ssl(void)
+ }
+ 
+ #else
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ static unsigned long pthreads_thread_id(void);
+ static void pthreads_locking_callback(int mode, int type, const char *file, int line);
+ 
+@@ -94,9 +95,10 @@ static unsigned long pthreads_thread_id(void)
+ {
+ 	return (unsigned long) pthread_self();
+ }
+-
++#endif
+ 
+ void init_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	SSL_library_init();
+ 
+ 
+@@ -112,6 +114,12 @@ void init_ssl(void) {
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_SSLv3);
+ 	/* Disable TLSv1 */
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_TLSv1);
++#else
++	ws_globals.ssl_method = TLS_server_method();   /* create server instance */
++	ws_globals.ssl_ctx = SSL_CTX_new(ws_globals.ssl_method);         /* create context */
++	assert(ws_globals.ssl_ctx);
++	SSL_CTX_set_min_proto_version(ws_globals.ssl_ctx, TLS1_1_VERSION);
++#endif
+ 	/* Disable Compression CRIME (Compression Ratio Info-leak Made Easy) */
+ 	SSL_CTX_set_options(ws_globals.ssl_ctx, SSL_OP_NO_COMPRESSION);
+ 	/* set the local certificate from CertFile */
+@@ -125,12 +133,16 @@ void init_ssl(void) {
+ 
+ 	SSL_CTX_set_cipher_list(ws_globals.ssl_ctx, "HIGH:!DSS:!aNULL@STRENGTH");
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_setup();
++#endif
+ }
+ 
+ 
+ void deinit_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_cleanup();
++#endif
+ }
+ 
+ #endif
+@@ -235,12 +247,7 @@ static void sha1_digest(char *digest, unsigned char *in)
+ 
+ static void sha1_digest(unsigned char *digest, char *in)
+ {
+-	SHA_CTX sha;
+-
+-	SHA1_Init(&sha);
+-	SHA1_Update(&sha, in, strlen(in));
+-	SHA1_Final(digest, &sha);
+-
++	SHA1((const unsigned char *)in, strlen(in), digest);
+ }
+ 
+ #endif
+diff --git a/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c b/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
+index 97fb934262..3712d703d8 100644
+--- a/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
++++ b/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
+@@ -291,7 +291,11 @@ static void event_handler(switch_event_t *event)
+ 				char *buf;
+ #ifdef HAVE_OPENSSL
+ 				int outlen, tmplen;
++#if OPENSSL_VERSION_NUMBER >= 0x10100000
++				EVP_CIPHER_CTX *ctx;
++#else
+ 				EVP_CIPHER_CTX ctx;
++#endif
+ 				char uuid_str[SWITCH_UUID_FORMATTED_LENGTH + 1];
+ 				switch_uuid_t uuid;
+ 
+@@ -309,6 +313,19 @@ static void event_handler(switch_event_t *event)
+ 				if (globals.psk) {
+ 					switch_copy_string(buf, uuid_str, SWITCH_UUID_FORMATTED_LENGTH);
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x10100000
++					ctx = EVP_CIPHER_CTX_new();
++					EVP_EncryptInit(ctx, EVP_bf_cbc(), NULL, NULL);
++					EVP_CIPHER_CTX_set_key_length(ctx, strlen(globals.psk));
++					EVP_EncryptInit(ctx, NULL, (unsigned char *) globals.psk, (unsigned char *) uuid_str);
++					EVP_EncryptUpdate(ctx, (unsigned char *) buf + SWITCH_UUID_FORMATTED_LENGTH,
++									  &outlen, (unsigned char *) packet, (int) strlen(packet));
++					EVP_EncryptUpdate(ctx, (unsigned char *) buf + SWITCH_UUID_FORMATTED_LENGTH + outlen,
++									  &tmplen, (unsigned char *) MAGIC, (int) strlen((char *) MAGIC));
++					outlen += tmplen;
++					EVP_EncryptFinal(ctx, (unsigned char *) buf + SWITCH_UUID_FORMATTED_LENGTH + outlen, &tmplen);
++					EVP_CIPHER_CTX_free(ctx);
++#else
+ 					EVP_CIPHER_CTX_init(&ctx);
+ 					EVP_EncryptInit(&ctx, EVP_bf_cbc(), NULL, NULL);
+ 					EVP_CIPHER_CTX_set_key_length(&ctx, strlen(globals.psk));
+@@ -320,6 +337,7 @@ static void event_handler(switch_event_t *event)
+ 					outlen += tmplen;
+ 					EVP_EncryptFinal(&ctx, (unsigned char *) buf + SWITCH_UUID_FORMATTED_LENGTH + outlen, &tmplen);
+ 					EVP_CIPHER_CTX_cleanup(&ctx);
++#endif
+ 					outlen += tmplen;
+ 					len = (size_t) outlen + SWITCH_UUID_FORMATTED_LENGTH;
+ 					*(buf + SWITCH_UUID_FORMATTED_LENGTH + outlen) = '\0';
+@@ -530,7 +548,11 @@ SWITCH_MODULE_RUNTIME_FUNCTION(mod_event_multicast_runtime)
+ 			char uuid_str[SWITCH_UUID_FORMATTED_LENGTH + 1];
+ 			char *tmp;
+ 			int outl, tmplen;
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
++			EVP_CIPHER_CTX *ctx;
++#else
+ 			EVP_CIPHER_CTX ctx;
++#endif
+ 
+ 			len -= SWITCH_UUID_FORMATTED_LENGTH;
+ 
+@@ -541,6 +563,15 @@ SWITCH_MODULE_RUNTIME_FUNCTION(mod_event_multicast_runtime)
+ 			switch_copy_string(uuid_str, packet, SWITCH_UUID_FORMATTED_LENGTH);
+ 			packet += SWITCH_UUID_FORMATTED_LENGTH;
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
++			ctx = EVP_CIPHER_CTX_new();
++			EVP_DecryptInit(ctx, EVP_bf_cbc(), NULL, NULL);
++			EVP_CIPHER_CTX_set_key_length(ctx, strlen(globals.psk));
++			EVP_DecryptInit(ctx, NULL, (unsigned char *) globals.psk, (unsigned char *) uuid_str);
++			EVP_DecryptUpdate(ctx, (unsigned char *) tmp, &outl, (unsigned char *) packet, (int) len);
++			EVP_DecryptFinal(ctx, (unsigned char *) tmp + outl, &tmplen);
++			EVP_CIPHER_CTX_free(ctx);
++#else
+ 			EVP_CIPHER_CTX_init(&ctx);
+ 			EVP_DecryptInit(&ctx, EVP_bf_cbc(), NULL, NULL);
+ 			EVP_CIPHER_CTX_set_key_length(&ctx, strlen(globals.psk));
+@@ -548,6 +579,8 @@ SWITCH_MODULE_RUNTIME_FUNCTION(mod_event_multicast_runtime)
+ 			EVP_DecryptUpdate(&ctx, (unsigned char *) tmp, &outl, (unsigned char *) packet, (int) len);
+ 			EVP_DecryptFinal(&ctx, (unsigned char *) tmp + outl, &tmplen);
+ 			EVP_CIPHER_CTX_cleanup(&ctx);
++#endif
++
+ 			*(tmp + outl + tmplen) = '\0';
+ 
+ 			/*switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "decrypted event as %s\n----------\n of actual length %d (%d) %d\n", tmp, outl + tmplen, (int) len, (int) strlen(tmp)); */
+diff --git a/src/mod/xml_int/mod_xml_rpc/ws.c b/src/mod/xml_int/mod_xml_rpc/ws.c
+index 2f829136ae..27d463eaf1 100644
+--- a/src/mod/xml_int/mod_xml_rpc/ws.c
++++ b/src/mod/xml_int/mod_xml_rpc/ws.c
+@@ -19,6 +19,7 @@ void deinit_ssl(void)
+ }
+ 
+ #else
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ static unsigned long pthreads_thread_id(void);
+ static void pthreads_locking_callback(int mode, int type, const char *file, int line);
+ 
+@@ -74,15 +75,19 @@ static unsigned long pthreads_thread_id(void)
+ {
+ 	return (unsigned long) pthread_self();
+ }
+-
++#endif
+ 
+ void init_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	SSL_library_init();
+ 
+ 
+ 	OpenSSL_add_all_algorithms();   /* load & register cryptos */
+ 	SSL_load_error_strings();     /* load all error messages */
+ 	globals.ssl_method = TLSv1_server_method();   /* create server instance */
++#else
++	globals.ssl_method = TLS_server_method();     /* create server instance */
++#endif
+ 	globals.ssl_ctx = SSL_CTX_new(globals.ssl_method);         /* create context */
+ 	assert(globals.ssl_ctx);
+ 	
+@@ -97,12 +102,16 @@ void init_ssl(void) {
+ 
+ 	SSL_CTX_set_cipher_list(globals.ssl_ctx, "HIGH:!DSS:!aNULL@STRENGTH");
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_setup();
++#endif
+ }
+ 
+ 
+ void deinit_ssl(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	thread_cleanup();
++#endif
+ }
+ 
+ #endif
+@@ -207,12 +216,7 @@ static void sha1_digest(char *digest, unsigned char *in)
+ 
+ static void sha1_digest(unsigned char *digest, char *in)
+ {
+-	SHA_CTX sha;
+-
+-	SHA1_Init(&sha);
+-	SHA1_Update(&sha, in, strlen(in));
+-	SHA1_Final(digest, &sha);
+-
++	SHA1((const unsigned char *)in, strlen(in), digest);
+ }
+ 
+ #endif
+diff --git a/src/switch_core.c b/src/switch_core.c
+index a5b7b63650..2ff79ceede 100644
+--- a/src/switch_core.c
++++ b/src/switch_core.c
+@@ -1918,8 +1918,10 @@ SWITCH_DECLARE(switch_status_t) switch_core_init(switch_core_flag_t flags, switc
+ 		runtime.console = stdout;
+ 	}
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	SSL_library_init();
+ 	switch_ssl_init_ssl_locks();
++#endif
+ 	switch_curl_init();
+ 
+ 	switch_core_set_variable("hostname", runtime.hostname);
+@@ -2933,7 +2935,9 @@ SWITCH_DECLARE(switch_status_t) switch_core_destroy(void)
+ 
+ 	switch_loadable_module_shutdown();
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	switch_ssl_destroy_ssl_locks();
++#endif
+ 
+ 	if (switch_test_flag((&runtime), SCF_USE_SQL)) {
+ 		switch_core_sqldb_stop();
+diff --git a/src/switch_core_cert.c b/src/switch_core_cert.c
+index 04ec5f7b30..e0fcf46302 100644
+--- a/src/switch_core_cert.c
++++ b/src/switch_core_cert.c
+@@ -32,6 +32,10 @@
+ #include <switch.h>
+ #include <switch_ssl.h>
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
++#define X509_getm_notBefore X509_get_notBefore
++#define X509_getm_notAfter X509_get_notAfter
++/* Locking callbacks are no longer used in OpenSSL 1.1.0 */
+ static switch_mutex_t **ssl_mutexes;
+ static switch_memory_pool_t *ssl_pool = NULL;
+ static int ssl_count = 0;
+@@ -92,6 +96,7 @@ SWITCH_DECLARE(void) switch_ssl_destroy_ssl_locks(void)
+ 		ssl_count--;
+ 	}
+ }
++#endif
+ 
+ static const EVP_MD *get_evp_by_name(const char *name)
+ {
+@@ -302,10 +307,12 @@ SWITCH_DECLARE(int) switch_core_gen_certs(const char *prefix)
+ 	X509_free(x509);
+ 	EVP_PKEY_free(pkey);
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ #ifndef OPENSSL_NO_ENGINE
+ 	ENGINE_cleanup();
+ #endif
+ 	CRYPTO_cleanup_all_ex_data();
++#endif
+ 
+ 	//CRYPTO_mem_leaks(bio_err);
+ 	//BIO_free(bio_err);
+@@ -359,7 +366,22 @@ static int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days
+ 		x = *x509p;
+ 	}
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x10100000
++	rsa = RSA_new();
++	{
++		static const BN_ULONG ULONG_RSA_F4 = RSA_F4;
++		BIGNUM* BN_value_RSA_F4 = BN_new();
++		if (!BN_value_RSA_F4) {
++			abort();
++			goto err;
++		}
++		BN_set_word(BN_value_RSA_F4,ULONG_RSA_F4);
++		RSA_generate_key_ex(rsa, bits, BN_value_RSA_F4, NULL);
++		BN_free(BN_value_RSA_F4);
++	}
++#else
+ 	rsa = RSA_generate_key(bits, RSA_F4, NULL, NULL);
++#endif
+ 
+ 	if (!EVP_PKEY_assign_RSA(pk, rsa)) {
+ 		abort();
+@@ -370,8 +392,8 @@ static int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days
+ 
+ 	X509_set_version(x, 0);
+ 	ASN1_INTEGER_set(X509_get_serialNumber(x), serial);
+-	X509_gmtime_adj(X509_get_notBefore(x), -(long)60*60*24*7);
+-	X509_gmtime_adj(X509_get_notAfter(x), (long)60*60*24*days);
++	X509_gmtime_adj(X509_getm_notBefore(x), -(long)60*60*24*7);
++	X509_gmtime_adj(X509_getm_notAfter(x), (long)60*60*24*days);
+ 	X509_set_pubkey(x, pk);
+ 
+ 	name = X509_get_subject_name(x);
+diff --git a/src/switch_rtp.c b/src/switch_rtp.c
+index bc5105cb6a..82ab6eb5ec 100644
+--- a/src/switch_rtp.c
++++ b/src/switch_rtp.c
+@@ -3283,10 +3283,18 @@ static int cb_verify_peer(int preverify_ok, X509_STORE_CTX *ctx)
+ 
+ ////////////
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ static BIO_METHOD dtls_bio_filter_methods;
++#else
++static BIO_METHOD *dtls_bio_filter_methods;
++#endif
+ 
+ BIO_METHOD *BIO_dtls_filter(void) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	return(&dtls_bio_filter_methods);
++#else
++	return(dtls_bio_filter_methods);
++#endif
+ }
+ 
+ typedef struct packet_list_s {
+@@ -3319,10 +3327,16 @@ static int dtls_bio_filter_new(BIO *bio) {
+ 	switch_mutex_init(&filter->mutex, SWITCH_MUTEX_NESTED, filter->pool);
+  
+ 	/* Set the BIO as initialized */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	bio->init = 1;
+ 	bio->ptr = filter;
+ 	bio->flags = 0;
+- 
++#else
++        BIO_set_init(bio, 1);
++        BIO_set_data(bio, filter);
++        BIO_clear_flags(bio, ~0);
++#endif
++
+ 	return 1;
+ }
+  
+@@ -3334,7 +3348,11 @@ static int dtls_bio_filter_free(BIO *bio) {
+ 	}
+  
+ 	/* Get rid of the filter state */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	filter = (dtls_bio_filter *)bio->ptr;
++#else
++	filter = (dtls_bio_filter *)BIO_get_data(bio);
++#endif
+ 
+ 	if (filter != NULL) {
+ 		switch_memory_pool_t *pool = filter->pool;
+@@ -3343,9 +3361,15 @@ static int dtls_bio_filter_free(BIO *bio) {
+ 		filter = NULL;
+ 	}
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	bio->ptr = NULL;
+ 	bio->init = 0;
+ 	bio->flags = 0;
++#else
++        BIO_set_init(bio, 0);
++        BIO_set_data(bio, NULL);
++        BIO_clear_flags(bio, ~0);
++#endif
+ 	return 1;
+ }
+  
+@@ -3355,11 +3379,20 @@ static int dtls_bio_filter_write(BIO *bio, const char *in, int inl) {
+ 	
+ 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG1, "dtls_bio_filter_write: %p, %d\n", (void *)in, inl);
+ 	/* Forward data to the write BIO */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	ret = BIO_write(bio->next_bio, in, inl);
++#else
++	ret = BIO_write(BIO_next(bio), in, inl);
++#endif
++
+ 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG1, "  -- %ld\n", ret);
+  
+ 	/* Keep track of the packet, as we'll advertize them one by one after a pending check */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	filter = (dtls_bio_filter *)bio->ptr;
++#else
++	filter = (dtls_bio_filter *)BIO_get_data(bio);
++#endif
+ 
+ 	if (filter != NULL) {
+ 		packet_list_t *node;
+@@ -3390,7 +3423,11 @@ static int dtls_bio_filter_write(BIO *bio, const char *in, int inl) {
+ }
+  
+ static long dtls_bio_filter_ctrl(BIO *bio, int cmd, long num, void *ptr) {
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	dtls_bio_filter *filter = (dtls_bio_filter *)bio->ptr;
++#else
++	dtls_bio_filter *filter = (dtls_bio_filter *)BIO_get_data(bio);
++#endif
+ 
+ 	switch(cmd) {
+ 	case BIO_CTRL_DGRAM_GET_FALLBACK_MTU:
+@@ -3437,6 +3474,7 @@ static long dtls_bio_filter_ctrl(BIO *bio, int cmd, long num, void *ptr) {
+ 	return 0;
+ }
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ static BIO_METHOD dtls_bio_filter_methods = {
+ 	BIO_TYPE_FILTER,
+ 	"DTLS filter",
+@@ -3449,7 +3487,9 @@ static BIO_METHOD dtls_bio_filter_methods = {
+ 	dtls_bio_filter_free,
+ 	NULL
+ };
+-
++#else
++static BIO_METHOD *dtls_bio_filter_methods = NULL;
++#endif
+ 
+ ///////////
+ 
+@@ -3621,7 +3661,11 @@ SWITCH_DECLARE(switch_status_t) switch_rtp_add_dtls(switch_rtp_t *rtp_session, d
+ 
+ 	dtls->ca = switch_core_sprintf(rtp_session->pool, "%s%sca-bundle.crt", SWITCH_GLOBAL_dirs.certs_dir, SWITCH_PATH_SEPARATOR);
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x10100000
++	dtls->ssl_ctx = SSL_CTX_new((type & DTLS_TYPE_SERVER) ? DTLS_server_method() : DTLS_client_method());
++#else
+ 	dtls->ssl_ctx = SSL_CTX_new((type & DTLS_TYPE_SERVER) ? DTLSv1_server_method() : DTLSv1_client_method());
++#endif
+ 	switch_assert(dtls->ssl_ctx);
+ 
+ 	bio = BIO_new_file(dtls->pem, "r");
+@@ -3682,7 +3726,16 @@ SWITCH_DECLARE(switch_status_t) switch_rtp_add_dtls(switch_rtp_t *rtp_session, d
+ 
+ 	dtls->ssl = SSL_new(dtls->ssl_ctx);
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	dtls->filter_bio = BIO_new(BIO_dtls_filter());
++#else
++	dtls_bio_filter_methods = BIO_meth_new(BIO_TYPE_FILTER | BIO_get_new_index(), "DTLS filter");
++	BIO_meth_set_write(dtls_bio_filter_methods, dtls_bio_filter_write);
++	BIO_meth_set_ctrl(dtls_bio_filter_methods, dtls_bio_filter_ctrl);
++	BIO_meth_set_create(dtls_bio_filter_methods, dtls_bio_filter_new);
++	BIO_meth_set_destroy(dtls_bio_filter_methods, dtls_bio_filter_free);
++	dtls->filter_bio = BIO_new(dtls_bio_filter_methods);
++#endif
+ 	switch_assert(dtls->filter_bio);
+ 
+ 	BIO_push(dtls->filter_bio, dtls->write_bio);
+-- 
+2.16.4
+
