@@ -1,0 +1,95 @@
+------------------------------------------------------------------------
+r6316 | paulc | 2018-06-11 08:33:06 -0300 (Mon, 11 Jun 2018) | 2 lines
+
+Detect and deal with some OpenSSL 1.1.0 deprecations.
+
+------------------------------------------------------------------------
+Index: configure.ac
+===================================================================
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac	(revision 6315)
++++ b/configure.ac	(working copy)
+@@ -1442,9 +1442,9 @@
+     AC_MSG_RESULT([$verssl])
+ fi
+ if [[ "x$HAVE_OPENSSL" != "xno" ]]; then
+-    HAVE_AESCTR=no
+     SAVE_CFLAGS="$CFLAGS"
+     CFLAGS="$CFLAGS $OPENSSL_INC -Wall -Werror"
++    HAVE_OPT=no
+     AC_MSG_CHECKING([for OpenSSL AES_ctr128_encrypt])
+     AC_TRY_COMPILE([
+ #include <openssl/aes.h>
+@@ -1455,8 +1455,28 @@
+ unsigned char ecount[AES_BLOCK_SIZE];
+ unsigned int num = 0;
+ AES_ctr128_encrypt(data,data,AES_BLOCK_SIZE,key,ivec,ecount,&num);
+-    ],HAVE_AESCTR="yes",OPENSSL_INC="-DNO_AESCTR $OPENSSL_INC")
+-    AC_MSG_RESULT([$HAVE_AESCTR])
++    ],HAVE_OPT="yes",OPENSSL_INC="-DNO_AESCTR $OPENSSL_INC")
++    AC_MSG_RESULT([$HAVE_OPT])
++    HAVE_OPT=no
++    AC_MSG_CHECKING([for OpenSSL TLS_method])
++    AC_TRY_COMPILE([
++#include <openssl/ssl.h>
++    ],[
++SSL_CTX_new(TLS_method());
++    ],HAVE_OPT="yes")
++    AC_MSG_RESULT([$HAVE_OPT])
++    if [[ "x$HAVE_OPT" = "xyes" ]]; then
++	OPENSSL_INC="-DUSE_TLS_METHOD $OPENSSL_INC"
++    fi
++    HAVE_OPT=no
++    AC_MSG_CHECKING([for OpenSSL SSL_load_error_strings])
++    AC_TRY_COMPILE([
++#include <openssl/ssl.h>
++#include <openssl/err.h>
++    ],[
++SSL_load_error_strings();
++    ],HAVE_OPT="yes",OPENSSL_INC="-DNO_LOAD_ERR $OPENSSL_INC")
++    AC_MSG_RESULT([$HAVE_OPT])
+     CFLAGS="$SAVE_CFLAGS"
+ fi
+ AC_SUBST(HAVE_OPENSSL)
+Index: modules/openssl.cpp
+===================================================================
+diff --git a/modules/openssl.cpp b/modules/openssl.cpp
+--- a/modules/openssl.cpp	(revision 6315)
++++ b/modules/openssl.cpp	(working copy)
+@@ -41,6 +41,12 @@
+ #include <openssl/des.h>
+ #endif
+ 
++#ifdef USE_TLS_METHOD
++#define CTX_METHOD ::TLS_method()
++#else
++#define CTX_METHOD ::SSLv23_method()
++#endif
++
+ using namespace TelEngine;
+ namespace { // anonymous
+ 
+@@ -291,7 +297,7 @@
+     : String(name),
+     m_context(0)
+ {
+-    m_context = ::SSL_CTX_new(::SSLv23_method());
++    m_context = ::SSL_CTX_new(CTX_METHOD);
+     SSL_CTX_set_info_callback(m_context,infoCallback);
+ #ifdef DEBUG
+     SSL_CTX_set_msg_callback(m_context,msgCallback);
+@@ -906,11 +912,13 @@
+     Configuration cfg(Engine::configFile("openssl"));
+     if (!m_handler) {
+ 	setup();
++#ifndef NO_LOAD_ERR
+ 	::SSL_load_error_strings();
+ 	::SSL_library_init();
++#endif
+ 	addRand(Time::now());
+ 	s_index = ::SSL_get_ex_new_index(0,const_cast<char*>("TelEngine::SslSocket"),0,0,0);
+-	s_context = ::SSL_CTX_new(::SSLv23_method());
++	s_context = ::SSL_CTX_new(CTX_METHOD);
+ 	SSL_CTX_set_info_callback(s_context,infoCallback); // macro - no ::
+ 	m_handler = new SslHandler;
+ 	Engine::install(m_handler);
