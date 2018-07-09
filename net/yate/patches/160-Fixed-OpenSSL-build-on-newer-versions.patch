@@ -1,0 +1,54 @@
+------------------------------------------------------------------------
+r6290 | paulc | 2018-01-09 10:28:41 -0200 (Tue, 09 Jan 2018) | 2 lines
+
+Fixed OpenSSL build on newer versions lacking AES_ctr128_encrypt.
+
+------------------------------------------------------------------------
+Index: configure.ac
+===================================================================
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac	(revision 6289)
++++ b/configure.ac	(revision 6290)
+@@ -1441,6 +1441,24 @@
+     fi
+     AC_MSG_RESULT([$verssl])
+ fi
++if [[ "x$HAVE_OPENSSL" != "xno" ]]; then
++    HAVE_AESCTR=no
++    SAVE_CFLAGS="$CFLAGS"
++    CFLAGS="$CFLAGS $OPENSSL_INC -Wall -Werror"
++    AC_MSG_CHECKING([for OpenSSL AES_ctr128_encrypt])
++    AC_TRY_COMPILE([
++#include <openssl/aes.h>
++    ],[
++unsigned char *data = 0;
++AES_KEY *key = 0;
++unsigned char ivec[AES_BLOCK_SIZE];
++unsigned char ecount[AES_BLOCK_SIZE];
++unsigned int num = 0;
++AES_ctr128_encrypt(data,data,AES_BLOCK_SIZE,key,ivec,ecount,&num);
++    ],HAVE_AESCTR="yes",OPENSSL_INC="-DNO_AESCTR $OPENSSL_INC")
++    AC_MSG_RESULT([$HAVE_AESCTR])
++    CFLAGS="$SAVE_CFLAGS"
++fi
+ AC_SUBST(HAVE_OPENSSL)
+ AC_SUBST(OPENSSL_INC)
+ AC_SUBST(OPENSSL_LIB)
+Index: modules/openssl.cpp
+===================================================================
+diff --git a/modules/openssl.cpp b/modules/openssl.cpp
+--- a/modules/openssl.cpp	(revision 6289)
++++ b/modules/openssl.cpp	(revision 6290)
+@@ -30,7 +30,12 @@
+ 
+ #ifndef OPENSSL_NO_AES
+ #include <openssl/aes.h>
++#ifdef NO_AESCTR
++#include <openssl/modes.h>
++#define AES_ctr128_encrypt(in,out,len,key,ivec,ecount,num) \
++     CRYPTO_ctr128_encrypt(in,out,len,key,ivec,ecount,num,(block128_f)AES_encrypt)
+ #endif
++#endif
+ 
+ #ifndef OPENSSL_NO_DES
+ #include <openssl/des.h>

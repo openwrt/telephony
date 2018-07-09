@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -117,6 +117,7 @@ CONFIGURE_ARGS+= \
 	--without-openh323 \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl),--with-openssl,--without-openssl) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress),--with-zlib="$(STAGING_DIR)/usr",--without-zlib) \
+	--without-libspeex \
 	--without-libqt4 \
 	--without-qtstatic \
 	--without-coredumper \
