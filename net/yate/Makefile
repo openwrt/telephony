@@ -33,7 +33,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb \
-	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqld \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress \
@@ -41,6 +41,8 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
+# Needed for yate-mod-mysqldb to find iconv
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
