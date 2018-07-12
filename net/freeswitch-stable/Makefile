@@ -752,6 +752,12 @@ CONFIGURE_VARS+= \
 	ac_cv_prog_PERL=false
 endif
 
+ifeq ($(CONFIG_USE_GLIBC),y)
+	PERL_LIBS+= -L$(STAGING_DIR)/lib -lbsd
+	CONFIGURE_VARS+= \
+		ac_cv_lib_perl_perl_alloc=yes
+endif
+
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
 CONFIGURE_VARS+= \
 	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
