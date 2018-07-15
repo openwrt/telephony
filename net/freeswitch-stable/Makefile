@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.20
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -239,6 +239,13 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
+# iconv support
+include $(INCLUDE_DIR)/nls.mk
+
+# mod_gsmopen can't detect if iconv's inbuf is const
+ifeq ($(ICONV_FULL),1)
+TARGET_CFLAGS+=-DFS_STABLE_ICONV_INBUF_CONST
+endif
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
@@ -250,14 +257,6 @@ FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 			sed "s/^libs=//;s/'//g")
 
 FS_STABLE_PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
-
-# musl and glibc include their own iconv, but uclibc does not
-ifneq ($(CONFIG_USE_UCLIBC),)
-TARGET_CPPFLAGS+= \
-	-I$(STAGING_DIR)/usr/lib/libiconv-full/include
-TARGET_LDFLAGS += \
-	-L$(STAGING_DIR)/usr/lib/libiconv-full/lib
-endif
 
 define Download/files
 define Download/$(1)
@@ -361,11 +360,11 @@ $(call Package/$(PKG_NAME)/Default)
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:= \
 	  $(CXX_DEPENDS) \
+	  $(ICONV_DEPENDS) \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
-	  +USE_UCLIBC:libiconv-full \
 	  +libcurl \
 	  +libedit \
 	  +libopenssl \
