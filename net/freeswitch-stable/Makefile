@@ -910,7 +910,7 @@ define Build/Prepare
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#event_handlers/mod_event_test' >> $(PKG_BUILD_DIR)/modules.conf
 
-	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS))|' \
+	$(SED) 's|$(FS_STABLE_ANCHOR)|APR_SETVAR(LDFLAGS,[$(FS_STABLE_APR_LIBS) $(TARGET_LDFLAGS)])|' \
 		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 endef
 
