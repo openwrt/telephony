@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.6.20
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -241,9 +241,15 @@ include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 # iconv support
 include $(INCLUDE_DIR)/nls.mk
-
-# mod_gsmopen can't detect if iconv's inbuf is const
-ifeq ($(ICONV_FULL),1)
+#######################################################
+# mod_gsmopen can't detect if iconv's inbuf is const. #
+#                                                     #
+#                  musl    uclibc                     #
+# libiconv-stub    -       -                          #
+# libiconv-full    -       const                      #
+#                                                     #
+#######################################################
+ifeq ($(ICONV_FULL)$(CONFIG_USE_UCLIBC),1y)
 TARGET_CFLAGS+=-DFS_STABLE_ICONV_INBUF_CONST
 endif
 
