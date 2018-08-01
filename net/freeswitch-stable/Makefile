@@ -203,7 +203,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	translate \
 	tts_commandline \
 	unimrcp \
-	v8 \
 	valet_parking \
 	verto \
 	vmd \
@@ -226,7 +225,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
-	CONFIG_FS_STABLE_WITH_V8_SNAPSHOT \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
@@ -684,12 +682,6 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-CONFIGURE_ARGS+= \
-	--enable-static-v8 \
-	$(if $(CONFIG_FS_STABLE_WITH_V8_SNAPSHOT),,--disable-snapshot-v8)
-endif
-
 # Make mod_spandsp use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -771,84 +763,6 @@ endif
 MAKE_VARS+= \
 	ac_cv_dev_urandom=yes
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-
-# arm
-ifeq ($(CONFIG_arm),y)
-  FS_STABLE_MYARCH:=arm
-  FS_STABLE_MYDEFINES:=v8_target_arch=arm
-  ifeq ($(CONFIG_arm_v6),y)
-    FS_STABLE_MYDEFINES+=arm_version=6
-  else
-    ifeq ($(CONFIG_arm_v7),y)
-      FS_STABLE_MYDEFINES+=arm_version=7
-    else
-      FS_STABLE_MYDEFINES+=arm_version=default
-    endif
-  endif
-  ifeq ($(CONFIG_VFP),y)
-    ifeq ($(CONFIG_VFPv3),y)
-      ifeq ($(CONFIG_NEON),y)
-        FS_STABLE_MYDEFINES+=arm_fpu=neon
-      else
-        FS_STABLE_MYDEFINES+=arm_fpu=vfpv3
-      endif
-    else
-      FS_STABLE_MYDEFINES+=arm_fpu=vfp
-    endif
-  else
-    FS_STABLE_MYDEFINES+=arm_fpu=default
-  endif
-  ifeq ($(CONFIG_SOFT_FLOAT),y)
-    FS_STABLE_MYDEFINES+=arm_float_abi=softfp
-  else
-    FS_STABLE_MYDEFINES+=arm_float_abi=hard
-  endif
-endif
-
-# i386
-ifeq ($(CONFIG_i386),y)
-  FS_STABLE_MYARCH:=ia32
-  FS_STABLE_MYDEFINES:=v8_target_arch=ia32
-endif
-
-# mipsel
-ifeq ($(CONFIG_mipsel),y)
-  FS_STABLE_MYARCH:=mipsel
-  FS_STABLE_MYDEFINES:=v8_target_arch=mipsel
-  ifeq ($(CONFIG_CPU_MIPS32),y)
-    ifeq ($(CONFIG_CPU_MIPS32_R2),y)
-      FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r2
-    else
-      ifeq ($(CONFIG_CPU_MIPS32_R1),y)
-        FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r1
-      endif
-    endif
-  endif
-  ifeq ($(CONFIG_SOFT_FLOAT),y)
-    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=false
-  else
-    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=true
-  endif
-endif
-
-# x86_64
-ifeq ($(CONFIG_x86_64),y)
-  FS_STABLE_MYARCH:=x64
-  FS_STABLE_MYDEFINES:=v8_target_arch=x64
-endif
-
-MAKE_VARS+= \
-	FS_STABLE_HOSTCC="$(HOSTCC)" \
-	FS_STABLE_HOSTCXX="$(HOSTCXX)" \
-	FS_STABLE_HOST_CFLAGS="$(HOST_CFLAGS)" \
-	FS_STABLE_HOST_LDFLAGS="$(HOST_LDFLAGS)" \
-	FS_STABLE_HOST_PYTHONPATH="$(HOST_PYTHONPATH)" \
-	FS_STABLE_MYARCH="$(FS_STABLE_MYARCH)" \
-	FS_STABLE_MYDEFINES="$(FS_STABLE_MYDEFINES)"
-
-endif
-
 # Make sphinxbase use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -879,10 +793,6 @@ FS_STABLE_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac697970
 FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.6.tar.gz
 FS_STABLE_FREERADIUS_CLIENT_HASH:=3fc609af328258e00345389d5478b099fe4ea3ad694d0472525ef3adab9cf053
 
-# mod_v8
-FS_STABLE_V8_FILE:=v8-3.24.14.tar.bz2
-FS_STABLE_V8_HASH:=395f4eaf5580b973b1e33fe0aa27f8d013ddf1b163ad76992c50dd91ff182828
-
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event-zmq),)
 $(eval $(call Download/files,zmq,$(FS_STABLE_ZEROMQ_FILE),$(FS_STABLE_ZEROMQ_URL),$(FS_STABLE_ZEROMQ_HASH)))
 endif
@@ -895,10 +805,6 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius-cdr),)
 $(eval $(call Download/files,freeradius-client,$(FS_STABLE_FREERADIUS_CLIENT_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_FREERADIUS_CLIENT_HASH)))
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-$(eval $(call Download/files,v8,$(FS_STABLE_V8_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_V8_HASH)))
 endif
 
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
@@ -964,10 +870,6 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius-cdr),)
 	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_V8_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 # Compile FreeTDM first
@@ -1231,7 +1133,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,tone_stream,Tone stream,Tone generation
 $(eval $(call Package/$(PKG_NAME)/Module,translate,Number translation,This module implements number translation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
-$(eval $(call Package/$(PKG_NAME)/Module,v8,V8,This package contains mod_v8 for FreeSWITCH.,@!USE_UCLIBCXX @FS_STABLE_WITH_V8 @arm||i386||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
