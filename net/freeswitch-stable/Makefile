@@ -9,15 +9,19 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.20
-PKG_RELEASE:=10
+PKG_VERSION:=1.8.1
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
-PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=dbb0f73109171bd381772b247b8ef581f6a176964619082a1fe031b004086f6b
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://$(PRG_NAME).org/stash/scm/fs/$(PRG_NAME).git
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=b33bc925c52b19eda0cafc079015f5bac8fe68d1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
+PKG_MIRROR_HASH:=8587be34ea2194c64cdb0e19ce84519d260fb529ac40d4a7f7eb62b1fe3ef9b2
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 # configure in libs/spandsp fails without libjpeg and tiff
 PKG_BUILD_DEPENDS:= \
@@ -790,8 +794,8 @@ FS_STABLE_SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 FS_STABLE_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
 
 # mod_radius_cdr
-FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.6.tar.gz
-FS_STABLE_FREERADIUS_CLIENT_HASH:=3fc609af328258e00345389d5478b099fe4ea3ad694d0472525ef3adab9cf053
+FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.7.tar.gz
+FS_STABLE_FREERADIUS_CLIENT_HASH:=eada2861b8f4928e3ac6b5bbfe11e92cd6cdcacfce40cae1085e77c1b6add0e9
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event-zmq),)
 $(eval $(call Download/files,zmq,$(FS_STABLE_ZEROMQ_FILE),$(FS_STABLE_ZEROMQ_URL),$(FS_STABLE_ZEROMQ_HASH)))
@@ -813,10 +817,12 @@ endif
 FS_STABLE_ANCHOR:=dnl Get build information from APR
 FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
+# With a release tarball we can just call Build/Prepare/Default. But with the
+# git checkout we need to call bootstrap and apply our patches afterward.
 define Build/Prepare
-	$(call Build/Prepare/Default)
-
-	$(RM) -r $(PKG_BUILD_DIR)/libs/tiff-*
+	$(PKG_UNPACK)
+	cd $(PKG_BUILD_DIR) && $(AM_TOOL_PATHS) ./bootstrap.sh
+	$(Build/Patch)
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
