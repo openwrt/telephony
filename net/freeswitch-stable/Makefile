@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.8.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE_PROTO:=git
@@ -125,6 +125,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	event_test \
 	event_zmq \
 	expr \
+	fail2ban \
 	fifo \
 	format_cdr \
 	$(FTDM) \
@@ -164,6 +165,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	python \
 	radius_cdr \
 	random \
+	raven \
 	rayo \
 	redis \
 	rss \
@@ -209,6 +211,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	unimrcp \
 	valet_parking \
 	verto \
+	video_filter \
 	vmd \
 	voicemail \
 	voicemail_ivr \
@@ -1057,6 +1060,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,event_socket,Event socket,Sends events 
 $(eval $(call Package/$(PKG_NAME)/Module,event_test,Event test,Event demo module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_zmq,ZMQ event,ZMQ event module.,@!USE_UCLIBCXX))
 $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support for expression evaluation.,))
+$(eval $(call Package/$(PKG_NAME)/Module,fail2ban,Fail2ban logging,Provides support for Fail2ban logging.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
 $(eval $(call Package/$(PKG_NAME)/Module,$(FTDM),FreeTDM endpoint,This module is the glue between FreeSWITCH and FreeTDM.,+$(PKG_LIBFTDM)))
@@ -1096,6 +1100,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provide
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
 $(eval $(call Package/$(PKG_NAME)/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
+$(eval $(call Package/$(PKG_NAME)/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rayo,Rayo,Rayo/XMPP 3PCC server for FreeSWITCH.,+$(PKG_NAME)-mod-ssml))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rss,RSS,Parses and reads XML based RSS feeds and reads the entries aloud via a TTS engine.,))
@@ -1141,6 +1146,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a 
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
+$(eval $(call Package/$(PKG_NAME)/Module,video_filter,Video filter chromakey,This module provides a media bug for chromakey functionality.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail,Voicemail,This module provides a voicemail system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail_ivr,Voicemail IVR,This module provides an extensible voicemail IVR system.,))
