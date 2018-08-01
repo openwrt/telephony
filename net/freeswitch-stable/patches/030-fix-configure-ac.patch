@@ -31,7 +31,7 @@
  else
      CC_FOR_BUILD='$(CC)'
  fi
-@@ -667,7 +643,7 @@ AC_ARG_ENABLE(core-pgsql-pkgconfig,
+@@ -662,7 +638,7 @@ AC_ARG_ENABLE(core-pgsql-pkgconfig,
  	[AS_HELP_STRING([--disable-core-pgsql-pkgconfig], [Use pg_config to get PGQSL build options])],[enable_core_pgsql_pkgconfig="$enableval"],[enable_core_pgsql_pkgconfig="yes"])
  
  if test x"$enable_core_pgsql_support" = x"yes" ; then
@@ -40,7 +40,7 @@
    AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
      if test "$PKG_CONFIG" = "no" \
         || test x"$enable_core_pgsql_pkgconfig" = x"no" \
-@@ -1555,13 +1531,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+@@ -1575,13 +1551,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
  # -a "x$ac_cv_have_EXTERN_h" != "xno"
  
  if test "x$ac_cv_have_perl" != "xno"; then
@@ -55,7 +55,7 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1656,24 +1626,12 @@ then
+@@ -1676,24 +1646,12 @@ then
  		if test "$python_has_distutils" != "no" ; then
  			AC_MSG_CHECKING([location of site-packages])
  
