@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
-PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=9
+PKG_VERSION:=6.1.0-1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
-PKG_HASH:=0ab76015651db8076031277b2003c23bd5d9eb940491801f30a6dc3c226c1817
+PKG_HASH:=ed88519c8e2f63eec0d699bc6ed8831854af9b32b654b3d7e7c2697b528aa377
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_LICENSE:=GPL-2.0
@@ -33,7 +33,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb \
-	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqld \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress \
@@ -41,6 +41,8 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
+# Needed for yate-mod-mysqldb to find iconv
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
