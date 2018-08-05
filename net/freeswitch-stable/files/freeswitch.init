@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 - 2018 OpenWrt.org
 
 START=90
 
@@ -122,6 +122,15 @@ stop_service() {
     [ $retval -eq 0 ] && kill $mypid 2>/dev/null
     timeout=$(($timeout-10))
   done
+
+  [ $retval -ne 1 ] && {
+    $LOGGER Application seems to hang
+    $LOGGER Sending SIGKILL
+    kill -SIGKILL $mypid 2>/dev/null
+    sleep 3
+    pgrep $FS | grep -w $mypid &>/dev/null
+    retval=$?
+  }
 
   [ $retval -ne 1 ] && {
     $LOGGER Failed to stop $FS
