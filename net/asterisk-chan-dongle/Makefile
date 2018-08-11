@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-chan-dongle
-PKG_VERSION:=1.1-20180312
+PKG_VERSION:=1.1-20180619
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=3e2b3ca6fd4d0a996404dfdc724973e92f2683eb
-PKG_MIRROR_HASH:=655d1b6a78fb92f5a41410747d2ad633493e5eb2c5a2a0fdf8057dde4011213e
+PKG_SOURCE_VERSION:=fd544d628d134cfe9cc2df6b5315298e93698664
+PKG_MIRROR_HASH:=f6074feff5931024e5ac9504ffc872c58b650352e29343969327c5205228fc2f
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
@@ -29,13 +29,15 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSI
 MODULES_DIR:=/usr/lib/asterisk/modules
 
 include $(INCLUDE_DIR)/package.mk
+# asterisk-chan-dongle needs iconv
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/asterisk-chan-dongle/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   URL:=https://github.com/wdoekes/asterisk-chan-dongle
-  DEPENDS:=+USE_UCLIBC:libiconv-full +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
+  DEPENDS:=$(ICONV_DEPENDS) +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
   TITLE:=Huawei UMTS 3G dongle support
 endef
 
@@ -78,13 +80,7 @@ TARGET_CFLAGS+= \
 
 MAKE_FLAGS+=LD="$(TARGET_CC)"
 
-# musl and glibc include their own iconv, but uclibc does not
-TARGET_CPPFLAGS+=$(if $(CONFIG_USE_UCLIBC),-I$(STAGING_DIR)/usr/lib/libiconv-full/include)
-TARGET_LDFLAGS+=$(if $(CONFIG_USE_UCLIBC),-L$(STAGING_DIR)/usr/lib/libiconv-full/lib -liconv)
-
-# $CHAN_DONGLE_ICONV_INC used by 200-fix-iconv-detection.patch
 CONFIGURE_VARS += \
-	CHAN_DONGLE_ICONV_INC="$(TOOLCHAIN_DIR)/include $(STAGING_DIR)/usr/lib/libiconv-full/include" \
 	DESTDIR="$(MODULES_DIR)" \
 	ac_cv_type_size_t=yes \
 	ac_cv_type_ssize_t=yes
