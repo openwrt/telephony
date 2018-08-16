@@ -256,7 +256,9 @@ endif
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
 include $(TOPDIR)/feeds/packages/lang/python/python-host.mk
-include $(FS_STABLE_PERL_FEED)/perlmod.mk
+include $(FS_STABLE_PERL_FEED)/perlver.mk
+
+PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
@@ -744,7 +746,7 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-perl),)
 CONFIGURE_VARS+= \
-	PERL="$(PERL_CMD)" \
+	PERL="$(STAGING_DIR_HOSTPKG)/usr/bin/perl$(PERL_VERSION)" \
 	PERL_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D_GNU_SOURCE -I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
 	PERL_INC="-I$(STAGING_DIR)$(PERL_SITELIB)/CORE" \
 	PERL_LDFLAGS="-Wl,-rpath,$(PERL_SITELIB)/CORE -L$(STAGING_DIR)$(PERL_SITELIB)/CORE -lperl" \
