@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.8.1
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE_PROTO:=git
@@ -33,7 +33,7 @@ PKG_BUILD_DEPENDS:= \
 PKG_FIXUP:=autoreconf
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
-#PKG_BUILD_PARALLEL:=1
+PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -400,7 +400,7 @@ endef
 
 define Package/$(PKG_NAME)/conffiles
 $(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)
-$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 $(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 endef
 
@@ -413,13 +413,13 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)$(FS_STABLE_IMAGES_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
-	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/default
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/config
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
 	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
-	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+	$(INSTALL_CONF) ./files/$(PRG_NAME).config \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)/postinst
@@ -427,14 +427,14 @@ define Package/$(PKG_NAME)/postinst
 if [ -z "$${IPKG_INSTROOT}" ]; then
   # Prevent $(PRG_NAME) from auto-starting after an upgrade. The modules may
   # not be upgraded yet and the user configuration may need a revision.
-  sed -i '/^ENABLE_FREESWITCH="yes"/s/^/#/' \
-    $(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+  uci set freeswitch.general.enabled=0
+  uci commit freeswitch
 
   echo
   echo "o-------------------------------------------------------------------o"
   echo "| FreeSWITCH note                                                   |"
   echo "o-------------------------------------------------------------------o"
-  echo "| Edit /etc/default/freeswitch to change basic init configuration.  |"
+  echo "| Edit /etc/config/freeswitch to change basic init configuration.   |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
 fi
@@ -465,7 +465,7 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
   echo "o-------------------------------------------------------------------o"
   echo "| FreeSWITCH hotplug note                                           |"
   echo "o-------------------------------------------------------------------o"
-  echo "| See /etc/default/freeswitch for hotplug hints.                    |"
+  echo "| See /etc/config/freeswitch for hotplug hints.                     |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
 fi
