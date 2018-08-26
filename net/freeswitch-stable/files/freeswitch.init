@@ -8,36 +8,49 @@ USE_PROCD=1
 #PROCD_DEBUG=1
 
 FS=freeswitch
-DEFAULT=/etc/default/$FS
 LOGGER="/usr/bin/logger -p user.err -s -t $FS"
-OPTIONS=
-PROG=/usr/bin/$FS
-TIMEOUT=30
 
-[ -f $DEFAULT ] && . $DEFAULT
-
-fs_user="${FS_USER:-$FS}"
-fs_group="${FS_GROUP:-$FS}"
-
-fs_dir_etc="/etc/$FS"
-fs_dir_localstate="/var/lib/$FS"
-fs_dir_run="/var/run/$FS"
-
-fs_dir_cache="${FS_DIR_CACHE:-/tmp/$FS/cache}"
-fs_dir_db="${FS_DIR_DB:-/tmp/$FS/db}"
-fs_dir_log="${FS_DIR_LOG:-/tmp/$FS/log}"
-fs_dir_recordings="${FS_DIR_RECORDINGS:-/tmp/$FS/recordings}"
-fs_dir_storage="${FS_DIR_STORAGE:-/tmp/$FS/storage}"
-fs_dir_temp="${FS_DIR_TEMP:-/tmp/$FS/temp}"
+# used in both start_service() and stop_service()
+fs_dir_run=/var/run/$FS
 
 start_service() {
-  local dir=
+  local change_perm
+  local dir
+  local enabled
 
-  if [ "$ENABLE_FREESWITCH" != yes ]; then
-    $LOGGER User configuration incomplete - not starting $FS
-    $LOGGER Check ENABLE_FREESWITCH in $DEFAULT
+  local fs_user
+  local fs_group
+
+  local fs_dir_cache
+  local fs_dir_db
+  local fs_dir_etc=/etc/$FS
+  local fs_dir_localstate=/var/lib/$FS
+  local fs_dir_log
+  local fs_dir_recordings
+  local fs_dir_storage
+  local fs_dir_temp
+
+  local OPTIONS
+
+  local PROG=/usr/bin/$FS
+
+  config_load $FS
+
+  config_get_bool enabled general enabled 0
+  if [ $enabled -eq 0 ]; then
+    $LOGGER service not enabled in /etc/config/$FS
     exit 1
   fi
+
+  config_get fs_user  general user $FS
+  config_get fs_group general group $FS
+
+  config_get fs_dir_cache      directories cache      /tmp/$FS/cache
+  config_get fs_dir_db         directories db         /tmp/$FS/db
+  config_get fs_dir_log        directories log        /tmp/$FS/log
+  config_get fs_dir_recordings directories recordings /tmp/$FS/recordings
+  config_get fs_dir_storage    directories storage    /tmp/$FS/storage
+  config_get fs_dir_temp       directories temp       /tmp/$FS/temp
 
   for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_localstate" \
     "$fs_dir_log" "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
@@ -50,10 +63,13 @@ start_service() {
     }
   done
 
-  #[ -d "$fs_dir_etc" ] && {
-  #  find "$fs_dir_etc" -type f -exec chown root:"$fs_group" {} \;
-  #  find "$fs_dir_etc" -type f -exec chmod 640 {} \;
-  #}
+  config_get_bool change_perm general change_perm 0
+  [ $change_perm -eq 1 ] && [ -d "$fs_dir_etc" ] && {
+    find "$fs_dir_etc" -type f -exec chown root:"$fs_group" {} \;
+    find "$fs_dir_etc" -type f -exec chmod 640 {} \;
+  }
+
+  config_get OPTIONS general options
 
   procd_open_instance
   # starting with full path seems cleaner judging by 'ps' output
@@ -79,8 +95,9 @@ start_service() {
 }
 
 stop_service() {
-  local retval=
-  local mypid=
+  local retval
+  local mypid
+  local TIMEOUT=30
   local timeout=$TIMEOUT
 
   pgrep $FS &> /dev/null
@@ -124,8 +141,8 @@ stop_service() {
   done
 
   [ $retval -ne 1 ] && {
-    $LOGGER Application seems to hang
-    $LOGGER Sending SIGKILL
+    $LOGGER application seems to hang
+    $LOGGER sending SIGKILL
     kill -SIGKILL $mypid 2>/dev/null
     sleep 3
     pgrep $FS | grep -w $mypid &>/dev/null
@@ -133,7 +150,7 @@ stop_service() {
   }
 
   [ $retval -ne 1 ] && {
-    $LOGGER Failed to stop $FS
+    $LOGGER failed to stop $FS
     exit 1
   }
 }
