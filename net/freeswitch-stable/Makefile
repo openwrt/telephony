@@ -33,7 +33,7 @@ PKG_BUILD_DEPENDS:= \
 PKG_FIXUP:=autoreconf
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
-#PKG_BUILD_PARALLEL:=1
+PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
