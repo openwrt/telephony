@@ -9,21 +9,19 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.8.1
-PKG_RELEASE:=6
+PKG_VERSION:=1.8.2
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://$(PRG_NAME).org/stash/scm/fs/$(PRG_NAME).git
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=b33bc925c52b19eda0cafc079015f5bac8fe68d1
+PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL := \
+	https://sources.openwrt.org/ \
+	https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
+PKG_HASH:=ebcf3db970ea9bb534c0983a1c9eef88395deb6e0902d8d6407bf217b2f27b9a
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
-PKG_MIRROR_HASH:=8587be34ea2194c64cdb0e19ce84519d260fb529ac40d4a7f7eb62b1fe3ef9b2
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
 # configure in libs/spandsp fails without libjpeg and tiff
 PKG_BUILD_DEPENDS:= \
@@ -824,12 +822,8 @@ endif
 FS_STABLE_ANCHOR:=dnl Get build information from APR
 FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
-# With a release tarball we can just call Build/Prepare/Default. But with the
-# git checkout we need to call bootstrap and apply our patches afterward.
 define Build/Prepare
-	$(PKG_UNPACK)
-	cd $(PKG_BUILD_DIR) && $(AM_TOOL_PATHS) ./bootstrap.sh
-	$(Build/Patch)
+	$(call Build/Prepare/Default)
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
