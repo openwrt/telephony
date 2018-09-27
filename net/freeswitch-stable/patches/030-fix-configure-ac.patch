@@ -40,7 +40,7 @@
    AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
      if test "$PKG_CONFIG" = "no" \
         || test x"$enable_core_pgsql_pkgconfig" = x"no" \
-@@ -1575,13 +1551,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+@@ -1609,13 +1585,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
  # -a "x$ac_cv_have_EXTERN_h" != "xno"
  
  if test "x$ac_cv_have_perl" != "xno"; then
@@ -55,7 +55,7 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1676,24 +1646,12 @@ then
+@@ -1710,24 +1680,12 @@ then
  		if test "$python_has_distutils" != "no" ; then
  			AC_MSG_CHECKING([location of site-packages])
  
