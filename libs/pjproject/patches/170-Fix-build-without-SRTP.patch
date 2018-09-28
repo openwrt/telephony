@@ -1,0 +1,35 @@
+From 42e5ee52e1113d24b7125e29669022c35e87693f Mon Sep 17 00:00:00 2001
+From: Sauw Ming <ming@teluu.com>
+Date: Wed, 26 Sep 2018 00:56:51 +0000
+Subject: [PATCH] Re #2147 (misc): Fixed build error of undefined reference to
+ `pjmedia_srtp_enum_crypto' if PJMEDIA_HAS_SRTP is disabled.
+
+Thanks to Alexei Gradinari for the patch
+
+
+
+git-svn-id: https://svn.pjsip.org/repos/pjproject/trunk@5891 74dad513-b988-da41-8d7b-12977e46ad98
+---
+ pjsip/src/pjsua2/endpoint.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/pjsip/src/pjsua2/endpoint.cpp
++++ b/pjsip/src/pjsua2/endpoint.cpp
+@@ -2145,14 +2145,16 @@ void Endpoint::resetVideoCodecParam(cons
+  */
+ StringVector Endpoint::srtpCryptoEnum() throw(Error)
+ {
++    StringVector result;
++#if defined(PJMEDIA_HAS_SRTP) && (PJMEDIA_HAS_SRTP != 0)
+     unsigned cnt = PJMEDIA_SRTP_MAX_CRYPTOS;
+     pjmedia_srtp_crypto cryptos[PJMEDIA_SRTP_MAX_CRYPTOS];
+-    StringVector result;
+ 
+     PJSUA2_CHECK_EXPR(pjmedia_srtp_enum_crypto(&cnt, cryptos));
+ 
+     for (unsigned i = 0; i < cnt; ++i)
+ 	result.push_back(pj2Str(cryptos[i].name));
++#endif
+ 
+     return result;
+ }
