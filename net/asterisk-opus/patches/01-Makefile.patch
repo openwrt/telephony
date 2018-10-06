@@ -1,0 +1,23 @@
+--- a/Makefile
++++ b/Makefile
+@@ -3,17 +3,17 @@ exec_prefix=$(prefix)
+ libdir=$(exec_prefix)/lib
+ 
+ CC=gcc
+-CFLAGS=-pthread -g3 -O3 -D_FORTIFY_SOURCE=2 -fPIC
++CFLAGS+=-pthread
+ CPPFLAGS=
+ DEFS=
+ INSTALL=/usr/bin/install -c
+-LDFLAGS=-shared -pthread -Wl,--warn-common
++LDFLAGS+=-shared -pthread -Wl,--warn-common
+ LIBS=
+ MKDIR_P=/bin/mkdir -p
+ SHELL=/bin/sh
+ 
+ ASTMODDIR=$(libdir)/asterisk/modules
+-MODULES=codec_opus_open_source format_ogg_opus_open_source format_vp8 res_format_attr_opus
++MODULES=codec_opus_open_source
+ 
+ .SUFFIXES: .c .so
+ 
