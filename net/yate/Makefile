@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.0.0-1
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -122,6 +122,10 @@ CONFIGURE_ARGS+= \
 	--without-coredumper \
 	--without-doxygen \
 	--without-kdoc
+
+# The regexp implementation of musl 1.1.19 is not fully compatible with yate
+CONFIGURE_ARGS+= \
+	--enable-internalregex
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec),)
 CONFIGURE_ARGS+=$(if $(CONFIG_SOFT_FLOAT),--disable-isac-float --enable-isac-fixed,--disable-isac-fixed --enable-isac-float)
