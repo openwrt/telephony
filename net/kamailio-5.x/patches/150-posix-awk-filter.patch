@@ -1,0 +1,32 @@
+commit 59d287586f502a8df71c2e91899fde49594e072e
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Sun Oct 7 18:54:39 2018 +0200
+
+    kamctl: make jsonrpc filter portable
+    
+    The filter has a regex looking for a literal '{' in the beginning of a
+    line. Some awk implementations interpret this as a meta character, so
+    the regex is deemed broken. Example with busybox awk (POSIX):
+    
+    root@hank2:~# kamctl ps
+    awk: bad regex '^{.+"id"[       ]*:[    ]*[0-9]+[       ]*}$': Invalid contents of {}
+    root@hank2:~#
+    
+    To fix this enclose the character in square brackets. This always
+    matches for a literal '{' and is portable.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/utils/kamctl/kamctl.base b/utils/kamctl/kamctl.base
+index adeceb77f..a776e10d8 100644
+--- a/utils/kamctl/kamctl.base
++++ b/utils/kamctl/kamctl.base
+@@ -715,7 +715,7 @@ filter_json()
+ 	$AWK 'function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
+ 		BEGIN { line=0; IGNORECASE=1; }
+ 		{ line++; }
+-		NR == 1 && /^{.+"id"[ \t]*:[ \t]*[0-9]+[ \t]*}$/ { print; next; }
++		NR == 1 && /^[{].+"id"[ \t]*:[ \t]*[0-9]+[ \t]*}$/ { print; next; }
+ 		NR == 1 && /^200 OK/ { next; }
+ 		/^[ \t]*"jsonrpc":[ \t]*"2.0"/ { print; next; }
+ 		/^[ \t]*"result":[ \t]*\[.+/ {
