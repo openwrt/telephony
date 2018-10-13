@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.1.3
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -369,6 +369,16 @@ EXTRA_MODULES:= \
 	$(if $(CONFIG_PACKAGE_kamailio5-mod-ims-diameter-server),,ims_diameter_server) \
 	$(if $(CONFIG_PACKAGE_kamailio5-mod-uid-gflags),,uid_gflags)
 
+# MIPS tweak:
+#
+# Kamailio enables use of fast inline assembly locks when ARCH is set to
+# "mips2". When ARCH is set to "mips" instead, Kamailio assumes it is dealing
+# with an old 32-bit MIPS CPU without hardware locking support (like R3000).
+#
+# When CONFIG_CPU_TYPE matches one of the identifiers in the list below, set
+# ARCH to "mips2" to get FAST_LOCK support.
+CPU_MIPS2:=mips32 24kc 34kc 74kc
+
 PKG_MAKE_ARGS:= \
 	prefix=/ \
 	cfg_dir=/etc/kamailio/ \
@@ -387,7 +397,7 @@ PKG_MAKE_ARGS:= \
 	SYSBASE="$(STAGING_DIR)/usr" \
 	CROSS_COMPILE=$(TARGET_CROSS) \
 	CC="$(TARGET_CC)" \
-	ARCH="$(ARCH)"  \
+	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
 	DESTDIR=$(PKG_INSTALL_DIR) \
 	quiet=verbose
 
