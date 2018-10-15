@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -985,19 +985,6 @@ AC_LINK_IFELSE(
+@@ -1048,19 +1048,6 @@ AC_LINK_IFELSE(
    ]
  )
  

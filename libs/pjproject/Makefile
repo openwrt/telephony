@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
 PKG_VERSION:=2.7.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)

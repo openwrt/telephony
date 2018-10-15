@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
-PKG_VERSION:=15.3.0
-PKG_RELEASE:=4
+PKG_VERSION:=15.6.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=f424f89f23b72f267ff9baab82d449bebbbf00c54e54fcd06b8fca13788b012c
+PKG_HASH:=9cb86585fb4efcd86423fa7586e55d9d3c74fda43a2e0b1b9c9eb3742df73155
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -430,7 +430,7 @@ define Package/asterisk15
 $(call Package/asterisk15/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libncurses +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
 endef
 
 define Package/asterisk15/description
@@ -538,7 +538,6 @@ CONFIGURE_ARGS+= \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
-	--with-ncurses="$(STAGING_DIR)/usr" \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-snmp),--with-netsnmp="$(STAGING_DIR)/usr",--without-netsnmp) \
 	--without-newt \
 	--without-osptk \
@@ -546,7 +545,6 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-util-smsq),--with-popt="$(STAGING_DIR)/usr",--without-popt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
-	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \

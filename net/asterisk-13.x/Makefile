@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
-PKG_VERSION:=13.20.0
-PKG_RELEASE:=4
+PKG_VERSION:=13.23.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=a3d6d953f844867ea11e0be22ee6225049cd4f5870df6ab23454623bcfbc94d5
+PKG_HASH:=c772acbfdddb9250bfe07f7e20a7efb6a79a6c123832727429486c78d44fc78c
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -425,7 +425,7 @@ define Package/asterisk13
 $(call Package/asterisk13/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libncurses +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
 endef
 
 define Package/asterisk13/description
@@ -532,7 +532,6 @@ CONFIGURE_ARGS+= \
 	--without-nbs \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
-	--with-ncurses="$(STAGING_DIR)/usr" \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-snmp),--with-netsnmp="$(STAGING_DIR)/usr",--without-netsnmp) \
 	--without-newt \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-ogg="$(STAGING_DIR)/usr",--without-ogg) \
@@ -541,7 +540,6 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-util-smsq),--with-popt="$(STAGING_DIR)/usr",--without-popt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
-	--without-pwlib \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \
