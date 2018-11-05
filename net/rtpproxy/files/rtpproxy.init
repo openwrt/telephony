@@ -52,18 +52,20 @@ check_special_param() {
 
 handle_instance() {
 	local site="$1"
-	local socket opts ipaddr ip6addr rtpproxy_options
+	local socket opts ipaddr ip6addr rtpproxy_options log_level
 
 	config_get socket	"$site" socket
 	config_get opts		"$site" opts
 	config_get ipaddr	"$site" ipaddr
 	config_get ip6addr	"$site" ip6addr
 	config_get user		"$site" user
+	config_get log_level	"$site" log_level
 
 	check_param "-s" "$socket"
 	check_param "-l" "$ipaddr"
 	check_param "-6" "$ip6addr"
 	check_param "-u" "$user"	"nobody"
+	check_param "-d" "$log_level"	"DBUG"
 
 	check_special_param "$opts"
 
