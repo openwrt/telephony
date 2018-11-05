@@ -280,6 +280,20 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 		$(1)/usr/lib/kamailio/
 endef
 
+define Package/kamailio5/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| Kamailio note                                                     |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/config/kamailio to change basic init configuration.     |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
+endef
+
 define Package/kamailio5/install/conffile
 	$(INSTALL_DIR) $(1)/etc/kamailio
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/kamailio/$(2) $(1)/etc/kamailio
