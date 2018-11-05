@@ -64,13 +64,16 @@ TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Package/rtpproxy/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rtpproxy $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rtpproxy $(1)/usr/bin
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/rtpproxy.init $(1)/etc/init.d/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface
 endef
 
 define Package/rtpproxy-mod-acct-csv/install
