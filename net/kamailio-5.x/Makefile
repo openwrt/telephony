@@ -241,11 +241,13 @@ endef
 define Package/kamailio5
 $(call Package/kamailio5/Default)
   TITLE:=Mature and flexible open source SIP server, v$(PKG_VERSION)
+  USERID:=kamailio=380:kamailio=380
   MENU:=1
 endef
 
 define Package/kamailio5/conffiles
-/etc/default/kamailio
+/etc/config/kamailio
+/etc/init.d/kamailio
 /etc/kamailio/kamailio.cfg
 /etc/kamailio/kamctlrc
 endef
@@ -260,10 +262,10 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib{srdb1,srdb2,srutils}.so* \
 		$(1)/usr/lib/kamailio/
-	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) \
-		./files/kamailio.default \
-		$(1)/etc/default/kamailio
+		./files/kamailio.config \
+		$(1)/etc/config/kamailio
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
