@@ -9,12 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.1.3
-PKG_RELEASE:=4
+PKG_VERSION:=5.1.6
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
+PKG_SOURCE_URL := \
+	https://sources.openwrt.org \
+	https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=b2266e15ec8ffa62be66b44989155f26a31d137f06f81fb3841aad8315315a14
+PKG_HASH:=99880df20dd836e4d9ec03fe863f7a5fc77bb29e3d56f59ea92b8b986deb5186
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -423,6 +425,9 @@ PKG_MAKE_ARGS:= \
 	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
 	DESTDIR=$(PKG_INSTALL_DIR) \
 	quiet=verbose
+
+define Build/Configure
+endef
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) cfg

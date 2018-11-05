@@ -1,0 +1,30 @@
+commit cbff35909edccffe778d04f3871d880195d82b7a
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Fri Nov 2 10:10:38 2018 +0100
+
+    dialplan: fix dp_replace() in cmd_export_t struct
+    
+    In the struct 'int param_no' is set to '2'. But dp_replace() has actually three
+    parameters (dpid, inval, outvar), so kamailio's cfg parser fails when
+    dp_replace() is called:
+    
+    yyparse(): cfg. parser: failed to find command dp_replace (params 3)
+    yyerror_at(): parse error in config file /etc/kamailio/kamailio.cfg, line 366, column 45: unknown command, missing loadmodule?
+    
+    This commit fixes 'int param_no' to address this.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/src/modules/dialplan/dialplan.c b/src/modules/dialplan/dialplan.c
+index 39ba1ceef..a96b246b7 100644
+--- a/src/modules/dialplan/dialplan.c
++++ b/src/modules/dialplan/dialplan.c
+@@ -115,7 +115,7 @@ static cmd_export_t cmds[]={
+ 		ANY_ROUTE},
+ 	{"dp_match",(cmd_function)w_dp_match,	2,	fixup_igp_spve,
+ 		fixup_free_igp_spve, ANY_ROUTE},
+-	{"dp_replace",(cmd_function)w_dp_replace,	2,	dp_replace_fixup,
++	{"dp_replace",(cmd_function)w_dp_replace,	3,	dp_replace_fixup,
+ 		dp_replace_fixup_free, ANY_ROUTE},
+ 	{0,0,0,0,0,0}
+ };
