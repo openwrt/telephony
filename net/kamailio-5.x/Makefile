@@ -21,7 +21,8 @@ PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
-PKG_BUILD_PARALLEL:=1
+# Defining PKG_BUILD_PARALLEL to 1 would be a noop due to the way we call make
+#PKG_BUILD_PARALLEL:=1
 
 MODULES_AVAILABLE:= \
 	acc \
@@ -379,7 +380,9 @@ EXTRA_MODULES:= \
 #
 # When CONFIG_CPU_TYPE matches one of the identifiers in the list below, set
 # ARCH to "mips2" to get FAST_LOCK support.
+ifeq ($(call qstrip,$(CONFIG_ARCH)),mips)
 CPU_MIPS2:=mips32 24kc 34kc 74kc
+endif
 
 PKG_MAKE_ARGS:= \
 	prefix=/ \
