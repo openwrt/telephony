@@ -28,6 +28,48 @@ run_instance() {
 	$LOGGER instance $2 has started
 }
 
+check_ip() {
+	local tmp_addr
+
+	if [ "$1" = "ipaddr" ]; then
+		network_get_ipaddr tmp_addr "$2" || tmp_addr="$2"
+	else
+		network_get_ipaddr6 tmp_addr "$2" || tmp_addr="$2"
+	fi
+
+	echo "$tmp_addr"
+}
+
+check_ipaddr() {
+	local value="$1"
+	local type="$2"
+	local param="$3"
+	local one two
+
+	[ -z "$value" ] && {
+		$LOG_ERR empty $type entry
+		exit 1
+	}
+
+	# Bail if more than 1 slash.
+	[ $(echo "$value" | awk -F "/" '{print NF-1}') -gt 1 ] && {
+		$LOG_ERR init script does not understand $type entry \""$value"\"
+		exit 1
+	}
+
+	IFS="/" read one two << EOF
+$value
+EOF
+
+	one="$(check_ip "$type" "$one")"
+	if [ -n "$two" ]; then
+		two="$(check_ip "$type" "$two")"
+		rtpproxy_options=$rtpproxy_options" $param $one/$two"
+	else
+		rtpproxy_options=$rtpproxy_options" $param $one"
+	fi
+}
+
 check_param() {
 	local param="$1"
 	local value="$2"
@@ -62,12 +104,13 @@ handle_instance() {
 	config_get log_level	"$site" log_level
 
 	check_param "-s" "$socket"
-	check_param "-l" "$ipaddr"
-	check_param "-6" "$ip6addr"
 	check_param "-u" "$user"	"nobody"
 	check_param "-d" "$log_level"	"DBUG"
 
 	check_special_param "$opts"
+
+	[ -n "$ipaddr" ]	&& check_ipaddr "$ipaddr"	ipaddr	'-l'
+	[ -n "$ip6addr" ]	&& check_ipaddr "$ip6addr"	ip6addr	'-6'
 
 	run_instance "$rtpproxy_options" "$site"
 }
@@ -80,6 +123,7 @@ start_service() {
 	config_get_bool enabled global enabled 0
 
 	if [ "$enabled" -eq 1 ]; then
+		. /lib/functions/network.sh
 		config_foreach handle_instance instance
 	else
 		$LOG_ERR service not enabled
