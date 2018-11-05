@@ -76,6 +76,20 @@ define Package/rtpproxy/install
 	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface
 endef
 
+define Package/rtpproxy/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| RTPProxy note                                                     |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/config/rtpproxy to change basic init configuration.     |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
+endef
+
 define Package/rtpproxy-mod-acct-csv/install
 	$(INSTALL_DIR) $(1)/usr/lib/rtpproxy
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/rtpproxy/rtpp_acct_csv.so \
