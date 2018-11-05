@@ -271,6 +271,10 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
 		$(1)/etc/init.d/kamailio
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) \
+		./files/kamailio.hotplug \
+		$(1)/etc/hotplug.d/iface
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/
