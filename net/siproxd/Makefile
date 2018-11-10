@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.2
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -61,6 +61,23 @@ define Package/siproxd/install
 	$(INSTALL_CONF) ./files/siproxd.config $(1)/etc/config/siproxd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/siproxd.init $(1)/etc/init.d/siproxd
+endef
+
+define Package/siproxd/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| Siproxd note                                                      |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/config/siproxd to setup Siproxd.                        |"
+  echo "|                                                                   |"
+  echo "| Also visit the Wiki at:                                           |"
+  echo "| https://openwrt.org/docs/guide-user/services/voip/siproxd         |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 define BuildPlugin
