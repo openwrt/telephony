@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.5.9
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -96,6 +96,15 @@ BARESIP_MOD_OPTIONS:= \
 	EXTRA_MODULES="dtmfio" \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(subst _,-,$(m))),1))
 
+# @thess mentioned a recursive dependency caused in this baresip package (see
+# https://github.com/openwrt/packages/pull/7346). mod-avcodec was depending
+# both on ffmpeg-full and libx264. To fix the recursive dependency the depend
+# on libx264 needed to be removed. baresip needs to rely on ffmpeg-full to sort
+# out any depend on libx264.
+#
+# ffmpeg-full uses libx264 only on hard-float targets - so only there
+# ffmpeg-full will provide the libx264 dependency. Hence this Makefile
+# explicitly disables x264 support on soft-float targets.
 MAKE_FLAGS+= \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
@@ -108,7 +117,8 @@ MAKE_FLAGS+= \
 	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
 	SYSROOT_ALT="$(STAGING_DIR)/usr" \
-	$(BARESIP_MOD_OPTIONS)
+	$(BARESIP_MOD_OPTIONS) \
+	$(if $(CONFIG_SOFT_FLOAT),USE_X264=,)
 
 TARGET_CFLAGS+=-D_GNU_SOURCE
 
@@ -186,7 +196,7 @@ $(eval $(call BuildPackage,baresip))
 $(eval $(call BuildPlugin,alsa,ALSA audio driver,alsa,+alsa-lib))
 $(eval $(call BuildPlugin,aubridge,Audio bridge module,aubridge,))
 $(eval $(call BuildPlugin,aufile,Audio module for using a WAV-file as audio input,aufile,))
-$(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,@BARESIP_WITH_FFMPEG +libffmpeg-full +libx264))
+$(eval $(call BuildPlugin,avcodec,Video codec using FFmpeg,avcodec,@BARESIP_WITH_FFMPEG +libffmpeg-full))
 $(eval $(call BuildPlugin,avformat,Video source using FFmpeg,avformat,baresip-mod-avcodec))
 $(eval $(call BuildPlugin,cons,UDP/TCP console UI driver,cons,))
 $(eval $(call BuildPlugin,ctrl_tcp,TCP control interface,ctrl_tcp,))
