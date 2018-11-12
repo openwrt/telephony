@@ -414,10 +414,13 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/config
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
 	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
+	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/90-$(PRG_NAME)
 	$(INSTALL_CONF) ./files/$(PRG_NAME).config \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 endef
@@ -437,37 +440,17 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
   echo "| Edit /etc/config/freeswitch to change basic init configuration.   |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
-fi
-exit 0
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug
-$(call Package/$(PKG_NAME)/Default)
-  TITLE:=Hotplug script
-  DEPENDS:=$(PKG_NAME)
-  PKGARCH:=all
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/description
-This package includes a hotplug script for FreeSWITCH.
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/install
-	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
-	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/99-$(PRG_NAME)
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/postinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-  echo
-  echo "o-------------------------------------------------------------------o"
-  echo "| FreeSWITCH hotplug note                                           |"
-  echo "o-------------------------------------------------------------------o"
-  echo "| See /etc/config/freeswitch for hotplug hints.                     |"
-  echo "o-------------------------------------------------------------=^_^=-o"
-  echo
+  [ -f /etc/hotplug.d/iface/99-freeswitch ] && {
+    echo "o-------------------------------------------------------------------o"
+    echo "| WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING   |"
+    echo "o-------------------------------------------------------------------o"
+    echo "| Please remove freeswitch-stable-misc-hotplug. The hotplug script  |"
+    echo "| is now part of the main freeswitch-stable package. Please run:    |"
+    echo "|                                                                   |"
+    echo "| opkg remove freeswitch-stable-misc-hotplug                        |"
+    echo "o-------------------------------------------------------------=^_^=-o"
+    echo
+  }
 fi
 exit 0
 endef
@@ -939,7 +922,6 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_LIBFTDM)))
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-timezones))
