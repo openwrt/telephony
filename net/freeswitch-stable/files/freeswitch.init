@@ -7,150 +7,88 @@ USE_PROCD=1
 
 #PROCD_DEBUG=1
 
-FS=freeswitch
-LOGGER="/usr/bin/logger -p user.err -s -t $FS"
+NAME=freeswitch
+COMMAND=/usr/bin/$NAME
 
-# used in both start_service() and stop_service()
-fs_dir_run=/var/run/$FS
+LOGGER="/usr/bin/logger -p user.err -s -t $NAME"
 
 start_service() {
-  local change_perm
   local dir
   local enabled
 
-  local fs_user
-  local fs_group
+  local user
+  local group
 
-  local fs_dir_cache
-  local fs_dir_db
-  local fs_dir_etc=/etc/$FS
-  local fs_dir_localstate=/var/lib/$FS
-  local fs_dir_log
-  local fs_dir_recordings
-  local fs_dir_storage
-  local fs_dir_temp
+  local log_stderr
+  local log_stdout
 
-  local OPTIONS
+  local dir_cache
+  local dir_db
+  local dir_etc=/etc/$NAME
+  local dir_localstate=/var/lib/$NAME
+  local dir_log
+  local dir_recordings
+  local dir_run=/var/run/$NAME
+  local dir_storage
+  local dir_temp
 
-  local PROG=/usr/bin/$FS
+  local options
 
-  config_load $FS
+  config_load $NAME
 
   config_get_bool enabled general enabled 0
   if [ $enabled -eq 0 ]; then
-    $LOGGER service not enabled in /etc/config/$FS
+    $LOGGER service not enabled in /etc/config/$NAME
     exit 1
   fi
 
-  config_get fs_user  general user $FS
-  config_get fs_group general group $FS
+  config_get user  general user  $NAME
+  config_get group general group $NAME
 
-  config_get fs_dir_cache      directories cache      /tmp/$FS/cache
-  config_get fs_dir_db         directories db         /tmp/$FS/db
-  config_get fs_dir_log        directories log        /tmp/$FS/log
-  config_get fs_dir_recordings directories recordings /tmp/$FS/recordings
-  config_get fs_dir_storage    directories storage    /tmp/$FS/storage
-  config_get fs_dir_temp       directories temp       /tmp/$FS/temp
+  config_get_bool log_stderr general log_stderr 1
+  config_get_bool log_stdout general log_stdout 1
 
-  for dir in "$fs_dir_cache" "$fs_dir_db" "$fs_dir_localstate" \
-    "$fs_dir_log" "$fs_dir_recordings" "$fs_dir_run" "$fs_dir_storage" \
-    "$fs_dir_temp"
+  config_get dir_cache      directories cache      /tmp/$NAME/cache
+  config_get dir_db         directories db         /tmp/$NAME/db
+  config_get dir_log        directories log        /tmp/$NAME/log
+  config_get dir_recordings directories recordings /tmp/$NAME/recordings
+  config_get dir_storage    directories storage    /tmp/$NAME/storage
+  config_get dir_temp       directories temp       /tmp/$NAME/temp
+
+  for dir in "$dir_cache" "$dir_db" "$dir_localstate" \
+    "$dir_log" "$dir_recordings" "$dir_run" "$dir_storage" \
+    "$dir_temp"
   do
-    [ -n "$dir" ] && {
+    [ ! -e "$dir" ] && {
       mkdir -p "$dir"
-      chown "$fs_user":"$fs_group" "$dir"
+      chown "$user":"$group" "$dir"
       chmod 750 "$dir"
     }
   done
 
-  config_get_bool change_perm general change_perm 0
-  [ $change_perm -eq 1 ] && [ -d "$fs_dir_etc" ] && {
-    find "$fs_dir_etc" -type f -exec chown root:"$fs_group" {} \;
-    find "$fs_dir_etc" -type f -exec chmod 640 {} \;
-  }
-
-  config_get OPTIONS general options
+  config_get options general options
 
   procd_open_instance
   # starting with full path seems cleaner judging by 'ps' output
-  procd_set_param command $PROG
+  procd_set_param command $COMMAND
   # need to specify all or none of -conf, -log, and -db
   procd_append_param command \
-    -cache "$fs_dir_cache" \
-    -conf "$fs_dir_etc" \
-    -db "$fs_dir_db" \
-    -g "$fs_group" \
-    -log "$fs_dir_log" \
-    -recordings "$fs_dir_recordings" \
-    -run "$fs_dir_run" \
-    -storage "$fs_dir_storage" \
-    -temp "$fs_dir_temp" \
-    -u "$fs_user" \
-    $OPTIONS \
-    -nc \
-    -nf
+    -cache "$dir_cache" \
+    -conf "$dir_etc" \
+    -db "$dir_db" \
+    -g "$group" \
+    -log "$dir_log" \
+    -recordings "$dir_recordings" \
+    -run "$dir_run" \
+    -storage "$dir_storage" \
+    -temp "$dir_temp" \
+    -u "$user" \
+    $options \
+    -c
   # forward stderr to logd
-  procd_set_param stderr 1
+  procd_set_param stderr $log_stderr
+  # same for stdout
+  procd_set_param stdout $log_stdout
   procd_close_instance
 }
 
-stop_service() {
-  local retval
-  local mypid
-  local TIMEOUT=30
-  local timeout=$TIMEOUT
-
-  pgrep $FS &> /dev/null
-  [ $? -ne 0 ] && exit 0
-
-  [ -f "$fs_dir_run"/${FS}.pid ]
-  retval=$?
-
-  # init script could find itself in a scenario where FS was started
-  # very recently, so make it wait a while for a pid file to appear
-  while [ $retval -ne 0 -a $timeout -gt 0 ]; do
-    sleep 1
-    [ -f "$fs_dir_run"/${FS}.pid ]
-    retval=$?
-    timeout=$(($timeout-1))
-  done
-
-  [ $retval -eq 0 ] || {
-    $LOGGER PID file does not exist
-    exit 1
-  }
-
-  mypid=$(cat "$fs_dir_run"/${FS}.pid)
-
-  [ "$mypid" -gt 1 ] 2> /dev/null || {
-    $LOGGER PID file contains garbage
-    exit 1
-  }
-
-  timeout=$TIMEOUT
-  kill $mypid 2>/dev/null
-  pgrep $FS | grep -w $mypid &>/dev/null
-  retval=$?
-
-  while [ $retval -eq 0 -a $timeout -gt 0 ]; do
-    sleep 10
-    pgrep $FS | grep -w $mypid &>/dev/null
-    retval=$?
-    [ $retval -eq 0 ] && kill $mypid 2>/dev/null
-    timeout=$(($timeout-10))
-  done
-
-  [ $retval -ne 1 ] && {
-    $LOGGER application seems to hang
-    $LOGGER sending SIGKILL
-    kill -SIGKILL $mypid 2>/dev/null
-    sleep 3
-    pgrep $FS | grep -w $mypid &>/dev/null
-    retval=$?
-  }
-
-  [ $retval -ne 1 ] && {
-    $LOGGER failed to stop $FS
-    exit 1
-  }
-}

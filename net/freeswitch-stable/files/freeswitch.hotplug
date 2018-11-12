@@ -1,59 +1,51 @@
 #!/bin/sh
 
-FS=freeswitch
-LOGGER="/usr/bin/logger -t ${FS}-hotplug"
+NAME=freeswitch
+COMMAND=/etc/init.d/$NAME
+
+LOGGER="/usr/bin/logger -t $NAME-hotplug"
 LOG_ERR="$LOGGER -p user.err --"
 LOG_NOTICE="$LOGGER -p user.notice --"
-LOG_WARN="$LOGGER -p user.warn --"
 
 [ "$ACTION" = ifup ] || exit 0
 
 . /lib/functions.sh
-config_load $FS
+config_load $NAME
 
-config_get FS_HOTPLUG_INTERFACE hotplug interface
+config_get interface hotplug interface
 
-[ -n "$FS_HOTPLUG_INTERFACE" ] || exit 0
+[ "$INTERFACE" = "$interface" ] || exit 0
 
-[ "$INTERFACE" = "$FS_HOTPLUG_INTERFACE" ] || exit 0
-
-pgrep $FS &> /dev/null
+pidof $NAME &> /dev/null
 if [ $? -eq 0 ]; then
-  $LOG_NOTICE stopping $FS
-  /etc/init.d/$FS stop &> /dev/null
-  pgrep $FS &> /dev/null
-  if [ $? -eq 0 ]; then
-    $LOG_ERR failed to stop $FS
-    exit 1
-  else
-    $LOG_NOTICE $FS stopped
-  fi
+  $LOG_NOTICE stopping $NAME
+  $COMMAND stop &> /dev/null
 fi
 
-config_get FS_HOTPLUG_TIMEOUT hotplug timeout
+config_get timeout hotplug timeout 60
 
-[ "$FS_HOTPLUG_TIMEOUT" -gt 0 ] 2> /dev/null || unset FS_HOTPLUG_TIMEOUT
-TIMEOUT="${FS_HOTPLUG_TIMEOUT:-60}"
+[ "$timeout" -gt 0 ] 2> /dev/null || unset timeout
+timeout="${timeout:-60}"
 
-config_get FS_HOTPLUG_MOUNTPOINT hotplug mount_point
+config_get mount_point hotplug mount_point
 
-# Mount condition, idea lifted from OpenWrt wiki
-[ -n "$FS_HOTPLUG_MOUNTPOINT" ] && {
+# Mount condition, idea lifted from OpenWrt Wiki
+[ -n "$mount_point" ] && {
 
-  if ! [ -d "$FS_HOTPLUG_MOUNTPOINT" ]; then
-    $LOG_ERR "$FS_HOTPLUG_MOUNTPOINT" not a valid mount point
+  if ! [ -d "$mount_point" ]; then
+    $LOG_ERR "$mount_point" not a valid mount point
     exit 1
   fi
 
-  mnt="$FS_HOTPLUG_MOUNTPOINT"
+  mnt="$mount_point"
   notReady=start
-  timeout=$TIMEOUT
+  tmp_timeout=$timeout
 
-  while [ -n "$notReady" -a $timeout -gt 0 ]; do
+  while [ -n "$notReady" -a $tmp_timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOG_NOTICE "$mnt" not yet mounted, timeout in $timeout s
+      $LOG_NOTICE "$mnt" not yet mounted, timeout in $tmp_timeout s
       sleep 5
-      timeout=$(($timeout-5))
+      tmp_timeout=$(($tmp_timeout-5))
     fi
 
     notReady=
@@ -66,7 +58,7 @@ config_get FS_HOTPLUG_MOUNTPOINT hotplug mount_point
 
   if [ -n "$notReady" ]; then
     $LOG_ERR "$mnt" still not mounted
-    $LOG_ERR not starting $FS
+    $LOG_ERR not starting $NAME
     exit 1
   else
     $LOG_NOTICE "$mnt" mounted
@@ -74,10 +66,10 @@ config_get FS_HOTPLUG_MOUNTPOINT hotplug mount_point
 
 }
 
-config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
+config_get_bool ntpd hotplug ntpd 0
 
 # ntpd condition
-[ $FS_HOTPLUG_NTPD -eq 1 ] && {
+[ $ntpd -eq 1 ] && {
 
   type ntpq &> /dev/null
   [ $? -eq 0 ] || {
@@ -85,19 +77,19 @@ config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
     exit 1
   }
 
-  pgrep ntpd &> /dev/null || {
+  pidof ntpd &> /dev/null || {
     $LOG_ERR ntpd not running
     exit 1
   }
 
   notReady=start
-  timeout=$TIMEOUT
+  tmp_timeout=$timeout
 
-  while [ -n "$notReady" -a $timeout -gt 0 ]; do
+  while [ -n "$notReady" -a $tmp_timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOG_NOTICE system time not in sync yet, timeout in $timeout s
+      $LOG_NOTICE system time not in sync yet, timeout in $tmp_timeout s
       sleep 5
-      timeout=$(($timeout-5))
+      tmp_timeout=$(($tmp_timeout-5))
     fi
 
     notReady=
@@ -105,7 +97,7 @@ config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
     result=$(ntpq -c 'timeout 300' -c 'rv 0 stratum' 2> /dev/null | \
                     awk -F '=' '{print $2}' | grep -o -E '^[0-9]+')
     if [ -z $result ]; then
-      $LOG_WARN failed to extract stratum from ntpd
+      $LOG_ERR failed to extract stratum from ntpd
       notReady="unable to extract stratum"
     else
       $LOG_NOTICE ntpd stratum $result
@@ -113,7 +105,7 @@ config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
         result=$(ntpq -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
                  | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
         if [ -z $result ]; then
-          $LOG_WARN failed to extract offset from ntpd
+          $LOG_ERR failed to extract offset from ntpd
           notReady="unable to extract offset"
         else
           # "-0" looks stupid, so remove "-"
@@ -130,7 +122,7 @@ config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
 
   if [ -n "$notReady" ]; then
     $LOG_ERR system time still not in sync
-    $LOG_ERR not starting $FS
+    $LOG_ERR not starting $NAME
     exit 1
   else
     $LOG_NOTICE system time in sync
@@ -138,13 +130,12 @@ config_get_bool FS_HOTPLUG_NTPD hotplug ntpd 0
 
 }
 
-/etc/init.d/$FS start &> /dev/null
-# Wait a bit in order for pgrep to be able to find the new process
+$COMMAND start &> /dev/null
 sleep 1
-pgrep $FS &>/dev/null
+pidof $NAME &>/dev/null
 if [ $? -eq 0 ]; then
-  $LOG_NOTICE started $FS due to \"ifup "$INTERFACE"\" event
+  $LOG_NOTICE started $NAME due to \"ifup "$INTERFACE"\" event
 else
-  $LOG_ERR start of $FS due to \"ifup "$INTERFACE"\" event failed
+  $LOG_ERR start of $NAME due to \"ifup "$INTERFACE"\" event failed
   exit 1
 fi
