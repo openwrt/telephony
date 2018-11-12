@@ -87,70 +87,9 @@ start_service() {
     -temp "$fs_dir_temp" \
     -u "$fs_user" \
     $OPTIONS \
-    -nc \
-    -nf
+    -c
   # forward stderr to logd
   procd_set_param stderr 1
   procd_close_instance
 }
 
-stop_service() {
-  local retval
-  local mypid
-  local TIMEOUT=30
-  local timeout=$TIMEOUT
-
-  pgrep $FS &> /dev/null
-  [ $? -ne 0 ] && exit 0
-
-  [ -f "$fs_dir_run"/${FS}.pid ]
-  retval=$?
-
-  # init script could find itself in a scenario where FS was started
-  # very recently, so make it wait a while for a pid file to appear
-  while [ $retval -ne 0 -a $timeout -gt 0 ]; do
-    sleep 1
-    [ -f "$fs_dir_run"/${FS}.pid ]
-    retval=$?
-    timeout=$(($timeout-1))
-  done
-
-  [ $retval -eq 0 ] || {
-    $LOGGER PID file does not exist
-    exit 1
-  }
-
-  mypid=$(cat "$fs_dir_run"/${FS}.pid)
-
-  [ "$mypid" -gt 1 ] 2> /dev/null || {
-    $LOGGER PID file contains garbage
-    exit 1
-  }
-
-  timeout=$TIMEOUT
-  kill $mypid 2>/dev/null
-  pgrep $FS | grep -w $mypid &>/dev/null
-  retval=$?
-
-  while [ $retval -eq 0 -a $timeout -gt 0 ]; do
-    sleep 10
-    pgrep $FS | grep -w $mypid &>/dev/null
-    retval=$?
-    [ $retval -eq 0 ] && kill $mypid 2>/dev/null
-    timeout=$(($timeout-10))
-  done
-
-  [ $retval -ne 1 ] && {
-    $LOGGER application seems to hang
-    $LOGGER sending SIGKILL
-    kill -SIGKILL $mypid 2>/dev/null
-    sleep 3
-    pgrep $FS | grep -w $mypid &>/dev/null
-    retval=$?
-  }
-
-  [ $retval -ne 1 ] && {
-    $LOGGER failed to stop $FS
-    exit 1
-  }
-}

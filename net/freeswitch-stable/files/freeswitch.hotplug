@@ -21,13 +21,6 @@ pgrep $FS &> /dev/null
 if [ $? -eq 0 ]; then
   $LOG_NOTICE stopping $FS
   /etc/init.d/$FS stop &> /dev/null
-  pgrep $FS &> /dev/null
-  if [ $? -eq 0 ]; then
-    $LOG_ERR failed to stop $FS
-    exit 1
-  else
-    $LOG_NOTICE $FS stopped
-  fi
 fi
 
 config_get FS_HOTPLUG_TIMEOUT hotplug timeout
