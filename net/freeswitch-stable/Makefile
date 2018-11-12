@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.8.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
@@ -428,16 +428,14 @@ endef
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-  # Prevent $(PRG_NAME) from auto-starting after an upgrade. The modules may
-  # not be upgraded yet and the user configuration may need a revision.
-  uci set freeswitch.general.enabled=0
-  uci commit freeswitch
-
   echo
   echo "o-------------------------------------------------------------------o"
   echo "| FreeSWITCH note                                                   |"
   echo "o-------------------------------------------------------------------o"
   echo "| Edit /etc/config/freeswitch to change basic init configuration.   |"
+  echo "|                                                                   |"
+  echo "| Also visit the Wiki at:                                           |"
+  echo "| https://openwrt.org/docs/guide-user/services/voip/freeswitch      |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
   [ -f /etc/hotplug.d/iface/99-freeswitch ] && {
