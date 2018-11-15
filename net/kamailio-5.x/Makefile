@@ -9,19 +9,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.1.3
-PKG_RELEASE:=4
+PKG_VERSION:=5.1.6
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
+PKG_SOURCE_URL := \
+	https://sources.openwrt.org \
+	https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=b2266e15ec8ffa62be66b44989155f26a31d137f06f81fb3841aad8315315a14
+PKG_HASH:=99880df20dd836e4d9ec03fe863f7a5fc77bb29e3d56f59ea92b8b986deb5186
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
-PKG_BUILD_PARALLEL:=1
+# Defining PKG_BUILD_PARALLEL to 1 would be a noop due to the way we call make
+#PKG_BUILD_PARALLEL:=1
 
 MODULES_AVAILABLE:= \
 	acc \
@@ -241,11 +244,13 @@ endef
 define Package/kamailio5
 $(call Package/kamailio5/Default)
   TITLE:=Mature and flexible open source SIP server, v$(PKG_VERSION)
+  USERID:=kamailio=380:kamailio=380
   MENU:=1
 endef
 
 define Package/kamailio5/conffiles
-/etc/default/kamailio
+/etc/config/kamailio
+/etc/init.d/kamailio
 /etc/kamailio/kamailio.cfg
 /etc/kamailio/kamctlrc
 endef
@@ -260,17 +265,35 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib{srdb1,srdb2,srutils}.so* \
 		$(1)/usr/lib/kamailio/
-	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) \
-		./files/kamailio.default \
-		$(1)/etc/default/kamailio
+		./files/kamailio.config \
+		$(1)/etc/config/kamailio
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) \
 		./files/kamailio.init \
 		$(1)/etc/init.d/kamailio
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) \
+		./files/kamailio.hotplug \
+		$(1)/etc/hotplug.d/iface
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/
+endef
+
+define Package/kamailio5/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| Kamailio note                                                     |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/config/kamailio to change basic init configuration.     |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 define Package/kamailio5/install/conffile
@@ -377,7 +400,9 @@ EXTRA_MODULES:= \
 #
 # When CONFIG_CPU_TYPE matches one of the identifiers in the list below, set
 # ARCH to "mips2" to get FAST_LOCK support.
+ifeq ($(call qstrip,$(CONFIG_ARCH)),mips)
 CPU_MIPS2:=mips32 24kc 34kc 74kc
+endif
 
 PKG_MAKE_ARGS:= \
 	prefix=/ \
@@ -400,6 +425,9 @@ PKG_MAKE_ARGS:= \
 	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
 	DESTDIR=$(PKG_INSTALL_DIR) \
 	quiet=verbose
+
+define Build/Configure
+endef
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) cfg
@@ -425,14 +453,14 @@ $(eval $(call BuildPackage,kamailio5-util-kambdb-recover))
 
 $(eval $(call BuildKamailio5Module,acc,Accounting,,+kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,acc_diameter,Accounting for DIAMETER backend,,+kamailio5-mod-acc))
-$(eval $(call BuildKamailio5Module,alias_db,Database-backend aliases,,+kamailio5-mod-db-sqlite))
+$(eval $(call BuildKamailio5Module,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailio5Module,app_jsdt,Execute JavaScript scripts,,))
 $(eval $(call BuildKamailio5Module,app_lua,Execute embedded Lua scripts,,+liblua))
 $(eval $(call BuildKamailio5Module,app_python,Execute Python scripts,,+python-light))
 $(eval $(call BuildKamailio5Module,app_sqlang,Execute Squirrel language scripts,,+libstdcpp))
 $(eval $(call BuildKamailio5Module,async,Asynchronous SIP handling functions,,+kamailio5-mod-tm +kamailio5-mod-tmx))
 $(eval $(call BuildKamailio5Module,auth,Authentication Framework,,))
-$(eval $(call BuildKamailio5Module,auth_db,Database-backend authentication,,+kamailio5-mod-auth +kamailio5-mod-db-sqlite))
+$(eval $(call BuildKamailio5Module,auth_db,Database-backend authentication,,+kamailio5-mod-auth))
 $(eval $(call BuildKamailio5Module,auth_diameter,Diameter authentication,,+kamailio5-mod-sl))
 $(eval $(call BuildKamailio5Module,auth_ephemeral,Ephemeral credentials,,+libopenssl))
 $(eval $(call BuildKamailio5Module,auth_identity,Identity authentication,,+libopenssl +libcurl))
@@ -447,7 +475,7 @@ $(eval $(call BuildKamailio5Module,carrierroute,Carrier Route,,+kamailio5-lib-li
 $(eval $(call BuildKamailio5Module,cdp,C Diameter Peer,,))
 $(eval $(call BuildKamailio5Module,cdp_avp,CDP AVP helper module,,+kamailio5-mod-cdp))
 $(eval $(call BuildKamailio5Module,cfgutils,Config utilities,,))
-$(eval $(call BuildKamailio5Module,cfg_db,Load parameters from database,,+kamailio5-mod-db-sqlite))
+$(eval $(call BuildKamailio5Module,cfg_db,Load parameters from database,,))
 $(eval $(call BuildKamailio5Module,cfg_rpc,Update parameters via RPC,,))
 $(eval $(call BuildKamailio5Module,cfgt,Unit test reporting,,))
 $(eval $(call BuildKamailio5Module,cnxcc,Limit call duration,,+kamailio5-mod-dialog +libhiredis +libevent2))
@@ -503,7 +531,7 @@ $(eval $(call BuildKamailio5Module,ipops,IP and IPv6 operations,,))
 $(eval $(call BuildKamailio5Module,jansson,Access to JSON attributes,,+jansson))
 $(eval $(call BuildKamailio5Module,janssonrpcc,Alternative JSONRPC server,,+kamailio5-mod-jansson +libevent2))
 $(eval $(call BuildKamailio5Module,json,Access to JSON document attributes,,+libjson-c))
-$(eval $(call BuildKamailio5Module,jsonrpcs,JSONRPC server over HTTP,,+kamailio5-mod-json +libevent2))
+$(eval $(call BuildKamailio5Module,jsonrpcs,JSONRPC server over HTTP,,+libevent2))
 $(eval $(call BuildKamailio5Module,keepalive,SIP keepalive monitoring,+kamailio5-mod-tm,))
 $(eval $(call BuildKamailio5Module,kex,Core extensions,,))
 $(eval $(call BuildKamailio5Module,lcr,Least Cost Routing,,+kamailio5-mod-tm +libpcre))
