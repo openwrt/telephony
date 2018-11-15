@@ -1,0 +1,98 @@
+From ae857488d97f94535d7c4dbe6049ddcc211bcf32 Mon Sep 17 00:00:00 2001
+From: George Joseph <gjoseph@digium.com>
+Date: Thu, 25 Oct 2018 09:25:58 -0600
+Subject: [PATCH] AST-2018-010: Fix length of buffer needed for SRV and NAPTR results
+
+When dn_expand was being called on SRV and NAPTR results, the
+return value was being used to calculate the size of the buffer
+needed to store the host names.  Since dn_expand returns the
+length of the COMPRESSED name the buffer could be too short
+to hold the EXPANDED name.  The expanded name is NULL terminated
+so using strlen() is the correct way to determine the length
+actually needed for the buffer.
+
+ASTERISK-28127
+Reported by: Jan Hoffmann
+
+patches:
+  patch.diff submitted by janhoffmann (license 6986)
+
+Change-Id: I4d35d6c431c6c6836cb61d37b1378cc47f0b414d
+---
+
+diff --git a/main/dns_naptr.c b/main/dns_naptr.c
+index 5490b55..4d67816 100644
+--- a/main/dns_naptr.c
++++ b/main/dns_naptr.c
+@@ -393,6 +393,7 @@
+ 	int replacement_size;
+ 	const char *end_of_record;
+ 	enum flags_result flags_res;
++	size_t naptr_len;
+ 
+ 	ptr = dns_find_record(data, size, query->result->answer, query->result->answer_size);
+ 	ast_assert(ptr != NULL);
+@@ -435,7 +436,14 @@
+ 		return NULL;
+ 	}
+ 
+-	replacement_size = dn_expand((unsigned char *)query->result->answer, (unsigned char *) end_of_record, (unsigned char *) ptr, replacement, sizeof(replacement) - 1);
++	/*
++	 * The return value from dn_expand represents the size of the replacement
++	 * in the buffer which MAY be compressed.  Since the expanded replacement
++	 * is NULL terminated, you can use strlen() to get the expanded size.
++	 */
++	replacement_size = dn_expand((unsigned char *)query->result->answer,
++		(unsigned char *) end_of_record, (unsigned char *) ptr,
++		replacement, sizeof(replacement) - 1);
+ 	if (replacement_size < 0) {
+ 		ast_log(LOG_ERROR, "Failed to expand domain name: %s\n", strerror(errno));
+ 		return NULL;
+@@ -475,7 +483,9 @@
+ 		return NULL;
+ 	}
+ 
+-	naptr = ast_calloc(1, sizeof(*naptr) + size + flags_size + 1 + services_size + 1 + regexp_size + 1 + replacement_size + 1);
++	naptr_len = sizeof(*naptr) + size + flags_size + 1 + services_size + 1
++		+ regexp_size + 1 + strlen(replacement) + 1;
++	naptr = ast_calloc(1, naptr_len);
+ 	if (!naptr) {
+ 		return NULL;
+ 	}
+diff --git a/main/dns_srv.c b/main/dns_srv.c
+index b562e32..e11c84e 100644
+--- a/main/dns_srv.c
++++ b/main/dns_srv.c
+@@ -73,7 +73,13 @@
+ 		return NULL;
+ 	}
+ 
+-	host_size = dn_expand((unsigned char *)query->result->answer, (unsigned char *) end_of_record, (unsigned char *) ptr, host, sizeof(host) - 1);
++	/*
++	 * The return value from dn_expand represents the size of the replacement
++	 * in the buffer which MAY be compressed.  Since the expanded replacement
++	 * is NULL terminated, you can use strlen() to get the expanded size.
++	 */
++	host_size = dn_expand((unsigned char *)query->result->answer,
++		(unsigned char *) end_of_record, (unsigned char *) ptr, host, sizeof(host) - 1);
+ 	if (host_size < 0) {
+ 		ast_log(LOG_ERROR, "Failed to expand domain name: %s\n", strerror(errno));
+ 		return NULL;
+@@ -83,7 +89,7 @@
+ 		return NULL;
+ 	}
+ 
+-	srv = ast_calloc(1, sizeof(*srv) + size + host_size + 1);
++	srv = ast_calloc(1, sizeof(*srv) + size + strlen(host) + 1);
+ 	if (!srv) {
+ 		return NULL;
+ 	}
+@@ -94,8 +100,6 @@
+ 
+ 	srv->host = srv->data + size;
+ 	strcpy((char *)srv->host, host); /* SAFE */
+-	((char *)srv->host)[host_size] = '\0';
+-
+ 	srv->generic.data_ptr = srv->data;
+ 
+ 	return (struct ast_dns_record *)srv;
