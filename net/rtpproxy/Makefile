@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
 PKG_VERSION:=2.1.0-20170914
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
@@ -64,13 +64,30 @@ TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Package/rtpproxy/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rtpproxy $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rtpproxy $(1)/usr/bin
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/rtpproxy.init $(1)/etc/init.d/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
+
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface
+endef
+
+define Package/rtpproxy/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| RTPProxy note                                                     |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Edit /etc/config/rtpproxy to change basic init configuration.     |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 define Package/rtpproxy-mod-acct-csv/install
