@@ -9,13 +9,17 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.6.20
-PKG_RELEASE:=9
+PKG_VERSION:=1.8.2
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=dbb0f73109171bd381772b247b8ef581f6a176964619082a1fe031b004086f6b
+PKG_SOURCE_URL := \
+	https://sources.openwrt.org/ \
+	https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
+PKG_HASH:=ebcf3db970ea9bb534c0983a1c9eef88395deb6e0902d8d6407bf217b2f27b9a
+
+PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
 
@@ -29,7 +33,7 @@ PKG_BUILD_DEPENDS:= \
 PKG_FIXUP:=autoreconf
 
 # With mod_ssml and mod_rayo enabled the parallel compiles always failed
-#PKG_BUILD_PARALLEL:=1
+PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -121,6 +125,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	event_test \
 	event_zmq \
 	expr \
+	fail2ban \
 	fifo \
 	format_cdr \
 	$(FTDM) \
@@ -160,6 +165,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	python \
 	radius_cdr \
 	random \
+	raven \
 	rayo \
 	redis \
 	rss \
@@ -203,9 +209,9 @@ FS_STABLE_MOD_AVAILABLE:= \
 	translate \
 	tts_commandline \
 	unimrcp \
-	v8 \
 	valet_parking \
 	verto \
+	video_filter \
 	vmd \
 	voicemail \
 	voicemail_ivr \
@@ -226,7 +232,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
-	CONFIG_FS_STABLE_WITH_V8_SNAPSHOT \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
@@ -395,7 +400,7 @@ endef
 
 define Package/$(PKG_NAME)/conffiles
 $(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)
-$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 $(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 endef
 
@@ -408,61 +413,42 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 	$(INSTALL_DIR) $(1)$(FS_STABLE_IMAGES_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SCRIPTS_DIR)
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SOUNDS_DIR)
-	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/default
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/config
+	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
 	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/init.d
 	$(INSTALL_DIR) $(1)$(FS_STABLE_TLS_DIR)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).init \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
-	$(INSTALL_CONF) ./files/$(PRG_NAME).default \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
+	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/90-$(PRG_NAME)
+	$(INSTALL_CONF) ./files/$(PRG_NAME).config \
+		$(1)$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 endef
 
 define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
-  # Prevent $(PRG_NAME) from auto-starting after an upgrade. The modules may
-  # not be upgraded yet and the user configuration may need a revision.
-  sed -i '/^ENABLE_FREESWITCH="yes"/s/^/#/' \
-    $(FS_STABLE_SYSCONF_DIR)/default/$(PRG_NAME)
-
   echo
   echo "o-------------------------------------------------------------------o"
   echo "| FreeSWITCH note                                                   |"
   echo "o-------------------------------------------------------------------o"
-  echo "| Edit /etc/default/freeswitch to change basic init configuration.  |"
+  echo "| Edit /etc/config/freeswitch to change basic init configuration.   |"
+  echo "|                                                                   |"
+  echo "| Also visit the Wiki at:                                           |"
+  echo "| https://openwrt.org/docs/guide-user/services/voip/freeswitch      |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
-fi
-exit 0
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug
-$(call Package/$(PKG_NAME)/Default)
-  TITLE:=Hotplug script
-  DEPENDS:=$(PKG_NAME)
-  PKGARCH:=all
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/description
-This package includes a hotplug script for FreeSWITCH.
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/install
-	$(INSTALL_DIR) $(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface
-	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
-		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/99-$(PRG_NAME)
-endef
-
-define Package/$(PKG_NAME)-misc-hotplug/postinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-  echo
-  echo "o-------------------------------------------------------------------o"
-  echo "| FreeSWITCH hotplug note                                           |"
-  echo "o-------------------------------------------------------------------o"
-  echo "| See /etc/default/freeswitch for hotplug hints.                    |"
-  echo "o-------------------------------------------------------------=^_^=-o"
-  echo
+  [ -f /etc/hotplug.d/iface/99-freeswitch ] && {
+    echo "o-------------------------------------------------------------------o"
+    echo "| WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING   |"
+    echo "o-------------------------------------------------------------------o"
+    echo "| Please remove freeswitch-stable-misc-hotplug. The hotplug script  |"
+    echo "| is now part of the main freeswitch-stable package. Please run:    |"
+    echo "|                                                                   |"
+    echo "| opkg remove freeswitch-stable-misc-hotplug                        |"
+    echo "o-------------------------------------------------------------=^_^=-o"
+    echo
+  }
 fi
 exit 0
 endef
@@ -686,12 +672,6 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-CONFIGURE_ARGS+= \
-	--enable-static-v8 \
-	$(if $(CONFIG_FS_STABLE_WITH_V8_SNAPSHOT),,--disable-snapshot-v8)
-endif
-
 # Make mod_spandsp use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -773,84 +753,6 @@ endif
 MAKE_VARS+= \
 	ac_cv_dev_urandom=yes
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-
-# arm
-ifeq ($(CONFIG_arm),y)
-  FS_STABLE_MYARCH:=arm
-  FS_STABLE_MYDEFINES:=v8_target_arch=arm
-  ifeq ($(CONFIG_arm_v6),y)
-    FS_STABLE_MYDEFINES+=arm_version=6
-  else
-    ifeq ($(CONFIG_arm_v7),y)
-      FS_STABLE_MYDEFINES+=arm_version=7
-    else
-      FS_STABLE_MYDEFINES+=arm_version=default
-    endif
-  endif
-  ifeq ($(CONFIG_VFP),y)
-    ifeq ($(CONFIG_VFPv3),y)
-      ifeq ($(CONFIG_NEON),y)
-        FS_STABLE_MYDEFINES+=arm_fpu=neon
-      else
-        FS_STABLE_MYDEFINES+=arm_fpu=vfpv3
-      endif
-    else
-      FS_STABLE_MYDEFINES+=arm_fpu=vfp
-    endif
-  else
-    FS_STABLE_MYDEFINES+=arm_fpu=default
-  endif
-  ifeq ($(CONFIG_SOFT_FLOAT),y)
-    FS_STABLE_MYDEFINES+=arm_float_abi=softfp
-  else
-    FS_STABLE_MYDEFINES+=arm_float_abi=hard
-  endif
-endif
-
-# i386
-ifeq ($(CONFIG_i386),y)
-  FS_STABLE_MYARCH:=ia32
-  FS_STABLE_MYDEFINES:=v8_target_arch=ia32
-endif
-
-# mipsel
-ifeq ($(CONFIG_mipsel),y)
-  FS_STABLE_MYARCH:=mipsel
-  FS_STABLE_MYDEFINES:=v8_target_arch=mipsel
-  ifeq ($(CONFIG_CPU_MIPS32),y)
-    ifeq ($(CONFIG_CPU_MIPS32_R2),y)
-      FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r2
-    else
-      ifeq ($(CONFIG_CPU_MIPS32_R1),y)
-        FS_STABLE_MYDEFINES+=mips_arch_variant=mips32r1
-      endif
-    endif
-  endif
-  ifeq ($(CONFIG_SOFT_FLOAT),y)
-    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=false
-  else
-    FS_STABLE_MYDEFINES+=v8_use_mips_abi_hardfloat=true
-  endif
-endif
-
-# x86_64
-ifeq ($(CONFIG_x86_64),y)
-  FS_STABLE_MYARCH:=x64
-  FS_STABLE_MYDEFINES:=v8_target_arch=x64
-endif
-
-MAKE_VARS+= \
-	FS_STABLE_HOSTCC="$(HOSTCC)" \
-	FS_STABLE_HOSTCXX="$(HOSTCXX)" \
-	FS_STABLE_HOST_CFLAGS="$(HOST_CFLAGS)" \
-	FS_STABLE_HOST_LDFLAGS="$(HOST_LDFLAGS)" \
-	FS_STABLE_HOST_PYTHONPATH="$(HOST_PYTHONPATH)" \
-	FS_STABLE_MYARCH="$(FS_STABLE_MYARCH)" \
-	FS_STABLE_MYDEFINES="$(FS_STABLE_MYDEFINES)"
-
-endif
-
 # Make sphinxbase use fixed point math when soft float support is
 # enabled on target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
@@ -878,12 +780,8 @@ FS_STABLE_SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 FS_STABLE_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
 
 # mod_radius_cdr
-FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.6.tar.gz
-FS_STABLE_FREERADIUS_CLIENT_HASH:=3fc609af328258e00345389d5478b099fe4ea3ad694d0472525ef3adab9cf053
-
-# mod_v8
-FS_STABLE_V8_FILE:=v8-3.24.14.tar.bz2
-FS_STABLE_V8_HASH:=395f4eaf5580b973b1e33fe0aa27f8d013ddf1b163ad76992c50dd91ff182828
+FS_STABLE_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.7.tar.gz
+FS_STABLE_FREERADIUS_CLIENT_HASH:=eada2861b8f4928e3ac6b5bbfe11e92cd6cdcacfce40cae1085e77c1b6add0e9
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-event-zmq),)
 $(eval $(call Download/files,zmq,$(FS_STABLE_ZEROMQ_FILE),$(FS_STABLE_ZEROMQ_URL),$(FS_STABLE_ZEROMQ_HASH)))
@@ -899,10 +797,6 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius-cdr),)
 $(eval $(call Download/files,freeradius-client,$(FS_STABLE_FREERADIUS_CLIENT_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_FREERADIUS_CLIENT_HASH)))
 endif
 
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-$(eval $(call Download/files,v8,$(FS_STABLE_V8_FILE),$(FS_STABLE_LIBS_URL),$(FS_STABLE_V8_HASH)))
-endif
-
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
 # FS_STABLE_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
@@ -911,8 +805,6 @@ FS_STABLE_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-
-	$(RM) -r $(PKG_BUILD_DIR)/libs/tiff-*
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
@@ -966,10 +858,6 @@ endif
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius-cdr),)
 	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-v8),)
-	$(CP) $(DL_DIR)/$(FS_STABLE_V8_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
 # Compile FreeTDM first
@@ -1032,7 +920,6 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_LIBFTDM)))
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-misc-hotplug))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-timezones))
@@ -1151,6 +1038,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,event_socket,Event socket,Sends events 
 $(eval $(call Package/$(PKG_NAME)/Module,event_test,Event test,Event demo module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,event_zmq,ZMQ event,ZMQ event module.,@!USE_UCLIBCXX))
 $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support for expression evaluation.,))
+$(eval $(call Package/$(PKG_NAME)/Module,fail2ban,Fail2ban logging,Provides support for Fail2ban logging.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
 $(eval $(call Package/$(PKG_NAME)/Module,$(FTDM),FreeTDM endpoint,This module is the glue between FreeSWITCH and FreeTDM.,+$(PKG_LIBFTDM)))
@@ -1190,6 +1078,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provide
 $(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
 $(eval $(call Package/$(PKG_NAME)/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
+$(eval $(call Package/$(PKG_NAME)/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rayo,Rayo,Rayo/XMPP 3PCC server for FreeSWITCH.,+$(PKG_NAME)-mod-ssml))
 $(eval $(call Package/$(PKG_NAME)/Module,redis,Redis limit backend,This module provides a mechanism to use Redis as a limit backend data\nstore.,))
 $(eval $(call Package/$(PKG_NAME)/Module,rss,RSS,Parses and reads XML based RSS feeds and reads the entries aloud via a TTS engine.,))
@@ -1233,9 +1122,9 @@ $(eval $(call Package/$(PKG_NAME)/Module,tone_stream,Tone stream,Tone generation
 $(eval $(call Package/$(PKG_NAME)/Module,translate,Number translation,This module implements number translation.,))
 $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
-$(eval $(call Package/$(PKG_NAME)/Module,v8,V8,This package contains mod_v8 for FreeSWITCH.,@!USE_UCLIBCXX @FS_STABLE_WITH_V8 @arm||i386||mipsel||x86_64))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
+$(eval $(call Package/$(PKG_NAME)/Module,video_filter,Video filter chromakey,This module provides a media bug for chromakey functionality.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail,Voicemail,This module provides a voicemail system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail_ivr,Voicemail IVR,This module provides an extensible voicemail IVR system.,))
