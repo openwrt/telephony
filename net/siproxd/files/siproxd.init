@@ -110,6 +110,7 @@ section_end() {
 	procd_set_param command "$PROG" --config "$conf_file"
 	procd_set_param pidfile "$pid_file"
 	procd_set_param respawn
+	procd_set_param stderr 1
 	procd_add_jail siproxd log
 	procd_add_jail_mount /etc/passwd /etc/group /etc/TZ /dev/null
 	procd_add_jail_mount "$conf_file"
