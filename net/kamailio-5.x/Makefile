@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.1.6
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL := \
 	https://sources.openwrt.org \
@@ -276,7 +276,7 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) \
 		./files/kamailio.hotplug \
-		$(1)/etc/hotplug.d/iface
+		$(1)/etc/hotplug.d/iface/99-kamailio
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/lib/kamailio/kamctl \
 		$(1)/usr/lib/kamailio/
