@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
 PKG_VERSION:=2.1.0-20170914
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
@@ -73,7 +73,7 @@ define Package/rtpproxy/install
 	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface/90-rtpproxy
 endef
 
 define Package/rtpproxy/postinst
