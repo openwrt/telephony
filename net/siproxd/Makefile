@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.2
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -39,7 +39,7 @@ define Package/siproxd
 endef
 
 define Package/siproxd/description
- Siproxd is a proxy/masquerading daemon for the SIP protocol.
+ Siproxd is a proxy/masquerading daemon for the SIP protocol. Refer to https://openwrt.org/docs/guide-user/services/voip/siproxd for configuration details and examples.
 endef
 
 define Package/siproxd/conffiles
