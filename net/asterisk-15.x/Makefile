@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk15
-PKG_VERSION:=15.6.1
-PKG_RELEASE:=2
+PKG_VERSION:=15.7.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=9cb86585fb4efcd86423fa7586e55d9d3c74fda43a2e0b1b9c9eb3742df73155
+PKG_HASH:=dbd33860b82fc36883eaa110f707f8c06345cbf2c1433d1c59247d4ae038fad9
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -273,6 +273,7 @@ MODULES_AVAILABLE:= \
 	res-pjproject \
 	res-pktccops \
 	res-realtime \
+	res-remb-modifier \
 	res-resolver-unbound \
 	res-rtp-asterisk \
 	res-rtp-multicast \
@@ -974,6 +975,7 @@ $(eval $(call BuildAsterisk15Module,res-pjsip-phoneprov,PJSIP Phone Provisioning
 $(eval $(call BuildAsterisk15Module,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
 $(eval $(call BuildAsterisk15Module,res-pktccops,PktcCOPS manager for MGCP,PacketCable MGCP variation / NCS,,res_pktccops.conf,res_pktccops,,))
 $(eval $(call BuildAsterisk15Module,res-realtime,RealTime CLI,RealTime CLI,,,res_realtime,,))
+$(eval $(call BuildAsterisk15Module,res-remb-modifier,REMB modifier,REMB modifier,,,res_remb_modifier,,))
 $(eval $(call BuildAsterisk15Module,res-resolver-unbound,Unbound DNS resolver,Unbound DNS resolver,+libunbound,resolver_unbound.conf,res_resolver_unbound,,))
 $(eval $(call BuildAsterisk15Module,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
 $(eval $(call BuildAsterisk15Module,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))

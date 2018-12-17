@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.7.2
-PKG_RELEASE:=3
+PKG_VERSION:=2.8
+PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
-PKG_HASH:=9c2c828abab7626edf18e04b041ef274bfaa86f99adf2c25ff56f1509e813772
+PKG_HASH:=503d0bd7f9f13dc1492ac9b71b761b1089851fbb608b9a13996edc3c42006f79
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
@@ -74,7 +74,6 @@ CONFIGURE_ARGS+= \
 	--disable-opencore-amr \
 	--disable-openh264 \
 	--disable-opus \
-	--disable-oss \
 	--disable-resample \
 	--disable-sdl \
 	--disable-silk \

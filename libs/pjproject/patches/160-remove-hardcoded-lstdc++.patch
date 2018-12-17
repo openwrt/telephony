@@ -1,6 +1,6 @@
 --- a/build.mak.in
 +++ b/build.mak.in
-@@ -293,7 +293,6 @@ export APP_LDLIBS := $(PJSUA_LIB_LDLIB)
+@@ -292,7 +292,6 @@ export APP_LDLIBS := $(PJSUA_LIB_LDLIB)
  	$(PJLIB_LDLIB) \
  	@LIBS@
  export APP_LDXXLIBS := $(PJSUA2_LIB_LDLIB) \
