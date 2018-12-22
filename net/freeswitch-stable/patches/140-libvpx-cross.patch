@@ -1,6 +1,6 @@
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -572,8 +572,13 @@ libs/libedit/src/.libs/libedit.a:
+@@ -577,8 +577,13 @@ libs/libedit/src/.libs/libedit.a:
  libs/libzrtp/libzrtp.a:
  	cd libs/libzrtp && $(MAKE)
  

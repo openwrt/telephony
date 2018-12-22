@@ -9,15 +9,15 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.8.2
-PKG_RELEASE:=2
+PKG_VERSION:=1.8.3
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL := \
 	https://sources.openwrt.org/ \
 	https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=ebcf3db970ea9bb534c0983a1c9eef88395deb6e0902d8d6407bf217b2f27b9a
+PKG_HASH:=327444f2f1f6ba68b268e81797a44522f44fff725ef53a7e7e5d58efdab54adb
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
