@@ -14,9 +14,7 @@ PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL := \
-	https://sources.openwrt.org/ \
-	https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
+PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
 PKG_HASH:=327444f2f1f6ba68b268e81797a44522f44fff725ef53a7e7e5d58efdab54adb
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
