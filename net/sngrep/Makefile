@@ -1,6 +1,5 @@
 #
-# Copyright (C) 2016 - 2018 Daniel Engberg <daniel.engberg.lists@pyret.net>
-# Copyright (C) 2018 OpenWrt.org
+# Copyright (C) 2016 Daniel Engberg <daniel.engberg.lists@pyret.net>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
