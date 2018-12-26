@@ -8,16 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
-PKG_VERSION:=2.11.1
-PKG_RELEASE:=3
+PKG_VERSION:=3.0.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-tools/releases
-PKG_HASH:=53ffeb333f3e44b0c88e5b17475cdbf87d3f652eb81a6422de76250c061e2909
+PKG_HASH:=5bebb20d5ae13fa13f0e2075603013954b962be477db02271eef44b3e41557c5
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Vittorio Gambaletta <openwrt@vittgam.net>
+
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -45,6 +47,8 @@ define Package/dahdi-tools-libtonezone
   CATEGORY:=Libraries
   TITLE:=DAHDI tonezone library
 endef
+
+CONFIGURE_ARGS+=--disable-silent-rules
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
