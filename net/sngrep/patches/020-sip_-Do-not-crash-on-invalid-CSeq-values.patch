@@ -1,0 +1,24 @@
+commit c474a2dd04df56ae8a28e3bf22a12c9b57155ce4
+Author: Liviu Chircu <liviu@opensips.org>
+Date:   Sat Dec 8 20:00:36 2018 +0200
+
+    sip: Do not crash on invalid CSeq values
+    
+    Bad CSeq headers such as:
+        CSeq: 115211521152 INVITE\r\n
+    
+    ... would immediately cause a crash.
+
+diff --git a/src/sip.c b/src/sip.c
+index a916558..1a7f1b9 100644
+--- a/src/sip.c
++++ b/src/sip.c
+@@ -192,7 +192,7 @@ sip_init(int limit, int only_calls, int no_incomplete)
+             "^(X-Call-ID|X-CID):[ ]*([^ ]+)[ ]*\r$", match_flags);
+     }
+     regcomp(&calls.reg_response, "^SIP/2.0[ ]*(([0-9]{3}) [^\r]*)[ ]*\r", match_flags & ~REG_NEWLINE);
+-    regcomp(&calls.reg_cseq, "^CSeq:[ ]*([0-9]+) .+\r$", match_flags);
++    regcomp(&calls.reg_cseq, "^CSeq:[ ]*([0-9]{1,10}) .+\r$", match_flags);
+     regcomp(&calls.reg_from, "^(From|f):[ ]*[^:]*:(([^@>]+)@?[^\r>;]+)", match_flags);
+     regcomp(&calls.reg_to, "^(To|t):[ ]*[^:]*:(([^@>]+)@?[^\r>;]+)", match_flags);
+     regcomp(&calls.reg_valid, "^([A-Z]+ [a-zA-Z]+:|SIP/2.0 [0-9]{3})", match_flags & ~REG_NEWLINE);
