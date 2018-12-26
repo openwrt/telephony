@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 - 2018 OpenWrt.org
+# Copyright (C) 2016 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
