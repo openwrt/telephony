@@ -50,15 +50,6 @@ endef
 
 CONFIGURE_ARGS+=--disable-silent-rules
 
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		HOSTCC="$(HOSTCC)" \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		CPPFLAGS="$(TARGET_CPPFLAGS)" \
-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune
-endef
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
