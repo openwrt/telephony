@@ -19,7 +19,11 @@ PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Vittorio Gambaletta <openwrt@vittgam.net>
 
+PKG_BUILD_PARALLEL:=1
+
 PKG_FIXUP:=autoreconf
+
+PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -52,30 +56,28 @@ CONFIGURE_ARGS+=--disable-silent-rules
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.a $(1)/usr/lib/
-
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.{a,so*} \
+		$(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/include/dahdi
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/tonezone.h $(1)/usr/include/dahdi/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/dahdi/tonezone.h \
+		$(1)/usr/include/dahdi/
 endef
 
 define Package/dahdi-cfg/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/dahdi_cfg $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_scan $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fxotune $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{dahdi_cfg,dahdi_scan,fxotune} \
+		$(1)/usr/sbin/
 endef
 
 define Package/dahdi-monitor/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_monitor $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_speed $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_test $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{dahdi_monitor,dahdi_speed,dahdi_test} \
+		$(1)/usr/sbin/
 endef
 
 define Package/dahdi-tools-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,dahdi-cfg))
