@@ -1,0 +1,35 @@
+commit 604f6d0ce2ec42ac494d76c95e68850ea6e7da8f
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Sun Nov 4 16:58:00 2018 +0100
+
+    capture: fix typo in FILE object
+    
+    FILE *fstdin is defined, but when calling freopen() stdin is used instead
+    of fstdin.
+    
+    This causes the compile to fail:
+    
+      CC       sngrep-capture.o
+    capture.c: In function 'capture_offline':
+    capture.c:194:21: error: assignment of read-only variable 'stdin'
+             if (!(stdin = freopen("/dev/tty", "r", stdin))) {
+                         ^
+    make[5]: *** [Makefile:519: sngrep-capture.o] Error 1
+    
+    This commit fixes the typo.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/src/capture.c b/src/capture.c
+index 911c35f..a799413 100644
+--- a/src/capture.c
++++ b/src/capture.c
+@@ -191,7 +191,7 @@ capture_offline(const char *infile, const char *outfile)
+ 
+     // Reopen tty for ncurses after pcap have used stdin
+     if (!strncmp(infile, "/dev/stdin", 10)) {
+-        if (!(stdin = freopen("/dev/tty", "r", stdin))) {
++        if (!(fstdin = freopen("/dev/tty", "r", stdin))) {
+             fprintf(stderr, "Failed to reopen tty while using stdin for capture.");
+             return 1;
+         }
