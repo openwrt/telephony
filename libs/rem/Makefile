@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010-2018 OpenWrt.org
+# Copyright (C) 2010-2017 OpenWrt.org
 # Copyright (C) 2010 Alfred E. Heggestad
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
-PKG_VERSION:=0.5.3
+PKG_VERSION:=0.6.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=9f98a79947d4709282a5791ac30f0eda03d5d34086f36df74bff4f8aac0e8050
+PKG_HASH:=417620da3986461598aef327c782db87ec3dd02c534701e68f4c255e54e5272c
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
