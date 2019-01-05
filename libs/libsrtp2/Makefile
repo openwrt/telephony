@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp2
-PKG_VERSION:=2.1.0
+PKG_VERSION:=2.2.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/cisco/libsrtp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=93aba3e767502343c255fad8962dbf0ff29c4ca6
-PKG_MIRROR_HASH:=e060592d99e0dff53ee6fbc5e8a9cb0f7fb8b1b874d4687292fb8c8e5f612a6b
+PKG_SOURCE_VERSION:=94ac00d5ac6409e3f6409e4a5edfcdbdaa7fdabe
+PKG_MIRROR_HASH:=0429edcddfe9d36ee47eb221384c528bbe31ee9255e216f9755641c7b6083457
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -32,7 +32,7 @@ define Package/libsrtp2
   CATEGORY:=Libraries
   TITLE:=Secure RTP (SRTP) library, v$(PKG_VERSION)
   URL:=http://sourceforge.net/projects/srtp
-  DEPENDS:=+libpcap
+  DEPENDS:=
 endef
 
 define Package/libsrtp2/description
