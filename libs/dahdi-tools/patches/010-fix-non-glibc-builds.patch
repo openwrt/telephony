@@ -1,0 +1,26 @@
+--- a/xpp/xtalk/debug.c
++++ b/xpp/xtalk/debug.c
+@@ -26,7 +26,9 @@
+ #include <stdlib.h>
+ #include <stdarg.h>
+ #include <syslog.h>
++#ifdef __GLIBC__
+ #include <execinfo.h>
++#endif
+ #include <xtalk/debug.h>
+ #include <autoconfig.h>
+ 
+@@ -61,6 +63,7 @@ void dump_packet(int loglevel, int mask,
+ /* from glibc info(1) */
+ void print_backtrace(FILE *fp)
+ {
++#ifdef __GLIBC__
+ 	void	*array[10];
+ 	size_t	size;
+ 	char	**strings;
+@@ -71,4 +74,5 @@ void print_backtrace(FILE *fp)
+ 	for (i = 0; i < size; i++)
+ 		fprintf(fp, "%s\n", strings[i]);
+ 	free(strings);
++#endif
+ }

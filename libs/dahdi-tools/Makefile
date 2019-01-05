@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2014 - 2018 OpenWrt.org
+# Copyright (C) 2014 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,16 +8,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
-PKG_VERSION:=2.11.1
-PKG_RELEASE:=3
+PKG_VERSION:=3.0.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-tools/releases
-PKG_HASH:=53ffeb333f3e44b0c88e5b17475cdbf87d3f652eb81a6422de76250c061e2909
+PKG_HASH:=5bebb20d5ae13fa13f0e2075603013954b962be477db02271eef44b3e41557c5
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Vittorio Gambaletta <openwrt@vittgam.net>
+
+PKG_BUILD_PARALLEL:=1
+
+PKG_FIXUP:=autoreconf
+
+PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -46,41 +52,32 @@ define Package/dahdi-tools-libtonezone
   TITLE:=DAHDI tonezone library
 endef
 
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		HOSTCC="$(HOSTCC)" \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		CPPFLAGS="$(TARGET_CPPFLAGS)" \
-		dahdi_cfg dahdi_monitor dahdi_scan dahdi_speed dahdi_test fxotune
-endef
+CONFIGURE_ARGS+=--disable-silent-rules
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.so* $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/.libs/*.a $(1)/usr/lib/
-
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.{a,so*} \
+		$(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/include/dahdi
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/tonezone.h $(1)/usr/include/dahdi/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/dahdi/tonezone.h \
+		$(1)/usr/include/dahdi/
 endef
 
 define Package/dahdi-cfg/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/dahdi_cfg $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_scan $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fxotune $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{dahdi_cfg,dahdi_scan,fxotune} \
+		$(1)/usr/sbin/
 endef
 
 define Package/dahdi-monitor/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_monitor $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_speed $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dahdi_test $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{dahdi_monitor,dahdi_speed,dahdi_test} \
+		$(1)/usr/sbin/
 endef
 
 define Package/dahdi-tools-libtonezone/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/.libs/libtonezone.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtonezone.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,dahdi-cfg))
