@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-g72x
-PKG_VERSION:=1.4.2
+PKG_VERSION:=1.4.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-g72x-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://asterisk.hosting.lv/src/
-PKG_HASH:=0c6cb1a61d408c882ce3fe10db4d467407ce3863f672a91aa7d3aea082a23fbc
+PKG_HASH:=ffea55374c2134415569b876a68d9a12ce376146a22fad3963c8edc281052adf
 
 PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-g72x-$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
