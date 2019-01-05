@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 - 2018 OpenWrt.org
+# Copyright (C) 2016 OpenWrt.org
 # Copyright (C) 2016 Cesnet, z.s.p.o.
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -9,14 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chan-sccp
-PKG_VERSION:=v4.3.0-20180322
-PKG_RELEASE:=2
+PKG_VERSION:=v4.3.1-20181225
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=69fdf95837727c104f2394644bd21f83c2e4a4a3
-PKG_MIRROR_HASH:=fa755b5d8186b3baac99c93dc13e493b67c5054d114fcbef0ee93d18df5b6fcd
+PKG_SOURCE_VERSION:=614fc3e7514c56b233431f92b87e6cf211f5d925
+PKG_MIRROR_HASH:=9c56a5b9d0768bd79e5c2cc1c4704ffbbbe9c6d2a2f8d994ff145143d4814fda
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
