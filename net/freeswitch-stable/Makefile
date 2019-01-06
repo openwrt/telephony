@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 - 2018 OpenWrt.org
+# Copyright (C) 2017 Sebastian Kemper <sebastian_ml@gmx.net>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,15 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.8.2
+PKG_VERSION:=1.8.4
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL := \
-	https://sources.openwrt.org/ \
-	https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=ebcf3db970ea9bb534c0983a1c9eef88395deb6e0902d8d6407bf217b2f27b9a
+PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
+PKG_HASH:=768f4a7f2d02e79f522cd4b7a26f6cef9e5663b5ac6478b9fe4725a7276ae3d3
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
