@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2017 - 2018 OpenWrt.org
-# Copyright (C) 2017 - 2018 Jiri Slachta
+# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 Jiri Slachta
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
