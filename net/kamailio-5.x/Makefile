@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2017 - 2018 OpenWrt.org
-# Copyright (C) 2017 - 2018 Jiri Slachta
+# Copyright (C) 2017 OpenWrt.org
+# Copyright (C) 2017 Jiri Slachta
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,14 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.1.6
-PKG_RELEASE:=2
+PKG_VERSION:=5.2.1
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL := \
-	https://sources.openwrt.org \
-	https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
+PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=99880df20dd836e4d9ec03fe863f7a5fc77bb29e3d56f59ea92b8b986deb5186
+PKG_HASH:=95d2158f97c76124a381364d99de1420f193275c5a1c9f88489c6409702f2c8f
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -29,10 +27,13 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 MODULES_AVAILABLE:= \
 	acc \
 	acc_diameter \
+	acc_json \
 	alias_db \
 	app_jsdt \
 	app_lua \
 	app_python \
+	app_python3 \
+	app_ruby \
 	app_sqlang \
 	async \
 	auth \
@@ -67,6 +68,7 @@ MODULES_AVAILABLE:= \
 	db_flatstore \
 	db_mysql \
 	db_postgres \
+	db_redis \
 	db_sqlite \
 	db_text \
 	db_unixodbc \
@@ -96,6 +98,7 @@ MODULES_AVAILABLE:= \
 	ims_dialog \
 	ims_diameter_server \
 	ims_icscf \
+	ims_ipsec_pcscf \
 	ims_isc \
 	ims_ocs \
 	ims_qos \
@@ -145,6 +148,7 @@ MODULES_AVAILABLE:= \
 	pua \
 	pua_bla \
 	pua_dialoginfo \
+	pua_json \
 	pua_reginfo \
 	pua_rpc \
 	pua_usrloc \
@@ -453,10 +457,13 @@ $(eval $(call BuildPackage,kamailio5-util-kambdb-recover))
 
 $(eval $(call BuildKamailio5Module,acc,Accounting,,+kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,acc_diameter,Accounting for DIAMETER backend,,+kamailio5-mod-acc))
+$(eval $(call BuildKamailio5Module,acc_json,Accounting with records exported in JSON format,,+jansson +kamailio5-mod-acc))
 $(eval $(call BuildKamailio5Module,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailio5Module,app_jsdt,Execute JavaScript scripts,,))
 $(eval $(call BuildKamailio5Module,app_lua,Execute embedded Lua scripts,,+liblua))
 $(eval $(call BuildKamailio5Module,app_python,Execute Python scripts,,+python-light))
+$(eval $(call BuildKamailio5Module,app_python3,Python3 scripting interpreter,,@BROKEN +python3-light))
+$(eval $(call BuildKamailio5Module,app_ruby,Ruby scripting interpreter,,+libruby))
 $(eval $(call BuildKamailio5Module,app_sqlang,Execute Squirrel language scripts,,+libstdcpp))
 $(eval $(call BuildKamailio5Module,async,Asynchronous SIP handling functions,,+kamailio5-mod-tm +kamailio5-mod-tmx))
 $(eval $(call BuildKamailio5Module,auth,Authentication Framework,,))
@@ -491,6 +498,7 @@ $(eval $(call BuildKamailio5Module,db_cluster,Database clustering system,,))
 $(eval $(call BuildKamailio5Module,db_flatstore,fast write-only text DB-backend,,))
 $(eval $(call BuildKamailio5Module,db_mysql,MySQL DB-backend,,+libmysqlclient,mysql))
 $(eval $(call BuildKamailio5Module,db_postgres,PostgreSQL DB-backend,,+libpq,postgres))
+$(eval $(call BuildKamailio5Module,db_redis,Database backend with Redis server,,+libhiredis,db_redis))
 $(eval $(call BuildKamailio5Module,db_sqlite,SQLite DB-backend,,+libsqlite3,db_sqlite))
 $(eval $(call BuildKamailio5Module,db_text,Text DB-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailio5Module,db_unixodbc,UnixODBC DB-backend,,+unixodbc))
@@ -520,6 +528,7 @@ $(eval $(call BuildKamailio5Module,ims_charging,IMS charging component module,,+
 $(eval $(call BuildKamailio5Module,ims_dialog,IMS dialog tracking module,,+kamailio5-mod-rr +kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,ims_diameter_server,IMS DIAMETER server module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
 $(eval $(call BuildKamailio5Module,ims_icscf,IMS ICSCF component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-sl +kamailio5-mod-tm))
+$(eval $(call BuildKamailio5Module,ims_ipsec_pcscf,Diameter server implementation,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-ims-usrloc-pcscf +kamailio5-mod-tm +libmnl))
 $(eval $(call BuildKamailio5Module,ims_isc,IMS ISC component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-ims-usrloc-scscf +kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,ims_ocs,MS OCS component module,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp))
 $(eval $(call BuildKamailio5Module,ims_qos,IMS Diameter Rx interface between PCSCF and PCRF functions,,+kamailio5-lib-libkamailio-ims +kamailio5-mod-cdp +kamailio5-mod-cdp-avp +kamailio5-mod-ims-dialog +kamailio5-mod-ims-usrloc-pcscf +kamailio5-mod-tm))
@@ -569,6 +578,7 @@ $(eval $(call BuildKamailio5Module,presence_xml,XCAP presence,,+kamailio5-mod-pr
 $(eval $(call BuildKamailio5Module,pua,Presence User Agent,,+kamailio5-mod-tm +libxml2))
 $(eval $(call BuildKamailio5Module,pua_bla,Bridged Line Appearence PUA,,+kamailio5-mod-presence +kamailio5-mod-pua +kamailio5-mod-usrloc))
 $(eval $(call BuildKamailio5Module,pua_dialoginfo,Dialog Event PUA,,+kamailio5-mod-dialog +kamailio5-mod-pua))
+$(eval $(call BuildKamailio5Module,pua_json,Presence user agent implementation with JSON messages,,+libjson-c))
 $(eval $(call BuildKamailio5Module,pua_reginfo,PUA registration info,,+kamailio5-mod-pua +kamailio5-mod-usrloc))
 $(eval $(call BuildKamailio5Module,pua_rpc,RPC extensions for PUA,,+kamailio5-mod-pua))
 $(eval $(call BuildKamailio5Module,pua_usrloc,PUA User Location,,+kamailio5-mod-pua +kamailio5-mod-usrloc))
