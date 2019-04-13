@@ -44,21 +44,39 @@ endef
 
 define Package/asterisk13-chan-sccp
 $(call Package/chan-sccp/Default)
-  DEPENDS+=asterisk13
+  DEPENDS += asterisk13 \
+	  +asterisk13-bridge-holding \
+	  +asterisk13-bridge-native-rtp \
+	  +asterisk13-bridge-simple \
+	  +asterisk13-bridge-softmix \
+	  +asterisk13-res-stasis-device-state \
+	  +asterisk13-voicemail
   VARIANT:=asterisk13
   CONFLICTS:=asterisk13-chan-skinny
 endef
 
 define Package/asterisk15-chan-sccp
 $(call Package/chan-sccp/Default)
-  DEPENDS+=asterisk15
+  DEPENDS += asterisk15 \
+	  +asterisk15-bridge-holding \
+	  +asterisk15-bridge-native-rtp \
+	  +asterisk15-bridge-simple \
+	  +asterisk15-bridge-softmix \
+	  +asterisk15-res-stasis-device-state \
+	  +asterisk15-voicemail
   VARIANT:=asterisk15
   CONFLICTS:=asterisk15-chan-skinny
 endef
 
 define Package/asterisk16-chan-sccp
 $(call Package/chan-sccp/Default)
-  DEPENDS+=asterisk16
+  DEPENDS += asterisk16 \
+	  +asterisk16-bridge-holding \
+	  +asterisk16-bridge-native-rtp \
+	  +asterisk16-bridge-simple \
+	  +asterisk16-bridge-softmix \
+	  +asterisk16-res-stasis-device-state \
+	  +asterisk16-voicemail
   VARIANT:=asterisk16
   CONFLICTS:=asterisk16-chan-skinny
 endef
