@@ -56,6 +56,13 @@ $(call Package/chan-sccp/Default)
   CONFLICTS:=asterisk15-chan-skinny
 endef
 
+define Package/asterisk16-chan-sccp
+$(call Package/chan-sccp/Default)
+  DEPENDS+=asterisk16
+  VARIANT:=asterisk16
+  CONFLICTS:=asterisk16-chan-skinny
+endef
+
 define Package/description/Default
 Replacement for the SCCP channel driver (chan_skinny) in Asterisk.
 Extended features include shared lines, presence / BLF, customizable
@@ -64,6 +71,7 @@ endef
 
 Package/asterisk13-chan-sccp/description = $(Package/description/Default)
 Package/asterisk15-chan-sccp/description = $(Package/description/Default)
+Package/asterisk16-chan-sccp/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
 	--disable-debug \
@@ -79,12 +87,17 @@ ifeq ($(BUILD_VARIANT),asterisk15)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-15
 endif
 
+ifeq ($(BUILD_VARIANT),asterisk16)
+  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-16
+endif
+
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
 endef
 
 Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk15-chan-sccp/conffiles = $(Package/conffiles/Default)
+Package/asterisk16-chan-sccp/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -95,6 +108,8 @@ endef
 
 Package/asterisk13-chan-sccp/install = $(Package/Install/Default)
 Package/asterisk15-chan-sccp/install = $(Package/Install/Default)
+Package/asterisk16-chan-sccp/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk13-chan-sccp))
 $(eval $(call BuildPackage,asterisk15-chan-sccp))
+$(eval $(call BuildPackage,asterisk16-chan-sccp))
