@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
 PKG_VERSION:=0.4.12
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -95,11 +95,6 @@ define Package/restund/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
   chown $(PKG_NAME):$(PKG_NAME) /etc/restund.conf
-
-  # Prevent $(PKG_NAME) from auto-starting after an upgrade. The modules may
-  # not be upgraded yet and the user configuration may need a revision.
-  sed -i '/^ENABLE_RESTUND="yes"/s/^/#/' \
-    /etc/default/$(PKG_NAME)
 fi
 exit 0
 endef
