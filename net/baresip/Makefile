@@ -124,6 +124,8 @@ define Package/baresip/install
 	$(INSTALL_DIR) $(1)/usr/share/baresip
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/baresip/* $(1)/usr/share/baresip
 	$(INSTALL_DIR) $(1)/etc/baresip
+	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/docs/examples/accounts
+	$(SED) '/^#module_path/s|^#||;s|/local||' $(PKG_BUILD_DIR)/docs/examples/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/docs/examples/{accounts,config,contacts} $(1)/etc/baresip
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_CONF) ./files/baresip.default $(1)/etc/default/baresip
