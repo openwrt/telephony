@@ -146,11 +146,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
     /etc/baresip/accounts \
     /etc/baresip/config \
     /etc/baresip/contacts
-
-  # Prevent $(PKG_NAME) from auto-starting after an upgrade. The modules may
-  # not be upgraded yet and the user configuration may need a revision.
-  sed -i '/^ENABLE_BARESIP="yes"/s/^/#/' \
-    /etc/default/$(PKG_NAME)
 fi
 exit 0
 endef
