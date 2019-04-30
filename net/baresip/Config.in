@@ -3,7 +3,7 @@ menu "bareSIP configuration"
 
 config BARESIP_WITH_FFMPEG
 	bool "Compile with FFmpeg support"
-	default y if (i386||x86_64)
+	default y if (x86_64)
 	help
 	  The sole purpose of this symbol is to prevent that the bareSIP
 	  video modules, the ones which depend on FFmpeg, are built by
