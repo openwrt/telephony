@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
 PKG_VERSION:=$(AST_MAJOR_VERSION).3.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -443,6 +443,7 @@ $(call Package/$(PKG_NAME)/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
   DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  USERID:=asterisk=385:asterisk=385
 endef
 
 define Package/$(PKG_NAME)/description
@@ -471,7 +472,7 @@ define Package/$(PKG_NAME)/conffiles
 /etc/asterisk/stasis.conf
 /etc/asterisk/udptl.conf
 /etc/asterisk/users.conf
-/etc/default/asterisk
+/etc/config/asterisk
 /etc/init.d/asterisk
 endef
 
@@ -495,10 +496,10 @@ $(call Package/$(PKG_NAME)/install/sbin,$(1),astgenkey)
 $(foreach m,$(AST_CFG_FILES),$(call Package/$(PKG_NAME)/install/conffile,$(1),$(m));)
 $(foreach m,$(AST_EMB_MODULES),$(call Package/$(PKG_NAME)/install/module,$(1),$(m));)
 	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
-	$(INSTALL_DIR) $(1)/etc/default
-	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
+	$(INSTALL_CONF) ./files/asterisk.config $(1)/etc/config/asterisk
 endef
 
 define Package/$(PKG_NAME)-sounds
