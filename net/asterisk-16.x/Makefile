@@ -1,0 +1,1037 @@
+#
+# Copyright (C) 2017 - 2018 Jiri Slachta <jiri@slachta.eu>
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
+
+include $(TOPDIR)/rules.mk
+
+AST_MAJOR_VERSION:=16
+PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
+PKG_VERSION:=$(AST_MAJOR_VERSION).3.0
+PKG_RELEASE:=1
+
+PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
+PKG_HASH:=8b22ee7c0c0b5557eff273118703c6fce8b743c12bbeb679ed86b3f197444a8e
+
+PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
+PKG_BUILD_DEPENDS:=libxml2/host
+
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=COPYING LICENSE
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
+
+MENUSELECT_CATEGORIES:= \
+	MENUSELECT_ADDONS \
+	MENUSELECT_APPS \
+	MENUSELECT_BRIDGES \
+	MENUSELECT_CDR \
+	MENUSELECT_CEL \
+	MENUSELECT_CHANNELS \
+	MENUSELECT_CODECS \
+	MENUSELECT_FORMATS \
+	MENUSELECT_FUNCS \
+	MENUSELECT_PBX \
+	MENUSELECT_RES \
+	MENUSELECT_UTILS \
+	MENUSELECT_AGIS
+
+MODULES_AVAILABLE:= \
+	app-adsiprog \
+	app-agent-pool \
+	app-alarmreceiver \
+	app-amd \
+	app-authenticate \
+	app-bridgeaddchan \
+	app-bridgewait \
+	app-celgenuserevent \
+	app-chanisavail \
+	app-channelredirect \
+	app-chanspy \
+	app-confbridge \
+	app-controlplayback \
+	app-dahdiras \
+	app-dictate \
+	app-directed-pickup \
+	app-directory \
+	app-disa \
+	app-dumpchan \
+	app-exec \
+	app-externalivr \
+	app-festival \
+	app-flash \
+	app-followme \
+	app-getcpeid \
+	app-ices \
+	app-image \
+	app-ivrdemo \
+	app-milliwatt \
+	app-minivm \
+	app-mixmonitor \
+	app-morsecode \
+	app-mp3 \
+	app-originate \
+	app-page \
+	app-playtones \
+	app-privacy \
+	app-queue \
+	app-read \
+	app-readexten \
+	app-record \
+	app-saycounted \
+	app-sayunixtime \
+	app-senddtmf \
+	app-sendtext \
+	app-skel \
+	app-sms \
+	app-softhangup \
+	app-speech \
+	app-stack \
+	app-stasis \
+	app-statsd \
+	app-stream-echo \
+	app-system \
+	app-talkdetect \
+	app-test \
+	app-transfer \
+	app-url \
+	app-userevent \
+	app-verbose \
+	app-waitforring \
+	app-waitforsilence \
+	app-waituntil \
+	app-while \
+	app-zapateller \
+	bridge-builtin-features \
+	bridge-builtin-interval-features \
+	bridge-holding \
+	bridge-native-rtp \
+	bridge-simple \
+	bridge-softmix \
+	cdr \
+	cdr-csv \
+	cdr-sqlite3 \
+	cel-custom \
+	cel-manager \
+	cel-sqlite3-custom \
+	chan-alsa \
+	chan-bridge-media \
+	chan-console \
+	chan-dahdi \
+	chan-iax2 \
+	chan-mgcp \
+	chan-mobile \
+	chan-motif \
+	chan-ooh323 \
+	chan-oss \
+	chan-phone \
+	chan-rtp \
+	chan-sip \
+	chan-skinny \
+	chan-unistim \
+	codec-a-mu \
+	codec-adpcm \
+	codec-alaw \
+	codec-dahdi \
+	codec-g722 \
+	codec-g726 \
+	codec-gsm \
+	codec-ilbc \
+	codec-lpc10 \
+	codec-resample \
+	codec-speex \
+	codec-ulaw \
+	curl \
+	format-g719 \
+	format-g723 \
+	format-g726 \
+	format-g729 \
+	format-gsm \
+	format-h263 \
+	format-h264 \
+	format-ilbc \
+	format-mp3 \
+	format-ogg-speex \
+	format-ogg-vorbis \
+	format-pcm \
+	format-siren14 \
+	format-siren7 \
+	format-sln \
+	format-vox \
+	format-wav \
+	format-wav-gsm \
+	func-aes \
+	func-base64 \
+	func-blacklist \
+	func-callcompletion \
+	func-channel \
+	func-config \
+	func-cut \
+	func-db \
+	func-devstate \
+	func-dialgroup \
+	func-dialplan \
+	func-enum \
+	func-env \
+	func-extstate \
+	func-frame-trace \
+	func-global \
+	func-groupcount \
+	func-hangupcause \
+	func-holdintercept \
+	func-iconv \
+	func-jitterbuffer \
+	func-lock \
+	func-math \
+	func-md5 \
+	func-module \
+	func-periodic-hook \
+	func-pitchshift \
+	func-presencestate \
+	func-rand \
+	func-realtime \
+	func-sha1 \
+	func-shell \
+	func-sorcery \
+	func-speex \
+	func-sprintf \
+	func-srv \
+	func-sysinfo \
+	func-talkdetect \
+	func-uri \
+	func-version \
+	func-vmcount \
+	func-volume \
+	odbc \
+	pbx-ael \
+	pbx-dundi \
+	pbx-loopback \
+	pbx-lua \
+	pbx-realtime \
+	pbx-spool \
+	pgsql \
+	pjsip \
+	res-adsi \
+	res-ael-share \
+	res-agi \
+	res-ari \
+	res-ari-applications \
+	res-ari-asterisk \
+	res-ari-bridges \
+	res-ari-channels \
+	res-ari-device-states \
+	res-ari-endpoints \
+	res-ari-events \
+	res-ari-mailboxes \
+	res-ari-model \
+	res-ari-playbacks \
+	res-ari-recordings \
+	res-ari-sounds \
+	res-calendar \
+	res-calendar-caldav \
+	res-calendar-ews \
+	res-calendar-exchange \
+	res-calendar-icalendar \
+	res-chan-stats \
+	res-clialiases \
+	res-clioriginate \
+	res-config-ldap \
+	res-config-mysql \
+	res-config-sqlite3 \
+	res-convert \
+	res-endpoint-stats \
+	res-hep \
+	res-hep-pjsip \
+	res-hep-rtcp \
+	res-fax-spandsp \
+	res-fax \
+	res-format-attr-celt \
+	res-format-attr-g729 \
+	res-format-attr-h263 \
+	res-format-attr-h264 \
+	res-format-attr-ilbc \
+	res-format-attr-opus \
+	res-format-attr-silk \
+	res-format-attr-siren14 \
+	res-format-attr-siren7 \
+	res-format-attr-vp8 \
+	res-http-media-cache \
+	res-http-websocket \
+	res-limit \
+	res-manager-devicestate \
+	res-manager-presencestate \
+	res-monitor \
+	res-musiconhold \
+	res-mutestream \
+	res-mwi-devstate \
+	res-mwi-external \
+	res-mwi-external-ami \
+	res-parking \
+	res-phoneprov \
+	res-pjsip-phoneprov \
+	res-pjproject \
+	res-pktccops \
+	res-realtime \
+	res-remb-modifier \
+	res-resolver-unbound \
+	res-rtp-asterisk \
+	res-rtp-multicast \
+	res-security-log \
+	res-smdi \
+	res-snmp \
+	res-sorcery \
+	res-sorcery-memory-cache \
+	res-speech \
+	res-srtp \
+	res-stasis \
+	res-stasis-answer \
+	res-stasis-device-state \
+	res-stasis-mailbox \
+	res-stasis-playback \
+	res-stasis-recording \
+	res-stasis-snoop \
+	res-statsd \
+	res-stun-monitor \
+	res-timing-dahdi \
+	res-timing-pthread \
+	res-timing-timerfd \
+	res-xmpp \
+	voicemail
+
+UTILS_AVAILABLE:= \
+	aelparse \
+	astcanary \
+	astdb2sqlite3 \
+	astdb2bdb \
+	check_expr \
+	check_expr2 \
+	conf2ael \
+	muted \
+	smsq \
+	stereorize \
+	streamplayer
+
+AST_ENABLE:=
+
+PKG_CONFIG_DEPENDS:= \
+	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(MODULES_AVAILABLE)) \
+	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(subst _,-,$(UTILS_AVAILABLE))) \
+	CONFIG_ASTERISK$(AST_MAJOR_VERSION)_LOW_MEMORY
+
+include $(INCLUDE_DIR)/uclibc++.mk
+include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
+# Needed for res-config-mysql and func-iconv to find iconv
+include $(INCLUDE_DIR)/nls.mk
+
+define Package/$(PKG_NAME)/install/module
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/*$(2).so* $(1)/usr/lib/asterisk/modules/
+endef
+
+define Package/$(PKG_NAME)/install/conffile
+	$(INSTALL_DIR) $(1)/etc/asterisk
+	$(CP) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
+endef
+
+define Package/$(PKG_NAME)/install/lib
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(2).so* $(1)/usr/lib/
+endef
+
+define Package/$(PKG_NAME)/install/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/$(2) $(1)/usr/sbin/
+endef
+
+define Package/$(PKG_NAME)/install/sounds
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/$(2) $(1)/usr/share/asterisk/sounds/
+endef
+
+define Package/$(PKG_NAME)/install/util-conffile
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
+endef
+
+define Package/$(PKG_NAME)/config
+	menu "Advanced configuration"
+		depends on PACKAGE_asterisk$(AST_MAJOR_VERSION)
+
+	config ASTERISK$(AST_MAJOR_VERSION)_LOW_MEMORY
+		bool "Optimize Asterisk $(AST_MAJOR_VERSION) for low memory usage"
+		default n
+		help
+		  Warning: this feature is known to cause problems with some modules.
+		  Disable it if you experience problems like segmentation faults.
+
+	endmenu
+endef
+
+define BuildAsteriskModule
+  define Package/$(PKG_NAME)-$(1)
+  $$(call Package/$(PKG_NAME)/Default)
+    TITLE:=$(2) support
+    DEPENDS:= $(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-$(1):%,$(4)) $(9)
+    ifneq ($$(CONFIG_PACKAGE_$(PKG_NAME)-$(1)),)
+    AST_ENABLE+=$(6)
+    endif
+  endef
+
+  define Package/$(PKG_NAME)-$(1)/conffiles
+$(subst $(space),$(newline),$(foreach c,$(5),/etc/asterisk/$(c)))
+  endef
+
+  define Package/$(PKG_NAME)-$(1)/description
+This package provides support for '$(3)' in Asterisk.
+  endef
+
+  define Package/$(PKG_NAME)-$(1)/install
+$(foreach c,$(5),$(call Package/$(PKG_NAME)/install/conffile,$$(1),$(c));)
+$(foreach m,$(6),$(call Package/$(PKG_NAME)/install/module,$$(1),$(m));)
+$(foreach s,$(7),$(call Package/$(PKG_NAME)/install/sounds,$$(1),$(s));)
+$(foreach b,$(8),$(call Package/$(PKG_NAME)/install/sbin,$$(1),$(b));)
+  endef
+
+  $$(eval $$(call BuildPackage,$(PKG_NAME)-$(1)))
+endef
+
+define BuildAsteriskUtil
+  define Package/$(PKG_NAME)-util-$(subst _,-,$(1))
+  $$(call Package/$(PKG_NAME)/Default)
+    TITLE:=$(1) utility
+    DEPENDS:=$(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-util-$(subst _,-,$(1)):%,$(3))
+    ifneq ($$(CONFIG_PACKAGE_$(PKG_NAME)-util-$(subst _,-,$(1))),)
+    AST_ENABLE+=$(1)
+    endif
+  endef
+
+  define Package/$(PKG_NAME)-util-$(subst _,-,$(1))/conffiles
+$(subst $(space),$(newline),$(foreach c,$(4),/etc/$(c)))
+  endef
+
+  define Package/$(PKG_NAME)-util-$(subst _,-,$(1))/description
+$(2)
+  endef
+
+  define Package/$(PKG_NAME)-util-$(subst _,-,$(1))/install
+$(call Package/$(PKG_NAME)/install/sbin,$$(1),$(1))
+$(foreach c,$(4),$(call Package/$(PKG_NAME)/install/util-conffile,$$(1),$(c));)
+  endef
+
+  $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(subst _,-,$(1))))
+endef
+
+define Package/$(PKG_NAME)/Default
+  SUBMENU:=Telephony
+  SECTION:=net
+  CATEGORY:=Network
+  URL:=http://www.asterisk.org/
+endef
+
+define Package/$(PKG_NAME)/Default/description
+ Asterisk is a complete PBX in software. It provides all of the features
+ you would expect from a PBX and more. Asterisk does voice over IP in three
+ protocols, and can interoperate with almost all standards-based telephony
+ equipment using relatively inexpensive hardware.
+endef
+
+define Package/$(PKG_NAME)
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Complete open source PBX, v$(PKG_VERSION)
+  MENU:=1
+  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+endef
+
+define Package/$(PKG_NAME)/description
+$(call Package/$(PKG_NAME)/Default/description)
+endef
+
+define Package/$(PKG_NAME)/conffiles
+/etc/asterisk/asterisk.conf
+/etc/asterisk/acl.conf
+/etc/asterisk/cel.conf
+/etc/asterisk/ccss.conf
+/etc/asterisk/cli.conf
+/etc/asterisk/cli_permissions.conf
+/etc/asterisk/codecs.conf
+/etc/asterisk/dnsmgr.conf
+/etc/asterisk/dsp.conf
+/etc/asterisk/extconfig.conf
+/etc/asterisk/extensions.conf
+/etc/asterisk/features.conf
+/etc/asterisk/http.conf
+/etc/asterisk/indications.conf
+/etc/asterisk/logger.conf
+/etc/asterisk/manager.conf
+/etc/asterisk/modules.conf
+/etc/asterisk/res_config_sqlite3.conf
+/etc/asterisk/stasis.conf
+/etc/asterisk/udptl.conf
+/etc/asterisk/users.conf
+/etc/default/asterisk
+/etc/init.d/asterisk
+endef
+
+AST_CFG_FILES:= \
+	asterisk.conf acl.conf cel.conf ccss.conf cli.conf \
+	cli_permissions.conf codecs.conf dnsmgr.conf dsp.conf extconfig.conf \
+	extensions.conf features.conf http.conf indications.conf \
+	logger.conf manager.conf modules.conf stasis.conf udptl.conf \
+	users.conf res_config_sqlite3.conf
+
+AST_EMB_MODULES:=\
+	app_dial app_echo app_macro app_playback \
+	func_callerid func_logic func_strings func_timeout \
+	pbx_config res_crypto
+
+define Package/$(PKG_NAME)/install
+$(call Package/$(PKG_NAME)/install/lib,$(1),libasteriskssl)
+$(call Package/$(PKG_NAME)/install/sbin,$(1),asterisk)
+$(call Package/$(PKG_NAME)/install/sbin,$(1),safe_asterisk)
+$(call Package/$(PKG_NAME)/install/sbin,$(1),astgenkey)
+$(foreach m,$(AST_CFG_FILES),$(call Package/$(PKG_NAME)/install/conffile,$(1),$(m));)
+$(foreach m,$(AST_EMB_MODULES),$(call Package/$(PKG_NAME)/install/module,$(1),$(m));)
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(INSTALL_DIR) $(1)/etc/default
+	$(INSTALL_DATA) ./files/asterisk.default $(1)/etc/default/asterisk
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
+endef
+
+define Package/$(PKG_NAME)-sounds
+$(call Package/$(PKG_NAME)/Default)
+  TITLE:=Sounds support
+  DEPENDS:=$(PKG_NAME)
+endef
+
+define Package/$(PKG_NAME)-sounds/description
+This package provides the sound-files for Asterisk $(AST_MAJOR_VERSION).
+endef
+
+define Package/$(PKG_NAME)-sounds/install
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/asterisk/sounds/en/* $(1)/usr/share/asterisk/sounds/
+	rm -f $(1)/usr/share/asterisk/sounds/vm-*
+endef
+
+ifeq ($(call qstrip,$(CONFIG_LIBC)),musl)
+  CONFIGURE_ARGS+= \
+	--enable-permanent-dlopen
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-chan-dahdi),)
+  CONFIGURE_ARGS+= \
+	--with-dahdi="$(STAGING_DIR)/usr" \
+	--with-pri="$(STAGING_DIR)/usr" \
+	--with-tonezone="$(STAGING_DIR)/usr"
+else
+  CONFIGURE_ARGS+= \
+	--without-dahdi \
+	--without-pri \
+	--without-tonezone
+endif
+
+# Pass CPPFLAGS in the CFLAGS as otherwise the build system will
+# ignore them.
+TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
+
+CONFIGURE_ARGS+= \
+	--disable-xmldoc \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-alsa),--with-asound="$(STAGING_DIR)/usr",--without-asound) \
+	--without-execinfo \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
+	--with-cap="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-curl),--with-libcurl="$(STAGING_DIR)/usr") \
+	--with-gsm=internal \
+	--without-gtk2 \
+	--with-ilbc=internal \
+	--without-isdnnet \
+	--without-misdn \
+	--without-nbs \
+	--without-pjproject-bundled \
+	--with-libedit="$(STAGING_DIR)/usr" \
+	--with-libxml2 \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-snmp),--with-netsnmp="$(STAGING_DIR)/usr",--without-netsnmp) \
+	--without-newt \
+	--without-osptk \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pbx-lua),--with-lua="$(STAGING_DIR)/usr",--without-lua) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-pgsql),--with-postgres="$(STAGING_DIR)/usr",--without-postgres) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-util-smsq),--with-popt="$(STAGING_DIR)/usr",--without-popt) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-console),--with-portaudio="$(STAGING_DIR)/usr",--without-portaudio) \
+	--without-radius \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
+	--without-sdl \
+	--without-sqlite \
+	--with-sqlite3="$(STAGING_DIR)/usr" \
+	--without-suppserv \
+	--without-tds \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-resolver-unbound),--with-unbound="$(STAGING_DIR)/usr",--without-unbound) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
+	--without-vpb \
+	--with-z="$(STAGING_DIR)/usr"
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speex
+else
+CONFIGURE_ARGS+= \
+	--with-speex="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
+CONFIGURE_ARGS+= \
+	--without-speexdsp
+else
+CONFIGURE_ARGS+= \
+	--with-speexdsp="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),)
+CONFIGURE_ARGS+= \
+	--without-ogg
+else
+CONFIGURE_ARGS+= \
+	--with-ogg="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
+CONFIGURE_ARGS+= \
+	--without-srtp
+else
+CONFIGURE_ARGS+= \
+	--with-srtp="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-pjsip)$(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-rtp-asterisk),)
+CONFIGURE_ARGS+= \
+	--without-pjproject
+else
+CONFIGURE_ARGS+= \
+	--with-pjproject="$(STAGING_DIR)/usr"
+endif
+
+# res-calendar-ews requires both neon and neon29 detection
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_ARGS+= \
+	--without-neon
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_ARGS+= \
+	--without-ical
+else
+CONFIGURE_ARGS+= \
+	--with-ical="$(STAGING_DIR)/usr"
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews),)
+CONFIGURE_ARGS+= \
+	--without-neon29
+endif
+
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-xmpp),)
+CONFIGURE_ARGS+= \
+	--without-iksemel
+else
+CONFIGURE_ARGS+= \
+	--with-iksemel="$(STAGING_DIR)/usr"
+endif
+
+CONFIGURE_VARS += \
+	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
+CONFIGURE_VARS += \
+	ac_cv_path_CONFIG_NEON=$(STAGING_DIR)/usr/bin/neon-config
+endif
+
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews),)
+CONFIGURE_VARS += \
+	ac_cv_path_CONFIG_NEON29=$(STAGING_DIR)/usr/bin/neon-config
+endif
+
+MAKE_FLAGS+= \
+	ASTDATADIR="/usr/share/asterisk" \
+	DESTDIR="$(PKG_INSTALL_DIR)"
+
+# show full gcc arguments instead of [CC] and [LD]
+MAKE_FLAGS+= \
+	NOISY_BUILD="yes"
+
+# don't let asterisk mess with build flags
+MAKE_FLAGS+= \
+	AST_FORTIFY_SOURCE="" \
+	DEBUG="" \
+	OPTIMIZE=""
+
+AST_MENUSELECT_OPTS = \
+	--without-newt \
+	--without-curses \
+	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
+
+define Build/menuselect
+	CC="$(HOSTCC)" \
+	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
+	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
+endef
+
+define Build/Configure
+	cd $(PKG_BUILD_DIR); \
+		./bootstrap.sh
+	$(call Build/Configure/Default)
+	cd $(PKG_BUILD_DIR)/menuselect; \
+		CC="$(HOSTCC)" \
+		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+		CONFIG_SITE= \
+		LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
+		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
+		./configure \
+		$(HOST_CONFIGURE_ARGS) \
+		$(AST_MENUSELECT_OPTS)
+endef
+
+define Build/Compile
+	$(call Build/menuselect)
+	$(call Build/Compile/Default,menuselect-tree)
+
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for cat in $(MENUSELECT_CATEGORIES); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --disable-category $$$$cat"; \
+		done; \
+		./menuselect/menuselect \
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
+	cd "$(PKG_BUILD_DIR)" && MENUSELECT_ARGS= && \
+		for item in $(AST_EMB_MODULES) $$(AST_ENABLE); do \
+			MENUSELECT_ARGS="$$$$MENUSELECT_ARGS --enable $$$$item"; \
+		done; \
+		./menuselect/menuselect \
+			$$$$MENUSELECT_ARGS \
+			menuselect.makeopts
+	cd "$(PKG_BUILD_DIR)" && \
+		./menuselect/menuselect \
+			--disable BUILD_NATIVE \
+			$(if $(CONFIG_ASTERISK$(AST_MAJOR_VERSION)_LOW_MEMORY),--enable LOW_MEMORY) \
+			menuselect.makeopts
+
+	# When changing anything in MENUSELECT_CFLAGS the file ".lastclean"
+	# gets deleted. E.g. when compiling on x86 for x86 "--disable
+	# BUILD_NATIVE" changes MENUSELECT_CFLAGS and the file gets removed.
+	# But that will result in a rebuild attempt of menuselect which will
+	# likely fail. Prevent that by recreating ".lastclean" and menuselect.
+	$(call Build/Compile/Default,.lastclean)
+	$(call Build/menuselect)
+
+	$(call Build/Compile/Default,all install samples)
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include/asterisk-$(AST_MAJOR_VERSION)/include/asterisk/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/asterisk/*.h $(1)/usr/include/asterisk-$(AST_MAJOR_VERSION)/include/asterisk/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/asterisk.h $(1)/usr/include/asterisk-$(AST_MAJOR_VERSION)/include/
+endef
+
+$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)-sounds))
+
+#######################################
+# AST modules
+# Params:
+# 1 - Package subname
+# 2 - Package title
+# 3 - Module description
+# 4 - Module dependencies
+# 5 - conf files
+# 6 - module files
+# 7 - sound files
+# 8 - binary files
+# 9 - complex depends (passed on as is)
+#######################################
+#$(eval $(call BuildAsteriskModule,subname,title,module description,module dependencies,conf files,module files,sound files,binary files,complex depends))
+
+$(eval $(call BuildAsteriskModule,app-adsiprog,ADSI programming,program Asterisk ADSI scripts into phone,+$(PKG_NAME)-res-adsi,adsi.conf asterisk.adsi telcordia-1.adsi,app_adsiprog,,))
+$(eval $(call BuildAsteriskModule,app-agent-pool,Call center agent pool,call center agent pool,,agents.conf,app_agent_pool,,))
+$(eval $(call BuildAsteriskModule,app-alarmreceiver,Alarm receiver,Central Station Alarm receiver for Ademco Contact ID,,,app_alarmreceiver,,))
+$(eval $(call BuildAsteriskModule,app-amd,Answering machine detection,answering machine detection,,amd.conf,app_amd,,))
+$(eval $(call BuildAsteriskModule,app-authenticate,Authenticate commands,Execute arbitrary authenticate commands,,,app_authenticate,,))
+$(eval $(call BuildAsteriskModule,app-bridgeaddchan,Bridge add channel,place a channel into an existing bridge,,,app_bridgeaddchan,,))
+$(eval $(call BuildAsteriskModule,app-bridgewait,Holding bridge,place a channel into a holding bridge,+$(PKG_NAME)-bridge-holding,,app_bridgewait,,))
+$(eval $(call BuildAsteriskModule,app-celgenuserevent,User-defined CEL event,generate user-defined CEL event,,,app_celgenuserevent,,))
+$(eval $(call BuildAsteriskModule,app-chanisavail,Channel availability check,support for checking if a channel is available,,,app_chanisavail,,))
+$(eval $(call BuildAsteriskModule,app-channelredirect,Redirect a channel,ChannelRedirect application,,,app_channelredirect,,))
+$(eval $(call BuildAsteriskModule,app-chanspy,Channel listen in,support for listening in on any channel,,,app_chanspy,,))
+$(eval $(call BuildAsteriskModule,app-confbridge,ConfBridge,Software bridge for multi-party audio conferencing,+$(PKG_NAME)-bridge-builtin-features +$(PKG_NAME)-bridge-simple +$(PKG_NAME)-bridge-softmix,confbridge.conf,app_confbridge,,))
+$(eval $(call BuildAsteriskModule,app-controlplayback,Control playback,trivial application to control playback of a sound file,,,app_controlplayback,,))
+$(eval $(call BuildAsteriskModule,app-dahdiras,Execute an ISDN RAS,support for executing an ISDN RAS using DAHDI,+$(PKG_NAME)-chan-dahdi,,app_dahdiras,,))
+$(eval $(call BuildAsteriskModule,app-dictate,Virtual dictation machine,virtual dictation machine application,,,app_dictate,,))
+$(eval $(call BuildAsteriskModule,app-directed-pickup,Directed call pickup,support for directed call pickup,,,app_directed_pickup,,))
+$(eval $(call BuildAsteriskModule,app-directory,Extension directory,provide a directory of extensions,,,app_directory,,))
+$(eval $(call BuildAsteriskModule,app-disa,Direct Inward System Access,Direct Inward System Access,,,app_disa,,))
+$(eval $(call BuildAsteriskModule,app-dumpchan,Dump info about channel,application to dump channel variables,,,app_dumpchan,,))
+$(eval $(call BuildAsteriskModule,app-exec,Exec application,support for application execution,,,app_exec,,))
+$(eval $(call BuildAsteriskModule,app-externalivr,External IVR interface,external IVR application interface,,,app_externalivr,,))
+$(eval $(call BuildAsteriskModule,app-festival,Simple festival interface,connect to festival,,festival.conf,app_festival,,))
+$(eval $(call BuildAsteriskModule,app-flash,Flash channel,flash a DAHDI trunk,+$(PKG_NAME)-chan-dahdi,,app_flash,,))
+$(eval $(call BuildAsteriskModule,app-followme,Find-me/follow-me,find-me/follow-me application,,followme.conf,app_followme,,))
+$(eval $(call BuildAsteriskModule,app-getcpeid,Get ADSI CPE ID,get ADSI CPE ID,,,app_getcpeid,,))
+$(eval $(call BuildAsteriskModule,app-ices,Encode and stream,stream to an icecast server via ICES,,,app_ices,,))
+$(eval $(call BuildAsteriskModule,app-image,Image transmission,transmit an image,,,app_image,,))
+$(eval $(call BuildAsteriskModule,app-ivrdemo,IVR demo,IVR demo application,,,app_ivrdemo,,))
+$(eval $(call BuildAsteriskModule,app-milliwatt,Digital milliwatt [mu-law] test app,digital milliwatt test,,,app_milliwatt,,))
+$(eval $(call BuildAsteriskModule,app-minivm,Minimal voicemail system,a voicemail system in small building blocks working together based on the Comedian Mail voicemail,,extensions_minivm.conf minivm.conf,app_minivm,,))
+$(eval $(call BuildAsteriskModule,app-mixmonitor,Record a call and mix the audio,record a call and mix the audio during the recording,,,app_mixmonitor,,))
+$(eval $(call BuildAsteriskModule,app-morsecode,Morse code,Morsecode application,,,app_morsecode,,))
+$(eval $(call BuildAsteriskModule,app-mp3,Silly MP3,silly application to play an MP3 file [uses mpg123],+mpg123,,app_mp3,,))
+$(eval $(call BuildAsteriskModule,app-originate,Originate a call,originating an outbound call and connecting it to a specified extension or application,,,app_originate,,))
+$(eval $(call BuildAsteriskModule,app-page,Page multiple phones,paging application,+$(PKG_NAME)-app-confbridge,,app_page,,))
+$(eval $(call BuildAsteriskModule,app-playtones,Playtones application,play a tone list,,,app_playtones,,))
+$(eval $(call BuildAsteriskModule,app-privacy,Require phone number,require phone number to be entered if no CallerID sent,,,app_privacy,,))
+$(eval $(call BuildAsteriskModule,app-queue,True Call Queueing,support for ACD,,queues.conf queuerules.conf,app_queue,,))
+$(eval $(call BuildAsteriskModule,app-read,Variable read,a trivial application to read a variable,,,app_read,,))
+$(eval $(call BuildAsteriskModule,app-readexten,Extension to variable,a trivial application to read an extension into a variable,,,app_readexten,,))
+$(eval $(call BuildAsteriskModule,app-record,Record sound file,to record a sound file,,,app_record,,))
+$(eval $(call BuildAsteriskModule,app-saycounted,Decline words,applications to decline words according to current language,,,app_saycounted,,))
+$(eval $(call BuildAsteriskModule,app-sayunixtime,Say Unix time,an application to say Unix time,,,app_sayunixtime,,))
+$(eval $(call BuildAsteriskModule,app-senddtmf,Send DTMF digits,Sends arbitrary DTMF digits,,,app_senddtmf,,))
+$(eval $(call BuildAsteriskModule,app-sendtext,Send text,transmit a text message,,,app_sendtext,,))
+$(eval $(call BuildAsteriskModule,app-skel,Skeleton [sample],skeleton for development of an Asterisk application,,app_skel.conf,app_skel,,))
+$(eval $(call BuildAsteriskModule,app-sms,SMS,SMS support (ETSI ES 201 912 protocol 1),,,app_sms,,))
+$(eval $(call BuildAsteriskModule,app-softhangup,Hang up requested channel,SoftHangup application,,,app_softhangup,,))
+$(eval $(call BuildAsteriskModule,app-speech,Dialplan Speech,Dialplan Speech Applications,+$(PKG_NAME)-res-speech,,app_speech_utils,,))
+$(eval $(call BuildAsteriskModule,app-stack,Stack applications,Stack applications Gosub Return etc.,+$(PKG_NAME)-res-agi,,app_stack,,))
+$(eval $(call BuildAsteriskModule,app-stasis,Stasis dialplan,Stasis dialplan application,+$(PKG_NAME)-res-stasis,,app_stasis,,))
+$(eval $(call BuildAsteriskModule,app-statsd,statsd dialplan,statsd dialplan,+$(PKG_NAME)-res-statsd,,app_statsd,,))
+$(eval $(call BuildAsteriskModule,app-stream-echo,Stream echo,stream echo,,,app_stream_echo,,))
+$(eval $(call BuildAsteriskModule,app-system,System exec,support for executing system commands,,,app_system,,))
+$(eval $(call BuildAsteriskModule,app-talkdetect,File playback with audio detect,for file playback with audio detect,,,app_talkdetect,,))
+$(eval $(call BuildAsteriskModule,app-test,Interface test,applications to test connection and produce report in text file,,,app_test,,))
+$(eval $(call BuildAsteriskModule,app-transfer,Transfers caller to other ext,transfer a caller,,,app_transfer,,))
+$(eval $(call BuildAsteriskModule,app-url,Send URL,app to transmit a URL,,,app_url,,))
+$(eval $(call BuildAsteriskModule,app-userevent,Custom user event,UserEvent application -- send manager event,,,app_userevent,,))
+$(eval $(call BuildAsteriskModule,app-verbose,Verbose logging,Verbose logging application,,,app_verbose,,))
+$(eval $(call BuildAsteriskModule,app-waitforring,Wait for first ring,wait for ring application,,,app_waitforring,,))
+$(eval $(call BuildAsteriskModule,app-waitforsilence,Wait for silence/noise,wait for silence,,,app_waitforsilence,,))
+$(eval $(call BuildAsteriskModule,app-waituntil,Sleep,support sleeping until the given epoch,,,app_waituntil,,))
+$(eval $(call BuildAsteriskModule,app-while,While loop,a while loop implementation,,,app_while,,))
+$(eval $(call BuildAsteriskModule,app-zapateller,Block telemarketers,playback the special information tone to get rid of telemarketers,,,app_zapateller,,))
+$(eval $(call BuildAsteriskModule,bridge-builtin-features,Bridging features,built in bridging features,,,bridge_builtin_features,,))
+$(eval $(call BuildAsteriskModule,bridge-builtin-interval-features,Built in bridging interval features,built in bridging interval features,,,bridge_builtin_interval_features,,))
+$(eval $(call BuildAsteriskModule,bridge-holding,Bridging for storing channels in a bridge,bridging technology for storing channels in a bridge,,,bridge_holding,,))
+$(eval $(call BuildAsteriskModule,bridge-native-rtp,Native RTP bridging technology module,native RTP bridging technology module,,,bridge_native_rtp,,))
+$(eval $(call BuildAsteriskModule,bridge-simple,Simple two channel bridging module,simple two channel bridging module,,,bridge_simple,,))
+$(eval $(call BuildAsteriskModule,bridge-softmix,Multi-party software based channel mixing,multi-party software based channel mixing,,,bridge_softmix,,))
+$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Record,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
+$(eval $(call BuildAsteriskModule,cdr-csv,Provides CDR CSV,Call Detail Record with CSV support,,,cdr_csv,,))
+$(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,Call Detail Record with SQLITE3 support,libsqlite3,,cdr_sqlite3_custom,,))
+$(eval $(call BuildAsteriskModule,cel-custom,Customizable CSV CEL backend,custom Comma Separated Value CEL records,,cel_custom.conf,cel_custom,,))
+$(eval $(call BuildAsteriskModule,cel-manager,AMI CEL backend,Asterisk channel event records,,,cel_manager,,))
+$(eval $(call BuildAsteriskModule,cel-sqlite3-custom,SQLite3 custom CEL,custom SQLite3 CEL records,,cel_sqlite3_custom.conf,cel_sqlite3_custom,,))
+$(eval $(call BuildAsteriskModule,chan-alsa,ALSA channel,the channel chan_alsa,+alsa-lib,alsa.conf,chan_alsa,,))
+$(eval $(call BuildAsteriskModule,chan-bridge-media,Bridge media channel driver,bridge media channel driver,,,chan_bridge_media,,))
+$(eval $(call BuildAsteriskModule,chan-console,Console channel driver,cross-platform console channel driver,+portaudio,console.conf,chan_console,,))
+$(eval $(call BuildAsteriskModule,chan-dahdi,DAHDI channel,DAHDI channel support,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,chan_dahdi.conf,chan_dahdi,,))
+$(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,IAX support,+$(PKG_NAME)-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
+$(eval $(call BuildAsteriskModule,chan-mgcp,MGCP,Media Gateway Control Protocol,,mgcp.conf,chan_mgcp,,))
+$(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile device channel driver,+bluez-libs,chan_mobile.conf,chan_mobile,,))
+$(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle Channel Driver,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
+$(eval $(call BuildAsteriskModule,chan-ooh323,H.323 channel,Objective Systems H.323 channel,,ooh323.conf,chan_ooh323,,))
+$(eval $(call BuildAsteriskModule,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
+$(eval $(call BuildAsteriskModule,chan-phone,Linux telephony API,generic Linux telephony interface driver,,phone.conf,chan_phone,,))
+$(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP [Multicast and Unicast] media channel,,,chan_rtp,,))
+$(eval $(call BuildAsteriskModule,chan-sip,SIP channel,the channel chan_sip,+$(PKG_NAME)-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
+$(eval $(call BuildAsteriskModule,chan-skinny,Skinny channel,the channel chan_skinny,,skinny.conf,chan_skinny,,))
+$(eval $(call BuildAsteriskModule,chan-unistim,Unistim channel,channel driver for the UNISTIM (Unified Networks IP Stimulus) protocol,,unistim.conf,chan_unistim,,))
+$(eval $(call BuildAsteriskModule,codec-a-mu,Alaw to ulaw translation,translation between alaw and ulaw codecs,,,codec_a_mu,,))
+$(eval $(call BuildAsteriskModule,codec-adpcm,ADPCM text,ADPCM text ,,,codec_adpcm,,))
+$(eval $(call BuildAsteriskModule,codec-alaw,Signed linear to alaw translation,translation between signed linear and alaw codecs,,,codec_alaw,,))
+$(eval $(call BuildAsteriskModule,codec-dahdi,DAHDI codec,DAHDI native transcoding support,+$(PKG_NAME)-chan-dahdi,,codec_dahdi,,))
+$(eval $(call BuildAsteriskModule,codec-g722,G.722,a high bit rate 48/56/64Kbps ITU standard codec,,,codec_g722,,))
+$(eval $(call BuildAsteriskModule,codec-g726,Signed linear to G.726 translation,translation between signed linear and ITU G.726-32kbps codecs,,,codec_g726,,))
+$(eval $(call BuildAsteriskModule,codec-gsm,linear to GSM translation,translate between signed linear and GSM,,,codec_gsm,,))
+$(eval $(call BuildAsteriskModule,codec-ilbc,linear to ILBC translation,translate between signed linear and ILBC,,,codec_ilbc,,))
+$(eval $(call BuildAsteriskModule,codec-lpc10,Linear to LPC10 translation,translate between signed linear and LPC10,,,codec_lpc10,,))
+$(eval $(call BuildAsteriskModule,codec-resample,resample sLinear audio,resample sLinear audio,,,codec_resample,,))
+$(eval $(call BuildAsteriskModule,codec-speex,Speex Coder/Decoder,translate between signed linear and Speex,@!SOFT_FLOAT +libspeex +libspeexdsp,,codec_speex,,))
+$(eval $(call BuildAsteriskModule,codec-ulaw,Signed linear to ulaw translation,translation between signed linear and ulaw codecs,,,codec_ulaw,,))
+$(eval $(call BuildAsteriskModule,curl,CURL,CURL support,+libcurl,,func_curl res_config_curl res_curl,,))
+$(eval $(call BuildAsteriskModule,format-g719,G.719,ITU G.719 64kbps-only,,,format_g719,,))
+$(eval $(call BuildAsteriskModule,format-g723,G.723.1,old-style G.723.1 frame/timestamp format,,,format_g723,,))
+$(eval $(call BuildAsteriskModule,format-g726,G.726,support for headerless G.726 16/24/32/40kbps data format,,,format_g726,,))
+$(eval $(call BuildAsteriskModule,format-g729,G.729,support for raw headerless G729 data,,,format_g729,,))
+$(eval $(call BuildAsteriskModule,format-gsm,GSM format,support for GSM format,,,format_gsm,,))
+$(eval $(call BuildAsteriskModule,format-h263,H263 format,support for H264 format,,,format_h263,,))
+$(eval $(call BuildAsteriskModule,format-h264,H264 format,support for H264 format,,,format_h264,,))
+$(eval $(call BuildAsteriskModule,format-ilbc,ILBC format,support for ILBC format,,,format_ilbc,,))
+$(eval $(call BuildAsteriskModule,format-mp3,MP3 format,support for MP3 format,@BROKEN,,format_mp3,,)) # requires patched mpg123 source
+$(eval $(call BuildAsteriskModule,format-ogg-speex,OGG/Speex audio,OGG/Speex streams,@!SOFT_FLOAT +libogg +libspeex,,format_ogg_speex,,))
+$(eval $(call BuildAsteriskModule,format-ogg-vorbis,OGG/Vorbis audio,OGG/Vorbis streams,+libvorbis,,format_ogg_vorbis,,))
+$(eval $(call BuildAsteriskModule,format-pcm,PCM format,support for PCM format,,,format_pcm,,))
+$(eval $(call BuildAsteriskModule,format-siren14,Siren14,ITU G.722.1 Annex C Siren14 48kbps-only format,,,format_siren14,,))
+$(eval $(call BuildAsteriskModule,format-siren7,Siren7,ITU G.722.1 Siren7 32kbps-only format,,,format_siren7,,))
+$(eval $(call BuildAsteriskModule,format-sln,Raw slinear format,support for raw slinear format,,,format_sln,,))
+$(eval $(call BuildAsteriskModule,format-vox,VOX format,support for ADPCM vox format,,,format_vox,,))
+$(eval $(call BuildAsteriskModule,format-wav,WAV format (8000hz Signed Linear),support for proprietary Microsoft WAV format (8000hz Signed Linear),,,format_wav,,))
+$(eval $(call BuildAsteriskModule,format-wav-gsm,WAV format (Proprietary GSM),support for proprietary Microsoft WAV format (Proprietary GSM),,,format_wav_gsm,,))
+$(eval $(call BuildAsteriskModule,func-aes,AES dialplan functions,AES encryption/decryption dialplan functions,,,func_aes,,))
+$(eval $(call BuildAsteriskModule,func-base64,base64 support,support of base64 function,,,func_base64,,))
+$(eval $(call BuildAsteriskModule,func-blacklist,Blacklist on callerid,looking up the callerid number and see if it is blacklisted,,,func_blacklist,,))
+$(eval $(call BuildAsteriskModule,func-callcompletion,Call control configuration function,call completion supplementary services implementation,,,func_callcompletion,,))
+$(eval $(call BuildAsteriskModule,func-channel,Channel info,Channel info dialplan function,,,func_channel,,))
+$(eval $(call BuildAsteriskModule,func-config,Configuration file variable access,a function to retrieve variables from an Asterisk configuration file,,,func_config,,))
+$(eval $(call BuildAsteriskModule,func-cut,CUT function,CUT function,,,func_cut,,))
+$(eval $(call BuildAsteriskModule,func-db,Database interaction,functions for interaction with the database,,,func_db app_db,,))
+$(eval $(call BuildAsteriskModule,func-devstate,Blinky lights control,functions for manually controlled blinky lights,,,func_devstate,,))
+$(eval $(call BuildAsteriskModule,func-dialgroup,Dialgroup dialplan function,dialgroup dialplan function,,,func_dialgroup,,))
+$(eval $(call BuildAsteriskModule,func-dialplan,Dialplan context/extension/priority checking functions,dialplan group functions check if a dialplan entry exists,,,func_dialplan,,))
+$(eval $(call BuildAsteriskModule,func-enum,ENUM,ENUM,,enum.conf,func_enum,,))
+$(eval $(call BuildAsteriskModule,func-env,Environment functions,Environment dialplan functions,,,func_env,,))
+$(eval $(call BuildAsteriskModule,func-extstate,Hinted extension state,retrieving the state of a hinted extension for dialplan control,,,func_extstate,,))
+$(eval $(call BuildAsteriskModule,func-frame-trace,Frame trace for internal ast_frame debugging,trace internal ast_frames on a channel,,,func_frame_trace,,))
+$(eval $(call BuildAsteriskModule,func-global,Global variable,global variable dialplan functions,,,func_global,,))
+$(eval $(call BuildAsteriskModule,func-groupcount,Group count,for counting number of channels in the specified group,,,func_groupcount,,))
+$(eval $(call BuildAsteriskModule,func-hangupcause,HANGUPCAUSE related functions,functions related to retreiving per-channel hangupcause information,,,func_hangupcause,,))
+$(eval $(call BuildAsteriskModule,func-holdintercept,Hold interception dialplan function,function that intercepts HOLD frames from channels and raises events,,,func_holdintercept,,))
+$(eval $(call BuildAsteriskModule,func-iconv,Charset conversion,charset conversion,,,func_iconv,,,$(ICONV_DEPENDS)))
+$(eval $(call BuildAsteriskModule,func-jitterbuffer,Jitter buffer for read side of channel,put a jitterbuffer on the read side of a channel,,,func_jitterbuffer,,))
+$(eval $(call BuildAsteriskModule,func-lock,Dialplan mutexes,dialplan mutexes,,,func_lock,,))
+$(eval $(call BuildAsteriskModule,func-math,Math functions,Math functions,,,func_math,,))
+$(eval $(call BuildAsteriskModule,func-md5,MD5 digest dialplan functions,MD5 digest related dialplan functions,,,func_md5,,))
+$(eval $(call BuildAsteriskModule,func-module,Simple module check function,Simple module check function,,,func_module,,))
+$(eval $(call BuildAsteriskModule,func-periodic-hook,Periodic dialplan hooks,Execute a periodic dialplan hook into the audio of a call,+$(PKG_NAME)-app-chanspy +$(PKG_NAME)-func-cut +$(PKG_NAME)-func-groupcount +$(PKG_NAME)-func-uri,,func_periodic_hook,,))
+$(eval $(call BuildAsteriskModule,func-pitchshift,Audio effects dialplan functions,pitch shift audio effect,,,func_pitchshift,,))
+$(eval $(call BuildAsteriskModule,func-presencestate,Hinted presence state,Gets or sets a presence state in the dialplan,,,func_presencestate,,))
+$(eval $(call BuildAsteriskModule,func-rand,RAND dialplan function,RAND dialplan function,,,func_rand,,))
+$(eval $(call BuildAsteriskModule,func-realtime,REALTIME dialplan function,REALTIME dialplan function,,,func_realtime,,))
+$(eval $(call BuildAsteriskModule,func-sha1,SHA-1 computation dialplan function,SHA1 digest related dialplan functions,,,func_sha1,,))
+$(eval $(call BuildAsteriskModule,func-shell,Shell,support for shell execution,,,func_shell,,))
+$(eval $(call BuildAsteriskModule,func-sorcery,Get a field from a sorcery object,get a field from a sorcery object,,,func_sorcery,,))
+$(eval $(call BuildAsteriskModule,func-speex,Noise reduction and AGC,noise reduction and automatic gain control,@!SOFT_FLOAT +libspeex +libspeexdsp,,func_speex,,))
+$(eval $(call BuildAsteriskModule,func-sprintf,SPRINTF dialplan function,string manipulation dialplan functions,,,func_sprintf,,))
+$(eval $(call BuildAsteriskModule,func-srv,SRV functions,SRV related dialplan functions,,,func_srv,,))
+$(eval $(call BuildAsteriskModule,func-sysinfo,System information related functions,SYSINFO function to return various system data,,,func_sysinfo,,))
+$(eval $(call BuildAsteriskModule,func-talkdetect,Talk detection dialplan function,function that raises events when talking is detected on a channel,,,func_talkdetect,,))
+$(eval $(call BuildAsteriskModule,func-uri,URI encoding and decoding,Encodes and decodes URI-safe strings,,,func_uri,,))
+$(eval $(call BuildAsteriskModule,func-version,Get Asterisk version/build info,return the current version strings,,,func_version,,))
+$(eval $(call BuildAsteriskModule,func-vmcount,vmcount dialplan,a vmcount dialplan function,,,func_vmcount,,))
+$(eval $(call BuildAsteriskModule,func-volume,Technology independent volume control,technology independent volume control,,,func_volume,,))
+$(eval $(call BuildAsteriskModule,odbc,ODBC,ODBC support,+libpthread +libc +unixodbc,cdr_adaptive_odbc.conf cdr_odbc.conf cel_odbc.conf func_odbc.conf res_odbc.conf,cdr_adaptive_odbc cdr_odbc cel_odbc func_odbc res_config_odbc res_odbc res_odbc_transaction,,))
+$(eval $(call BuildAsteriskModule,pbx-ael,Asterisk Extension Logic,support for symbolic Asterisk Extension Logic,+$(PKG_NAME)-res-ael-share,extensions.ael,pbx_ael,,))
+$(eval $(call BuildAsteriskModule,pbx-dundi,Dundi,provides Dundi Lookup service for Asterisk,,dundi.conf,pbx_dundi,,))
+$(eval $(call BuildAsteriskModule,pbx-loopback,Loopback switch,loopback PBX module,,,pbx_loopback,,))
+$(eval $(call BuildAsteriskModule,pbx-lua,Lua,provides Lua resources for Asterisk,+liblua,extensions.lua,pbx_lua,,))
+$(eval $(call BuildAsteriskModule,pbx-realtime,Realtime Switch,realtime switch support,,,pbx_realtime,,))
+$(eval $(call BuildAsteriskModule,pbx-spool,Call Spool,outgoing call spool support,,,pbx_spool,,))
+$(eval $(call BuildAsteriskModule,pgsql,PostgreSQL,PostgreSQL support,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
+$(eval $(call BuildAsteriskModule,pjsip,pjsip channel,the channel pjsip,+$(PKG_NAME)-res-http-websocket +$(PKG_NAME)-res-pjproject +$(PKG_NAME)-res-sorcery +libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,pjsip.conf pjsip_notify.conf pjsip_wizard.conf,chan_pjsip func_pjsip_aor func_pjsip_contact func_pjsip_endpoint res_pjsip res_pjsip_acl res_pjsip_authenticator_digest res_pjsip_caller_id res_pjsip_config_wizard res_pjsip_dialog_info_body_generator res_pjsip_diversion res_pjsip_dlg_options res_pjsip_dtmf_info res_pjsip_empty_info res_pjsip_endpoint_identifier_anonymous res_pjsip_endpoint_identifier_ip res_pjsip_endpoint_identifier_user res_pjsip_exten_state res_pjsip_header_funcs res_pjsip_history res_pjsip_logger res_pjsip_messaging res_pjsip_mwi res_pjsip_mwi_body_generator res_pjsip_nat res_pjsip_notify res_pjsip_one_touch_record_info res_pjsip_outbound_authenticator_digest res_pjsip_outbound_publish res_pjsip_outbound_registration res_pjsip_path res_pjsip_pidf_body_generator res_pjsip_pidf_digium_body_supplement res_pjsip_pidf_eyebeam_body_supplement res_pjsip_publish_asterisk res_pjsip_pubsub res_pjsip_refer res_pjsip_registrar res_pjsip_rfc3326 res_pjsip_sdp_rtp res_pjsip_send_to_voicemail res_pjsip_session res_pjsip_sips_contact res_pjsip_t38 res_pjsip_transport_websocket res_pjsip_xpidf_body_generator,,))
+$(eval $(call BuildAsteriskModule,res-adsi,Provide ADSI,Analog Display Services Interface capability,,,res_adsi,,))
+$(eval $(call BuildAsteriskModule,res-ael-share,Shareable AEL code,support for shareable AEL code mainly between internal and external modules,,,res_ael_share,,))
+$(eval $(call BuildAsteriskModule,res-agi,Asterisk Gateway Interface,Support for the Asterisk Gateway Interface extension,+$(PKG_NAME)-res-speech,,res_agi,,))
+$(eval $(call BuildAsteriskModule,res-ari,Asterisk RESTful interface,HTTP binding for the Stasis API,+$(PKG_NAME)-res-http-websocket,ari.conf,res_ari,,))
+$(eval $(call BuildAsteriskModule,res-ari-applications,RESTful Stasis application resources,RESTful API module - Stasis application resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_applications,))
+$(eval $(call BuildAsteriskModule,res-ari-asterisk,RESTful Asterisk resources,RESTful API module - Asterisk resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_asterisk,,))
+$(eval $(call BuildAsteriskModule,res-ari-bridges,RESTful bridge resources,RESTful API module - bridge resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-playback,,res_ari_bridges,,))
+$(eval $(call BuildAsteriskModule,res-ari-channels,RESTful channel resources,RESTful API module - channel resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-answer +$(PKG_NAME)-res-stasis-playback +$(PKG_NAME)-res-stasis-snoop,,res_ari_channels,,))
+$(eval $(call BuildAsteriskModule,res-ari-device-states,RESTful device state resources,RESTful API module - device state resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-device-state,,res_ari_device_states,,))
+$(eval $(call BuildAsteriskModule,res-ari-endpoints,RESTful endpoint resources,RESTful API module - endpoint resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_endpoints,,))
+$(eval $(call BuildAsteriskModule,res-ari-events,RESTful WebSocket resource,RESTful API module - WebSocket resource,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_events,,))
+$(eval $(call BuildAsteriskModule,res-ari-mailboxes,RESTful mailboxes resources,RESTful API module - mailboxes resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-mailbox,,res_ari_mailboxes,,))
+$(eval $(call BuildAsteriskModule,res-ari-model,ARI model validators,ARI model validators,,,res_ari_model,,))
+$(eval $(call BuildAsteriskModule,res-ari-playbacks,RESTful playback control resources,RESTful API module - playback control resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-playback,,res_ari_playbacks,,))
+$(eval $(call BuildAsteriskModule,res-ari-recordings,RESTful recording resources,RESTful API module - recording resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-recording,,res_ari_recordings,,))
+$(eval $(call BuildAsteriskModule,res-ari-sounds,RESTful sound resources,RESTful API module - sound resources,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_sounds,))
+$(eval $(call BuildAsteriskModule,res-calendar,Calendar API,the calendar API,,calendar.conf,res_calendar,,))
+$(eval $(call BuildAsteriskModule,res-calendar-caldav,CalDAV calendar,CalDAV calendar integration,+$(PKG_NAME)-res-calendar +libical +libneon +libxml2,,res_calendar_caldav,,))
+$(eval $(call BuildAsteriskModule,res-calendar-ews,EWS calendar,MS Exchange Web Service calendar integration,+$(PKG_NAME)-res-calendar +libneon,,res_calendar_ews,,))
+$(eval $(call BuildAsteriskModule,res-calendar-exchange,Exchange calendar,MS Exchange calendar integration,+$(PKG_NAME)-res-calendar +libical +libiksemel +libneon,,res_calendar_exchange,,))
+$(eval $(call BuildAsteriskModule,res-calendar-icalendar,iCalendar calendar,iCalendar calendar integration,+$(PKG_NAME)-res-calendar +libical +libneon,,res_calendar_icalendar,,))
+$(eval $(call BuildAsteriskModule,res-chan-stats,statsd channel stats,example of how to subscribe to Stasis events,+$(PKG_NAME)-res-statsd,,res_chan_stats,,))
+$(eval $(call BuildAsteriskModule,res-clialiases,CLI aliases,CLI aliases,,cli_aliases.conf,res_clialiases,,))
+$(eval $(call BuildAsteriskModule,res-clioriginate,Calls via CLI,Originate calls via the CLI,,,res_clioriginate,,))
+$(eval $(call BuildAsteriskModule,res-config-ldap,LDAP realtime interface,LDAP plugin for portable configuration engine,+libopenldap,res_ldap.conf,res_config_ldap,,))
+$(eval $(call BuildAsteriskModule,res-config-mysql,MySQL CDR backend,MySQL CDR backend,+libmysqlclient,,res_config_mysql,,))
+$(eval $(call BuildAsteriskModule,res-config-sqlite3,SQLite 3 realtime config engine,SQLite 3 configuration engine,,,res_config_sqlite3,,))
+$(eval $(call BuildAsteriskModule,res-convert,File format conversion CLI command,file format conversion CLI command using Asterisk formats and translators,,,res_convert,,))
+$(eval $(call BuildAsteriskModule,res-endpoint-stats,Endpoint statistics,statsd endpoint stats,+$(PKG_NAME)-res-statsd,,res_endpoint_stats,,))
+$(eval $(call BuildAsteriskModule,res-hep,HEPv3 API,Routines for integration with Homer using HEPv3,,hep.conf,res_hep,,))
+$(eval $(call BuildAsteriskModule,res-hep-pjsip,PJSIP HEPv3 Logger,PJSIP logging with Homer,+$(PKG_NAME)-res-hep +$(PKG_NAME)-pjsip,,res_hep_pjsip,,))
+$(eval $(call BuildAsteriskModule,res-hep-rtcp,RTCP HEPv3 Logger,RTCP logging with Homer,+$(PKG_NAME)-res-hep,,res_hep_rtcp,,))
+$(eval $(call BuildAsteriskModule,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp T.38 and G.711 FAX Resource,+$(PKG_NAME)-res-fax +libspandsp +libtiff,,res_fax_spandsp,,))
+$(eval $(call BuildAsteriskModule,res-fax,FAX modules,Generic FAX resource for FAX technology resource modules,+$(PKG_NAME)-res-timing-pthread,res_fax.conf,res_fax,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-celt,CELT format attribute module,CELT format attribute interface,,,res_format_attr_celt,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-g729,G.729 format attribute module,G.729 format attribute interface,,,res_format_attr_g729,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-h263,H.263 format attribute module,H.263 format attribute interface,,,res_format_attr_h263,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-h264,H.264 format attribute module,H.264 format attribute interface,,,res_format_attr_h264,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-ilbc,ILBC format attribute module,ILBC format attribute interface,,,res_format_attr_ilbc,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-opus,Opus format attribute module,Opus format attribute interface,,,res_format_attr_opus,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-silk,SILK format attribute module,SILK format attribute interface,,,res_format_attr_silk,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-siren14,Siren14 format attribute module,Siren14 format attribute interface,,,res_format_attr_siren14,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-siren7,Siren7 format attribute module,Siren7 format attribute interface,,,res_format_attr_siren7,,))
+$(eval $(call BuildAsteriskModule,res-format-attr-vp8,VP8 format attribute module,VP8 format attribute interface,,,res_format_attr_vp8,,))
+$(eval $(call BuildAsteriskModule,res-http-media-cache,HTTP media cache backend,HTTP backend for the core media cache,+$(PKG_NAME)-curl,,res_http_media_cache,,))
+$(eval $(call BuildAsteriskModule,res-http-websocket,HTTP websocket support,WebSocket support for the Asterisk internal HTTP server,,,res_http_websocket,,))
+$(eval $(call BuildAsteriskModule,res-limit,Resource limits,resource limits,,,res_limit,,))
+$(eval $(call BuildAsteriskModule,res-manager-devicestate,Device state topic forwarder,list the current known device states,,,res_manager_devicestate,,))
+$(eval $(call BuildAsteriskModule,res-manager-presencestate,Presence state topic forwarder,list the current known presence states,,,res_manager_presencestate,,))
+$(eval $(call BuildAsteriskModule,res-monitor,PBX channel monitoring,call monitoring resource,,,res_monitor,,))
+$(eval $(call BuildAsteriskModule,res-musiconhold,MOH,Music On Hold support,,musiconhold.conf,res_musiconhold,,))
+$(eval $(call BuildAsteriskModule,res-mutestream,Mute audio stream resources,MUTESTREAM audiohooks,,,res_mutestream,,))
+$(eval $(call BuildAsteriskModule,res-mwi-devstate,MWI device state subs,This module allows presence subscriptions to voicemail boxes. This allows common BLF keys to act as voicemail waiting indicators.,,,res_mwi_devstate,,))
+$(eval $(call BuildAsteriskModule,res-mwi-external,Core external MWI resource,core external MWI resource,,,res_mwi_external,,))
+$(eval $(call BuildAsteriskModule,res-mwi-external-ami,AMI for external MWI,AMI wrapper for external MWI,+$(PKG_NAME)-res-mwi-external,,res_mwi_external_ami,,))
+$(eval $(call BuildAsteriskModule,res-parking,Phone Parking,Phone Parking application,+$(PKG_NAME)-bridge-holding,res_parking.conf,res_parking,,))
+$(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,Phone provisioning application for the asterisk internal http server,,phoneprov.conf,res_phoneprov,,))
+$(eval $(call BuildAsteriskModule,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP Phone Provisioning,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-phoneprov,,res_pjsip_phoneprov_provider,,))
+$(eval $(call BuildAsteriskModule,res-pjproject,Bridge PJPROJECT to Asterisk logging,,+libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
+$(eval $(call BuildAsteriskModule,res-pktccops,PktcCOPS manager for MGCP,PacketCable MGCP variation / NCS,,res_pktccops.conf,res_pktccops,,))
+$(eval $(call BuildAsteriskModule,res-realtime,RealTime CLI,RealTime CLI,,,res_realtime,,))
+$(eval $(call BuildAsteriskModule,res-remb-modifier,REMB modifier,REMB modifier,,,res_remb_modifier,,))
+$(eval $(call BuildAsteriskModule,res-resolver-unbound,Unbound DNS resolver,Unbound DNS resolver,+libunbound,resolver_unbound.conf,res_resolver_unbound,,))
+$(eval $(call BuildAsteriskModule,res-rtp-asterisk,RTP stack,Supports RTP and RTCP with Symmetric RTP support for NAT traversal,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,rtp.conf,res_rtp_asterisk,,))
+$(eval $(call BuildAsteriskModule,res-rtp-multicast,RTP multicast engine,Multicast RTP Engine,,,res_rtp_multicast,,))
+$(eval $(call BuildAsteriskModule,res-security-log,Security event logging,security event logging,,,res_security_log,,))
+$(eval $(call BuildAsteriskModule,res-smdi,Provide SMDI,Simple Message Desk Interface capability,,smdi.conf,res_smdi,,))
+$(eval $(call BuildAsteriskModule,res-snmp,SNMP [Sub]Agent for Asterisk,SNMP Agent / SubAgent,+libnetsnmp,res_snmp.conf,res_snmp,,))
+$(eval $(call BuildAsteriskModule,res-sorcery,Sorcery data layer,Sorcery backend modules for data access intended for using realtime as backend,,sorcery.conf,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
+$(eval $(call BuildAsteriskModule,res-sorcery-memory-cache,Sorcery memory cache object wizard,sorcery memory cache object wizard,,,res_sorcery_memory_cache,,))
+$(eval $(call BuildAsteriskModule,res-speech,Speech Recognition API,Support for the Asterisk Generic Speech Recognition API,,,res_speech,,))
+$(eval $(call BuildAsteriskModule,res-srtp,SRTP Support,Secure RTP connection,+libsrtp2,,res_srtp,,))
+$(eval $(call BuildAsteriskModule,res-stasis,Stasis application,Stasis application,,,res_stasis,,))
+$(eval $(call BuildAsteriskModule,res-stasis-answer,Stasis application answer,Stasis application control,+$(PKG_NAME)-res-stasis,,res_stasis_answer,,))
+$(eval $(call BuildAsteriskModule,res-stasis-device-state,Stasis application device state,Stasis application control,+$(PKG_NAME)-res-stasis,,res_stasis_device_state,,))
+$(eval $(call BuildAsteriskModule,res-stasis-mailbox,Stasis application mailbox,Stasis application control,+$(PKG_NAME)-res-stasis +$(PKG_NAME)-res-mwi-external,,res_stasis_mailbox,,))
+$(eval $(call BuildAsteriskModule,res-stasis-playback,Stasis application playback,res_stasis playback,+$(PKG_NAME)-res-stasis-recording,,res_stasis_playback,,))
+$(eval $(call BuildAsteriskModule,res-stasis-recording,Stasis application recording,res_stasis recording,+$(PKG_NAME)-res-stasis,,res_stasis_recording,,))
+$(eval $(call BuildAsteriskModule,res-stasis-snoop,Stasis application snoop,Stasis application snoop control,+$(PKG_NAME)-res-stasis-recording,,res_stasis_snoop,,))
+$(eval $(call BuildAsteriskModule,res-statsd,statsd client,publishing to a statsd server,,statsd.conf,res_statsd,,))
+$(eval $(call BuildAsteriskModule,res-stun-monitor,STUN monitoring,resource STUN Monitor,,res_stun_monitor.conf,res_stun_monitor,,))
+$(eval $(call BuildAsteriskModule,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface,+$(PKG_NAME)-chan-dahdi,,res_timing_dahdi,,))
+$(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,POSIX pthreads Timing Interface,,,res_timing_pthread,,))
+$(eval $(call BuildAsteriskModule,res-timing-timerfd,Timerfd Timing Interface,Timing interface provided by Linux kernel,,,res_timing_timerfd,,))
+$(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,reference module for interfacting Asterisk directly as a client or component with XMPP server,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
+$(eval $(call BuildAsteriskModule,voicemail,Voicemail,voicemail related modules,+$(PKG_NAME)-res-adsi +$(PKG_NAME)-res-smdi,voicemail.conf,app_voicemail,vm-*,))
+
+################################
+# AST utils
+# Params:
+# 1 - Utility name
+# 2 - Description
+# 3 - Dependencies
+# 4 - Configuration files
+################################
+# $(eval $(call BuildAsteriskUtil,Utility,Description,Dependencies,Configuration Files))
+
+$(eval $(call BuildAsteriskUtil,aelparse,Check extensions.ael file.,+$(PKG_NAME)-pbx-ael,))
+$(eval $(call BuildAsteriskUtil,astcanary,Assures Asterisk no threads have gone missing.,,))
+$(eval $(call BuildAsteriskUtil,astdb2sqlite3,Convert astdb to SQLite 3.,,))
+$(eval $(call BuildAsteriskUtil,astdb2bdb,Convert astdb back to Berkeley DB 1.86.,,))
+$(eval $(call BuildAsteriskUtil,check_expr,Expression checker [older version].,,))
+$(eval $(call BuildAsteriskUtil,check_expr2,Expression checker [newer version].,,))
+$(eval $(call BuildAsteriskUtil,conf2ael,Convert .conf to .ael.,+$(PKG_NAME)-pbx-ael,))
+$(eval $(call BuildAsteriskUtil,muted,Listens for AMI events. Mutes soundcard during call.,,muted.conf))
+$(eval $(call BuildAsteriskUtil,smsq,Send messages from command line.,+libpopt,))
+$(eval $(call BuildAsteriskUtil,stereorize,Merge two mono WAV-files to one stereo WAV-file.,,))
+$(eval $(call BuildAsteriskUtil,streamplayer,A utility for reading from a raw TCP stream [MOH source].,,))
