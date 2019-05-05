@@ -55,19 +55,6 @@ $(call Package/chan-sccp/Default)
   CONFLICTS:=asterisk13-chan-skinny
 endef
 
-define Package/asterisk15-chan-sccp
-$(call Package/chan-sccp/Default)
-  DEPENDS += asterisk15 \
-	  +asterisk15-bridge-holding \
-	  +asterisk15-bridge-native-rtp \
-	  +asterisk15-bridge-simple \
-	  +asterisk15-bridge-softmix \
-	  +asterisk15-res-stasis-device-state \
-	  +asterisk15-voicemail
-  VARIANT:=asterisk15
-  CONFLICTS:=asterisk15-chan-skinny
-endef
-
 define Package/asterisk16-chan-sccp
 $(call Package/chan-sccp/Default)
   DEPENDS += asterisk16 \
@@ -88,7 +75,6 @@ feature buttons and custom device state.
 endef
 
 Package/asterisk13-chan-sccp/description = $(Package/description/Default)
-Package/asterisk15-chan-sccp/description = $(Package/description/Default)
 Package/asterisk16-chan-sccp/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
@@ -101,10 +87,6 @@ ifeq ($(BUILD_VARIANT),asterisk13)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-13
 endif
 
-ifeq ($(BUILD_VARIANT),asterisk15)
-  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-15
-endif
-
 ifeq ($(BUILD_VARIANT),asterisk16)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-16
 endif
@@ -114,7 +96,6 @@ define Package/conffiles/Default
 endef
 
 Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
-Package/asterisk15-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk16-chan-sccp/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
@@ -125,9 +106,7 @@ define Package/Install/Default
 endef
 
 Package/asterisk13-chan-sccp/install = $(Package/Install/Default)
-Package/asterisk15-chan-sccp/install = $(Package/Install/Default)
 Package/asterisk16-chan-sccp/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk13-chan-sccp))
-$(eval $(call BuildPackage,asterisk15-chan-sccp))
 $(eval $(call BuildPackage,asterisk16-chan-sccp))
