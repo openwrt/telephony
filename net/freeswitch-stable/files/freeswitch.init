@@ -10,7 +10,7 @@ USE_PROCD=1
 NAME=freeswitch
 COMMAND=/usr/bin/$NAME
 
-LOGGER="/usr/bin/logger -p user.err -s -t $NAME"
+LOGGER="/usr/bin/logger -p user.err -s -t $NAME --"
 
 start_service() {
   local dir
@@ -55,16 +55,51 @@ start_service() {
   config_get dir_storage    directories storage    /tmp/$NAME/storage
   config_get dir_temp       directories temp       /tmp/$NAME/temp
 
-  for dir in "$dir_cache" "$dir_db" "$dir_localstate" \
-    "$dir_log" "$dir_recordings" "$dir_run" "$dir_storage" \
-    "$dir_temp"
-  do
-    [ ! -e "$dir" ] && {
-      mkdir -p "$dir"
-      chown "$user":"$group" "$dir"
-      chmod 750 "$dir"
-    }
-  done
+  user_exists "$user" || {
+    $LOGGER user \""$user"\" does not exist
+    exit 1
+  }
+
+  group_exists "$group" || {
+    $LOGGER group \""$group"\" does not exist
+    exit 1
+  }
+
+  # do not touch directories that already exist
+  # posix shell does not support arrays, hence using awk
+  awk \
+    -v user="$user" \
+    -v group="$group" \
+    -v a="$dir_cache" \
+    -v b="$dir_db" \
+    -v c="$dir_localstate" \
+    -v d="$dir_log" \
+    -v e="$dir_recordings" \
+    -v f="$dir_run" \
+    -v g="$dir_storage" \
+    -v h="$dir_temp" \
+    '
+      BEGIN {
+        dir[0]=a
+        dir[1]=b
+        dir[2]=c
+        dir[3]=d
+        dir[4]=e
+        dir[5]=f
+        dir[6]=g
+        dir[7]=h
+        for (x in dir) {
+          if (system("test ! -e \"" dir[x] "\"" )) {
+            delete dir[x]
+          }
+        }
+        for (x in dir) {
+          system("mkdir -p \"" dir[x] "\"" )
+          system("chmod 750 \"" dir[x] "\"" )
+          system("chown \"" user "\":\"" group "\" \"" dir[x] "\"" )
+        }
+      }
+    '
 
   config_get options general options
 
