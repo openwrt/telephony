@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -584,7 +584,7 @@ AC_SUBST(SYS_XMLRPC_CFLAGS)
+@@ -571,7 +571,7 @@ AC_SUBST(SYS_XMLRPC_CFLAGS)
  AC_SUBST(SYS_XMLRPC_LDFLAGS)
  AM_CONDITIONAL([SYSTEM_XMLRPCC],[test "${enable_xmlrpcc}" = "yes"])
  

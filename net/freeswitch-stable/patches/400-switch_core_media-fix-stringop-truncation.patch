@@ -21,7 +21,7 @@ Date:   Sun Apr 14 19:11:58 2019 +0200
 
 --- a/src/switch_core_media.c
 +++ b/src/switch_core_media.c
-@@ -11851,7 +11851,7 @@ SWITCH_DECLARE(void) switch_core_media_p
+@@ -11918,7 +11918,7 @@ SWITCH_DECLARE(void) switch_core_media_p
  			strncpy(q, p, 7);
  			p += 7;
  			q += 7;
