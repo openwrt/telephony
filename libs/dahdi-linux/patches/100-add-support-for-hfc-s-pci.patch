@@ -1,8 +1,8 @@
 --- a/drivers/dahdi/Kbuild
 +++ b/drivers/dahdi/Kbuild
-@@ -13,6 +13,7 @@ obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCT
+@@ -12,6 +12,7 @@ obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCT
+ obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTC4XXP)		+= wctc4xxp/
  obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTDM24XXP)	+= wctdm24xxp/
- obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTE12XP)		+= wcte12xp/
  obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTE13XP)		+= wcte13xp.o
 +obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_HFCS)		+= hfcs/
  
@@ -10,9 +10,9 @@
  CFLAGS_wcte13xp-base.o += -I$(src)/oct612x -I$(src)/oct612x/include -I$(src)/oct612x/octdeviceapi -I$(src)/oct612x/octdeviceapi/oct6100api
 --- a/drivers/dahdi/Kconfig
 +++ b/drivers/dahdi/Kconfig
-@@ -291,4 +291,14 @@ config DAHDI_WCTE11XP
- 
+@@ -223,4 +223,14 @@ config DAHDI_DYNAMIC_LOC
  	  If unsure, say Y.
+ 
  
 +config DAHDI_HFCS
 +	tristate "Support for various HFC-S PCI BRI adapters"
