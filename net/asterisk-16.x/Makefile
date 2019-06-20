@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
 PKG_VERSION:=$(AST_MAJOR_VERSION).3.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -126,7 +126,6 @@ MODULES_AVAILABLE:= \
 	chan-motif \
 	chan-ooh323 \
 	chan-oss \
-	chan-phone \
 	chan-rtp \
 	chan-sip \
 	chan-skinny \
@@ -840,7 +839,6 @@ $(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle channel driver.,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsteriskModule,chan-ooh323,H.323 channel,Objective Systems H.323 channel.,,ooh323.conf,chan_ooh323,,))
 $(eval $(call BuildAsteriskModule,chan-oss,OSS channel,OSS console channel driver.,,oss.conf,chan_oss,,))
-$(eval $(call BuildAsteriskModule,chan-phone,Linux telephony API,Linux telephony API support.,,phone.conf,chan_phone,,))
 $(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP media channel.,,,chan_rtp,,))
 $(eval $(call BuildAsteriskModule,chan-sip,SIP channel,Session Initiation Protocol.,+$(PKG_NAME)-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsteriskModule,chan-skinny,Skinny channel,Skinny Client Control Protocol.,,skinny.conf,chan_skinny,,))
