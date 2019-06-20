@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk13
 PKG_VERSION:=13.24.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -124,7 +124,6 @@ MODULES_AVAILABLE:= \
 	chan-motif \
 	chan-ooh323 \
 	chan-oss \
-	chan-phone \
 	chan-rtp \
 	chan-sip \
 	chan-skinny \
@@ -809,7 +808,6 @@ $(eval $(call BuildAsterisk13Module,chan-mobile,Bluetooth channel,Bluetooth mobi
 $(eval $(call BuildAsterisk13Module,chan-motif,Jingle channel,Motif Jingle Channel Driver,+asterisk13-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsterisk13Module,chan-ooh323,H.323 channel,Objective Systems H.323 channel,,ooh323.conf,chan_ooh323,,))
 $(eval $(call BuildAsterisk13Module,chan-oss,OSS channel,the channel chan_oss,,oss.conf,chan_oss,,))
-$(eval $(call BuildAsterisk13Module,chan-phone,Linux telephony API,generic Linux telephony interface driver,,phone.conf,chan_phone,,))
 $(eval $(call BuildAsterisk13Module,chan-rtp,RTP media channel,RTP [Multicast and Unicast] media channel,,,chan_rtp,,))
 $(eval $(call BuildAsterisk13Module,chan-sip,SIP channel,the channel chan_sip,+asterisk13-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsterisk13Module,chan-skinny,Skinny channel,the channel chan_skinny,,skinny.conf,chan_skinny,,))
