@@ -1,0 +1,42 @@
+commit 3ca75eb8efa4e50ebe083a269b75fcb1762daa91
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Sun Apr 14 19:23:41 2019 +0200
+
+    FS-11783: [mod_say_ja] quiet overflow warning
+    
+    With -Wformat-overflow gcc warns about calls to formatted input/output
+    function "sprintf" that might overflow the destination buffer.
+    
+    In this case gcc does not know the upper bound of tm_min and assumes
+    that up to 11 bytes might be written to buffer (3 bytes). But we know
+    that tm_min can only be within the range 0 to 59.
+    
+    mod_say_ja.c: In function 'ja_say_time':
+    mod_say_ja.c:376:35: error: '%d' directive writing between 2 and 10 bytes into a region of size 3 [-Werror=format-overflow=]
+                      sprintf(buffer, "%d", tm.tm_min);
+                                       ^~
+    mod_say_ja.c:376:34: note: directive argument in the range [11, 2147483647]
+                      sprintf(buffer, "%d", tm.tm_min);
+                                      ^~~~
+    mod_say_ja.c:376:18: note: 'sprintf' output between 3 and 11 bytes into a destination of size 3
+                      sprintf(buffer, "%d", tm.tm_min);
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    This commits adds a hint for gcc, which silences the warning.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/src/mod/say/mod_say_ja/mod_say_ja.c b/src/mod/say/mod_say_ja/mod_say_ja.c
+index 72c7c38131..d8e0692fd0 100644
+--- a/src/mod/say/mod_say_ja/mod_say_ja.c
++++ b/src/mod/say/mod_say_ja/mod_say_ja.c
+@@ -367,7 +367,8 @@ static switch_status_t ja_say_time(switch_core_session_t *session, char *tosay,
+ 			say_file("time/pm.wav");
+ 		}
+ 		say_file("time/hour-%d.wav", tm.tm_hour);
+-		if (tm.tm_min > 10) {
++		/* tm_min is always < 60 - this is just to silence gcc 8 warning */
++		if (tm.tm_min > 10 && tm.tm_min < 60) {
+ 	    		int temp;
+                 	char tch[1+1];
+                 	mod_min = tm.tm_min % 10;

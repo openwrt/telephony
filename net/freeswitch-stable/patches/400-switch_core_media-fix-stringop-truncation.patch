@@ -1,0 +1,32 @@
+commit e114c6382e68824d4498f62562714860d20804e2
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Sun Apr 14 19:11:58 2019 +0200
+
+    FS-11783: [core] quiet gcc truncation warning
+    
+    With -Wstringop-truncation gcc warns about calls to bounded string
+    manipulation function "strncpy" that may either truncate the copied
+    string or leave the destination unchanged. To avoid the warning when the
+    result is not expected to be NUL-terminated, it is suggested to call
+    "memcpy" instead.
+    
+    src/switch_core_media.c: In function 'switch_core_media_patch_sdp':
+    src/switch_core_media.c:11854:4: error: 'strncpy' output truncated before terminating nul copying 2 bytes from a string of the same length [-Werror=stringop-truncation]
+        strncpy(q, strchr(a_engine->adv_sdp_ip, ':') ? "6 " : "4 ", 2);
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    This commit follows gcc's recommendation.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+--- a/src/switch_core_media.c
++++ b/src/switch_core_media.c
+@@ -11918,7 +11918,7 @@ SWITCH_DECLARE(void) switch_core_media_p
+ 			strncpy(q, p, 7);
+ 			p += 7;
+ 			q += 7;
+-			strncpy(q, strchr(a_engine->adv_sdp_ip, ':') ? "6 " : "4 ", 2);
++			memcpy(q, strchr(a_engine->adv_sdp_ip, ':') ? "6 " : "4 ", 2);
+ 			p +=2;
+ 			q +=2;
+ 			strncpy(q, a_engine->adv_sdp_ip, strlen(a_engine->adv_sdp_ip));

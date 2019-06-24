@@ -1,0 +1,11 @@
+--- a/src/mod/event_handlers/mod_kazoo/kazoo_ei_utils.c
++++ b/src/mod/event_handlers/mod_kazoo/kazoo_ei_utils.c
+@@ -519,7 +519,7 @@ switch_status_t create_acceptor() {
+     char ipbuf[48];
+     const char *ip_addr;
+ 
+-#if ERLANG_MAJOR >= 10
++#if (ERLANG_MAJOR == 10 && ERLANG_MINOR >= 3) || ERLANG_MAJOR >= 11
+     ei_init();
+ #endif
+ 
