@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.6.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -199,7 +199,7 @@ $(eval $(call BuildPlugin,oss,OSS audio driver,oss,))
 $(eval $(call BuildPlugin,plc,Packet Loss Concealment,plc,+libspandsp))
 $(eval $(call BuildPlugin,portaudio,Portaudio audio driver,portaudio,+portaudio))
 $(eval $(call BuildPlugin,presence,Presence module,presence,))
-$(eval $(call BuildPlugin,pulse,Pulseaudio audio driver,pulse,+pulseaudio))
+$(eval $(call BuildPlugin,pulse,Pulseaudio audio driver,pulse,PACKAGE_$(PKG_NAME)-mod-pulse:pulseaudio))
 $(eval $(call BuildPlugin,rtcpsummary,RTCP summary module,rtcpsummary,))
 $(eval $(call BuildPlugin,selfview,Video selfview module,selfview,))
 $(eval $(call BuildPlugin,sndfile,Audio dumper using libsndfile,sndfile,+libsndfile))
