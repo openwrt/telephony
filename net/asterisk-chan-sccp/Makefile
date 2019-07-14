@@ -42,19 +42,6 @@ define Package/chan-sccp/Default
   DEPENDS:=$(ICONV_DEPENDS) +libltdl
 endef
 
-define Package/asterisk13-chan-sccp
-$(call Package/chan-sccp/Default)
-  DEPENDS += asterisk13 \
-	  +asterisk13-bridge-holding \
-	  +asterisk13-bridge-native-rtp \
-	  +asterisk13-bridge-simple \
-	  +asterisk13-bridge-softmix \
-	  +asterisk13-res-stasis-device-state \
-	  +asterisk13-voicemail
-  VARIANT:=asterisk13
-  CONFLICTS:=asterisk13-chan-skinny
-endef
-
 define Package/asterisk16-chan-sccp
 $(call Package/chan-sccp/Default)
   DEPENDS += asterisk16 \
@@ -74,7 +61,6 @@ Extended features include shared lines, presence / BLF, customizable
 feature buttons and custom device state.
 endef
 
-Package/asterisk13-chan-sccp/description = $(Package/description/Default)
 Package/asterisk16-chan-sccp/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
@@ -82,10 +68,6 @@ CONFIGURE_ARGS += \
 	--enable-advanced-functions \
 	--enable-conference \
 	--enable-video
-
-ifeq ($(BUILD_VARIANT),asterisk13)
-  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-13
-endif
 
 ifeq ($(BUILD_VARIANT),asterisk16)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-16
@@ -95,7 +77,6 @@ define Package/conffiles/Default
 /etc/asterisk/sccp.conf
 endef
 
-Package/asterisk13-chan-sccp/conffiles = $(Package/conffiles/Default)
 Package/asterisk16-chan-sccp/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
@@ -105,8 +86,6 @@ define Package/Install/Default
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
 endef
 
-Package/asterisk13-chan-sccp/install = $(Package/Install/Default)
 Package/asterisk16-chan-sccp/install = $(Package/Install/Default)
 
-$(eval $(call BuildPackage,asterisk13-chan-sccp))
 $(eval $(call BuildPackage,asterisk16-chan-sccp))
