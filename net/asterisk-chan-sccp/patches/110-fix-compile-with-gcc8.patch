@@ -1,0 +1,38 @@
+commit 1febe062d5ba93747ff8788ce0309c6174e3a08b
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Mon May 6 21:07:48 2019 +0200
+
+    Add missing header to sccp_utils.c
+    
+    With newer gcc versions (8.3 tested) compile of sccp_utils.c fails with:
+    
+        CC       libsccp_la-sccp_utils.lo
+      sccp_utils.c: In function 'sccp_utf8_columnwidth':
+      sccp_utils.c:1846:2: warning: implicit declaration of function 'setlocale'; did you mean 'ast_setlocale'? [-Wimplicit-function-declaration]
+        setlocale(LC_ALL, "");
+        ^~~~~~~~~
+        ast_setlocale
+      sccp_utils.c:1846:12: error: 'LC_ALL' undeclared (first use in this function); did you mean 'AI_ALL'?
+        setlocale(LC_ALL, "");
+                  ^~~~~~
+                  AI_ALL
+      sccp_utils.c:1846:12: note: each undeclared identifier is reported only once for each function it appears in
+      Makefile:852: recipe for target 'libsccp_la-sccp_utils.lo' failed
+      make[7]: *** [libsccp_la-sccp_utils.lo] Error 1
+    
+    Fix this by adding the missing header.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/src/sccp_utils.c b/src/sccp_utils.c
+index df043d1a..f917c0c9 100644
+--- a/src/sccp_utils.c
++++ b/src/sccp_utils.c
+@@ -10,6 +10,7 @@
+  *
+  */
+ 
++#include <locale.h>
+ #include "config.h"
+ #include "common.h"
+ #include "sccp_channel.h"

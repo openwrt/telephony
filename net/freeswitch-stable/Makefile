@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.8.5
-PKG_RELEASE:=2
+PKG_VERSION:=1.8.7
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=503a551be5d6df06162ea9d98a952b6fb524852ce2352fe3ca3a36a76995b046
+PKG_HASH:=7d3cee32713db5f65e3d4703c6420038872d8f6efab8be4d58fbf66ffa993008
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -152,6 +152,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	nibblebill \
 	odbc_cdr \
 	opus \
+	opusfile \
 	oreka \
 	perl \
 	png \
@@ -1065,6 +1066,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,native_file,Native file,Plays files tha
 $(eval $(call Package/$(PKG_NAME)/Module,nibblebill,Nibblebill,This module allows for real-time accounting of a cash balance and\nusing that information for call routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus))
+$(eval $(call Package/$(PKG_NAME)/Module,opusfile,Opus file,Read and Write OGG/Opus files.,+libopusenc +libopusfile))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,+libdb47 +libgdbm +perlbase-essential @PERL_THREADS))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,@FS_STABLE_WITH_PNG))
