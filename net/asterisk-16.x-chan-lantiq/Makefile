@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk16-chan-lantiq
-PKG_VERSION:=20180215
-PKG_RELEASE:=2
+PKG_VERSION:=20190803
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/kochstefan/asterisk_channel_lantiq.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=c9d68dd06fcd46ac7985df45f8c2b8833e658f8e
-PKG_MIRROR_HASH:=8666c18b24adf9da3ddf12306fcf0a8b4f56860c256b172bd0ba5c2a7a3ab25e
+PKG_SOURCE_VERSION:=1d940b38cde0348dfe129d2b764e6faee440c45b
+PKG_MIRROR_HASH:=ff838ff2a4c5353fadd73806e1513f59f224914582b6ba004165712268bc94e5
 PKG_SOURCE_PROTO:=git
 
 PKG_LICENSE:=GPL-2.0
@@ -41,12 +41,6 @@ endef
 
 define Package/$(PKG_NAME)/conffiles
 /etc/asterisk/lantiq.conf
-endef
-
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	$(INSTALL_DATA) ./files/default.exports \
-		$(PKG_BUILD_DIR)/src/channels/chan_lantiq.exports
 endef
 
 define Build/Compile
