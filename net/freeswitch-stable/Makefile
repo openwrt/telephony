@@ -9,17 +9,17 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.8.7
+PKG_VERSION:=1.10.0
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
-PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=7d3cee32713db5f65e3d4703c6420038872d8f6efab8be4d58fbf66ffa993008
+PKG_HASH:=932992c6fed2ede1173cc6f25fe45017291afa1a8e1d97a9c5b65b44b6e67452
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION).-release
 
 # configure in libs/spandsp fails without libjpeg and tiff
 PKG_BUILD_DEPENDS:= \
@@ -147,6 +147,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	logfile \
 	loopback \
 	lua \
+	mariadb \
 	mp4v \
 	native_file \
 	nibblebill \
@@ -155,6 +156,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	opusfile \
 	oreka \
 	perl \
+	pgsql \
 	png \
 	pocketsphinx \
 	portaudio \
@@ -228,7 +230,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
 	CONFIG_FS_STABLE_WITH_LIBYUV \
 	CONFIG_FS_STABLE_WITH_ODBC \
-	CONFIG_FS_STABLE_WITH_PGSQL \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
 	CONFIG_FS_STABLE_WITH_VPX \
@@ -375,7 +376,6 @@ $(call Package/$(PKG_NAME)/Default)
 	  $(ICONV_DEPENDS) \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
-	  +FS_STABLE_WITH_PGSQL:libpq \
 	  +FS_STABLE_WITH_PNG:libpng \
 	  +libcurl \
 	  +libedit \
@@ -646,14 +646,12 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_DEBUG,debug) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_LIBYUV,libyuv) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ODBC,core-odbc-support) \
-	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_PGSQL,core-pgsql-support) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_VPX,libvpx) \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_ZRTP,zrtp) \
 	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PGSQL),,--without-pgsql) \
 	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
 	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri),--with-libpri="$(STAGING_DIR)/usr",--without-libpri) \
 	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap),--with-pritap,--without-pritap)
@@ -677,6 +675,13 @@ ifeq ($(CONFIG_SOFT_FLOAT),y)
 CONFIGURE_ARGS+= \
 	--enable-fixed-point
 endif
+
+# FreeSWITCH dropped postgresql support from the core. postgresql
+# support is now available via mod_pgsql. We still need to pass
+# '--without-pgsql', otherwise apr-util links to libpq and we still
+# would have the core link to it.
+CONFIGURE_ARGS+= \
+	--without-pgsql
 
 # Don't want host-php
 CONFIGURE_VARS+= \
@@ -1008,7 +1013,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,blacklist,Blacklist helper,This module 
 $(eval $(call Package/$(PKG_NAME)/Module,callcenter,Call center,This module implements Automated Call Distribution queues.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_csv,CSV CDR,CSV Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_mongodb,MongoDB CDR,MongoDB Call Detail Record handler.,))
-$(eval $(call Package/$(PKG_NAME)/Module,cdr_pg_csv,PostgreSQL CDR,PostgreSQL Call Detail Record handler.,@FS_STABLE_WITH_PGSQL))
+$(eval $(call Package/$(PKG_NAME)/Module,cdr_pg_csv,PostgreSQL CDR,PostgreSQL Call Detail Record handler.,+libpq))
 $(eval $(call Package/$(PKG_NAME)/Module,cdr_sqlite,SQLite CDR,SQLite Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,cidlookup,Caller ID lookup,This module provides an API for querying caller ID name and location\ndata.,))
 $(eval $(call Package/$(PKG_NAME)/Module,clearmode,Clearmode,Clearmode codec passthrough support.,))
@@ -1061,7 +1066,8 @@ $(eval $(call Package/$(PKG_NAME)/Module,local_stream,Local stream,Connects mult
 $(eval $(call Package/$(PKG_NAME)/Module,logfile,File logger,Logs FreeSWITCH output to a file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,loopback,Loopback,A loopback channel driver.,))
 $(eval $(call Package/$(PKG_NAME)/Module,lua,Lua,Lua language interface for FreeSWITCH.,+liblua))
-$(eval $(call Package/$(PKG_NAME)/Module,mp4v,MP4 video passthrough,MP4 video passthrough..,))
+$(eval $(call Package/$(PKG_NAME)/Module,mariadb,MariaDB,Adds MariaDB support.,+libmariadb @!USE_UCLIBCXX))
+$(eval $(call Package/$(PKG_NAME)/Module,mp4v,MP4 video passthrough,MP4 video passthrough.,))
 $(eval $(call Package/$(PKG_NAME)/Module,native_file,Native file,Plays files that are already encoded in the right format.,))
 $(eval $(call Package/$(PKG_NAME)/Module,nibblebill,Nibblebill,This module allows for real-time accounting of a cash balance and\nusing that information for call routing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,odbc_cdr,ODBC CDR,ODBC Call Detail Record handler.,))
@@ -1069,6 +1075,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,opus,Opus,Opus codec support.,+libopus)
 $(eval $(call Package/$(PKG_NAME)/Module,opusfile,Opus file,Read and Write OGG/Opus files.,+libopusenc +libopusfile))
 $(eval $(call Package/$(PKG_NAME)/Module,oreka,Oreka,This module provides media recording with the Oreka cross-platform\naudio stream recording and retrieval system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,perl,Perl,This package contains mod_perl for FreeSWITCH.,+libdb47 +libgdbm +perlbase-essential @PERL_THREADS))
+$(eval $(call Package/$(PKG_NAME)/Module,pgsql,PostgreSQL,Adds PostgreSQL support.,+libpq))
 $(eval $(call Package/$(PKG_NAME)/Module,png,PNG,Allows playback of video using PNG files.,@FS_STABLE_WITH_PNG))
 $(eval $(call Package/$(PKG_NAME)/Module,pocketsphinx,Pocketsphinx,This module allows speech recognition. You might want to install\n$(PKG_NAME)-misc-grammar as well.,+libsamplerate)) # When libsamplerate is found it'll be linked against, there is no switch to turn it off
 $(eval $(call Package/$(PKG_NAME)/Module,portaudio,Portaudio,Voice through a local soundcard.,+portaudio))
