@@ -1156,5 +1156,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,yuv,Raw YUV,Raw YUV I420 video codec su
 $(eval $(call Package/$(PKG_NAME)/Util,fs_cli,CLI,The fs_cli program is a Command-Line Interface that allows a user to\nconnect to a FreeSWITCH instance running on the local or a remote\nsystem.,,n))
 $(eval $(call Package/$(PKG_NAME)/Util,fs_encode,Sound file conversion,Format conversion of sound files so the result can be used by\nmod_native_file.,+$(PKG_NAME)-mod-native-file +$(PKG_NAME)-mod-sndfile +$(PKG_NAME)-mod-spandsp,n))
 $(eval $(call Package/$(PKG_NAME)/Util,fs_ivrd,IVR daemon,The FreeSWITCH IVR daemon is an abstraction layer that sits on top of\nthe ESL. The basic idea is that the ivrd will allow the user to have\na STDIN/STDOUT interface for simple call control.,,n))
+$(eval $(call Package/$(PKG_NAME)/Util,fs_tts,TTS to sound file,Use TTS to generate a sound file.,,n))
 $(eval $(call Package/$(PKG_NAME)/Util,gentls_cert,TLS certificate,Can be used to create TLS certificates and setup CAs.,+openssl-util,y))
 $(eval $(call Package/$(PKG_NAME)/Util,tone2wav,Sound file generation,Generates a sound file from a teletone script. The output can be in\nany format that is supported by libsndfile.,+$(PKG_NAME)-mod-sndfile,n))
