@@ -420,7 +420,7 @@ $(call Package/$(PKG_NAME)/install/lib,$(1),lib$(PRG_NAME))
 		$(1)$(FS_STABLE_SYSCONF_DIR)/init.d/$(PRG_NAME)
 	$(INSTALL_BIN) ./files/$(PRG_NAME).hotplug \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/hotplug.d/iface/90-$(PRG_NAME)
-	$(INSTALL_CONF) ./files/$(PRG_NAME).config \
+	$(INSTALL_CONF) ./files/$(PRG_NAME).conf \
 		$(1)$(FS_STABLE_SYSCONF_DIR)/config/$(PRG_NAME)
 endef
 
