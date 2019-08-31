@@ -718,8 +718,7 @@ CONFIGURE_VARS+= \
 
 # Regarding apr_cv_mutex_robust_shared=no see
 # http://www.openwall.com/lists/musl/2016/11/26/1
-# _Don't_ remove quotes below!
-ifeq ($(CONFIG_LIBC),"musl")
+ifeq ($(call qstrip,$(CONFIG_LIBC)),musl)
 CONFIGURE_VARS+= \
 	apr_cv_mutex_robust_shared=no \
 	ac_cv_strerror_r_rc_int=yes
