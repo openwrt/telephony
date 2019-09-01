@@ -1,6 +1,6 @@
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -577,8 +577,13 @@ libs/libedit/src/.libs/libedit.a:
+@@ -585,8 +585,13 @@ libs/libedit/src/.libs/libedit.a:
  libs/libzrtp/libzrtp.a:
  	cd libs/libzrtp && $(MAKE)
  
@@ -9,9 +9,9 @@
 +# - added CPPFLAGS to CFLAGS, otherwise they would be ignored
 +# - disabled optimizations that would override OpenWrt's CFLAGS
 +
- libs/libvpx/Makefile:
+ libs/libvpx/Makefile: libs/libvpx/.update
 -	cd libs/libvpx && CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --size-limit=16384x16384 --extra-cflags="$(VISIBILITY_FLAG)"
-+	cd libs/libvpx && CROSS="$(CROSS)" CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(CPPFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --target=generic-gnu --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --size-limit=16384x16384 --extra-cflags="$(VISIBILITY_FLAG)" --disable-optimizations
++	cd libs/libvpx && CROSS="$(CROSS)" CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(CPPFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --target=generic-gnu --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-tools --disable-unit-tests --size-limit=16384x16384 --extra-cflags="$(VISIBILITY_FLAG)" --disable-optimizations
  
- libs/libvpx/libvpx.a: libs/libvpx/Makefile
+ libs/libvpx/libvpx.a: libs/libvpx/Makefile libs/libvpx/.update
  	@cd libs/libvpx && $(MAKE)
