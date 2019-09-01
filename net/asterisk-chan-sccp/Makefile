@@ -55,6 +55,19 @@ $(call Package/chan-sccp/Default)
   CONFLICTS:=asterisk16-chan-skinny
 endef
 
+define Package/asterisk17-chan-sccp
+$(call Package/chan-sccp/Default)
+  DEPENDS += asterisk17 \
+	  +asterisk17-bridge-holding \
+	  +asterisk17-bridge-native-rtp \
+	  +asterisk17-bridge-simple \
+	  +asterisk17-bridge-softmix \
+	  +asterisk17-res-stasis-device-state \
+	  +asterisk17-voicemail
+  VARIANT:=asterisk17
+  CONFLICTS:=asterisk17-chan-skinny
+endef
+
 define Package/description/Default
 Replacement for the SCCP channel driver (chan_skinny) in Asterisk.
 Extended features include shared lines, presence / BLF, customizable
@@ -62,6 +75,7 @@ feature buttons and custom device state.
 endef
 
 Package/asterisk16-chan-sccp/description = $(Package/description/Default)
+Package/asterisk17-chan-sccp/description = $(Package/description/Default)
 
 CONFIGURE_ARGS += \
 	--disable-debug \
@@ -73,11 +87,16 @@ ifeq ($(BUILD_VARIANT),asterisk16)
   CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-16
 endif
 
+ifeq ($(BUILD_VARIANT),asterisk17)
+  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-17
+endif
+
 define Package/conffiles/Default
 /etc/asterisk/sccp.conf
 endef
 
 Package/asterisk16-chan-sccp/conffiles = $(Package/conffiles/Default)
+Package/asterisk17-chan-sccp/conffiles = $(Package/conffiles/Default)
 
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/etc/asterisk
@@ -87,5 +106,7 @@ define Package/Install/Default
 endef
 
 Package/asterisk16-chan-sccp/install = $(Package/Install/Default)
+Package/asterisk17-chan-sccp/install = $(Package/Install/Default)
 
 $(eval $(call BuildPackage,asterisk16-chan-sccp))
+$(eval $(call BuildPackage,asterisk17-chan-sccp))

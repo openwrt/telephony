@@ -47,6 +47,12 @@ $(call Package/$(PKG_NAME)/Default)
   VARIANT:=asterisk16
 endef
 
+define Package/asterisk17-codec-opus
+$(call Package/$(PKG_NAME)/Default)
+  DEPENDS+=asterisk17
+  VARIANT:=asterisk17
+endef
+
 define Package/description/Default
   Opus is the default audio codec in WebRTC. WebRTC is available in
   Asterisk via SIP over WebSockets (WSS). Nevertheless, Opus can be used
@@ -67,6 +73,10 @@ ifeq ($(BUILD_VARIANT),asterisk16)
 TARGET_CFLAGS+=-I$(STAGING_DIR)/usr/include/asterisk-16/include
 endif
 
+ifeq ($(BUILD_VARIANT),asterisk17)
+TARGET_CFLAGS+=-I$(STAGING_DIR)/usr/include/asterisk-17/include
+endif
+
 define Package/Install/Default
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/codecs/codec_opus_open_source.so \
@@ -74,8 +84,10 @@ define Package/Install/Default
 endef
 
 Package/asterisk16-codec-opus/install = $(Package/Install/Default)
+Package/asterisk17-codec-opus/install = $(Package/Install/Default)
 
 define Build/Configure
 endef
 
 $(eval $(call BuildPackage,asterisk16-codec-opus))
+$(eval $(call BuildPackage,asterisk17-codec-opus))
