@@ -27,12 +27,6 @@ config FS_STABLE_WITH_ODBC
 	help
 	  Enable ODBC support.
 
-config FS_STABLE_WITH_PGSQL
-	bool "Compile with PGSQL support"
-	default y if x86_64
-	help
-	  Enable PostgreSQL support.
-
 config FS_STABLE_WITH_PNG
 	bool "Compile with PNG support"
 	default y if x86_64

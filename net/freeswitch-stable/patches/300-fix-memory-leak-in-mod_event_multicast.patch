@@ -10,11 +10,9 @@ Signed-off-by: Eneas U de Queiroz <cote2004-github@yahoo.com>
  src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c b/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
-index f591855a3e..fb952ce740 100644
 --- a/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
 +++ b/src/mod/event_handlers/mod_event_multicast/mod_event_multicast.c
-@@ -324,7 +324,7 @@ static void event_handler(switch_event_t *event)
+@@ -324,7 +324,7 @@ static void event_handler(switch_event_t
  									  &tmplen, (unsigned char *) MAGIC, (int) strlen((char *) MAGIC));
  					outlen += tmplen;
  					EVP_EncryptFinal(ctx, (unsigned char *) buf + SWITCH_UUID_FORMATTED_LENGTH + outlen, &tmplen);
@@ -23,7 +21,7 @@ index f591855a3e..fb952ce740 100644
  #else
  					EVP_CIPHER_CTX_init(&ctx);
  					EVP_EncryptInit(&ctx, EVP_bf_cbc(), NULL, NULL);
-@@ -570,7 +570,7 @@ SWITCH_MODULE_RUNTIME_FUNCTION(mod_event_multicast_runtime)
+@@ -577,7 +577,7 @@ SWITCH_MODULE_RUNTIME_FUNCTION(mod_event
  			EVP_DecryptInit(ctx, NULL, (unsigned char *) globals.psk, (unsigned char *) uuid_str);
  			EVP_DecryptUpdate(ctx, (unsigned char *) tmp, &outl, (unsigned char *) packet, (int) len);
  			EVP_DecryptFinal(ctx, (unsigned char *) tmp + outl, &tmplen);
@@ -32,6 +30,3 @@ index f591855a3e..fb952ce740 100644
  #else
  			EVP_CIPHER_CTX_init(&ctx);
  			EVP_DecryptInit(&ctx, EVP_bf_cbc(), NULL, NULL);
--- 
-2.16.4
-
