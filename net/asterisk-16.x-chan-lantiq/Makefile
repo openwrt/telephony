@@ -27,12 +27,12 @@ PKG_FLAGS:=nonshared
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
-  SUBMENU:=Telephony Lantiq
+  SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=+asterisk16 +kmod-ltq-vmmc
+  DEPENDS:=asterisk16 +kmod-ltq-vmmc
 endef
 
 define Package/$(PKG_NAME)/description
