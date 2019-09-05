@@ -18,11 +18,9 @@ ASTERISK-28465
 Change-Id: I8b02845b53344c6babe867a3f0a5231045c7ac87
 ---
 
-diff --git a/channels/chan_sip.c b/channels/chan_sip.c
-index fe2ae1e..6251878 100644
 --- a/channels/chan_sip.c
 +++ b/channels/chan_sip.c
-@@ -10921,7 +10921,13 @@
+@@ -10917,7 +10917,13 @@ static int process_sdp(struct sip_pvt *p
  			    ast_rtp_lookup_mime_multiple2(s3, NULL, newnoncodeccapability, 0, 0));
  	}
  
@@ -36,4 +34,4 @@ index fe2ae1e..6251878 100644
 +	if ((portno != -1 || vportno != -1 || tportno != -1) && ast_format_cap_count(newjointcapability)) {
  		/* We are now ready to change the sip session and RTP structures with the offered codecs, since
  		   they are acceptable */
- 		unsigned int framing;
+ 		ast_format_cap_remove_by_type(p->jointcaps, AST_MEDIA_TYPE_UNKNOWN);

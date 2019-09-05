@@ -19,11 +19,9 @@ ASTERISK-27818
 Change-Id: Icb275a54ff8e2df6c671a6d9bda37b5d732b3b32
 ---
 
-diff --git a/res/res_pjsip/pjsip_distributor.c b/res/res_pjsip/pjsip_distributor.c
-index 51b95a2..0af447d 100644
 --- a/res/res_pjsip/pjsip_distributor.c
 +++ b/res/res_pjsip/pjsip_distributor.c
-@@ -676,6 +676,26 @@
+@@ -676,6 +676,26 @@ static void check_endpoint(pjsip_rx_data
  	ao2_unlock(unid);
  }
  
@@ -50,7 +48,7 @@ index 51b95a2..0af447d 100644
  static pj_bool_t endpoint_lookup(pjsip_rx_data *rdata)
  {
  	struct ast_sip_endpoint *endpoint;
-@@ -695,6 +715,7 @@
+@@ -694,6 +714,7 @@ static pj_bool_t endpoint_lookup(pjsip_r
  			ao2_unlink(unidentified_requests, unid);
  			ao2_ref(unid, -1);
  		}
@@ -58,7 +56,7 @@ index 51b95a2..0af447d 100644
  		return PJ_FALSE;
  	}
  
-@@ -759,6 +780,8 @@
+@@ -753,6 +774,8 @@ static pj_bool_t endpoint_lookup(pjsip_r
  			ast_sip_report_invalid_endpoint(name, rdata);
  		}
  	}
@@ -67,7 +65,7 @@ index 51b95a2..0af447d 100644
  	return PJ_FALSE;
  }
  
-@@ -842,16 +865,11 @@
+@@ -836,16 +859,11 @@ static pj_bool_t authenticate(pjsip_rx_d
  
  	ast_assert(endpoint != NULL);
  
@@ -87,7 +85,7 @@ index 51b95a2..0af447d 100644
  		pjsip_tx_data *tdata;
  		struct unidentified_request *unid;
  
-@@ -888,6 +906,10 @@
+@@ -881,6 +899,10 @@ static pj_bool_t authenticate(pjsip_rx_d
  			return PJ_TRUE;
  		}
  		pjsip_tx_data_dec_ref(tdata);
@@ -98,4 +96,3 @@ index 51b95a2..0af447d 100644
  	}
  
  	return PJ_FALSE;
-
