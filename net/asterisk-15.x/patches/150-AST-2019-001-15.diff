@@ -19,11 +19,9 @@ Reported by: Sotiris Ganouris
 Change-Id: Ia095cb16b4862f2f6ad6d2d2a77453fa2542371f
 ---
 
-diff --git a/res/res_pjsip_sdp_rtp.c b/res/res_pjsip_sdp_rtp.c
-index e2067cc..7f5a859 100644
 --- a/res/res_pjsip_sdp_rtp.c
 +++ b/res/res_pjsip_sdp_rtp.c
-@@ -1941,7 +1941,7 @@
+@@ -1722,7 +1722,7 @@ static int apply_negotiated_sdp_stream(s
  	}
  
  	if (set_caps(session, session_media, session_media_transport, remote_stream, 0, asterisk_stream)) {
