@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
 PKG_VERSION:=$(AST_MAJOR_VERSION).3.0
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -332,7 +332,7 @@ endef
 
 define Package/$(PKG_NAME)/install/conffile
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(CP) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
+	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
 endef
 
 define Package/$(PKG_NAME)/install/lib
@@ -498,7 +498,7 @@ $(foreach m,$(AST_EMB_MODULES),$(call Package/$(PKG_NAME)/install/module,$(1),$(
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
-	$(INSTALL_CONF) ./files/asterisk.config $(1)/etc/config/asterisk
+	$(INSTALL_CONF) ./files/asterisk.conf $(1)/etc/config/asterisk
 endef
 
 define Package/$(PKG_NAME)-sounds
