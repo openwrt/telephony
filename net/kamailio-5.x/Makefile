@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.2.1
-PKG_RELEASE:=2
+PKG_VERSION:=5.2.4
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=95d2158f97c76124a381364d99de1420f193275c5a1c9f88489c6409702f2c8f
+PKG_HASH:=484488879fa3c790bbd940bb81bac90639f4dccfc1c2b4e75db38f65d4020393
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -271,7 +271,7 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) \
-		./files/kamailio.config \
+		./files/kamailio.conf \
 		$(1)/etc/config/kamailio
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) \
