@@ -9,24 +9,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtpproxy
-PKG_VERSION:=2.1.0-20170914
-PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=589cc78cb8698b49aa408c6411c8720a2a0efe3c
-PKG_MIRROR_HASH:=087b363a7e5f112fe0c601e147ac087f528a500a25340cbccc12d90935876137
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
+PKG_SOURCE_DATE=2019-10-02
+PKG_SOURCE_VERSION:=aa1f179e09097f467bc4726e3300014c1e35246f
+PKG_RELEASE:=1
+PKG_MIRROR_HASH:=7acc5f5bf2d4be23e9a2fad0c4e7576f172191c9f1b37104aee4d05dbdcac8fd
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-PKG_CHECK_FORMAT_SECURITY:=0
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=BSD-2-Clause
-PKG_LICENSE_FILES:=COPYING
+PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
@@ -40,7 +37,7 @@ endef
 
 define Package/rtpproxy
 $(call Package/rtpproxy/Default)
-  DEPENDS:=+libpthread +librt
+  DEPENDS:=+libatomic +libpthread +librt
   TITLE:=RTP (Realtime Transport Protocol) proxy
   MENU:=1
 endef
@@ -53,11 +50,17 @@ endef
 define Package/rtpproxy-mod-acct-csv
 $(call Package/rtpproxy/Default)
   DEPENDS:=rtpproxy
-  TITLE:=RTPproxy accounting module
+  TITLE:=RTPproxy CSV accounting module
 endef
 
-CONFIGURE_VARS += \
-        ac_cv_lib_bcg729_initBcg729EncoderChannel=no
+define Package/rtpproxy-mod-acct-rtcp-hep
+$(call Package/rtpproxy/Default)
+  DEPENDS:=rtpproxy
+  TITLE:=RTPproxy RTCP HEP accounting module
+endef
+
+CONFIGURE_ARGS += \
+	--without-xsltproc
 
 # Otherwise OpenWrt's CPPFLAGS are ignored
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
@@ -70,7 +73,7 @@ define Package/rtpproxy/install
 	$(INSTALL_BIN) ./files/rtpproxy.init $(1)/etc/init.d/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/rtpproxy.config $(1)/etc/config/rtpproxy
+	$(INSTALL_CONF) ./files/rtpproxy.conf $(1)/etc/config/rtpproxy
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/rtpproxy.hotplug $(1)/etc/hotplug.d/iface/90-rtpproxy
@@ -96,5 +99,30 @@ define Package/rtpproxy-mod-acct-csv/install
 							$(1)/usr/lib/rtpproxy
 endef
 
+define Package/rtpproxy-mod-acct-rtcp-hep/install
+	$(INSTALL_DIR) $(1)/usr/lib/rtpproxy
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/lib/rtpproxy/rtpp_acct_rtcp_hep.so \
+							$(1)/usr/lib/rtpproxy
+endef
+
+define Package/$(PKG_NAME)/Util
+  define Package/$(PKG_NAME)-util-$(1)
+    $(call Package/$(PKG_NAME)/Default)
+    DEPENDS:= $(PKG_NAME) $(patsubst +%,+PACKAGE_$(PKG_NAME)-util-$(1):%,$(2))
+    TITLE:=RTPproxy $(1) utility
+  endef
+
+  define Package/$(PKG_NAME)-util-$(1)/install
+	  $$(INSTALL_DIR) $$(1)/usr/bin
+	  $$(INSTALL_BIN) $$(PKG_INSTALL_DIR)/usr/bin/$(1) $$(1)/usr/bin
+  endef
+
+  $$(eval $$(call BuildPackage,$(PKG_NAME)-util-$(1)))
+endef
+
 $(eval $(call BuildPackage,rtpproxy))
 $(eval $(call BuildPackage,rtpproxy-mod-acct-csv))
+$(eval $(call BuildPackage,rtpproxy-mod-acct-rtcp-hep))
+$(eval $(call Package/$(PKG_NAME)/Util,extractaudio,+bcg729 +libsndfile +libsrtp2))
+$(eval $(call Package/$(PKG_NAME)/Util,makeann,+bcg729))
