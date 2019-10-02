@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bcg729
 PKG_VERSION:=1.0.4
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.linphone.org/releases/sources/bcg729
@@ -51,11 +51,14 @@ CMAKE_OPTIONS += \
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/bcg729
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/bcg729/*.h $(1)/usr/include/bcg729
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/usr/lib/cmake/Bcg729
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/Bcg729/cmake/*.cmake $(1)/usr/lib/cmake/Bcg729
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/bcg729/*.h \
+		$(1)/usr/include/bcg729
+	$(INSTALL_DIR) $(1)/usr/lib/{cmake/Bcg729,pkgconfig}
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbcg729.so* $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/lib$(PKG_NAME).pc \
+		$(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/Bcg729/cmake/*.cmake \
+		$(1)/usr/lib/cmake/Bcg729
 endef
 
 define Package/bcg729/install
