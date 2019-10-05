@@ -1,0 +1,78 @@
+commit aa43d358634ab9bf66250babab743a846e2bd689
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Thu Oct 3 19:58:08 2019 +0200
+
+    Fix RTP crypto setup
+    
+    RTPProxy's configure script checks for both libsrtp and libsrtp2. When
+    both are available the configure script ends up setting
+    
+    LIBS_SRTP="-lsrtp2"
+    
+    and defining both ENABLE_SRTP and ENABLE_SRTP2. But the below
+    preprocessor macro in extractaudio/eaud_crypto.c can only deal with one
+    or the other, not both:
+    
+      #if ENABLE_SRTP
+      #       include <srtp/srtp.h>
+      #       define srtp_crypto_policy_set_rtp_default crypto_policy_set_rtp_default
+      #       define srtp_crypto_policy_set_rtcp_default crypto_policy_set_rtcp_default
+      #       define srtp_sec_serv_t sec_serv_t
+      #       define srtp_err_status_ok err_status_ok
+      #elif ENABLE_SRTP2
+      #       include <srtp2/srtp.h>
+      #else
+      #       error "One of srtp or srtp2 must be configured."
+      #endif
+    
+    So it chooses a setup which would be valid for libsrtp and not libsrtp2.
+    But afterward the build system tries to link against libsrtp2 (because
+    of LIBS_SRTP="-lsrtp2") and the compile fails:
+    
+    /home/sk/tmp/openwrt/staging_dir/toolchain-mips_24kc_gcc-7.4.0_musl/lib/gcc/mips-openwrt-linux-musl/7.4.0/../../../../mips-openwrt-linux-musl/bin/ld: extractaudio-eaud_crypto.o: in function `eaud_crypto_getopt_parse':
+    eaud_crypto.c:(.text+0xc8): undefined reference to `crypto_policy_set_rtp_default'
+    /home/sk/tmp/openwrt/staging_dir/toolchain-mips_24kc_gcc-7.4.0_musl/lib/gcc/mips-openwrt-linux-musl/7.4.0/../../../../mips-openwrt-linux-musl/bin/ld: eaud_crypto.c:(.text+0xd0): undefined reference to `crypto_policy_set_rtcp_default'
+    collect2: error: ld returned 1 exit status
+    make[4]: *** [Makefile:567: extractaudio] Error 1
+    
+    Fix this by checking for libsrtp only if libsrtp2 is not found.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/configure.ac b/configure.ac
+index 6e680c63..fe3216b6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -140,22 +140,22 @@ then
+    AC_DEFINE([ENABLE_SNDFILE], 1, [Define if you have libsndfile library installed]))
+ fi
+ 
+-# libsrtp
+-AC_CHECK_HEADER(srtp/srtp.h, found_libsrtp=yes)
+-if test "$found_libsrtp" = yes
+-then
+-  AC_CHECK_LIB(srtp, srtp_init,
+-   LIBS_SRTP="-lsrtp"
+-   AC_DEFINE([ENABLE_SRTP], 1, [Define if you have libsrtp library installed]))
+-fi
+-
+-# libsrtp2
++# libsrtp2 (preferred)
+ AC_CHECK_HEADER(srtp2/srtp.h, found_libsrtp2=yes)
+ if test "$found_libsrtp2" = yes
+ then
+   AC_CHECK_LIB(srtp2, srtp_init,
+    LIBS_SRTP="-lsrtp2"
+    AC_DEFINE([ENABLE_SRTP2], 1, [Define if you have libsrtp2 library installed]))
++else
++  # libsrtp
++  AC_CHECK_HEADER(srtp/srtp.h, found_libsrtp=yes)
++  if test "$found_libsrtp" = yes
++  then
++    AC_CHECK_LIB(srtp, srtp_init,
++     LIBS_SRTP="-lsrtp"
++     AC_DEFINE([ENABLE_SRTP], 1, [Define if you have libsrtp library installed]))
++  fi
+ fi
+ 
+ # libelperiodic
