@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.10.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
@@ -192,6 +192,7 @@ FS_STABLE_MOD_AVAILABLE:= \
 	say_zh \
 	shell_stream \
 	shout \
+	signalwire \
 	skinny \
 	sms \
 	snapshot \
@@ -1099,6 +1100,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,say_th,Thai Say,Uses prerecorded sounds
 $(eval $(call Package/$(PKG_NAME)/Module,say_zh,Chinese Say,Uses prerecorded sounds to read or say various things.,))
 $(eval $(call Package/$(PKG_NAME)/Module,shell_stream,Shell stream,Allows to stream audio from an arbitrary shell command.,))
 $(eval $(call Package/$(PKG_NAME)/Module,shout,Shout,Allows to stream audio from MP3s or Shoutcast streams.,+lame-lib +libmpg123 +libshout))
+$(eval $(call Package/$(PKG_NAME)/Module,signalwire,SignalWire,SignalWire CLOUD - FreeSWITCH connector.,+signalwire-client-c))
 $(eval $(call Package/$(PKG_NAME)/Module,skinny,Skinny,Skinny Call Control Protocol endpoint support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,sms,SMS,This module provides an abstract facility for interfacing with SMS\nsystems.,))
 $(eval $(call Package/$(PKG_NAME)/Module,snapshot,Snapshot,This module can record a sliding window of audio and take snapshots\nto disk.,))
