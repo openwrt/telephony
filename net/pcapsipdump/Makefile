@@ -8,12 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcapsipdump
-PKG_VERSION:=0.2
-PKG_RELEASE:=3
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/pcapsipdump
-PKG_HASH:=4d4dc2664963c08de40da47ca0dcd1eeae09edc42241bd6daa7ff8c59089dce9
+PKG_SOURCE_PROTO:=svn
+PKG_SOURCE_URL:=https://svn.code.sf.net/p/pcapsipdump/code/trunk
+PKG_SOURCE_VERSION:=151
+PKG_SOURCE_DATE=2019-10-07
+PKG_RELEASE:=1
+PKG_MIRROR_HASH:=a029b29946f0492220fc9c60ef3e7f0a7a0c660f0047957eab6802ae6b9f9ed4
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=LICENSE
@@ -36,10 +37,7 @@ define Package/pcapsipdump/description
  (even if there is thousands of concurrect SIP sessions).
 endef
 
-MAKE_FLAGS += \
-	CC="$(TARGET_CXX)" \
-	CPPFLAGS="$(TARGET_CXXFLAGS) -fno-rtti $(TARGET_CPPFLAGS)" \
-	LIBS="-lpcap"
+MAKE_FLAGS+=LIBS="-lpcap"
 
 define Package/pcapsipdump/install
 	$(INSTALL_DIR) $(1)/usr/bin
