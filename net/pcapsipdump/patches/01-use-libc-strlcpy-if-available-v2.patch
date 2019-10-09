@@ -1,0 +1,64 @@
+--- a/Makefile
++++ b/Makefile
+@@ -2,8 +2,12 @@ LIBS ?= -lpcap -lstdc++
+ RELEASEFLAGS ?= -O3 -Wall
+ #CXXFLAGS ?= --std=c++0x
+ 
++# check if libc provides BSD's strlcpy
++ifeq ($(shell $(CXX) $(CXXFLAGS) -D_BSD_SOURCE $(LDFLAGS) $(DEFS) -o /dev/null \
++	make-checks/strlcpy.cpp 2>/dev/null; echo $$?),0)
++	BSDSTR_DEFS := -D_BSD_SOURCE -DUSE_LIBC_STRLCPY
+ # auto-detect if bsd/strings.h is available
+-ifeq ($(shell $(CXX) $(CXXFLAGS) $(LDFLAGS) $(DEFS) -E -o /dev/null \
++else ifeq ($(shell $(CXX) $(CXXFLAGS) $(LDFLAGS) $(DEFS) -E -o /dev/null \
+     	make-checks/libbsd.cpp 2>/dev/null; echo $$?),0)
+ 	BSDSTR_DEFS := -DUSE_BSD_STRING_H
+ 	BSDSTR_LIBS := -lbsd
+--- a/pcapsipdump_lib.h
++++ b/pcapsipdump_lib.h
+@@ -3,7 +3,7 @@
+ #ifndef BSD
+   #ifdef USE_BSD_STRING_H
+     #include <bsd/string.h>
+-  #else
++  #elif !defined(USE_LIBC_STRLCPY)
+     #define strlcpy strncpy
+   #endif
+ #endif
+--- a/make-checks/all.mk
++++ b/make-checks/all.mk
+@@ -1,5 +1,5 @@
+-make-checks/all: make-checks/cxx make-checks/libpcap make-checks/libbsd
++make-checks/all: make-checks/cxx make-checks/libpcap make-checks/strlcpy make-checks/libbsd
+ 	@touch make-checks/all
+ 
+ make-checks/clean:
+-	rm -f make-checks/all make-checks/cxx make-checks/libpcap make-checks/libbsd
++	rm -f make-checks/all make-checks/cxx make-checks/libpcap make-checks/strlcpy make-checks/libbsd
+--- a/make-checks/libbsd.mk
++++ b/make-checks/libbsd.mk
+@@ -2,5 +2,5 @@ CHECK_LIBBSD = $(CXX) $(CXXFLAGS) $(LDFL
+ 
+ make-checks/libbsd:
+ 	@$(CHECK_LIBBSD) || (\
+-	  echo "*** notice: recommended library not found: libbsd"; \
++	  echo "*** notice: library not found: libbsd"; \
+ 	  true)
+--- /dev/null
++++ b/make-checks/strlcpy.cpp
+@@ -0,0 +1,6 @@
++#include <string.h>
++int main(int argc, char **argv) {
++	char dst[10];
++	strlcpy(dst, "test", sizeof(dst));
++	return 0;
++}
+--- /dev/null
++++ b/make-checks/strlcpy.mk
+@@ -0,0 +1,6 @@
++CHECK_STRLCPY = $(CXX) $(CXXFLAGS) -D_BSD_SOURCE $(LDFLAGS) make-checks/strlcpy.cpp -o make-checks/strlcpy 2>/dev/null
++
++make-checks/strlcpy:
++	@$(CHECK_STRLCPY) || (\
++	  echo "*** notice: your libc doesn't provide strlcpy()"; \
++	  true)
