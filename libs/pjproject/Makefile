@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.8
-PKG_RELEASE:=2
+PKG_VERSION:=2.9
+PKG_RELEASE:=1
 
 PKG_SOURCE:=pjproject-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=http://www.pjsip.org/release/$(PKG_VERSION)
-PKG_HASH:=503d0bd7f9f13dc1492ac9b71b761b1089851fbb608b9a13996edc3c42006f79
+PKG_SOURCE_URL:=https://www.pjsip.org/release/$(PKG_VERSION)
+PKG_HASH:=d185ef7855c8ec07191dde92f54b65a7a4b7a6f7bf8c46f7af35ceeb1da2a636
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 
@@ -34,7 +34,7 @@ define Package/pjproject/Default
   SECTION:=lib
   CATEGORY:=Libraries
   SUBMENU:=Telephony
-  URL:=http://www.pjsip.org
+  URL:=https://www.pjsip.org
   DEPENDS:=$(CXX_DEPENDS) +libopenssl +libuuid +libpthread
 endef
 
@@ -60,6 +60,7 @@ endef
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_SOFT_FLOAT),--disable-floating-point) \
 	--disable-bcg729 \
+	--disable-darwin-ssl \
 	--disable-ext-sound \
 	--disable-ffmpeg \
 	--disable-g711-codec \
@@ -108,7 +109,8 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(SED) 's|$(TARGET_CFLAGS)||g' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc \
+		$(1)/usr/lib/pkgconfig
 endef
 
 $(eval $(call PJSIPpackage,libpj,libpj,+librt))
