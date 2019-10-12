@@ -9,17 +9,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
-PKG_VERSION:=0.6.0
+PKG_VERSION:=0.6.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=0e97bcb5cc8f84d6920aa78de24c7d4bf271c5ddefbb650848e0db50afe98131
+PKG_HASH:=cd5bfc79640411803b200c7531e4ba8a230da3806746d3bd2de970da2060fe43
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
