@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -48,11 +48,11 @@ endif
+@@ -45,11 +45,11 @@ endif
  
  CFLAGS    += -I. -Iinclude -I$(LIBRE_INC) -I$(SYSROOT)/include
  CFLAGS    += -I$(LIBREM_PATH)/include

@@ -9,17 +9,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.6.2
-PKG_RELEASE:=2
+PKG_VERSION:=0.6.4
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=e1fae11ea9e6dc861bb2c43d6bef641778945aad86581d58bc4b0ea64b8d28e2
+PKG_HASH:=61710bd1bec406ae1faf167c5743bad8eef9ced5152a3943b94d7e1cf9597581
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 baresip-mods:= \
