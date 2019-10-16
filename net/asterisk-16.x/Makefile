@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
-PKG_VERSION:=$(AST_MAJOR_VERSION).3.0
-PKG_RELEASE:=8
+PKG_VERSION:=$(AST_MAJOR_VERSION).6.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=8b22ee7c0c0b5557eff273118703c6fce8b743c12bbeb679ed86b3f197444a8e
+PKG_HASH:=2cbc23c9dcd316c35e51fa16b7d1dbcd31f19d2509d1a910b61d6839ccd56384
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -43,7 +43,9 @@ MODULES_AVAILABLE:= \
 	app-agent-pool \
 	app-alarmreceiver \
 	app-amd \
+	app-attended-transfer \
 	app-authenticate \
+	app-blind-transfer \
 	app-bridgeaddchan \
 	app-bridgewait \
 	app-celgenuserevent \
@@ -757,7 +759,9 @@ $(eval $(call BuildAsteriskModule,app-adsiprog,ADSI programming,Asterisk ADSI pr
 $(eval $(call BuildAsteriskModule,app-agent-pool,Call center agent pool,Call center agent pool applications.,,agents.conf,app_agent_pool,,))
 $(eval $(call BuildAsteriskModule,app-alarmreceiver,Alarm receiver,Alarm receiver for Asterisk.,,,app_alarmreceiver,,))
 $(eval $(call BuildAsteriskModule,app-amd,Answering machine detection,Answering Machine Detection application.,,amd.conf,app_amd,,))
+$(eval $(call BuildAsteriskModule,app-attended-transfer,Attended transfer,Queues up an attended transfer to a given extension.,,,app_attended_transfer,,))
 $(eval $(call BuildAsteriskModule,app-authenticate,Authenticate commands,Authentication application.,,,app_authenticate,,))
+$(eval $(call BuildAsteriskModule,app-blind-transfer,Blind transfer,Redirects all channels currently bridged to the caller channel to a specified destination.,,,app_blind_transfer,,))
 $(eval $(call BuildAsteriskModule,app-bridgeaddchan,Bridge add channel,Bridge-add-channel application.,,,app_bridgeaddchan,,))
 $(eval $(call BuildAsteriskModule,app-bridgewait,Holding bridge,Application to place a channel into a holding bridge.,+$(PKG_NAME)-bridge-holding,,app_bridgewait,,))
 $(eval $(call BuildAsteriskModule,app-celgenuserevent,User-defined CEL event,Generate a user defined CEL event.,,,app_celgenuserevent,,))
