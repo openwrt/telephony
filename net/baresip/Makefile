@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=0.6.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -41,7 +41,9 @@ baresip-mods:= \
 	sndfile \
 	srtp \
 	stdio \
-	v4l2
+	v4l2 \
+	vp8 \
+	vp9
 
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(subst _,-,$(baresip-mods)))
@@ -84,6 +86,8 @@ baresip-mod-rtcpsummary := USE_RTCPSUMMARY
 baresip-mod-sndfile     := USE_SNDFILE
 baresip-mod-srtp        := USE_SRTP
 baresip-mod-stdio       := USE_STDIO
+baresip-mod-vp8         := USE_VPX
+baresip-mod-vp9         := USE_VPX
 baresip-mod-v4l2        := USE_V4L2
 
 BARESIP_MOD_OPTIONS:= \
@@ -212,3 +216,5 @@ $(eval $(call BuildPlugin,v4l2_codec,Video4Linux2 video codec module,v4l2_codec,
 $(eval $(call BuildPlugin,vidbridge,Video bridge module,vidbridge,))
 $(eval $(call BuildPlugin,vidloop,Video-loop test module,vidloop,))
 $(eval $(call BuildPlugin,vumeter,Display audio levels in console,vumeter,))
+$(eval $(call BuildPlugin,vp8,VP8 video codec,vp8,+libvpx))
+$(eval $(call BuildPlugin,vp9,VP9 video codec,vp9,+libvpx))
