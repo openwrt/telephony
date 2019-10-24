@@ -1,11 +1,3 @@
---- a/utils/kamctl/kamctl
-+++ b/utils/kamctl/kamctl
-@@ -1,4 +1,4 @@
--#!/bin/bash
-+#!/bin/sh
- #
- # control tool for maintaining Kamailio
- #
 --- a/utils/kamctl/kamctlrc
 +++ b/utils/kamctl/kamctlrc
 @@ -160,3 +160,6 @@
@@ -15,54 +7,3 @@
 +
 +# Disable colour printing in terminal
 +NOHLPRINT=1
---- a/utils/kamctl/kamdbctl
-+++ b/utils/kamctl/kamdbctl
-@@ -1,4 +1,4 @@
--#!/bin/bash
-+#!/bin/sh
- #
- # control tool for maintaining Kamailio databases
- #
---- a/utils/kamctl/kamctl.base
-+++ b/utils/kamctl/kamctl.base
-@@ -651,7 +651,7 @@ in SIP_DOMAIN"
- check_aor() {
- 	echo "$1" | $EGREP "^$USERNAME_RE@.+" >/dev/null
- 	if [ $? -ne 0 ] ; then
--		echo "error: invalid AoR: $1" > /dev/stderr
-+		echo "error: invalid AoR: $1" >&2
- 		exit 1
- 	fi
- }
-@@ -670,7 +670,7 @@ is_aor() {
- check_sipaor() {
- 	echo "$1" | $EGREP "^sip(s)?:$USERNAME_RE@.+" >/dev/null
- 	if [ $? -ne 0 ] ; then
--		echo "error: invalid SIP AoR: $1" > /dev/stderr
-+		echo "error: invalid SIP AoR: $1" >&2
- 		exit 1
- 	fi
- }
-@@ -681,7 +681,7 @@ check_sipaor() {
- check_uri() {
- 	echo "$1" | $EGREP "^sip(s)?:($USERNAME_RE@)?.+"  > /dev/null
- 	if [ $? -ne 0 ] ; then
--		echo "error: invalid SIP URI: $1" > /dev/stderr
-+		echo "error: invalid SIP URI: $1" >&2
- 		exit 1
- 	fi
- }
---- a/utils/kamctl/kamctl.sqlbase
-+++ b/utils/kamctl/kamctl.sqlbase
-@@ -38,9 +38,9 @@ prompt_pw() {
- 	if [ -z "$DBRWPW" ] ; then
- 		savetty=`stty -g`
- 		if [ -z "$1" ] ; then
--			printf "Password: " > /dev/stderr
-+			printf "Password: " >&2
- 		else
--			printf "$1: " > /dev/stderr
-+			printf "$1: " >&2
- 		fi
- 		stty -echo
-     	read DBRWPW
