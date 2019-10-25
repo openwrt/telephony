@@ -165,7 +165,6 @@ MODULES_AVAILABLE:= \
 	rr \
 	rtimer \
 	rtjson \
-	rtp_media_server \
 	rtpengine \
 	rtpproxy \
 	sanity \
@@ -601,7 +600,6 @@ $(eval $(call BuildKamailio5Module,rls,Resource List Server,,+kamailio5-mod-pres
 $(eval $(call BuildKamailio5Module,rr,Record-Route and Route,,))
 $(eval $(call BuildKamailio5Module,rtimer,Routing Timer,,))
 $(eval $(call BuildKamailio5Module,rtjson,SIP routing based on JSON API,,))
-$(eval $(call BuildKamailio5Module,rtp_media_server,Embedded RTP server,,@BROKEN +bcunit +kamailio5-mod-tm +mediastreamer2 +ortp,))
 $(eval $(call BuildKamailio5Module,rtpengine,RTP engine,,+kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,rtpproxy,RTP proxy,,+kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,sanity,SIP sanity checks,,+kamailio5-mod-sl))
