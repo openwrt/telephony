@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
 PKG_VERSION:=$(AST_MAJOR_VERSION).6.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -642,9 +642,6 @@ CONFIGURE_ARGS+= \
 	--with-iksemel="$(STAGING_DIR)/usr"
 endif
 
-CONFIGURE_VARS += \
-	ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR)/host/bin/xml2-config
-
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-caldav)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-ews)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-exchange)$(CONFIG_PACKAGE_$(PKG_NAME)-res-calendar-icalendar),)
 CONFIGURE_VARS += \
 	ac_cv_path_CONFIG_NEON=$(STAGING_DIR)/usr/bin/neon-config
@@ -671,12 +668,11 @@ MAKE_FLAGS+= \
 
 AST_MENUSELECT_OPTS = \
 	--without-newt \
-	--without-curses \
-	--with-libxml2="$(STAGING_DIR_HOSTPKG)/usr"
+	--without-curses
 
 define Build/menuselect
 	CC="$(HOSTCC)" \
-	CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+	CFLAGS="$(HOST_CFLAGS)" \
 	LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
 	$(MAKE) -C "$(PKG_BUILD_DIR)/menuselect"
 endef
@@ -687,10 +683,9 @@ define Build/Configure
 	$(call Build/Configure/Default)
 	cd $(PKG_BUILD_DIR)/menuselect; \
 		CC="$(HOSTCC)" \
-		CFLAGS="$(HOST_CFLAGS) -I$(STAGING_DIR_HOSTPKG)/include/libxml2" \
+		CFLAGS="$(HOST_CFLAGS)" \
 		CONFIG_SITE= \
 		LDFLAGS="$(HOST_LDFLAGS) -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib" \
-		ac_cv_path_ac_pt_CONFIG_LIBXML2=$(STAGING_DIR_HOSTPKG)/bin/xml2-config \
 		./configure \
 		$(HOST_CONFIGURE_ARGS) \
 		$(AST_MENUSELECT_OPTS)
@@ -947,7 +942,7 @@ $(eval $(call BuildAsteriskModule,res-ari-playbacks,RESTful playback control res
 $(eval $(call BuildAsteriskModule,res-ari-recordings,RESTful recording resources,RESTful API module - recording resources.,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis-recording,,res_ari_recordings,,))
 $(eval $(call BuildAsteriskModule,res-ari-sounds,RESTful sound resources,RESTful API module - sound resources.,+$(PKG_NAME)-res-ari +$(PKG_NAME)-res-ari-model +$(PKG_NAME)-res-stasis,,res_ari_sounds,))
 $(eval $(call BuildAsteriskModule,res-calendar,Calendar API,Asterisk calendar integration.,,calendar.conf,res_calendar,,))
-$(eval $(call BuildAsteriskModule,res-calendar-caldav,CalDAV calendar,Asterisk CalDAV calendar integration.,+$(PKG_NAME)-res-calendar +libical +libneon +libxml2,,res_calendar_caldav,,))
+$(eval $(call BuildAsteriskModule,res-calendar-caldav,CalDAV calendar,Asterisk CalDAV calendar integration.,+$(PKG_NAME)-res-calendar +libical +libneon,,res_calendar_caldav,,))
 $(eval $(call BuildAsteriskModule,res-calendar-ews,EWS calendar,Asterisk MS Exchange Web Service calendar integration.,+$(PKG_NAME)-res-calendar +libneon,,res_calendar_ews,,))
 $(eval $(call BuildAsteriskModule,res-calendar-exchange,Exchange calendar,Asterisk MS Exchange calendar integration.,+$(PKG_NAME)-res-calendar +libical +libiksemel +libneon,,res_calendar_exchange,,))
 $(eval $(call BuildAsteriskModule,res-calendar-icalendar,iCalendar calendar,Asterisk iCalendar .ics file integration.,+$(PKG_NAME)-res-calendar +libical +libneon,,res_calendar_icalendar,,))
