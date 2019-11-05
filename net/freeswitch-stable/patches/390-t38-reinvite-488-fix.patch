@@ -1,0 +1,66 @@
+commit 167294ea2649afd0ffedf4520b0f308979c3ca2a
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Fri Oct 18 18:28:07 2019 +0200
+
+    [mod-sofia] Fix reINVITE after T38 is rejected
+    
+    From FS-11833.
+    
+    After FS sends a reINVITE to T38 which gets rejected by peer it is no
+    longer in a state where it can properly answer a reINVITE which requests
+    a change of the media setup.
+    
+    1. FS sends INVITE (destination is a fax machine)
+    2. Call connects with "8 101"
+    3. FS sends reINVITE to T38
+    4. T38 rejected (488)
+    5. FS receives INVITE to "8"
+    6. FS replies with 200 OK without SDP
+    7. Call fails
+    
+    The bug is related to TFLAG_SDP. This flag is set when a media session
+    is established. And when there's a reINVITE sofia_glue_do_invite() from
+    sofia_glue.c is called and clears the flag again:
+    
+    sofia_clear_flag_locked(tech_pvt, TFLAG_SDP);
+    
+    So when FS sends a reINVITE to T38 the flag gets cleared. But when the
+    reINVITE is rejected with 488 the flag is not set again. It stays
+    cleared. So the call continues with the previously negotiated media, fax
+    passthrough (8 101 in this case), but TFLAG_SDP is not set.
+    
+    So when FS receives a reINVITE at this point it doesn't see the need to
+    renegotiate anything, even though it realizes that 2833 DTMF is now off:
+    
+    2019-04-30 16:42:12.478025 [DEBUG] switch_core_media.c:5478 Audio Codec Compare [PCMA:8:8000:20:64000:1]/[PCMA:8:8000:20:64000:1]
+    2019-04-30 16:42:12.478025 [DEBUG] switch_core_media.c:5533 Audio Codec Compare [PCMA:8:8000:20:64000:1] ++++ is saved as a match
+    2019-04-30 16:42:12.478025 [DEBUG] switch_core_media.c:5802 No 2833 in SDP. Disable 2833 dtmf and switch to INFO
+    
+    When FS doesn't send a reINVITE (fax_enable_t38_request=false) and the
+    reINVITE to "8" is received, TFLAG_SDP is still set and then FS
+    understands that it needs to renegotiate and replies with a 200 OK that
+    includes SDP:
+    
+    2019-04-30 16:41:19.358028 [DEBUG] switch_core_media.c:5478 Audio Codec Compare [PCMA:8:8000:20:64000:1]/[PCMA:8:8000:20:64000:1]
+    2019-04-30 16:41:19.358028 [DEBUG] switch_core_media.c:5533 Audio Codec Compare [PCMA:8:8000:20:64000:1] ++++ is saved as a match
+    2019-04-30 16:41:19.358028 [DEBUG] switch_core_media.c:5802 No 2833 in SDP. Disable 2833 dtmf and switch to INFO
+    2019-04-30 16:41:19.358028 [DEBUG] sofia.c:8237 skemper was here in line 8232
+    2019-04-30 16:41:19.358028 [DEBUG] switch_core_media.c:8390 skemper was here in line 8390.
+    2019-04-30 16:41:19.358028 [DEBUG] switch_core_media.c:8496 Audio params are unchanged for sofia/external/+called_number.
+    2019-04-30 16:41:19.358028 [DEBUG] sofia.c:8243 Processing updated SDP
+    
+    This fixes the state problem after a rejected T38 reINVITE by setting
+    TFLAG_SDP.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+--- a/src/mod/endpoints/mod_sofia/sofia.c
++++ b/src/mod/endpoints/mod_sofia/sofia.c
+@@ -6501,6 +6501,7 @@ static void sofia_handle_sip_r_invite(sw
+ 			switch_channel_clear_app_flag_key("T38", tech_pvt->channel, CF_APP_T38_REQ);
+ 			switch_channel_set_app_flag_key("T38", tech_pvt->channel, CF_APP_T38_FAIL);
+ 			switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_DEBUG, "%s T38 invite failed\n", switch_channel_get_name(tech_pvt->channel));
++			sofia_set_flag(tech_pvt, TFLAG_SDP);
+ 		}
+ 
+ 
