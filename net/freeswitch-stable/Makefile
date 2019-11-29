@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.10.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
@@ -437,17 +437,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
   echo "| https://openwrt.org/docs/guide-user/services/voip/freeswitch      |"
   echo "o-------------------------------------------------------------=^_^=-o"
   echo
-  [ -f /etc/hotplug.d/iface/99-freeswitch ] && {
-    echo "o-------------------------------------------------------------------o"
-    echo "| WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING   |"
-    echo "o-------------------------------------------------------------------o"
-    echo "| Please remove freeswitch-stable-misc-hotplug. The hotplug script  |"
-    echo "| is now part of the main freeswitch-stable package. Please run:    |"
-    echo "|                                                                   |"
-    echo "| opkg remove freeswitch-stable-misc-hotplug                        |"
-    echo "o-------------------------------------------------------------=^_^=-o"
-    echo
-  }
 fi
 exit 0
 endef
