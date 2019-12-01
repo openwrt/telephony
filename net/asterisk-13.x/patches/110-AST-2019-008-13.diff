@@ -1,0 +1,35 @@
+From c257794330db49f4079a7108d51da60696269b36 Mon Sep 17 00:00:00 2001
+From: Ben Ford <bford@digium.com>
+Date: Fri, 08 Nov 2019 13:21:15 -0600
+Subject: [PATCH] res_pjsip_session.c: Check for port of zero on incoming SDP.
+
+If a re-invite comes in initiating T.38, but there is no c line in the
+SDP and the port is also 0, a crash can occur. A check is now done on
+the port to see if the steam is already declined, preventing the crash.
+The logic was moved to res_pjsip_session.c because it is handled in a
+similar manner in later versions of Asterisk.
+
+ASTERISK-28612
+Reported by: Salah Ahmed
+
+Change-Id: Ifc4a0d05b32c7f2156e77fc8435a6ecaa6abada0
+---
+
+diff --git a/res/res_pjsip_session.c b/res/res_pjsip_session.c
+index 81f36a7..12cf41d 100644
+--- a/res/res_pjsip_session.c
++++ b/res/res_pjsip_session.c
+@@ -235,6 +235,13 @@
+ 			continue;
+ 		}
+ 
++		/* If we have a port of 0, ignore this stream */
++		if (!sdp->media[i]->desc.port) {
++			ast_debug(1, "Declining incoming SDP media stream '%s' at position '%d'\n",
++				session_media->stream_type, i);
++			continue;
++		}
++
+ 		if (session_media->handler) {
+ 			handler = session_media->handler;
+ 			ast_debug(1, "Negotiating incoming SDP media stream '%s' using %s SDP handler\n",
