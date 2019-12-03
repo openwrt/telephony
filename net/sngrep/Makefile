@@ -26,13 +26,15 @@ PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
+PKG_CONFIG_DEPENDS:=CONFIG_IPV6 CONFIG_SNGREP_ENABLE_EEP CONFIG_SNGREP_WITH_PCRE
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/sngrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libncursesw +libopenssl +libpcap +libpcre
+  DEPENDS:=+libncursesw +libopenssl +libpcap +SNGREP_WITH_PCRE:libpcre
   TITLE:=Ncurses SIP messages flow viewer
   URL:=https://github.com/irontec/sngrep
 endef
@@ -48,12 +50,30 @@ define Package/sngrep/conffiles
 /etc/sngreprc
 endef
 
+define Package/sngrep/config
+  menu "sngrep configuration"
+    depends on PACKAGE_sngrep
+
+    config SNGREP_ENABLE_EEP
+      bool "EEP/HEP support"
+      default y
+      help
+        Enable EEP/HEP support
+
+    config SNGREP_WITH_PCRE
+      bool "PCRE support"
+      default y
+      help
+        Enable Perl compatible regular expressions
+  endmenu
+endef
+
 CONFIGURE_ARGS += \
-	--enable-eep \
-	--enable-ipv6 \
+	--$(if $(CONFIG_SNGREP_ENABLE_EEP),en,dis)able-eep \
+	--$(if $(CONFIG_IPV6),en,dis)able-ipv6 \
 	--enable-unicode \
 	--with-openssl \
-	--with-pcre
+	--with$(if $(CONFIG_SNGREP_WITH_PCRE),,out)-pcre
 
 define Package/sngrep/install
 	$(INSTALL_DIR) $(1)/etc
