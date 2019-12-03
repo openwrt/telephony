@@ -8,19 +8,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sngrep
-PKG_VERSION=1.4.6
-PKG_RELEASE:=1
+
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=COPYING
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/irontec/$(PKG_NAME)/releases/download/v$(PKG_VERSION)
-PKG_HASH:=638d6557dc68db401b07d73b2e7f8276800281f021fe0c942992566d6b59a48a
+PKG_SOURCE_URL:=https://github.com/irontec/sngrep.git
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=564ad9264ebe8b77ed18a923fef3643de920087c
+PKG_SOURCE_DATE=2019-12-02
+
+PKG_RELEASE:=1
+
+PKG_MIRROR_HASH:=94e150cabe3efc6f07d05e3ee348806a0a8fa9335d27dfddce477988b946ed8f
 
 PKG_FIXUP:=autoreconf
-
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
+
+PKG_CONFIG_DEPENDS:=CONFIG_IPV6 CONFIG_SNGREP_ENABLE_EEP CONFIG_SNGREP_WITH_PCRE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,30 +34,46 @@ define Package/sngrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libncursesw +libopenssl +libpcap +libpcre
+  DEPENDS:=+libncursesw +libopenssl +libpcap +SNGREP_WITH_PCRE:libpcre
   TITLE:=Ncurses SIP messages flow viewer
   URL:=https://github.com/irontec/sngrep
 endef
 
 define Package/sngrep/description
-sngrep displays SIP messages grouped by Call-Id into flow diagrams. It
-can be used as an offline pcap viewer or for online capture using
-libpcap functions.
+sngrep is a tool for displaying SIP calls message flows from terminal.
 
-It supports SIP UDP and TCP transports (when each message is delivered
-in one packet).
+It supports live capture to display realtime SIP packets and can also be
+used as PCAP viewer.
 endef
 
 define Package/sngrep/conffiles
 /etc/sngreprc
 endef
 
+define Package/sngrep/config
+  menu "sngrep configuration"
+    depends on PACKAGE_sngrep
+
+    config SNGREP_ENABLE_EEP
+      bool "EEP/HEP support"
+      default y
+      help
+        Enable EEP/HEP support
+
+    config SNGREP_WITH_PCRE
+      bool "PCRE support"
+      default y
+      help
+        Enable Perl compatible regular expressions
+  endmenu
+endef
+
 CONFIGURE_ARGS += \
-	--enable-eep \
-	--enable-ipv6 \
+	--$(if $(CONFIG_SNGREP_ENABLE_EEP),en,dis)able-eep \
+	--$(if $(CONFIG_IPV6),en,dis)able-ipv6 \
 	--enable-unicode \
 	--with-openssl \
-	--with-pcre
+	--with$(if $(CONFIG_SNGREP_WITH_PCRE),,out)-pcre
 
 define Package/sngrep/install
 	$(INSTALL_DIR) $(1)/etc
