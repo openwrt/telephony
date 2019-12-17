@@ -1,0 +1,15 @@
+--- a/cmake/FindLibM.cmake
++++ b/cmake/FindLibM.cmake
+@@ -8,11 +8,7 @@
+ # A user may set ``LIBM_ROOT`` to a math library installation root to tell this
+ # module where to look.
+ 
+-find_path(LIBM_INCLUDE_DIRS
+-  NAMES math.h
+-  PATHS /usr/include /usr/local/include /usr/local/bic/include
+-  NO_DEFAULT_PATH
+-)
++find_path(LIBM_INCLUDE_DIRS math.h)
+ find_library(LIBM_LIBRARIES m)
+ include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(LibM DEFAULT_MSG LIBM_LIBRARIES LIBM_INCLUDE_DIRS)
