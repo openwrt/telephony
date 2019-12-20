@@ -1,0 +1,51 @@
+commit 70d1cbafe4ab0176cd9fc01f740e34cd1bae326b
+Author: Sebastian Kemper <sebastian_ml@gmx.net>
+Date:   Wed Nov 13 20:29:50 2019 +0100
+
+    [gentls_cert] Update message digest
+    
+    Debian Buster updated /etc/ssl/openssl.cnf to default to
+    
+    MinProtocol = TLSv1.2
+    CipherString = DEFAULT@SECLEVEL=2
+    
+    gentls_cert currently uses SHA1 as message digest. According to OpenSSL
+    documentation this only offers 80 bit of security. 80 bits is enough for
+    security level 1, but not 2.
+    
+    The OpenSSL default MD nowadays is SHA256. This commit updates
+    gentls_cert to use it.
+    
+    Issue was reported on the FS mailing list. The certificates created by
+    gentls_cert caused "md too weak" errors and clients were unable to
+    connect.
+    
+    Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+
+diff --git a/scripts/gentls_cert.in b/scripts/gentls_cert.in
+index 43aa8ac605..dd56c9f6dc 100644
+--- a/scripts/gentls_cert.in
++++ b/scripts/gentls_cert.in
+@@ -89,7 +89,7 @@ setup_ca() {
+ 
+ 	openssl req -out "${CONFDIR}/CA/cacert.pem" \
+ 		-new -x509 -keyout "${CONFDIR}/CA/cakey.pem" \
+-		-config "${TMPFILE}.cfg" -nodes -days ${DAYS} -sha1 >/dev/null || exit 1
++		-config "${TMPFILE}.cfg" -nodes -days ${DAYS} -sha256 >/dev/null || exit 1
+ 	cat "${CONFDIR}/CA/cacert.pem" > "${CONFDIR}/cafile.pem"
+ 	cp $TMPFILE.cfg /tmp/ssl.cfg
+ 	rm "${TMPFILE}.cfg"
+@@ -131,11 +131,11 @@ generate_cert() {
+ 
+ 	openssl req -new -out "${TMPFILE}.req" \
+ 		-newkey rsa:${KEY_SIZE} -keyout "${TMPFILE}.key" \
+-		-config "${TMPFILE}.cfg" -nodes -sha1 >/dev/null || exit 1
++		-config "${TMPFILE}.cfg" -nodes -sha256 >/dev/null || exit 1
+ 
+ 	openssl x509 -req -CAkey "${CONFDIR}/CA/cakey.pem" -CA "${CONFDIR}/CA/cacert.pem" -CAcreateserial \
+ 		-in "${TMPFILE}.req" -out "${TMPFILE}.crt" -extfile "${TMPFILE}.cfg" \
+-		-extensions "${EXTENSIONS}" -days ${DAYS} -sha1 >/dev/null || exit 1
++		-extensions "${EXTENSIONS}" -days ${DAYS} -sha256 >/dev/null || exit 1
+ 
+ 	cat "${TMPFILE}.crt" "${TMPFILE}.key" > "${CONFDIR}/${OUTFILE}"
+ 
