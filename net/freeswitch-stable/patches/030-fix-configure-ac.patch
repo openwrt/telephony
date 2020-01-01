@@ -40,7 +40,7 @@
  AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
  
  case $host in
-@@ -1620,13 +1596,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+@@ -1623,13 +1599,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
  # -a "x$ac_cv_have_EXTERN_h" != "xno"
  
  if test "x$ac_cv_have_perl" != "xno"; then
@@ -55,7 +55,7 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1721,24 +1691,12 @@ then
+@@ -1724,24 +1694,12 @@ then
  		if test "$python_has_distutils" != "no" ; then
  			AC_MSG_CHECKING([location of site-packages])
  
