@@ -16,9 +16,10 @@ ASTERISK-28685 #close
 Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
 Change-Id: If435b7db9f9ad8266245bda51c81c220f9658915
 Taken just Makefile changes from commit: 06e8d5ad8e4728a716bf357c8d7f70367ae10280
+---
 --- a/utils/Makefile
 +++ b/utils/Makefile
-@@ -187,7 +187,6 @@ check_expr2: $(ASTTOPDIR)/main/ast_expr2
+@@ -180,14 +180,13 @@ conf2ael: conf2ael.o ast_expr2f.o ast_ex
  
  check_expr2: $(ASTTOPDIR)/main/ast_expr2f.c $(ASTTOPDIR)/main/ast_expr2.c $(ASTTOPDIR)/main/ast_expr2.h astmm.o
  	$(ECHO_PREFIX) echo "   [CC] ast_expr2f.c -> ast_expr2fz.o"
