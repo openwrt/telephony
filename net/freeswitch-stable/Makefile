@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.10.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
@@ -673,6 +673,11 @@ endif
 # would have the core link to it.
 CONFIGURE_ARGS+= \
 	--without-pgsql
+
+# libpq pkg-config file is broken, see
+# https://github.com/openwrt/packages/pull/11507
+CONFIGURE_ARGS+= \
+	--disable-core-pgsql-pkgconfig
 
 # Don't want host-php
 CONFIGURE_VARS+= \
