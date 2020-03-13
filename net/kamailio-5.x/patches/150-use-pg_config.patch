@@ -1,0 +1,21 @@
+--- a/src/modules/db_postgres/Makefile
++++ b/src/modules/db_postgres/Makefile
+@@ -9,11 +9,14 @@ NAME=db_postgres.so
+ # the autodetection
+ # CROSS_COMPILE=true
+ 
++# libpq pkg-config file is broken, see
++# https://github.com/openwrt/packages/pull/11507
+ ifeq ($(CROSS_COMPILE),)
+-LIBPQ_BUILDER = $(shell \
+-	if pkg-config --exists libpq; then \
+-		echo 'pkg-config libpq'; \
+-	fi)
++#LIBPQ_BUILDER = $(shell \
++#	if pkg-config --exists libpq; then \
++#		echo 'pkg-config libpq'; \
++#	fi)
++LIBPQ_BUILDER :=
+ ifneq ($(LIBPQ_BUILDER),)
+ 	DEFS += $(shell $(LIBPQ_BUILDER) --cflags)
+ 	LIBS += $(shell $(LIBPQ_BUILDER) --libs)
