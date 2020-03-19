@@ -1716,7 +1716,7 @@
 +	hfc_proc_dahdi_hfcs_dir = proc_mkdir(hfc_DRIVER_NAME, proc_root_driver);
 +#endif
 +
-+	ret = dahdi_pci_module(&hfc_driver);
++	ret = pci_register_driver(&hfc_driver);
 +	return ret;
 +}
 +
