@@ -103,7 +103,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	conference \
 	console \
 	curl \
-	cv \
 	dahdi_codec \
 	db \
 	dialplan_asterisk \
@@ -1012,7 +1011,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,commands,Commands,This module provides 
 $(eval $(call Package/$(PKG_NAME)/Module,conference,Conference,This module provides multi-party conferencing.,))
 $(eval $(call Package/$(PKG_NAME)/Module,console,Console logger,Allows control over what messages get logged to the console.,))
 $(eval $(call Package/$(PKG_NAME)/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
-$(eval $(call Package/$(PKG_NAME)/Module,cv,OpenCV,This module exposes opencv actions to enable computer vision actions.,+opencv @BROKEN)) # opencv package too stripped-down
 $(eval $(call Package/$(PKG_NAME)/Module,dahdi_codec,DAHDI codec,DAHDI codec module.,))
 $(eval $(call Package/$(PKG_NAME)/Module,db,DB,This module implements a simple db API with group support. Also can be\nused as a limit db backend.,))
 $(eval $(call Package/$(PKG_NAME)/Module,dialplan_asterisk,Asterisk dialplan,Asterisk extensions.conf style dialplan parser.,))
