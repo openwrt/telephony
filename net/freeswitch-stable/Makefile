@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.10.2
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
@@ -25,8 +25,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION).-release
 PKG_BUILD_DEPENDS:= \
 	libjpeg \
 	tiff \
-	perl/host \
-	python/host
+	perl/host
 
 PKG_FIXUP:=autoreconf
 
@@ -162,7 +161,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	portaudio_stream \
 	posix_timer \
 	prefix \
-	python \
 	radius_cdr \
 	random \
 	raven \
@@ -239,7 +237,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri \
 	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap \
 	CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl \
-	CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/uclibc++.mk
@@ -260,7 +257,6 @@ endif
 
 FS_STABLE_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
-include $(TOPDIR)/feeds/packages/lang/python/python-host.mk
 include $(FS_STABLE_PERL_FEED)/perlver.mk
 
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
@@ -268,8 +264,6 @@ PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 FS_STABLE_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_STABLE_PERL_FEED)/files/base.config | \
 			sed "s/^libs=//;s/'//g")
-
-FS_STABLE_PYTHON_SITE_DIR:=$(FS_STABLE_LIB_DIR)/python$(PYTHON_VERSION)/site-packages
 
 define Download/files
 define Download/$(1)
@@ -474,27 +468,6 @@ define Package/$(PKG_NAME)-misc-perl-esl/install
 					$(1)$(PERL_SITELIB)/ESL
 endef
 
-define Package/$(PKG_NAME)-misc-python-esl
-$(call Package/$(PKG_NAME)/Default)
-  TITLE:=Python ESL
-  DEPENDS:=$(PKG_NAME) +PACKAGE_$(PKG_NAME)-misc-python-esl:python-light
-endef
-
-define Package/$(PKG_NAME)-misc-python-esl/description
-This package contains the Python binding for FreeSWITCH's Event Socket
-Library (ESL).
-endef
-
-define Package/$(PKG_NAME)-misc-python-esl/install
-	$(INSTALL_DIR) $(1)$(FS_STABLE_PYTHON_SITE_DIR)
-	$(INSTALL_BIN) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/_ESL.so \
-					$(1)$(FS_STABLE_PYTHON_SITE_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/ESL.py \
-					$(1)$(FS_STABLE_PYTHON_SITE_DIR)
-endef
-
 define Package/$(PKG_NAME)-misc-timezones
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Timezones file
@@ -592,12 +565,6 @@ ifeq ($(1),perl)
 		$(PKG_INSTALL_DIR)/usr/perl/$(PRG_NAME).pm \
 							$$(1)$(PERL_SITELIB)
 endif
-ifeq ($(1),python)
-	$(INSTALL_DIR) $$(1)$(FS_STABLE_PYTHON_SITE_DIR)
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PYTHON_SITE_DIR)/$(PRG_NAME).py \
-					$$(1)$(FS_STABLE_PYTHON_SITE_DIR)
-endif
 endef
 $$(eval $$(call BuildPackage,$(PKG_NAME)-mod-$(subst _,-,$(1))))
 endef
@@ -631,6 +598,7 @@ CONFIGURE_ARGS+= \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
 	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
+	--with-python=no \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_DEBUG,debug) \
@@ -645,14 +613,6 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
 	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri),--with-libpri="$(STAGING_DIR)/usr",--without-libpri) \
 	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap),--with-pritap,--without-pritap)
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
-CONFIGURE_ARGS+= \
-	--with-python=$(STAGING_DIR_HOSTPKG)/bin/python$(PYTHON_VERSION)
-else
-CONFIGURE_ARGS+= \
-	--with-python=no
-endif
 
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-erlang-event)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-kazoo),)
 CONFIGURE_ARGS+= \
@@ -730,15 +690,6 @@ else
 CONFIGURE_VARS+= \
 	ac_cv_have_perl=no \
 	ac_cv_prog_PERL=false
-endif
-
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
-CONFIGURE_VARS+= \
-	PYTHON_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION)" \
-	PYTHON_LDFLAGS="-lpython$(PYTHON_VERSION)" \
-	PYTHON_LIB="python$(PYTHON_VERSION)" \
-	PYTHON_LIBDIR="$(FS_STABLE_LIB_DIR)" \
-	PYTHON_SITE_DIR="$(FS_STABLE_PYTHON_SITE_DIR)"
 endif
 
 # mod_radius_cdr runs configure in libs/freeradius-client. Let
@@ -863,9 +814,6 @@ endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
 endif
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod)
-endif
 endef
 
 define Build/Install
@@ -878,9 +826,6 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
 endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
-endif
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
-	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl pymod-install)
 endif
 endef
 
@@ -914,7 +859,6 @@ endef
 $(eval $(call BuildPackage,$(PKG_LIBFTDM)))
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
-$(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-timezones))
 
 ################################
@@ -1070,7 +1014,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,portaudio,Portaudio,Voice through a loc
 $(eval $(call Package/$(PKG_NAME)/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/$(PKG_NAME)/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/$(PKG_NAME)/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
-$(eval $(call Package/$(PKG_NAME)/Module,python,Python,Python support module.,+python-light))
 $(eval $(call Package/$(PKG_NAME)/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/$(PKG_NAME)/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/$(PKG_NAME)/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
