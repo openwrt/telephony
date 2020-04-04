@@ -55,28 +55,3 @@
  
     save_CFLAGS="$CFLAGS"
     CFLAGS="$PERL_CFLAGS"
-@@ -1724,24 +1694,12 @@ then
- 		if test "$python_has_distutils" != "no" ; then
- 			AC_MSG_CHECKING([location of site-packages])
- 
--			PYTHON_SITE_DIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_python_lib(0));'`"
--
- 			if test -z "$PYTHON_SITE_DIR" ; then
- 				AC_MSG_ERROR([Unable to detect python site-packages path])
--			elif test ! -d "$PYTHON_SITE_DIR" ; then
--				AC_MSG_ERROR([Path $PYTHON_SITE_DIR returned by python does not exist!])
- 			fi
- 			AC_MSG_RESULT([$PYTHON_SITE_DIR])
- 			AC_SUBST([PYTHON_SITE_DIR], [$PYTHON_SITE_DIR])
- 
--			#
--			# python distutils found, get settings from python directly
--			#
--			PYTHON_CFLAGS="`$PYTHON -c 'from distutils import sysconfig; flags = [[\"-I\" + sysconfig.get_python_inc(0), \"-I\" + sysconfig.get_python_inc(1), \" \".join(sysconfig.get_config_var(\"CFLAGS\").split())]]; print(\" \".join(flags));' | sed -e 's/-arch i386//g;s/-arch x86_64//g'`"
--			PYTHON_LDFLAGS="`$PYTHON -c 'from distutils import sysconfig; libs = sysconfig.get_config_var(\"LIBS\").split() + sysconfig.get_config_var(\"SYSLIBS\").split(); libs.append(\"-lpython\"+sysconfig.get_config_var(\"VERSION\")); print(\" \".join(libs));'`"
--			PYTHON_LIB="`$PYTHON -c 'from distutils import sysconfig; print(\"python\" + sysconfig.get_config_var(\"VERSION\"));'`"
--			PYTHON_LIBDIR="`$PYTHON -c 'from distutils import sysconfig; print(sysconfig.get_config_var(\"LIBDIR\"));'`"
--
- 			# handle python being installed into /usr/local
- 			AC_MSG_CHECKING([python libdir])
- 			if test -z "`echo $PYTHON_LIBDIR | grep "/usr/lib"`" ; then
