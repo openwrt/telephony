@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.3.0
-PKG_RELEASE:=2
+PKG_VERSION:=5.3.3
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=1bf948620a4036fa473659d3969d5d3887dd25bd2ad20a1ac451ecadaaca447e
+PKG_HASH:=2443f8aad3584b009b51948dc41982060b9ffc76be8016aa4e7de25b83be5b0a
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -32,8 +32,6 @@ MODULES_AVAILABLE:= \
 	app_jsdt \
 	app_lua \
 	app_lua_sr \
-	app_python \
-	app_python3 \
 	app_ruby \
 	app_sqlang \
 	async \
@@ -232,7 +230,6 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/nls.mk
 include $(INCLUDE_DIR)/package.mk
-include $(TOPDIR)/feeds/packages/lang/python/python-host.mk
 
 # Build reproducibly
 TARGET_CFLAGS += -DVERSION_NODATE=1
@@ -380,8 +377,6 @@ $(foreach d,$(5),$(call Package/kamailio5/install/dbfiles,$$(1),$(d));)
 $$(eval $$(call BuildPackage,kamailio5-mod-$(subst _,-,$(1))))
 endef
 
-TARGET_CPPFLAGS+=$(if $(CONFIG_PACKAGE_kamailio5-mod-app-python),-I$(STAGING_DIR)/usr/include/python$(PYTHON_VERSION))
-
 # Kamailio always builds a baseline of packages. The "standard" group is
 # the lightest baseline.
 
@@ -467,8 +462,6 @@ $(eval $(call BuildKamailio5Module,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailio5Module,app_jsdt,Execute JavaScript scripts,,))
 $(eval $(call BuildKamailio5Module,app_lua,Execute embedded Lua scripts,,+liblua))
 $(eval $(call BuildKamailio5Module,app_lua_sr,Old Lua API,,+kamailio5-mod-app-lua,))
-$(eval $(call BuildKamailio5Module,app_python,Execute Python scripts,,+python-light))
-$(eval $(call BuildKamailio5Module,app_python3,Python3 scripting interpreter,,@BROKEN +python3-light))
 $(eval $(call BuildKamailio5Module,app_ruby,Ruby scripting interpreter,,+libruby))
 $(eval $(call BuildKamailio5Module,app_sqlang,Execute Squirrel language scripts,,+libstdcpp))
 $(eval $(call BuildKamailio5Module,async,Asynchronous SIP handling functions,,+kamailio5-mod-tm +kamailio5-mod-tmx))
