@@ -21,8 +21,9 @@ PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
-# Defining PKG_BUILD_PARALLEL to 1 would be a noop due to the way we call make
-#PKG_BUILD_PARALLEL:=1
+PKG_INSTALL:=1
+
+PKG_BUILD_PARALLEL:=1
 
 MODULES_AVAILABLE:= \
 	acc \
@@ -388,9 +389,6 @@ endef
 #   "ims_diameter_server" -> libkamailio_ims
 #   "carrierroute" -> libtrie
 
-# "lib_target" is specified in order for the modules to get a proper
-# RPATH, as otherwise they would not find the internal libraries.
-
 EXTRA_MODULES:= \
 	$(if $(CONFIG_PACKAGE_kamailio5-mod-carrierroute),,carrierroute) \
 	$(if $(CONFIG_PACKAGE_kamailio5-mod-ims-diameter-server),,ims_diameter_server) \
@@ -408,35 +406,26 @@ ifeq ($(call qstrip,$(CONFIG_ARCH)),mips)
 CPU_MIPS2:=mips32 24kc 34kc 74kc
 endif
 
-PKG_MAKE_ARGS:= \
-	prefix=/ \
-	cfg_dir=/etc/kamailio/ \
-	bin_dir=/usr/sbin/ \
-	data_dir=/usr/share/kamailio/ \
-	lib_dir=/usr/lib/kamailio/ \
-	modules_dir=/usr/lib/kamailio/ \
+MAKE_FLAGS += \
+	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
+	CC_EXTRA_OPTS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
+	LD="$(TARGET_CC)" \
+	LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
+	LIBDIR=lib \
+	PREFIX=/usr \
+	cfg_prefix="$(PKG_INSTALL_DIR)" \
+	cfg_target=/etc/kamailio \
 	group_include="standard" \
 	include_modules="$$(INCL_MODULES) $(EXTRA_MODULES)" \
-	cfg_target=/etc/kamailio/ \
-	lib_target=/usr/lib/kamailio/ \
-	run_target=/var/run/kamailio/ \
-	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
-	LD_EXTRA_OPTS="$(TARGET_LDFLAGS)" \
-	LOCALBASE="$(STAGING_DIR)/usr" \
-	SYSBASE="$(STAGING_DIR)/usr" \
-	CROSS_COMPILE=$(TARGET_CROSS) \
-	CC="$(TARGET_CC)" \
-	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
-	DESTDIR=$(PKG_INSTALL_DIR) \
-	quiet=verbose
+	quiet=verbose \
+	run_prefix=""
 
 define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) $(PKG_MAKE_ARGS) cfg
-	$(MAKE) -C $(PKG_BUILD_DIR) quiet=verbose all
-	$(MAKE) -C $(PKG_BUILD_DIR) quiet=verbose install
+	$(call Build/Compile/Default,cfg)
+	$(call Build/Compile/Default,all)
 endef
 
 $(eval $(call BuildPackage,kamailio5))
