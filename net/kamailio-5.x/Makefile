@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.3.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -33,6 +33,7 @@ MODULES_AVAILABLE:= \
 	app_jsdt \
 	app_lua \
 	app_lua_sr \
+	app_python3 \
 	app_ruby \
 	app_sqlang \
 	async \
@@ -231,6 +232,7 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/nls.mk
 include $(INCLUDE_DIR)/package.mk
+include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 
 # Build reproducibly
 TARGET_CFLAGS += -DVERSION_NODATE=1
@@ -420,6 +422,9 @@ MAKE_FLAGS += \
 	quiet=verbose \
 	run_prefix=""
 
+MAKE_VARS += \
+	PYTHON3=python$(PYTHON3_VERSION)
+
 define Build/Configure
 endef
 
@@ -451,6 +456,7 @@ $(eval $(call BuildKamailio5Module,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailio5Module,app_jsdt,Execute JavaScript scripts,,))
 $(eval $(call BuildKamailio5Module,app_lua,Execute embedded Lua scripts,,+liblua))
 $(eval $(call BuildKamailio5Module,app_lua_sr,Old Lua API,,+kamailio5-mod-app-lua,))
+$(eval $(call BuildKamailio5Module,app_python3,Python3 scripting interpreter,,+python3-light))
 $(eval $(call BuildKamailio5Module,app_ruby,Ruby scripting interpreter,,+libruby))
 $(eval $(call BuildKamailio5Module,app_sqlang,Execute Squirrel language scripts,,+libstdcpp))
 $(eval $(call BuildKamailio5Module,async,Asynchronous SIP handling functions,,+kamailio5-mod-tm +kamailio5-mod-tmx))
