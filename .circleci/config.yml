@@ -101,6 +101,7 @@ jobs:
              rm .config
              cat > feeds.conf <<EOF
              src-git base https://github.com/openwrt/openwrt.git;$BRANCH
+             src-git packages https://github.com/openwrt/packages.git;$BRANCH
              src-link telephony $HOME/openwrt_telephony
              src-git luci https://github.com/openwrt/luci.git;$BRANCH
              EOF
