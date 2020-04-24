@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.3.3
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -424,6 +424,13 @@ MAKE_FLAGS += \
 
 MAKE_VARS += \
 	PYTHON3=python$(PYTHON3_VERSION)
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	# Upstream adds "-funroll-loops" to compiler flags, which increases
+	# binary size significantly. Remove this flag.
+	$(SED) 's/[ ]*-funroll-loops//' $(PKG_BUILD_DIR)/src/Makefile.defs
+endef
 
 define Build/Configure
 endef
