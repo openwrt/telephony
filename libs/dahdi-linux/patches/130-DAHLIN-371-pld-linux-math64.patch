@@ -1,0 +1,138 @@
+--- a/drivers/dahdi/xpp/xbus-core.c
++++ b/drivers/dahdi/xpp/xbus-core.c
+@@ -25,6 +25,7 @@
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/mutex.h>
++#include <linux/math64.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ #include <linux/slab.h>
+@@ -1754,11 +1755,13 @@ out:
+ 
+ static void xbus_fill_proc_queue(struct seq_file *sfile, struct xframe_queue *q)
+ {
++	s32 rem;
++	s64 lag_sec = div_s64_rem(q->worst_lag_usec, 1000, &rem);
+ 	seq_printf(sfile,
+-		"%-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%lld ms\n",
++		"%-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%ld ms\n",
+ 		q->name, q->steady_state_count, q->count, q->max_count,
+-		q->worst_count, q->overflows, q->worst_lag_usec / 1000,
+-		q->worst_lag_usec % 1000);
++		q->worst_count, q->overflows, lag_sec,
++		rem);
+ 	xframe_queue_clearstats(q);
+ }
+ 
+--- a/drivers/dahdi/xpp/xbus-pcm.c
++++ b/drivers/dahdi/xpp/xbus-pcm.c
+@@ -22,6 +22,7 @@
+ #include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/math64.h>
+ #include "xbus-pcm.h"
+ #include "xbus-core.h"
+ #include "xpp_dahdi.h"
+@@ -129,7 +130,7 @@ static int xpp_ticker_step(struct xpp_ti
+ 		usec = ktime_us_delta(ticker->last_sample,
+ 					ticker->first_sample);
+ 		ticker->first_sample = ticker->last_sample;
+-		ticker->tick_period = usec / ticker->cycle;
++		ticker->tick_period = div_s64(usec, ticker->cycle);
+ 		cycled = 1;
+ 	}
+ 	ticker->count++;
+@@ -497,7 +498,7 @@ static void send_drift(xbus_t *xbus, int
+ 	XBUS_DBG(SYNC, xbus,
+ 		 "%sDRIFT adjust %s (%d) (last update %lld seconds ago)\n",
+ 		 (disable_pll_sync) ? "Fake " : "", msg, drift,
+-		 msec_delta / MSEC_PER_SEC);
++		 div_s64(msec_delta, MSEC_PER_SEC));
+ 	if (!disable_pll_sync)
+ 		CALL_PROTO(GLOBAL, SYNC_SOURCE, xbus, NULL, SYNC_MODE_PLL,
+ 			   drift);
+--- a/drivers/dahdi/xpp/xbus-sysfs.c
++++ b/drivers/dahdi/xpp/xbus-sysfs.c
+@@ -23,6 +23,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
++#include <linux/math64.h>
+ #include <linux/proc_fs.h>
+ #ifdef	PROTOCOL_DEBUG
+ #include <linux/ctype.h>
+@@ -249,11 +250,9 @@ static DEVICE_ATTR_READER(driftinfo_show
+ 	/*
+ 	 * Calculate lost ticks time
+ 	 */
+-	seconds = ktime_ms_delta(now, di->last_lost_tick) / 1000;
+-	minutes = seconds / 60;
+-	seconds = seconds % 60;
+-	hours = minutes / 60;
+-	minutes = minutes % 60;
++	seconds = div_s64(ktime_ms_delta(now, di->last_lost_tick), 1000);
++	minutes = div_s64_rem(seconds, 60, &seconds);
++	hours = div_s64_rem(minutes, 60, &minutes);
+ 	len += snprintf(buf + len, PAGE_SIZE - len,
+ 		"%-15s: %8d (was %d:%02d:%02d ago)\n", "lost_ticks",
+ 		di->lost_ticks, hours, minutes, seconds);
+--- a/drivers/dahdi/xpp/xframe_queue.c
++++ b/drivers/dahdi/xpp/xframe_queue.c
+@@ -1,3 +1,4 @@
++#include <linux/math64.h>
+ #include "xframe_queue.h"
+ #include "xbus-core.h"
+ #include "dahdi_debug.h"
+@@ -40,10 +41,11 @@ static void __xframe_dump_queue(struct x
+ 	       THIS_MODULE->name, q->name);
+ 	list_for_each_entry_reverse(xframe, &q->head, frame_list) {
+ 		xpacket_t *pack = (xpacket_t *)&xframe->packets[0];
+-		s64 usec = ktime_us_delta(now, xframe->kt_queued);
++		s32 rem;
++		s64 sec = div_s64_rem(ktime_us_delta(now, xframe->kt_queued), 1000, &rem);
+ 
+-		snprintf(prefix, ARRAY_SIZE(prefix), "  %3d> %5lld.%03lld msec",
+-			 i++, usec / 1000, usec % 1000);
++		snprintf(prefix, ARRAY_SIZE(prefix), "  %3d> %5lld.%03ld msec",
++			 i++, sec, rem);
+ 		dump_packet(prefix, pack, 1);
+ 	}
+ }
+@@ -60,11 +62,13 @@ static bool __xframe_enqueue(struct xfra
+ 	if (q->count >= q->max_count) {
+ 		q->overflows++;
+ 		if ((overflow_cnt++ % 1000) < 5) {
+-			NOTICE("Overflow of %-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%lld ms\n",
++			s32 rem;
++			s64 lag_sec = div_s64_rem(q->worst_lag_usec, 1000, &rem);
++			NOTICE("Overflow of %-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%ld ms\n",
+ 			     q->name, q->steady_state_count, q->count,
+ 			     q->max_count, q->worst_count, q->overflows,
+-			     q->worst_lag_usec / 1000,
+-			     q->worst_lag_usec % 1000);
++			     lag_sec,
++			     rem);
+ 			__xframe_dump_queue(q);
+ 		}
+ 		ret = 0;
+--- a/drivers/dahdi/xpp/xpp_usb.c
++++ b/drivers/dahdi/xpp/xpp_usb.c
+@@ -27,6 +27,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>	/* for udelay */
+ #include <linux/seq_file.h>
++#include <linux/math64.h>
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <asm/uaccess.h>
+ #else
+@@ -886,7 +887,7 @@ static void xpp_send_callback(struct urb
+ 		usec = 0; /* System clock jumped */
+ 	if (usec > xusb->max_tx_delay)
+ 		xusb->max_tx_delay = usec;
+-	i = usec / USEC_BUCKET;
++	i = div_s64(usec, USEC_BUCKET);
+ 	if (i >= NUM_BUCKETS)
+ 		i = NUM_BUCKETS - 1;
+ 	xusb->usb_tx_delay[i]++;
