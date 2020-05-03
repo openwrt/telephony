@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
 PKG_VERSION:=1.10.2
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
@@ -366,9 +366,10 @@ $(call Package/$(PKG_NAME)/Default)
   MENU:=1
   USERID:=$(PRG_NAME)=372:$(PRG_NAME)=372
   DEPENDS:= \
-	  +@OPENSSL_WITH_DEPRECATED \
 	  $(CXX_DEPENDS) \
 	  $(ICONV_DEPENDS) \
+	  +!BUSYBOX_DEFAULT_SU:shadow-su \
+	  +@OPENSSL_WITH_DEPRECATED \
 	  +FS_STABLE_WITH_FREETYPE:libfreetype \
 	  +FS_STABLE_WITH_ODBC:unixodbc \
 	  +FS_STABLE_WITH_PNG:libpng \
