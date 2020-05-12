@@ -2,10 +2,10 @@
 +++ b/CMakeLists.txt
 @@ -11,6 +11,10 @@ option(WITH_LIBBACKTRACE "Enables linkin
  # Must include cotire before anything else for auto pch setup
- include(cmake/cotire.cmake)
+ #include(cmake/cotire.cmake)
  
 +# Declare our project, libks
-+project(LibKS VERSION 1.3.0 LANGUAGES C CXX)
++project(LibKS VERSION 1.6.0 LANGUAGES C CXX)
 +message("LibKS Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 +
  # Load our common utility api and setup the platfomrm and build
@@ -16,7 +16,7 @@
  endif()
  
 -# Declare our project, libks
--project(LibKS VERSION 1.3.0 LANGUAGES C CXX)
+-project(LibKS VERSION 1.6.0 LANGUAGES C CXX)
 -message("LibKS Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 -
  # Set package version
