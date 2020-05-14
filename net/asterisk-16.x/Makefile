@@ -334,7 +334,7 @@ endef
 
 define Package/$(PKG_NAME)/install/conffile
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
 endef
 
 define Package/$(PKG_NAME)/install/lib
@@ -354,7 +354,7 @@ endef
 
 define Package/$(PKG_NAME)/install/util-conffile
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
 endef
 
 define Package/$(PKG_NAME)/config
@@ -498,7 +498,9 @@ $(foreach m,$(AST_CFG_FILES),$(call Package/$(PKG_NAME)/install/conffile,$(1),$(
 $(foreach m,$(AST_EMB_MODULES),$(call Package/$(PKG_NAME)/install/module,$(1),$(m));)
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/agi-bin
 	$(INSTALL_DIR) $(1)/usr/share/asterisk/firmware/iax
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/keys
 	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
 	$(INSTALL_CONF) ./files/asterisk.conf $(1)/etc/config/asterisk
