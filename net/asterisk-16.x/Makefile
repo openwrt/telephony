@@ -923,7 +923,7 @@ $(eval $(call BuildAsteriskModule,odbc,ODBC,ODBC support.,+libpthread +libc +uni
 $(eval $(call BuildAsteriskModule,pbx-ael,Asterisk Extension Logic,Asterisk Extension Language compiler.,+$(PKG_NAME)-res-ael-share,extensions.ael,pbx_ael,,))
 $(eval $(call BuildAsteriskModule,pbx-dundi,Dundi,Distributed Universal Number Discovery.,,dundi.conf,pbx_dundi,,))
 $(eval $(call BuildAsteriskModule,pbx-loopback,Loopback switch,Loopback switch.,,,pbx_loopback,,))
-$(eval $(call BuildAsteriskModule,pbx-lua,Lua,Lua PBX switch.,+liblua5.3,extensions.lua,pbx_lua,,))
+$(eval $(call BuildAsteriskModule,pbx-lua,Lua,Lua PBX switch.,+liblua,extensions.lua,pbx_lua,,))
 $(eval $(call BuildAsteriskModule,pbx-realtime,Realtime Switch,Realtime switch.,,,pbx_realtime,,))
 $(eval $(call BuildAsteriskModule,pbx-spool,Call Spool,Outgoing spool support.,,,pbx_spool,,))
 $(eval $(call BuildAsteriskModule,pgsql,PostgreSQL,PostgreSQL support.,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
