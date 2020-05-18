@@ -1,0 +1,17 @@
+--- a/lib/lib.Makefile
++++ b/lib/lib.Makefile
+@@ -35,10 +35,10 @@ ifeq ($(RTPENGINE_VERSION),)
+ endif
+ CFLAGS+=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+ 
+-# look for libsystemd
+-ifeq ($(shell pkg-config --exists libsystemd && echo yes),yes)
+-have_libsystemd := yes
+-endif
++# No libsystemd in OpenWrt, but pkg-config could find build host's.
++#ifeq ($(shell pkg-config --exists libsystemd && echo yes),yes)
++have_libsystemd := no
++#endif
+ ifeq ($(have_libsystemd),yes)
+ CFLAGS+=	$(shell pkg-config --cflags libsystemd)
+ CFLAGS+=	-DHAVE_LIBSYSTEMD

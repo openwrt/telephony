@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
 PKG_VERSION:=mr8.3.1.4
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/$(PKG_VERSION)?
@@ -212,6 +212,18 @@ MAKE_VARS+=RTPENGINE_VERSION=$(PKG_VERSION)
 ifeq ($(BUILD_VARIANT),no-transcode)
   MAKE_VARS+=with_transcoding=no
 endif
+
+# rtpengine uses Debian's dpkg utility programs if it can find them. But
+# we don't want build host flags to leak into our cross-compile.
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifeq ($(QUILT),)
+	cd "$(PKG_BUILD_DIR)" && \
+		$(FIND) . -maxdepth 2 -name "*Makefile" | \
+		xargs  -I{} $(SED) \
+		'/shell which dpkg-/s/dpkg/OpenWrt-has-no-dpkg/' {}
+endif
+endef
 
 define Build/Configure
 endef
