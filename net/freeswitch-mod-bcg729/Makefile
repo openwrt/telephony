@@ -7,21 +7,21 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=freeswitch-stable-mod-bcg729
+PKG_NAME:=freeswitch-mod-bcg729
 
 PKG_VERSION:=20170629
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_LICENSE:=MPL-1.1
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=freeswitch-mod-bcg729-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/xadhoom/mod_bcg729.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_SUBDIR:=freeswitch-mod-bcg729-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=686eb06d4a395d94c364efff4b63579af76ebec7
-PKG_MIRROR_HASH:=adfdce835bad865b966ed3384a17f48279b422e63b0f49f3eb892258994cb62d
+PKG_MIRROR_HASH:=efc9421223bba3ba7dd127531aa6887c39ed42d5fb8c0b0c67b15f3c98134b0a
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -42,21 +42,21 @@ BCG729_INCLUDES:= \
 
 BCG729_LDFLAGS:=-lm -Wl,-shared -lbcg729 -Wl,-Bdynamic
 
-define Package/$(PKG_NAME)
+define Package/freeswitch-mod-bcg729
   TITLE:=bcg729 module
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   URL:=https://github.com/xadhoom/mod_bcg729
-  DEPENDS:=freeswitch-stable +bcg729
+  DEPENDS:=freeswitch +bcg729
 endef
 
-define Package/$(PKG_NAME)/description
+define Package/freeswitch-mod-bcg729/description
 FreeSWITCH G.729 module using the opensource bcg729 implementation by
 Belledonne Communications.
 endef
 
-define Package/$(PKG_NAME)/install
+define Package/freeswitch-mod-bcg729/install
 	$(INSTALL_DIR) $(1)$(BCG729_MOD_DIR)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mod_bcg729.so $(1)$(BCG729_MOD_DIR)
 endef
@@ -78,4 +78,4 @@ define Build/Compile
 		$(BCG729_LDFLAGS)
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,freeswitch-mod-bcg729))
