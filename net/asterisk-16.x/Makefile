@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 AST_MAJOR_VERSION:=16
 PKG_NAME:=asterisk$(AST_MAJOR_VERSION)
-PKG_VERSION:=$(AST_MAJOR_VERSION).6.1
-PKG_RELEASE:=4
+PKG_VERSION:=$(AST_MAJOR_VERSION).10.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=9a028b4e3e608c1b8325671a249183adc00e1b29a95d82cb5e6fb35980aef053
+PKG_HASH:=8733f137b4b4e01d90bb796fa41d992e656b4cf1c28d2d7e81863a6839975702
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/asterisk-$(PKG_VERSION)
 PKG_BUILD_DEPENDS:=libxml2/host
@@ -334,7 +334,7 @@ endef
 
 define Package/$(PKG_NAME)/install/conffile
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc/asterisk/
 endef
 
 define Package/$(PKG_NAME)/install/lib
@@ -354,7 +354,7 @@ endef
 
 define Package/$(PKG_NAME)/install/util-conffile
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/$(2) $(1)/etc
 endef
 
 define Package/$(PKG_NAME)/config
@@ -496,9 +496,12 @@ $(call Package/$(PKG_NAME)/install/sbin,$(1),safe_asterisk)
 $(call Package/$(PKG_NAME)/install/sbin,$(1),astgenkey)
 $(foreach m,$(AST_CFG_FILES),$(call Package/$(PKG_NAME)/install/conffile,$(1),$(m));)
 $(foreach m,$(AST_EMB_MODULES),$(call Package/$(PKG_NAME)/install/module,$(1),$(m));)
-	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/agi-bin
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/firmware/iax
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/keys
+	$(INSTALL_DIR) $(1)/usr/share/asterisk/sounds
 	$(INSTALL_BIN) ./files/asterisk.init $(1)/etc/init.d/asterisk
 	$(INSTALL_CONF) ./files/asterisk.conf $(1)/etc/config/asterisk
 endef
@@ -920,7 +923,7 @@ $(eval $(call BuildAsteriskModule,odbc,ODBC,ODBC support.,+libpthread +libc +uni
 $(eval $(call BuildAsteriskModule,pbx-ael,Asterisk Extension Logic,Asterisk Extension Language compiler.,+$(PKG_NAME)-res-ael-share,extensions.ael,pbx_ael,,))
 $(eval $(call BuildAsteriskModule,pbx-dundi,Dundi,Distributed Universal Number Discovery.,,dundi.conf,pbx_dundi,,))
 $(eval $(call BuildAsteriskModule,pbx-loopback,Loopback switch,Loopback switch.,,,pbx_loopback,,))
-$(eval $(call BuildAsteriskModule,pbx-lua,Lua,Lua PBX switch.,+liblua5.3,extensions.lua,pbx_lua,,))
+$(eval $(call BuildAsteriskModule,pbx-lua,Lua,Lua PBX switch.,+liblua,extensions.lua,pbx_lua,,))
 $(eval $(call BuildAsteriskModule,pbx-realtime,Realtime Switch,Realtime switch.,,,pbx_realtime,,))
 $(eval $(call BuildAsteriskModule,pbx-spool,Call Spool,Outgoing spool support.,,,pbx_spool,,))
 $(eval $(call BuildAsteriskModule,pgsql,PostgreSQL,PostgreSQL support.,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))

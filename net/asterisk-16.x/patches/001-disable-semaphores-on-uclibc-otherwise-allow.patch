@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1033,15 +1033,18 @@ AC_LINK_IFELSE(
+@@ -1031,15 +1031,18 @@ AC_LINK_IFELSE(
  
  # Some platforms define sem_init(), but only support sem_open(). joyous.
  AC_MSG_CHECKING(for working unnamed semaphores)
