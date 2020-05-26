@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.10.2
+PKG_VERSION:=1.10.3
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=1fd46dee82ecc52ac90ebab6bd454e34c64950fae7d6dc0589c8daa14bfc7d34
+PKG_HASH:=2d7db07a64ee2f19f9b6e3a4ce76fa42e0fe46c29d95edf1b690a3df3729f307
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
