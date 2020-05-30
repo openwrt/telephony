@@ -5,7 +5,7 @@
  $(SPHINXBASE_BUILDDIR)/Makefile: $(SPHINXBASE_DIR)
  	mkdir -p $(SPHINXBASE_BUILDDIR)
 -	(cd $(SPHINXBASE_BUILDDIR) && $(DEFAULT_VARS) $(SPHINXBASE_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(SPHINXBASE_DIR) --without-python CFLAGS=)
-+	(cd $(SPHINXBASE_BUILDDIR) && sed -i 's|$$(srcdir)/||g' test/regression/Makefile.am && autoreconf -v -f -i -s && $(DEFAULT_VARS) ac_cv_header_alsa_asoundlib_h=no ac_cv_header_jack_jack_h=no ac_cv_header_pulse_pulseaudio_h=no $(SPHINXBASE_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(SPHINXBASE_DIR) --without-python $(FS_STABLE_USE_FIXED_POINT))
++	(cd $(SPHINXBASE_BUILDDIR) && sed -i 's|$$(srcdir)/||g' test/regression/Makefile.am && autoreconf -v -f -i -s && $(DEFAULT_VARS) ac_cv_header_alsa_asoundlib_h=no ac_cv_header_jack_jack_h=no ac_cv_header_pulse_pulseaudio_h=no $(SPHINXBASE_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(SPHINXBASE_DIR) --without-python $(FS_USE_FIXED_POINT))
  	$(TOUCH_TARGET)
  
  $(SPHINXBASE_BUILDDIR)/buildstamp: $(SPHINXBASE_BUILDDIR)/Makefile
