@@ -8,23 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-chan-dongle
-PKG_VERSION:=1.1-20180619
-PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=fd544d628d134cfe9cc2df6b5315298e93698664
-PKG_MIRROR_HASH:=f6074feff5931024e5ac9504ffc872c58b650352e29343969327c5205228fc2f
 PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
+PKG_SOURCE_VERSION:=328b2b7ded3b3c59c2e6c7e7afca6b0ac6f146ce
+PKG_SOURCE_DATE=2020-05-28
+PKG_RELEASE:=1
+PKG_MIRROR_HASH:=b0af444840340722ecee111a7b1f819de441acf290799ae11bc18e16569c6388
 
 PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYRIGHT.txt LICENSE.txt
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 MODULES_DIR:=/usr/lib/asterisk/modules
 
@@ -37,7 +33,7 @@ define Package/asterisk-chan-dongle/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=https://github.com/wdoekes/asterisk-chan-dongle
-  DEPENDS:=$(ICONV_DEPENDS) +kmod-usb-acm +kmod-usb-serial +kmod-usb-serial-option +libusb-1.0 +usb-modeswitch
+  DEPENDS:=$(ICONV_DEPENDS) +libsqlite3
   TITLE:=Huawei UMTS 3G dongle support
 endef
 
@@ -60,7 +56,8 @@ ifeq ($(BUILD_VARIANT),asterisk16)
 endif
 
 CONFIGURE_ARGS+= \
-	--with-asterisk=$(CHAN_DONGLE_AST_HEADERS)
+	--with-asterisk=$(CHAN_DONGLE_AST_HEADERS) \
+	--with-iconv=$(ICONV_PREFIX)/include
 
 TARGET_CFLAGS+= \
 	-I$(CHAN_DONGLE_AST_HEADERS)
