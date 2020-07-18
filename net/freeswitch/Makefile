@@ -336,7 +336,7 @@ endef
 define Package/libfreetdm/FTModule
 define Package/libfreetdm-ftmod-$(subst _,-,$(1))
 $(call Package/libfreetdm/Default)
-  DEPENDS:=PACKAGE_libfreetdm-ftmod-$(subst _,-,$(1)):libfreetdm \
+  DEPENDS:=libfreetdm \
 	  $(patsubst +%,+PACKAGE_libfreetdm-ftmod-$(subst _,-,$(1)):%,$(4))
   TITLE:=$(2) FreeTDM module
 endef
