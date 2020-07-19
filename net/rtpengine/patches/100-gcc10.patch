@@ -1,0 +1,36 @@
+--- a/include/control_ng.h
++++ b/include/control_ng.h
+@@ -38,7 +38,7 @@ struct control_ng {
+ };
+ 
+ struct control_ng *control_ng_new(struct poller *, endpoint_t *, unsigned char);
+-void control_ng_init(void);
++extern void control_ng_init(void);
+ 
+ extern mutex_t rtpe_cngs_lock;
+ extern GHashTable *rtpe_cngs_hash;
+--- a/include/sdp.h
++++ b/include/sdp.h
+@@ -19,14 +19,14 @@ struct sdp_chopper {
+ 
+ void sdp_init(void);
+ 
+-int sdp_parse(str *body, GQueue *sessions, const struct sdp_ng_flags *);
+-int sdp_streams(const GQueue *sessions, GQueue *streams, struct sdp_ng_flags *);
+-void sdp_free(GQueue *sessions);
+-int sdp_replace(struct sdp_chopper *, GQueue *, struct call_monologue *, struct sdp_ng_flags *);
+-int sdp_is_duplicate(GQueue *sessions);
+-
+-struct sdp_chopper *sdp_chopper_new(str *input);
+-void sdp_chopper_destroy(struct sdp_chopper *chop);
++extern int sdp_parse(str *body, GQueue *sessions, const struct sdp_ng_flags *);
++extern int sdp_streams(const GQueue *sessions, GQueue *streams, struct sdp_ng_flags *);
++extern void sdp_free(GQueue *sessions);
++extern int sdp_replace(struct sdp_chopper *, GQueue *, struct call_monologue *, struct sdp_ng_flags *);
++extern int sdp_is_duplicate(GQueue *sessions);
++
++extern struct sdp_chopper *sdp_chopper_new(str *input);
++extern void sdp_chopper_destroy(struct sdp_chopper *chop);
+ 
+ INLINE int is_trickle_ice_address(const struct endpoint *ep) {
+ 	if (is_addr_unspecified(&ep->address) && ep->port == 9)
