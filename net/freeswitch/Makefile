@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.3
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
@@ -20,9 +20,9 @@ PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/freeswitch-$(PKG_VERSION).-release
 
-# configure in libs/spandsp fails without libjpeg and tiff
+# configure in libs/spandsp fails without libjpeg-turbo and tiff
 PKG_BUILD_DEPENDS:= \
-	libjpeg \
+	libjpeg-turbo \
 	tiff \
 	perl/host
 
@@ -979,7 +979,7 @@ $(eval $(call Package/freeswitch/Module,fsv,FSV,This module provides dialplan ap
 $(eval $(call Package/freeswitch/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
 $(eval $(call Package/freeswitch/Module,g729,G.729 passthrough,G.729 codec passthrough.,))
 $(eval $(call Package/freeswitch/Module,graylog2,Graylog2 logger,GELF logger for Graylog2 and Logstash.,))
-$(eval $(call Package/freeswitch/Module,gsmopen,GSM endpoint,GSMopen is a channel driver that allows an SMS to be sent to and from\nFreeSWITCH as well as incoming and outgoing GSM voice calls.,+gsmlib +libctb +libjpeg +libtiff))
+$(eval $(call Package/freeswitch/Module,gsmopen,GSM endpoint,GSMopen is a channel driver that allows an SMS to be sent to and from\nFreeSWITCH as well as incoming and outgoing GSM voice calls.,+gsmlib +libctb +libjpeg-turbo +libtiff))
 $(eval $(call Package/freeswitch/Module,h26x,H.26x passthrough,H.26x video codec passthrough.,))
 $(eval $(call Package/freeswitch/Module,hash,Hash,This module provides a key-value in-memory datastore. Usable as a\nlimit backend.,))
 $(eval $(call Package/freeswitch/Module,hiredis,Redis client,This module provides a mechanism to use Redis as a datastore.,+libhiredis))
@@ -1047,7 +1047,7 @@ $(eval $(call Package/freeswitch/Module,snmp,SNMP,An SNMP stats reporter.,+libne
 $(eval $(call Package/freeswitch/Module,snom,SNOM,This module implements features specific to SNOM phones.,))
 $(eval $(call Package/freeswitch/Module,sofia,Sofia SIP,SIP module.,))
 $(eval $(call Package/freeswitch/Module,sonar,Sonar,This module measures the latency on an audio link by sending audible\naudio sonar pings.,))
-$(eval $(call Package/freeswitch/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec\nfunctionality.,+libjpeg +liblzma +libtiff))
+$(eval $(call Package/freeswitch/Module,spandsp,SpanDSP,This module implements SpanDSP fax. It includes DSP and codec\nfunctionality.,+libjpeg-turbo +liblzma +libtiff))
 $(eval $(call Package/freeswitch/Module,spy,User Spy,This module adds the ability to monitor the audio of a channel.,))
 $(eval $(call Package/freeswitch/Module,ssml,SSML,mod_ssml is a FreeSWITCH module that renders SSML into audio. This\nmodule requires a text-to-speech module for speech synthesis.,))
 $(eval $(call Package/freeswitch/Module,stress,Stress,This module attempts to detect voice stress on an audio channel.,))
