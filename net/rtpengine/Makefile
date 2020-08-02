@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
 PKG_VERSION:=mr8.3.1.4
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/$(PKG_VERSION)?
@@ -30,6 +30,7 @@ PKG_BUILD_PARALLEL:=0
 PKG_BUILD_DEPENDS:=gperf/host
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 ENGINE_DEPENDS := \
 	+glib2 \
