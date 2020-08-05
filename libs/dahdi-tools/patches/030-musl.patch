@@ -1,0 +1,25 @@
+--- a/xpp/hexfile.h
++++ b/xpp/hexfile.h
+@@ -69,8 +69,9 @@ struct hexdata {
+ 	struct hexline		*lines[ZERO_SIZE];
+ };
+ 
+-
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ typedef void (*parse_hexfile_report_func_t)(int level, const char *msg, ...)
+ #ifdef	__GNUC__
+@@ -86,6 +87,9 @@ int dump_hexfile2(struct hexdata *hexdata, const char *outfile, uint8_t maxwidth
+ void dump_binary(struct hexdata *hexdata, const char *outfile);
+ void gen_hexline(const uint8_t *data, uint16_t addr, size_t len, FILE *output);
+ int bsd_checksum(struct hexdata *hexdata);
+-__END_DECLS
++
++#ifdef __cplusplus
++}
++#endif
+ 
+ #endif
