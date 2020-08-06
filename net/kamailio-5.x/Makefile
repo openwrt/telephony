@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
-PKG_VERSION:=5.3.3
-PKG_RELEASE:=3
+PKG_VERSION:=5.4.0
+PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
-PKG_HASH:=2443f8aad3584b009b51948dc41982060b9ffc76be8016aa4e7de25b83be5b0a
+PKG_HASH:=9ee22d566a7b6f60eaf283e95ee6633046dc87117be03b6cf2bc27293087718b
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -78,6 +78,7 @@ MODULES_AVAILABLE:= \
 	dialplan \
 	dispatcher \
 	diversion \
+	dlgs \
 	dmq \
 	dmq_usrloc \
 	domain \
@@ -157,6 +158,7 @@ MODULES_AVAILABLE:= \
 	pua_usrloc \
 	pua_xmpp \
 	pv \
+	pv_headers \
 	qos \
 	ratelimit \
 	regex \
@@ -272,7 +274,7 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio5/install/conffile,$(1)
 		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib{srdb1,srdb2,srutils}.so* \
+		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib{srdb1,srdb2}.so* \
 		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) \
@@ -307,7 +309,7 @@ endef
 
 define Package/kamailio5/install/conffile
 	$(INSTALL_DIR) $(1)/etc/kamailio
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/kamailio/$(2) $(1)/etc/kamailio
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/kamailio/$(2) $(1)/etc/kamailio
 endef
 
 define Package/kamailio5/install/dbfiles
@@ -508,6 +510,7 @@ $(eval $(call BuildKamailio5Module,dialog,Dialog support,,+kamailio5-mod-rr +kam
 $(eval $(call BuildKamailio5Module,dialplan,Dialplan management,,+libpcre))
 $(eval $(call BuildKamailio5Module,dispatcher,Dispatcher,,))
 $(eval $(call BuildKamailio5Module,diversion,Diversion header insertion,,))
+$(eval $(call BuildKamailio5Module,dlgs,Track active calls in stateless mode,,))
 $(eval $(call BuildKamailio5Module,dmq,Distributed Message Queue,,+kamailio5-mod-sl +kamailio5-mod-tm))
 $(eval $(call BuildKamailio5Module,dmq_usrloc,DMQ USRLOC replication,,+kamailio5-mod-dmq +kamailio5-mod-usrloc))
 $(eval $(call BuildKamailio5Module,domain,Multi-domain support,,))
@@ -587,6 +590,7 @@ $(eval $(call BuildKamailio5Module,pua_rpc,RPC extensions for PUA,,+kamailio5-mo
 $(eval $(call BuildKamailio5Module,pua_usrloc,PUA User Location,,+kamailio5-mod-pua +kamailio5-mod-usrloc))
 $(eval $(call BuildKamailio5Module,pua_xmpp,PUA XMPP,,+kamailio5-mod-presence +kamailio5-mod-pua +kamailio5-mod-xmpp))
 $(eval $(call BuildKamailio5Module,pv,Pseudo-Variables,,))
+$(eval $(call BuildKamailio5Module,pv_headers,Flexible SIP header management,,))
 $(eval $(call BuildKamailio5Module,qos,QoS control,,+kamailio5-mod-dialog))
 $(eval $(call BuildKamailio5Module,ratelimit,Traffic shapping,,))
 $(eval $(call BuildKamailio5Module,regex,Regular Expression,,+libpcre))
