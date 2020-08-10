@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.3
-PKG_RELEASE:=3
+PKG_VERSION:=1.10.4
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=2d7db07a64ee2f19f9b6e3a4ce76fa42e0fe46c29d95edf1b690a3df3729f307
+PKG_HASH:=492d8faae813dc21bda691f8d0c3bead1f541d6df69dba760c9d7bacbed717fc
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -266,6 +266,10 @@ define Download/$(1)
   FILE:=$(2)
   URL:=$(3)
   HASH:=$(4)
+  VERSION:=$(5)
+  SUBDIR:=$(6)
+  MIRROR_HASH:=$(7)
+  PROTO:=$(8)
 endef
 $$(eval $$(call Download,$(1)))
 endef
@@ -379,6 +383,7 @@ $(call Package/freeswitch/Default)
 	  +libspeexdsp \
 	  +libsqlite3 \
 	  +libuuid \
+	  +sofia-sip \
 	  +zlib
 endef
 
@@ -723,6 +728,12 @@ FS_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645c
 FS_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.7.tar.gz
 FS_FREERADIUS_CLIENT_HASH:=eada2861b8f4928e3ac6b5bbfe11e92cd6cdcacfce40cae1085e77c1b6add0e9
 
+# spandsp
+FS_SPANDSP_VERSION:=a6266f22591ee6ed1be9282babe4bfdbc50d4b82
+FS_SPANDSP_FILE:=fs-spandsp-$(FS_SPANDSP_VERSION).tar.xz
+FS_SPANDSP_URL:=https://github.com/freeswitch/spandsp.git
+FS_SPANDSP_MIRROR_HASH:=4aa38003c07c05d9030eab93ec3b0b974be03013f9e898b1f053f7306bcfa5c8
+
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-event-zmq),)
 $(eval $(call Download/files,zmq,$(FS_ZEROMQ_FILE),$(FS_ZEROMQ_URL),$(FS_ZEROMQ_HASH)))
 endif
@@ -737,6 +748,8 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-mod-radius-cdr),)
 $(eval $(call Download/files,freeradius-client,$(FS_FREERADIUS_CLIENT_FILE),$(FS_LIBS_URL),$(FS_FREERADIUS_CLIENT_HASH)))
 endif
 
+$(eval $(call Download/files,fs-spandsp,$(FS_SPANDSP_FILE),$(FS_SPANDSP_URL),,$(FS_SPANDSP_VERSION),spandsp,$(FS_SPANDSP_MIRROR_HASH),git))
+
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
 # FS_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
@@ -745,6 +758,10 @@ FS_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
+
+	xzcat $(DL_DIR)/$(FS_SPANDSP_FILE) | tar -C $(PKG_BUILD_DIR)/libs $(TAR_OPTIONS)
+	$(CP) ./files/spandsp-flags.patch $(PKG_BUILD_DIR)/libs/spandsp
+	cd $(PKG_BUILD_DIR) && $(PATCH) -p1 < libs/spandsp/spandsp-flags.patch
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf

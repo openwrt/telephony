@@ -1,6 +1,6 @@
---- a/libs/sofia-sip/configure.ac
-+++ b/libs/sofia-sip/configure.ac
-@@ -250,7 +250,7 @@ SAC_OPENSSL
+--- a/configure.ac
++++ b/configure.ac
+@@ -247,7 +247,7 @@ SAC_OPENSSL
  SAC_TPORT
  
  dnl Check is used for testing

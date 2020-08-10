@@ -1,0 +1,162 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -130,7 +130,7 @@ CORE_CFLAGS += -I$(switch_srcdir)/libs/l
+ CORE_CFLAGS += -DSWITCH_HAVE_YUV
+ endif
+ CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/crypto/include -Ilibs/srtp/crypto/include
+-CORE_CFLAGS += $(SPANDSP_CFLAGS)
++CORE_CFLAGS += -I$(switch_builddir)/libs/spandsp/src -I$(switch_srcdir)/libs/spandsp/src
+ if ENABLE_LIBVPX
+ CORE_CFLAGS += -DSWITCH_HAVE_VPX
+ endif
+@@ -184,10 +184,13 @@ endif
+ ##
+ ## libfreeswitch
+ ##
+-noinst_LTLIBRARIES        =
++noinst_LTLIBRARIES        = libfreeswitch_spandsp.la
+ if ENABLE_LIBYUV
+ noinst_LTLIBRARIES += libfreeswitch_libyuv.la
+ endif
++libfreeswitch_spandsp_la_SOURCES = libs/spandsp/src/plc.c libs/spandsp/src/alloc.c libs/spandsp/src/bit_operations.c
++libfreeswitch_spandsp_la_CFLAGS  = -Ilibs/spandsp/src $(CORE_CFLAGS) $(AM_CFLAGS)
++CORE_LIBS+=libfreeswitch_spandsp.la
+ 
+ if ENABLE_LIBYUV
+ libfreeswitch_libyuv_la_SOURCES = \
+@@ -248,7 +251,7 @@ endif
+ lib_LTLIBRARIES	         = libfreeswitch.la
+ libfreeswitch_la_CFLAGS  = $(CORE_CFLAGS) $(SQLITE_CFLAGS) $(GUMBO_CFLAGS) $(FVAD_CFLAGS) $(FREETYPE_CFLAGS) $(CURL_CFLAGS) $(PCRE_CFLAGS) $(SPEEX_CFLAGS) $(LIBEDIT_CFLAGS) $(openssl_CFLAGS)  $(AM_CFLAGS) $(TPL_CFLAGS)
+ libfreeswitch_la_LDFLAGS = -version-info 1:0:0 $(AM_LDFLAGS) $(PLATFORM_CORE_LDFLAGS) -no-undefined
+-libfreeswitch_la_LIBADD  = $(CORE_LIBS) $(APR_LIBS) $(SQLITE_LIBS) $(GUMBO_LIBS) $(FVAD_LIBS) $(FREETYPE_LIBS) $(CURL_LIBS) $(PCRE_LIBS) $(SPEEX_LIBS) $(LIBEDIT_LIBS) $(openssl_LIBS) $(PLATFORM_CORE_LIBS) $(TPL_LIBS) $(SPANDSP_LIBS)
++libfreeswitch_la_LIBADD  = $(CORE_LIBS) $(APR_LIBS) $(SQLITE_LIBS) $(GUMBO_LIBS) $(FVAD_LIBS) $(FREETYPE_LIBS) $(CURL_LIBS) $(PCRE_LIBS) $(SPEEX_LIBS) $(LIBEDIT_LIBS) $(openssl_LIBS) $(PLATFORM_CORE_LIBS) $(TPL_LIBS)
+ libfreeswitch_la_DEPENDENCIES = $(BUILT_SOURCES)
+ 
+ if HAVE_PNG
+@@ -717,7 +720,9 @@ core-install: core_install
+ 
+ clean_core: clean-libLTLIBRARIES
+ 	rm -f $(libfreeswitch_la_OBJECTS)
++	rm -f $(libfreeswitch_spandsp_la_OBJECTS)
+ 	rm -f `echo $(libfreeswitch_la_OBJECTS) | sed -e's|.lo|.o|g'`
++	rm -f `echo $(libfreeswitch_spandsp_la_OBJECTS) | sed -e's|.lo|.o|g'`
+ 
+ install_core: install-libLTLIBRARIES
+ 
+@@ -782,6 +787,12 @@ iks-reconf:
+ 	cd libs/iksemel && sh ./configure.gnu $(MY_DEFAULT_ARGS)
+ 	$(MAKE) mod_dingaling-clean
+ 
++spandsp-reconf:
++	cd libs/spandsp && $(MAKE) clean || echo
++	cd libs/spandsp && autoreconf -fi
++	cd libs/spandsp && sh ./configure.gnu $(MY_DEFAULT_ARGS)
++	cd libs/spandsp && $(MAKE)
++
+ cluecon:
+ 	@clear
+ 	@echo Thank you for updating. This is going to take a while so relax.
+--- a/configure.ac
++++ b/configure.ac
+@@ -703,11 +703,6 @@ PKG_CHECK_MODULES([MARIADB], [libmariadb
+   ])
+ ])
+ 
+-PKG_CHECK_MODULES([SPANDSP], [spandsp >= 1.99],[
+-  AM_CONDITIONAL([HAVE_SPANDSP],[true])],[
+-    AC_MSG_ERROR([no usable spandsp; please install spandsp devel package or equivalent])
+-])
+-
+ PKG_CHECK_MODULES([SOFIA_SIP], [sofia-sip-ua >= 1.12.12],[
+   AM_CONDITIONAL([HAVE_SOFIA_SIP],[true])],[
+     AC_MSG_ERROR([no usable sofia-sip; please install sofia-sip-ua devel package or equivalent])
+@@ -2104,6 +2099,7 @@ AC_CONFIG_SUBDIRS([libs/iksemel])
+ AC_CONFIG_SUBDIRS([libs/libdingaling])
+ AC_CONFIG_SUBDIRS([libs/freetdm])
+ AC_CONFIG_SUBDIRS([libs/unimrcp])
++AC_CONFIG_SUBDIRS([libs/spandsp])
+ if test "x${enable_zrtp}" = "xyes"; then
+    AC_CONFIG_SUBDIRS([libs/libzrtp])
+ fi
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -1310,6 +1310,45 @@ Files: libs/js/nsprpub/pr/tests/tmocon.c
+ Copyright: 1998-2004 Netscape Communications Corporation
+ License: MPL-1.1 or GPL-2+
+ 
++Files: libs/spandsp/*
++Copyright: 2001-2012, Steve Underwood
++ 2006 Michael Jerris
++ 1991-1997 Silicon Graphics, Inc.
++ 1990-1997 Sam Leffler
++ 1993 CMU
++ 2004, Horizon Wimba, Inc.
++ 1990, 1995  Frank D. Cringle.
++License: LGPL-2.1
++
++Files: libs/spandsp/tests/*
++ libs/spandsp/spandsp-sim/g1050.c
++ libs/spandsp/spandsp-sim/line_model.c
++ libs/spandsp/spandsp-sim/make_line_models.c
++ libs/spandsp/spandsp-sim/spandsp-sim.h
++ libs/spandsp/spandsp-sim/test_utils.c
++ libs/spandsp/src/image_translate.c
++ libs/spandsp/src/make_at_dictionary.c
++ libs/spandsp/src/make_cielab_luts.c
++ libs/spandsp/src/make_math_fixed_tables.c
++ libs/spandsp/src/make_modem_filter.c
++ libs/spandsp/test-data/etsi/fax/generate_etsi_300_242_pages.c
++ libs/spandsp/test-data/itu/fax/generate_dithered_tif.c
++ libs/spandsp/test-data/itu/fax/generate_sized_pages.c
++ libs/spandsp/test-data/itu/fax/generate_striped_pages.c
++Copyright: 2001-2012, Steve Underwood
++License: GPL-2
++
++Files: libs/spandsp/tests/ademco_contactid_tests.c
++ libs/spandsp/tests/regression_tests.sh
++ libs/spandsp/tests/timezone_tests.c
++ libs/spandsp/tests/tsb85_extra_tests.sh
++ libs/spandsp/tests/tsb85_tests.c
++ libs/spandsp/tests/tsb85_tests.sh
++ libs/spandsp/tests/v42bis_tests.sh
++ libs/spandsp/tests/fax_tests.sh
++Copyright: 2001-2012, Steve Underwood
++License: LGPL-2.1
++
+ Files: src/mod/applications/mod_cluechoo/sl.h
+ Copyright: 1993 Toyoda Masashi
+ License: FIXME
+@@ -1402,6 +1441,11 @@ Files: libs/libsndfile/src/G72x/*
+ Copyright: Abandoned, Sun Microsystems, Inc.
+ License: public-domain
+ 
++Files: libs/spandsp/src/spandsp/fast_convert.h
++Copyright: 2001-2004 Erik de Castro Lopo <erikd@mega-nerd.com>
++ 2009 Steve Underwood
++License: LGPL-2.1
++
+ Files: libs/libsndfile/*
+  libs/win32/libsndfile/*
+ Copyright: 1999-2009 Erik de Castro Lopo <erikd@mega-nerd.com>
+--- a/src/mod/applications/mod_spandsp/Makefile.am
++++ b/src/mod/applications/mod_spandsp/Makefile.am
+@@ -1,9 +1,17 @@
+ include $(top_srcdir)/build/modmake.rulesam
+ MODNAME=mod_spandsp
+ 
++SPANDSP_DIR=$(switch_srcdir)/libs/spandsp
++SPANDSP_BUILDDIR=$(switch_builddir)/libs/spandsp
++SPANDSP_LA=$(SPANDSP_BUILDDIR)/src/libspandsp.la
++
+ mod_LTLIBRARIES = mod_spandsp.la
+ mod_spandsp_la_SOURCES  = mod_spandsp.c udptl.c mod_spandsp_fax.c mod_spandsp_dsp.c mod_spandsp_codecs.c mod_spandsp_modem.c
+ mod_spandsp_la_CFLAGS   = $(AM_CFLAGS) 
+-mod_spandsp_la_CPPFLAGS = $(SPANDSL_CFLAGS) -I.
+-mod_spandsp_la_LIBADD   = $(switch_builddir)/libfreeswitch.la $(SPANDSP_LIBS) -ljpeg -lz -ltiff
++mod_spandsp_la_CPPFLAGS = -I$(SPANDSP_DIR)/src -I$(SPANDSP_BUILDDIR)/src -I.
++mod_spandsp_la_LIBADD   = $(switch_builddir)/libfreeswitch.la $(SPANDSP_LA) $(SPANDSP_LA_JBIG) $(SPANDSP_LA_LZMA) -ljpeg -lz -ltiff
+ mod_spandsp_la_LDFLAGS  = -avoid-version -module -no-undefined -shared
++
++$(SPANDSP_LA): $(SPANDSP_DIR) $(SPANDSP_DIR)/.update
++	cd $(SPANDSP_BUILDDIR) && $(MAKE) CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)"
++	$(TOUCH_TARGET)
