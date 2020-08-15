@@ -360,6 +360,9 @@ define Package/freeswitch/Default
   URL:=https://www.freeswitch.org
 endef
 
+# Note: shadow deps are a bit strange; you need to select shadow-utils
+# package first for shadow-su to be selected, even though the
+# shadow-utils package later becomes a no-op.
 define Package/freeswitch
 $(call Package/freeswitch/Default)
   TITLE:=Open source telephony platform, v$(PKG_VERSION)
@@ -368,6 +371,7 @@ $(call Package/freeswitch/Default)
   DEPENDS:= \
 	  $(CXX_DEPENDS) \
 	  $(ICONV_DEPENDS) \
+	  +!BUSYBOX_DEFAULT_SU:shadow-utils \
 	  +!BUSYBOX_DEFAULT_SU:shadow-su \
 	  +@OPENSSL_WITH_DEPRECATED \
 	  +FS_WITH_FREETYPE:libfreetype \
