@@ -1,0 +1,11 @@
+--- a/Makefile
++++ b/Makefile
+@@ -68,7 +68,7 @@ DYNAMIC_OBJS= \
+ 	$(STATIC_OBJS)
+ CFLAGS ?= -g
+ CFLAGS += $(CPPFLAGS)
+-CFLAGS += -Wall -Werror -Wstrict-prototypes -Wmissing-prototypes
++CFLAGS += -Wall -Wstrict-prototypes -Wmissing-prototypes
+ CFLAGS += -fPIC $(ALERTING) $(LIBPRI_OPT) $(COVERAGE_CFLAGS)
+ INSTALL_PREFIX=$(DESTDIR)
+ INSTALL_BASE=/usr
