@@ -1,0 +1,19 @@
+diff -urN siproxd-0.8.3/src/siproxd.h siproxd-0.8.3-patch/src/siproxd.h
+--- siproxd-0.8.3/src/siproxd.h	2019-11-09 09:42:04.000000000 -0800
++++ siproxd-0.8.3-patch/src/siproxd.h	2020-09-04 20:02:47.961246801 -0700
+@@ -282,13 +282,13 @@
+ #define TCP_IDLE_TO	300	/* TCP connection idle timeout in seconds */
+ #define TCP_CONNECT_TO	500	/* TCP connect() timeout in msec */
+ 
+-#define URLMAP_SIZE	512	/* number of URL mapping table entries	*/
++#define URLMAP_SIZE	128	/* number of URL mapping table entries	*/
+ 				/* this limits the number of clients!	*/
+ 
+ #define SOURCECACHE_SIZE 256	/* number of return addresses		*/
+ #define DEJITTERLIMIT	1500000	/* max value for dejitter configuration */
+ 
+-#define RTPPROXY_SIZE	1024	/* number of rtp proxy entries		*/
++#define RTPPROXY_SIZE	256	/* number of rtp proxy entries		*/
+ 				/* this limits the number of calls!	*/
+ 
+ #define BUFFER_SIZE	8196	/* input buffer for read from socket	*/
