@@ -1,0 +1,13 @@
+--- a/build/freeswitch.pc.in
++++ b/build/freeswitch.pc.in
+@@ -1,8 +1,8 @@
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+-libdir=@libdir@
++libdir=${exec_prefix}/lib
+ libexecdir=@libexecdir@
+-includedir=@includedir@
++includedir=${prefix}/include/freeswitch
+ modulesdir=@modulesdir@
+ runtimedir=@runtimedir@
+ logfiledir=@logfiledir@
