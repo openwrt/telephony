@@ -8,23 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.4
+PKG_VERSION:=1.10.5
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=492d8faae813dc21bda691f8d0c3bead1f541d6df69dba760c9d7bacbed717fc
+PKG_HASH:=3e26600767a82946eca94af2c8f14712783aa83db5fb1cc57585f544aecce327
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/freeswitch-$(PKG_VERSION).-release
 
-# configure in libs/spandsp fails without libjpeg-turbo and tiff
-PKG_BUILD_DEPENDS:= \
-	libjpeg-turbo \
-	tiff \
-	perl/host
+PKG_BUILD_DEPENDS:=perl/host
 
 PKG_FIXUP:=autoreconf
 
@@ -383,6 +379,7 @@ $(call Package/freeswitch/Default)
 	  +libpcre \
 	  +libpthread \
 	  +librt \
+	  +libspandsp3 \
 	  +libspeex \
 	  +libspeexdsp \
 	  +libsqlite3 \
@@ -624,13 +621,6 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
-# Make mod_spandsp use fixed point math when soft float support is
-# enabled on target devices.
-ifeq ($(CONFIG_SOFT_FLOAT),y)
-CONFIGURE_ARGS+= \
-	--enable-fixed-point
-endif
-
 # FreeSWITCH dropped postgresql support from the core. postgresql
 # support is now available via mod_pgsql. We still need to pass
 # '--without-pgsql', otherwise apr-util links to libpq and we still
@@ -732,12 +722,6 @@ FS_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645c
 FS_FREERADIUS_CLIENT_FILE:=freeradius-client-1.1.7.tar.gz
 FS_FREERADIUS_CLIENT_HASH:=eada2861b8f4928e3ac6b5bbfe11e92cd6cdcacfce40cae1085e77c1b6add0e9
 
-# spandsp
-FS_SPANDSP_VERSION:=a6266f22591ee6ed1be9282babe4bfdbc50d4b82
-FS_SPANDSP_FILE:=fs-spandsp-$(FS_SPANDSP_VERSION).tar.xz
-FS_SPANDSP_URL:=https://github.com/freeswitch/spandsp.git
-FS_SPANDSP_MIRROR_HASH:=4aa38003c07c05d9030eab93ec3b0b974be03013f9e898b1f053f7306bcfa5c8
-
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-event-zmq),)
 $(eval $(call Download/files,zmq,$(FS_ZEROMQ_FILE),$(FS_ZEROMQ_URL),$(FS_ZEROMQ_HASH)))
 endif
@@ -752,8 +736,6 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-mod-radius-cdr),)
 $(eval $(call Download/files,freeradius-client,$(FS_FREERADIUS_CLIENT_FILE),$(FS_LIBS_URL),$(FS_FREERADIUS_CLIENT_HASH)))
 endif
 
-$(eval $(call Download/files,fs-spandsp,$(FS_SPANDSP_FILE),$(FS_SPANDSP_URL),,$(FS_SPANDSP_VERSION),spandsp,$(FS_SPANDSP_MIRROR_HASH),git))
-
 # Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
 # different apr/apr-util if found.
 # FS_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
@@ -762,10 +744,6 @@ FS_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-
-	xzcat $(DL_DIR)/$(FS_SPANDSP_FILE) | tar -C $(PKG_BUILD_DIR)/libs $(TAR_OPTIONS)
-	$(CP) ./files/spandsp-flags.patch $(PKG_BUILD_DIR)/libs/spandsp
-	cd $(PKG_BUILD_DIR) && $(PATCH) -p1 < libs/spandsp/spandsp-flags.patch
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
