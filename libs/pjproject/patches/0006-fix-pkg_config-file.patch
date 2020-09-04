@@ -13,7 +13,7 @@
  Description: Multimedia communication library
 --- a/build.mak.in
 +++ b/build.mak.in
-@@ -310,8 +310,7 @@ export PJ_LIBXX_FILES := $(APP_LIBXX_FIL
+@@ -314,8 +314,7 @@ export PJ_LIBXX_FILES := $(APP_LIBXX_FIL
  # And here are the variables to use if application is using the
  # library from the install location (i.e. --prefix)
  export PJ_INSTALL_DIR := @prefix@
