@@ -11,10 +11,14 @@ PKG_NAME:=sofia-sip
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/freeswitch/sofia-sip.git
-PKG_SOURCE_DATE=2020-08-03
-PKG_SOURCE_VERSION:=f5d44540d32b646133f685f04cb8b6658f748714
+PKG_SOURCE_DATE=2020-08-31
+PKG_SOURCE_VERSION:=f6f29b483e9c31ce8d3e87419ec3deea8679312d
 PKG_RELEASE:=1
-PKG_MIRROR_HASH:=cfb9b6c1335160f942b72c8660091c1a7eb4ae4ac461d0531cde4f4ca056b3e4
+PKG_MIRROR_HASH:=07b9b6198558542270699af2e31ff2331a49a5262e250cc78e3bf631dc444737
+
+# sofia-sip adds a version to include path
+# need to update this when the version changes
+VERSION_EQUIVALENT:=1.13
 
 PKG_BUILD_PARALLEL:=1
 
@@ -61,14 +65,14 @@ CONFIGURE_ARGS+= \
 	--without-glib
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/sofia-sip-1.12/sofia-{sip,resolv} \
+	$(INSTALL_DIR) $(1)/usr/include/sofia-sip-$(VERSION_EQUIVALENT)/sofia-{sip,resolv} \
 		$(1)/usr/share/sofia-sip
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)/usr/include/sofia-sip-1.12/sofia-sip/*.h{,.in} \
-		$(1)/usr/include/sofia-sip-1.12/sofia-sip
+		$(PKG_INSTALL_DIR)/usr/include/sofia-sip-$(VERSION_EQUIVALENT)/sofia-sip/*.h{,.in} \
+		$(1)/usr/include/sofia-sip-$(VERSION_EQUIVALENT)/sofia-sip
 	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)/usr/include/sofia-sip-1.12/sofia-resolv/*.h \
-		$(1)/usr/include/sofia-sip-1.12/sofia-resolv
+		$(PKG_INSTALL_DIR)/usr/include/sofia-sip-$(VERSION_EQUIVALENT)/sofia-resolv/*.h \
+		$(1)/usr/include/sofia-sip-$(VERSION_EQUIVALENT)/sofia-resolv
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsofia-sip-ua.{a,so*} $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/sofia-sip-ua.pc \
