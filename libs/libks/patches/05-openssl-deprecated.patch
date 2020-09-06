@@ -1,0 +1,99 @@
+--- a/src/include/libks/ks_ssl.h
++++ b/src/include/libks/ks_ssl.h
+@@ -25,6 +25,8 @@
+ #include <openssl/ssl.h>
+ #include <openssl/engine.h>
+ #include <openssl/x509v3.h>
++#include <openssl/bn.h>
++#include <openssl/rsa.h>
+ 
+ KS_BEGIN_EXTERN_C
+ 
+--- a/src/include/libks/kws.h
++++ b/src/include/libks/kws.h
+@@ -22,6 +22,8 @@
+ 
+ #pragma once
+ 
++#include <openssl/err.h>
++
+ #define WEBSOCKET_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+ #define B64BUFFLEN 1024
+ #define KWS_MAX_HEADERS 64
+--- a/src/ks_ssl.c
++++ b/src/ks_ssl.c
+@@ -30,6 +30,7 @@ static int ssl_count = 0;
+ static int is_init = 0;
+ static ks_bool_t skip_ssl = KS_FALSE;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ static inline void ks_ssl_lock_callback(int mode, int type, char *file, int line)
+ {
+ 	if (mode & CRYPTO_LOCK) {
+@@ -44,6 +45,7 @@ static inline unsigned long ks_ssl_thread_id(void)
+ {
+ 	return ks_thread_self_id();
+ }
++#endif
+ 
+ KS_DECLARE(void) ks_ssl_init_skip(ks_bool_t skip)
+ {
+@@ -58,6 +60,7 @@ KS_DECLARE(void) ks_ssl_init_ssl_locks(void)
+ 
+ 	is_init = 1;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	if (!skip_ssl) {
+ 		SSL_library_init();
+ 		SSL_load_error_strings();
+@@ -81,6 +84,7 @@ KS_DECLARE(void) ks_ssl_init_ssl_locks(void)
+ 
+ 		ssl_count++;
+ 	}
++#endif
+ }
+ 
+ KS_DECLARE(void) ks_ssl_destroy_ssl_locks(void)
+@@ -91,6 +95,7 @@ KS_DECLARE(void) ks_ssl_destroy_ssl_locks(void)
+ 
+ 	is_init = 0;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	if (!skip_ssl) {
+ 		if (ssl_count == 1) {
+ 			CRYPTO_set_locking_callback(NULL);
+@@ -111,6 +116,7 @@ KS_DECLARE(void) ks_ssl_destroy_ssl_locks(void)
+ 		ERR_free_strings();
+ 		EVP_cleanup();
+ 	}
++#endif
+ }
+ 
+ static int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days);
+@@ -159,6 +165,7 @@ KS_DECLARE(int) ks_gen_cert(const char *dir, const char *file)
+ 		}
+ 	}
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000
+ 	X509_free(x509);
+ 	EVP_PKEY_free(pkey);
+ 
+@@ -169,6 +176,7 @@ KS_DECLARE(int) ks_gen_cert(const char *dir, const char *file)
+ 
+ 	//CRYPTO_mem_leaks(bio_err);
+ 	//BIO_free(bio_err);
++#endif
+ 
+ 
+ 	ks_safe_free(pvt);
+@@ -231,8 +239,8 @@ static int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days
+ 
+ 	X509_set_version(x, 0);
+ 	ASN1_INTEGER_set(X509_get_serialNumber(x), serial);
+-	X509_gmtime_adj(X509_get_notBefore(x), -(long)60*60*24*7);
+-	X509_gmtime_adj(X509_get_notAfter(x), (long)60*60*24*days);
++	X509_gmtime_adj(X509_getm_notBefore(x), -(long)60*60*24*7);
++	X509_gmtime_adj(X509_getm_notAfter(x), (long)60*60*24*days);
+ 	X509_set_pubkey(x, pk);
+ 
+ 	name = X509_get_subject_name(x);
