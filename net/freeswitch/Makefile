@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.5
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
@@ -24,8 +24,7 @@ PKG_BUILD_DEPENDS:=perl/host
 
 PKG_FIXUP:=autoreconf
 
-# With mod_ssml and mod_rayo enabled the parallel compiles always failed
-PKG_BUILD_PARALLEL:=0
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -268,6 +267,10 @@ define Download/$(1)
   PROTO:=$(8)
 endef
 $$(eval $$(call Download,$(1)))
+endef
+
+define Package/freeswitch/enable/plugin
+	$(SED) '/$(1)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
 endef
 
 define Package/freeswitch/install/bin
@@ -757,27 +760,36 @@ define Build/Configure
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_freeswitch-mod-$(subst _,-,$(m))),
-		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
+		$(call Package/freeswitch/enable/plugin,mod_$(m))))
+
+# Some of the dependencies that necessitate below hacks are documented in
+# src/mod/Makefile.am.
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-grammar),)
-ifeq ($(CONFIG_PACKAGE_freeswitch-mod-pocketsphinx),)
-	$(SED) '/mod_pocketsphinx$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
-endif
+	$(call Package/freeswitch/enable/plugin,mod_pocketsphinx)
 endif
 
 # Hack for mod_gsmopen - it has a build-time dep on mod_spandsp
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-gsmopen),)
-ifeq ($(CONFIG_PACKAGE_freeswitch-mod-spandsp),)
-	$(SED) '/mod_spandsp$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
+	$(call Package/freeswitch/enable/plugin,mod_spandsp)
 endif
+
+# Hack for mod_rayo - it has a build-time dep on mod_dingaling
+ifneq ($(CONFIG_PACKAGE_freeswitch-mod-rayo),)
+	$(call Package/freeswitch/enable/plugin,mod_dingaling)
+endif
+
+# Hack for mod_ssml - it has a build-time dep on mod_rayo. And mod_rayo needs
+# mod_dingaling :)
+ifneq ($(CONFIG_PACKAGE_freeswitch-mod-ssml),)
+	$(call Package/freeswitch/enable/plugin,mod_rayo)
+	$(call Package/freeswitch/enable/plugin,mod_dingaling)
 endif
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-unimrcp),)
-ifeq ($(CONFIG_PACKAGE_freeswitch-mod-sofia),)
-	$(SED) '/mod_sofia$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
-endif
+	$(call Package/freeswitch/enable/plugin,mod_sofia)
 endif
 
 	$(call Build/Configure/Default)
