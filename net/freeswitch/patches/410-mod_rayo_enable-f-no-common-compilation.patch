@@ -1,0 +1,20 @@
+commit 9c01bd4c78c678e989ac77522145d3bd46352f6f
+Author: Ciprian <ciprian.dosoftei@gmail.com>
+Date:   Tue Sep 1 12:13:28 2020 -0400
+
+    [mod_rayo] Enable -fno-common compilation
+
+diff --git a/src/mod/event_handlers/mod_rayo/iks_helpers.h b/src/mod/event_handlers/mod_rayo/iks_helpers.h
+index e221abe390..b98dbf5be6 100644
+--- a/src/mod/event_handlers/mod_rayo/iks_helpers.h
++++ b/src/mod/event_handlers/mod_rayo/iks_helpers.h
+@@ -51,8 +51,7 @@ struct xmpp_error {
+ 
+ #undef XMPP_ERROR
+ #define XMPP_ERROR(def_name, name, type) \
+-	SWITCH_DECLARE(const struct xmpp_error) def_name##_val; \
+-	SWITCH_DECLARE(const struct xmpp_error *) def_name;
++	extern const struct xmpp_error *def_name;
+ #include "xmpp_errors.def"
+ 
+ /* See RFC-3920 XMPP core for error definitions */
