@@ -9,29 +9,25 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.10.3
-PKG_RELEASE:=2
+PKG_VERSION:=1.10.5
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=2d7db07a64ee2f19f9b6e3a4ce76fa42e0fe46c29d95edf1b690a3df3729f307
+PKG_HASH:=3e26600767a82946eca94af2c8f14712783aa83db5fb1cc57585f544aecce327
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PRG_NAME)-$(PKG_VERSION).-release
 
-# configure in libs/spandsp fails without libjpeg and tiff
 PKG_BUILD_DEPENDS:= \
-	libjpeg \
-	tiff \
 	perl/host \
 	python/host
 
 PKG_FIXUP:=autoreconf
 
-# With mod_ssml and mod_rayo enabled the parallel compiles always failed
-PKG_BUILD_PARALLEL:=0
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 PKG_LICENSE:= \
@@ -281,6 +277,10 @@ endef
 $$(eval $$(call Download,$(1)))
 endef
 
+define Package/$(PKG_NAME)/enable/plugin
+	$(SED) '/$(1)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
+endef
+
 define Package/$(PKG_NAME)/install/bin
 	$(INSTALL_DIR) $(1)$(FS_STABLE_BIN_DIR)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_BIN_DIR)/$(2) \
@@ -347,7 +347,7 @@ endef
 define Package/$(PKG_LIBFTDM)/FTModule
 define Package/$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1))
 $(call Package/$(PKG_LIBFTDM)/Default)
-  DEPENDS:=PACKAGE_$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1)):$(PKG_LIBFTDM) \
+  DEPENDS:=$(PKG_LIBFTDM) \
 	  $(patsubst +%,+PACKAGE_$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1)):%,$(4))
   TITLE:=$(2) FreeTDM module
 endef
@@ -384,10 +384,12 @@ $(call Package/$(PKG_NAME)/Default)
 	  +libpcre \
 	  +libpthread \
 	  +librt \
+	  +libspandsp3 \
 	  +libspeex \
 	  +libspeexdsp \
 	  +libsqlite3 \
 	  +libuuid \
+	  +sofia-sip \
 	  +zlib
   CONFLICTS:=$(PRG_NAME)
 endef
@@ -659,13 +661,6 @@ CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
 
-# Make mod_spandsp use fixed point math when soft float support is
-# enabled on target devices.
-ifeq ($(CONFIG_SOFT_FLOAT),y)
-CONFIGURE_ARGS+= \
-	--enable-fixed-point
-endif
-
 # FreeSWITCH dropped postgresql support from the core. postgresql
 # support is now available via mod_pgsql. We still need to pass
 # '--without-pgsql', otherwise apr-util links to libpq and we still
@@ -811,27 +806,36 @@ define Build/Configure
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/modules.conf
 	$(foreach m,$(FS_STABLE_MOD_AVAILABLE),
 		$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-$(subst _,-,$(m))),
-		$(SED) '/mod_$(m)$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf))
+		$(call Package/$(PKG_NAME)/enable/plugin,mod_$(m))))
+
+# Some of the dependencies that necessitate below hacks are documented in
+# src/mod/Makefile.am.
 
 # Hack for misc-grammar - needs mod_pocketsphinx to provide grammar files
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-grammar),)
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-pocketsphinx),)
-	$(SED) '/mod_pocketsphinx$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
-endif
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_pocketsphinx)
 endif
 
 # Hack for mod_gsmopen - it has a build-time dep on mod_spandsp
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-gsmopen),)
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-spandsp),)
-	$(SED) '/mod_spandsp$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_spandsp)
 endif
+
+# Hack for mod_rayo - it has a build-time dep on mod_dingaling
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-rayo),)
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_dingaling)
+endif
+
+# Hack for mod_ssml - it has a build-time dep on mod_rayo. And mod_rayo needs
+# mod_dingaling :)
+ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-ssml),)
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_rayo)
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_dingaling)
 endif
 
 # Hack for mod_unimrcp - it has a build-time dep on mod_sofia
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-unimrcp),)
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-sofia),)
-	$(SED) '/mod_sofia$$$$/s/^#//' $(PKG_BUILD_DIR)/modules.conf
-endif
+	$(call Package/$(PKG_NAME)/enable/plugin,mod_sofia)
 endif
 
 	$(call Build/Configure/Default)
