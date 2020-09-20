@@ -1,0 +1,20 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -231,6 +231,9 @@ then
+     AC_CHECK_HEADERS([X11/X.h])
+ fi
+ 
++# Note: the libxml2 checks below introduce host include paths into the
++# build, so we turn them off.
++if test -n "$enable_tests" ; then # OpenWrt doesn't build the tests
+ # Determine XML2 include path
+ AC_MSG_CHECKING(for libxml/xmlmemory.h)
+ 
+@@ -259,6 +262,7 @@ fi
+ AC_CHECK_HEADERS([libxml/xmlmemory.h])
+ AC_CHECK_HEADERS([libxml/parser.h])
+ AC_CHECK_HEADERS([libxml/xinclude.h])
++fi # OpenWrt doesn't build the tests
+ 
+ AC_LANG([C++])
+ AC_CHECK_HEADERS([FL/Fl.H])
