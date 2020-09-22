@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
-PKG_VERSION:=0.8.2
-PKG_RELEASE:=5
+PKG_VERSION:=0.8.3
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
-PKG_HASH:=526ce491b0cc189e2766c62432aff3ebb995e551d7261ea32c02a90c7bf7ccd0
+PKG_HASH:=9a6d7a6bb6fff162775b1e1fb7018de9c69642cbf8626185dc6ffceeeba07736
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -67,7 +67,7 @@ define BuildPlugin
   define Package/siproxd-mod-$(subst _,-,$(1))
     $$(call Package/siproxd/Default)
     TITLE:= siproxd $(1) plugin
-    DEPENDS:=siproxd
+    DEPENDS:=siproxd $(2)
   endef
 
   define Package/siproxd-mod-$(subst _,-,$(1))/install
@@ -79,6 +79,7 @@ define BuildPlugin
 endef
 
 $(eval $(call BuildPackage,siproxd))
+$(eval $(call BuildPlugin,blacklist,+libsqlite3))
 $(eval $(call BuildPlugin,codecfilter))
 $(eval $(call BuildPlugin,defaulttarget))
 $(eval $(call BuildPlugin,demo))
@@ -89,6 +90,7 @@ $(eval $(call BuildPlugin,logcall))
 $(eval $(call BuildPlugin,prefix))
 $(eval $(call BuildPlugin,regex))
 $(eval $(call BuildPlugin,shortdial))
+$(eval $(call BuildPlugin,stats))
 $(eval $(call BuildPlugin,stripheader))
 $(eval $(call BuildPlugin,stun))
 $(eval $(call BuildPlugin,siptrunk))
