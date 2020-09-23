@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
 PKG_VERSION:=0.8.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/siproxd
@@ -18,6 +18,8 @@ PKG_HASH:=9a6d7a6bb6fff162775b1e1fb7018de9c69642cbf8626185dc6ffceeeba07736
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+
+PKG_CONFIG_DEPENDS:=CONFIG_SIPROXD_MAX_CLIENTS
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
@@ -46,13 +48,36 @@ define Package/siproxd/conffiles
 /etc/config/siproxd
 endef
 
+define Package/siproxd/config
+	config SIPROXD_MAX_CLIENTS
+		int "Max supported clients"
+		default 32
+		depends on PACKAGE_siproxd
+		help
+		  Default 32 is sufficient for home environments. Larger values
+		  consume more memory (e.g. RSS of 17 MB with upstream default 512).
+endef
+
 CONFIGURE_ARGS+= \
 	--with-libosip-prefix="$(STAGING_DIR)/usr" \
-	--disable-ltdl-convenience \
+	--without-included-ltdl \
 	--disable-doc
 
 MAKE_FLAGS+= \
 	SUBDIRS="src scripts contrib"
+
+TARGET_CFLAGS+= \
+	-Wno-unused-const-variable
+
+URLMAP:=$(CONFIG_SIPROXD_MAX_CLIENTS)
+RTPPROXY:=$(shell expr $(URLMAP) \* 2)
+
+define Build/Configure
+	$(call Build/Configure/Default)
+	$(ESED) 's;^(#define[[:space:]]+URLMAP_SIZE).*$$$$;\1 $(URLMAP);' \
+		-e 's;^(#define[[:space:]]+RTPPROXY_SIZE).*$$$$;\1 $(RTPPROXY);' \
+		$(PKG_BUILD_DIR)/src/siproxd.h
+endef
 
 define Package/siproxd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
@@ -72,7 +97,8 @@ define BuildPlugin
 
   define Package/siproxd-mod-$(subst _,-,$(1))/install
 	$(INSTALL_DIR) $$(1)/usr/lib/siproxd
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1).so $$(1)/usr/lib/siproxd
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/siproxd/plugin_$(1).so \
+		$$(1)/usr/lib/siproxd
   endef
 
   $$(eval $$(call BuildPackage,siproxd-mod-$(subst _,-,$(1))))
