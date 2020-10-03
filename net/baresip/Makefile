@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=0.6.4
-PKG_RELEASE:=3
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=61710bd1bec406ae1faf167c5743bad8eef9ced5152a3943b94d7e1cf9597581
+PKG_SOURCE_URL:=https://codeload.github.com/baresip/baresip/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=7b008c0a5b4fccfa0a4003f86dc4aaafeaabbdd259ece4757898e9cb5f04fdcf
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -58,7 +58,7 @@ define Package/baresip/Default
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  URL:=http://www.creytiv.com
+  URL:=https://github.com/baresip/baresip
 endef
 
 define Package/baresip
@@ -92,17 +92,16 @@ baresip-mod-v4l2        := USE_V4L2
 
 BARESIP_MOD_OPTIONS:= \
 	MOD_AUTODETECT= \
-	EXTRA_MODULES="dtmfio" \
 	$(foreach m,$(baresip-mods),$(baresip-mod-$(m))=$(if $(CONFIG_PACKAGE_baresip-mod-$(subst _,-,$(m))),1))
 
 MAKE_FLAGS+= \
 	CROSS_COMPILE="$(TARGET_CROSS)" \
+	DESTDIR="$(PKG_INSTALL_DIR)" \
 	EXTRA_LFLAGS="$(TARGET_LDFLAGS)" \
 	LD="$(TARGET_CC)" \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
-	LIBREM_PATH="$(STAGING_DIR)/usr" \
 	OS=linux \
 	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
@@ -189,7 +188,6 @@ $(eval $(call BuildPlugin,cons,UDP/TCP console UI driver,cons,))
 $(eval $(call BuildPlugin,ctrl_tcp,TCP control interface,ctrl_tcp,))
 $(eval $(call BuildPlugin,debug_cmd,Debug commands,debug_cmd,))
 $(eval $(call BuildPlugin,dtls_srtp,DTLS-SRTP end-to-end encryption,dtls_srtp,))
-$(eval $(call BuildPlugin,dtmfio,DTMF input/output,dtmfio,))
 $(eval $(call BuildPlugin,echo,Echo server module,echo,))
 $(eval $(call BuildPlugin,evdev,Linux input driver,evdev,))
 $(eval $(call BuildPlugin,fakevideo,Fake video input/output driver,fakevideo,))
