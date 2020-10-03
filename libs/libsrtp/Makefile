@@ -7,18 +7,13 @@
 #
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=libsrtp2
-PKG_VERSION:=2.2.0
-PKG_RELEASE:=2
+PKG_NAME:=libsrtp
+PKG_VERSION:=2.3.0
+PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/cisco/libsrtp.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=94ac00d5ac6409e3f6409e4a5edfcdbdaa7fdabe
-PKG_MIRROR_HASH:=0429edcddfe9d36ee47eb221384c528bbe31ee9255e216f9755641c7b6083457
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=libsrtp-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/cisco/libsrtp/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=94093a5d04c5f4743e8d81182b76938374df6d393b45322f24960d250b0110e8
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -57,7 +52,7 @@ endef
 define Package/libsrtp2/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so* \
+		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so.* \
 		$(1)/usr/lib/
 endef
 
