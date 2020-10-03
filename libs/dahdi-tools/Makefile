@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
-PKG_VERSION:=3.0.0
-PKG_RELEASE:=3
+PKG_VERSION:=3.1.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-tools/releases
-PKG_HASH:=5bebb20d5ae13fa13f0e2075603013954b962be477db02271eef44b3e41557c5
+PKG_HASH:=ea852ebd274ee1cc90ff5e4ac84261b0b787b1a74e8b76ad659bc9ec4f77e67e
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
