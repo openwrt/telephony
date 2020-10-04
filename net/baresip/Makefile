@@ -67,6 +67,11 @@ $(call Package/baresip/Default)
   DEPENDS:=+libre +librem
   USERID:=$(PKG_NAME)=374:$(PKG_NAME)=374
   MENU:=1
+  FILE_MODES:= \
+	  /etc/baresip:baresip:baresip:0750 \
+	  /etc/baresip/accounts:baresip:baresip:0640 \
+	  /etc/baresip/config:baresip:baresip:0640 \
+	  /etc/baresip/contacts:baresip:baresip:0640
 endef
 
 baresip-mod-alsa        := USE_ALSA
@@ -122,7 +127,7 @@ define Package/baresip/install
 	$(INSTALL_DIR) $(1)/etc/baresip
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/docs/examples/accounts
 	$(SED) '/^#module_path/s|^#||;s|/local||' $(PKG_BUILD_DIR)/docs/examples/config
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/docs/examples/{accounts,config,contacts} $(1)/etc/baresip
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/docs/examples/{accounts,config,contacts} $(1)/etc/baresip
 	$(INSTALL_DIR) $(1)/etc/default
 	$(INSTALL_CONF) ./files/baresip.default $(1)/etc/default/baresip
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -135,17 +140,6 @@ define Package/baresip/conffiles
 /etc/baresip/contacts
 /etc/default/baresip
 /etc/init.d/baresip
-endef
-
-define Package/baresip/postinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-  chown $(PKG_NAME):$(PKG_NAME) \
-    /etc/baresip/accounts \
-    /etc/baresip/config \
-    /etc/baresip/contacts
-fi
-exit 0
 endef
 
 ##################
