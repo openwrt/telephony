@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
-PKG_VERSION:=mr8.5.1.2
+PKG_VERSION:=mr8.5.2.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=ffc85d736ee58c4f74374ebc336fd14e43031be7bbd6acff27447cc25aff9558
+PKG_HASH:=7c6f0e036d9aa29485236cc9cd7157625071038f5d773c54c6dc0dc4606aed1e
 
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE
