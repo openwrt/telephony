@@ -1,0 +1,106 @@
+--- a/src/modules/tls/tls_domain.c
++++ b/src/modules/tls/tls_domain.c
+@@ -27,6 +27,8 @@
+ #include <stdlib.h>
+ #include <openssl/ssl.h>
+ #include <openssl/opensslv.h>
++#include <openssl/bn.h>
++#include <openssl/dh.h>
+ 
+ #ifndef OPENSSL_NO_ENGINE
+ #include <openssl/engine.h>
+@@ -61,7 +63,7 @@ static void setup_ecdh(SSL_CTX *ctx)
+ {
+    EC_KEY *ecdh;
+ 
+-   if (SSLeay() < 0x1000005fL) {
++   if (OpenSSL_version_num() < 0x1000005fL) {
+       return;
+    }
+ 
+--- a/src/modules/tls/tls_init.c
++++ b/src/modules/tls/tls_init.c
+@@ -627,14 +627,13 @@ int tls_h_mod_pre_init_f(void)
+ 		return 0;
+ 	}
+ 	LM_DBG("preparing tls env for modules initialization\n");
+-#if OPENSSL_VERSION_NUMBER >= 0x010100000L && !defined(LIBRESSL_VERSION_NUMBER)
+-	LM_DBG("preparing tls env for modules initialization (libssl >=1.1)\n");
+-	OPENSSL_init_ssl(0, NULL);
+-#else
++#if OPENSSL_VERSION_NUMBER < 0x010100000L || defined(LIBRESSL_VERSION_NUMBER)
+ 	LM_DBG("preparing tls env for modules initialization (libssl <=1.0)\n");
+ 	SSL_library_init();
+-#endif
+ 	SSL_load_error_strings();
++#else
++	LM_DBG("preparing tls env for modules initialization (libssl >=1.1)\n");
++#endif
+ 	tls_mod_preinitialized=1;
+ 	return 0;
+ }
+@@ -668,7 +667,7 @@ int tls_h_mod_init_f(void)
+ #if OPENSSL_VERSION_NUMBER < 0x00907000L
+ 	LM_WARN("You are using an old version of OpenSSL (< 0.9.7). Upgrade!\n");
+ #endif
+-	ssl_version=SSLeay();
++	ssl_version=OpenSSL_version_num();
+ 	/* check if version have the same major minor and fix level
+ 	 * (e.g. 0.9.8a & 0.9.8c are ok, but 0.9.8 and 0.9.9x are not)
+ 	 * - values is represented as 0xMMNNFFPPS: major minor fix patch status
+@@ -680,7 +679,7 @@ int tls_h_mod_init_f(void)
+ 				" compiled \"%s\" (0x%08lx).\n"
+ 				" Please make sure a compatible version is used"
+ 				" (tls_force_run in kamailio.cfg will override this check)\n",
+-				SSLeay_version(SSLEAY_VERSION), ssl_version,
++				OpenSSL_version(OPENSSL_VERSION), ssl_version,
+ 				OPENSSL_VERSION_TEXT, (long)OPENSSL_VERSION_NUMBER);
+ 		if (cfg_get(tls, tls_cfg, force_run))
+ 			LM_WARN("tls_force_run turned on, ignoring "
+@@ -857,6 +856,7 @@ int tls_check_sockets(tls_domains_cfg_t* cfg)
+ void tls_h_mod_destroy_f(void)
+ {
+ 	LM_DBG("tls module final tls destroy\n");
++#if OPENSSL_VERSION_NUMBER < 0x010100000L || defined(LIBRESSL_VERSION_NUMBER)
+ 	if(tls_mod_preinitialized > 0)
+ 		ERR_free_strings();
+ 	/* TODO: free all the ctx'es */
+@@ -869,4 +869,5 @@ void tls_h_mod_destroy_f(void)
+ 	LM_DBG("executing openssl v1.1+ cleanup\n");
+ 	OPENSSL_cleanup();
+ #endif
++#endif
+ }
+--- a/src/modules/tls/tls_locking.c
++++ b/src/modules/tls/tls_locking.c
+@@ -140,6 +140,8 @@ unsigned long sr_ssl_id_f()
+ /* returns -1 on error, 0 on success */
+ int tls_init_locks()
+ {
++/* OpenSSL is thread-safe since 1.1.0 */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	/* init "static" tls locks */
+ 	n_static_locks=CRYPTO_num_locks();
+ 	if (n_static_locks<0){
+@@ -167,13 +169,10 @@ int tls_init_locks()
+ 		CRYPTO_set_locking_callback(locking_f);
+ 	}
+ 
+-/* OpenSSL is thread-safe since 1.1.0 */
+-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ 	/* set "dynamic" locks callbacks */
+ 	CRYPTO_set_dynlock_create_callback(dyn_create_f);
+ 	CRYPTO_set_dynlock_lock_callback(dyn_lock_f);
+ 	CRYPTO_set_dynlock_destroy_callback(dyn_destroy_f);
+-#endif
+ 
+ 	/* starting with v1.0.0 openssl does not use anymore getpid(), but address
+ 	 * of errno which can point to same virtual address in a multi-process
+@@ -186,6 +185,7 @@ int tls_init_locks()
+ 	 *  (only atomic_inc), fallback to the default use-locks mode
+ 	 * CRYPTO_set_add_lock_callback(atomic_add_f);
+ 	 */
++#endif
+ 
+ 	return 0;
+ error:
