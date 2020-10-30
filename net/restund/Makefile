@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
 PKG_VERSION:=0.4.12
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -76,7 +76,7 @@ define Package/restund/install
 		$(PKG_INSTALL_DIR)/usr/lib/restund/modules/turn.so \
 		$(1)/usr/lib/restund/modules
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/etc/restund.conf $(1)/etc
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/restund.conf $(1)/etc
 	$(SED) \
 		's|^\(module_path\)\([ \t]\+\).*$$$$|\1\2/usr/lib/restund/modules|g' \
 		$(1)/etc/restund.conf
@@ -90,14 +90,6 @@ define Package/restund/conffiles
 /etc/default/restund
 /etc/init.d/restund
 /etc/restund.conf
-endef
-
-define Package/restund/postinst
-#!/bin/sh
-if [ -z "$${IPKG_INSTROOT}" ]; then
-  chown $(PKG_NAME):$(PKG_NAME) /etc/restund.conf
-fi
-exit 0
 endef
 
 #
