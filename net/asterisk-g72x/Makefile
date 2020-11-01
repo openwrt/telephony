@@ -15,7 +15,6 @@ PKG_SOURCE:=asterisk-g72x-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://asterisk.hosting.lv/src/
 PKG_HASH:=ffea55374c2134415569b876a68d9a12ce376146a22fad3963c8edc281052adf
 
-PKG_BUILD_DIR=$(BUILD_DIR)/asterisk-g72x-$(PKG_VERSION)
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
@@ -23,47 +22,32 @@ PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=README.md
 PKG_MAINTAINER:=Alex Samorukov <samm@os2.kiev.ua>
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/asterisk-g72x/Default
+define Package/asterisk-codec-g729
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   TITLE:=G.729 codec support
   URL:=http://asterisk.hosting.lv
-  DEPENDS:=+bcg729
+  DEPENDS:=asterisk +bcg729
 endef
 
-define Package/asterisk16-codec-g729
-$(call Package/asterisk-g72x/Default)
-  DEPENDS+=asterisk16
-  VARIANT:=asterisk16
-endef
-
-define Package/description/Default
+define Package/asterisk-codec-g729/description
  Asterisk G.729 codec based on bcg729 implementation.
 endef
 
-Package/asterisk16-codec-g729/description = $(Package/description/Default)
-
 CONFIGURE_ARGS+= \
 	--with-bcg729 \
-	--enable-shared
+	--enable-shared \
+	--with-asterisk-includes=$(STAGING_DIR)/usr/include
 
-ifeq ($(BUILD_VARIANT),asterisk16)
-CONFIGURE_ARGS+= \
-	--with-asterisk-includes=$(STAGING_DIR)/usr/include/asterisk-16/include \
-	--with-asterisk160
-endif
-
-define Package/Install/Default
+define Package/asterisk-codec-g729/install
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/codec_g729.so \
 		$(1)/usr/lib/asterisk/modules/
 endef
 
-Package/asterisk16-codec-g729/install = $(Package/Install/Default)
-
-$(eval $(call BuildPackage,asterisk16-codec-g729))
+$(eval $(call BuildPackage,asterisk-codec-g729))
