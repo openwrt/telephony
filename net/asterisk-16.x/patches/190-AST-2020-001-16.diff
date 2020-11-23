@@ -1,0 +1,401 @@
+commit 523ed150b16d799bcf223b841abd82f25b8cd6a0
+Author: Kevin Harwell <kharwell@digium.com>
+Date:   Mon Oct 19 17:21:57 2020 -0500
+
+    AST-2020-001 - res_pjsip: Return dialog locked and referenced
+    
+    pjproject returns the dialog locked and with a reference. However,
+    in Asterisk the method that handles this decrements the reference
+    and removes the lock prior to returning. This makes it possible,
+    under some circumstances, for another thread to free said dialog
+    before the thread that created it attempts to use it again. Of
+    course when the thread that created it tries to use a freed dialog
+    a crash can occur.
+    
+    This patch makes it so Asterisk now returns the newly created
+    dialog both locked, and with an added reference. This allows the
+    caller to de-reference, and unlock the dialog when it is safe to
+    do so.
+    
+    In the case of a new SIP Invite the lock, and reference are now
+    held for the entirety of the new invite handling process.
+    Otherwise it's possible for the dialog, or its dependent objects,
+    like the transaction, to disappear. For example if there is a TCP
+    transport error.
+    
+    Change-Id: I5ef645a47829596f402cf383dc02c629c618969e
+
+--- a/include/asterisk/res_pjsip.h
++++ b/include/asterisk/res_pjsip.h
+@@ -1908,6 +1908,11 @@ pjsip_dialog *ast_sip_create_dialog_uac(
+ /*!
+  * \brief General purpose method for creating a UAS dialog with an endpoint
+  *
++ * \deprecated This function is unsafe (due to the returned object not being locked nor
++ *             having its reference incremented) and should no longer be used. Instead
++ *             use ast_sip_create_dialog_uas_locked so a properly locked and referenced
++ *             object is returned.
++ *
+  * \param endpoint A pointer to the endpoint
+  * \param rdata The request that is starting the dialog
+  * \param[out] status On failure, the reason for failure in creating the dialog
+@@ -1915,6 +1920,44 @@ pjsip_dialog *ast_sip_create_dialog_uac(
+ pjsip_dialog *ast_sip_create_dialog_uas(const struct ast_sip_endpoint *endpoint, pjsip_rx_data *rdata, pj_status_t *status);
+ 
+ /*!
++ * \brief General purpose method for creating a UAS dialog with an endpoint
++ *
++ * This function creates and returns a locked, and referenced counted pjsip
++ * dialog object. The caller is thus responsible for freeing the allocated
++ * memory, decrementing the reference, and releasing the lock when done with
++ * the returned object.
++ *
++ * \note The safest way to unlock the object, and decrement its reference is by
++ *       calling pjsip_dlg_dec_lock. Alternatively, pjsip_dlg_dec_session can be
++ *       used to decrement the reference only.
++ *
++ * The dialog is returned locked and with a reference in order to ensure that the
++ * dialog object, and any of its associated objects (e.g. transaction) are not
++ * untimely destroyed. For instance, that could happen when a transport error
++ * occurs.
++ *
++ * As long as the caller maintains a reference to the dialog there should be no
++ * worry that it might unknowningly be destroyed. However, once the caller unlocks
++ * the dialog there is a danger that some of the dialog's internal objects could
++ * be lost and/or compromised. For example, when the aforementioned transport error
++ * occurs the dialog's associated transaction gets destroyed (see pjsip_dlg_on_tsx_state
++ * in sip_dialog.c, and mod_inv_on_tsx_state in sip_inv.c).
++ *
++ * In this case and before using the dialog again the caller should re-lock the
++ * dialog, check to make sure the dialog is still established, and the transaction
++ * still exists and has not been destroyed.
++ *
++ * \param endpoint A pointer to the endpoint
++ * \param rdata The request that is starting the dialog
++ * \param[out] status On failure, the reason for failure in creating the dialog
++ *
++ * \retval A locked, and reference counted pjsip_dialog object.
++ * \retval NULL on failure
++ */
++pjsip_dialog *ast_sip_create_dialog_uas_locked(const struct ast_sip_endpoint *endpoint,
++	pjsip_rx_data *rdata, pj_status_t *status);
++
++/*!
+  * \brief General purpose method for creating an rdata structure using specific information
+  * \since 13.15.0
+  *
+--- a/res/res_pjsip.c
++++ b/res/res_pjsip.c
+@@ -3645,7 +3645,11 @@ static int uas_use_sips_contact(pjsip_rx
+ 	return 0;
+ }
+ 
+-pjsip_dialog *ast_sip_create_dialog_uas(const struct ast_sip_endpoint *endpoint, pjsip_rx_data *rdata, pj_status_t *status)
++typedef pj_status_t (*create_dlg_uac)(pjsip_user_agent *ua, pjsip_rx_data *rdata,
++	const pj_str_t *contact, pjsip_dialog **p_dlg);
++
++static pjsip_dialog *create_dialog_uas(const struct ast_sip_endpoint *endpoint,
++	pjsip_rx_data *rdata, pj_status_t *status, create_dlg_uac create_fun)
+ {
+ 	pjsip_dialog *dlg;
+ 	pj_str_t contact;
+@@ -3680,11 +3684,7 @@ pjsip_dialog *ast_sip_create_dialog_uas(
+ 			(type != PJSIP_TRANSPORT_UDP && type != PJSIP_TRANSPORT_UDP6) ? ";transport=" : "",
+ 			(type != PJSIP_TRANSPORT_UDP && type != PJSIP_TRANSPORT_UDP6) ? pjsip_transport_get_type_name(type) : "");
+ 
+-#ifdef HAVE_PJSIP_DLG_CREATE_UAS_AND_INC_LOCK
+-	*status = pjsip_dlg_create_uas_and_inc_lock(pjsip_ua_instance(), rdata, &contact, &dlg);
+-#else
+-	*status = pjsip_dlg_create_uas(pjsip_ua_instance(), rdata, &contact, &dlg);
+-#endif
++	*status = create_fun(pjsip_ua_instance(), rdata, &contact, &dlg);
+ 	if (*status != PJ_SUCCESS) {
+ 		char err[PJ_ERR_MSG_SIZE];
+ 
+@@ -3697,11 +3697,46 @@ pjsip_dialog *ast_sip_create_dialog_uas(
+ 	dlg->sess_count++;
+ 	pjsip_dlg_set_transport(dlg, &selector);
+ 	dlg->sess_count--;
++
++	return dlg;
++}
++
++pjsip_dialog *ast_sip_create_dialog_uas(const struct ast_sip_endpoint *endpoint, pjsip_rx_data *rdata, pj_status_t *status)
++{
+ #ifdef HAVE_PJSIP_DLG_CREATE_UAS_AND_INC_LOCK
+-	pjsip_dlg_dec_lock(dlg);
++	pjsip_dialog *dlg;
++
++	dlg = create_dialog_uas(endpoint, rdata, status, pjsip_dlg_create_uas_and_inc_lock);
++	if (dlg) {
++		pjsip_dlg_dec_lock(dlg);
++	}
++
++	return dlg;
++#else
++	return create_dialog_uas(endpoint, rdata, status, pjsip_dlg_create_uas);
+ #endif
++}
++
++pjsip_dialog *ast_sip_create_dialog_uas_locked(const struct ast_sip_endpoint *endpoint,
++	pjsip_rx_data *rdata, pj_status_t *status)
++{
++#ifdef HAVE_PJSIP_DLG_CREATE_UAS_AND_INC_LOCK
++	return create_dialog_uas(endpoint, rdata, status, pjsip_dlg_create_uas_and_inc_lock);
++#else
++	/*
++	 * This is put here in order to be compatible with older versions of pjproject.
++	 * Best we can do in this case is immediately lock after getting the dialog.
++	 * However, that does leave a "gap" between creating and locking.
++	 */
++	pjsip_dialog *dlg;
++
++	dlg = create_dialog_uas(endpoint, rdata, status, pjsip_dlg_create_uas);
++	if (dlg) {
++		pjsip_dlg_inc_lock(dlg);
++	}
+ 
+ 	return dlg;
++#endif
+ }
+ 
+ int ast_sip_create_rdata_with_contact(pjsip_rx_data *rdata, char *packet, const char *src_name, int src_port,
+--- a/res/res_pjsip_pubsub.c
++++ b/res/res_pjsip_pubsub.c
+@@ -1457,7 +1457,7 @@ static struct sip_subscription_tree *cre
+ 	}
+ 	sub_tree->role = AST_SIP_NOTIFIER;
+ 
+-	dlg = ast_sip_create_dialog_uas(endpoint, rdata, dlg_status);
++	dlg = ast_sip_create_dialog_uas_locked(endpoint, rdata, dlg_status);
+ 	if (!dlg) {
+ 		if (*dlg_status != PJ_EEXISTS) {
+ 			ast_log(LOG_WARNING, "Unable to create dialog for SIP subscription\n");
+@@ -1478,8 +1478,16 @@ static struct sip_subscription_tree *cre
+ 	}
+ 
+ 	pjsip_evsub_create_uas(dlg, &pubsub_cb, rdata, 0, &sub_tree->evsub);
++
+ 	subscription_setup_dialog(sub_tree, dlg);
+ 
++	/*
++	 * The evsub and subscription setup both add dialog refs, so the dialog ref that
++	 * was added when the dialog was created (see ast_sip_create_dialog_uas_lock) can
++	 * now be removed. The lock should no longer be needed so can be removed too.
++	 */
++	pjsip_dlg_dec_lock(dlg);
++
+ #ifdef HAVE_PJSIP_EVSUB_GRP_LOCK
+ 	pjsip_evsub_add_ref(sub_tree->evsub);
+ #endif
+--- a/res/res_pjsip_session.c
++++ b/res/res_pjsip_session.c
+@@ -2942,6 +2942,75 @@ static enum sip_get_destination_result g
+ 	return SIP_GET_DEST_EXTEN_NOT_FOUND;
+ }
+ 
++/*
++ * /internal
++ * /brief Process initial answer for an incoming invite
++ *
++ * This function should only be called during the setup, and handling of a
++ * new incoming invite. Most, if not all of the time, this will be called
++ * when an error occurs and we need to respond as such.
++ *
++ * When a SIP session termination code is given for the answer it's assumed
++ * this call then will be the final bit of processing before ending session
++ * setup. As such, we've been holding a lock, and a reference on the invite
++ * session's dialog. So before returning this function removes that reference,
++ * and unlocks the dialog.
++ *
++ * \param inv_session The session on which to answer
++ * \param rdata The original request
++ * \param answer_code The answer's numeric code
++ * \param terminate_code The termination code if the answer fails
++ * \param notify Whether or not to call on_state_changed
++ *
++ * \retval 0 if invite successfully answered, -1 if an error occurred
++ */
++static int new_invite_initial_answer(pjsip_inv_session *inv_session, pjsip_rx_data *rdata,
++	int answer_code, int terminate_code, pj_bool_t notify)
++{
++	pjsip_tx_data *tdata = NULL;
++	int res = 0;
++
++	if (inv_session->state != PJSIP_INV_STATE_DISCONNECTED) {
++		if (pjsip_inv_initial_answer(
++				inv_session, rdata, answer_code, NULL, NULL, &tdata) != PJ_SUCCESS) {
++
++			pjsip_inv_terminate(inv_session, terminate_code ? terminate_code : answer_code, notify);
++			res = -1;
++		} else {
++			pjsip_inv_send_msg(inv_session, tdata);
++		}
++	}
++
++	if (answer_code >= 300) {
++		/*
++		 * A session is ending. The dialog has a reference that needs to be
++		 * removed and holds a lock that needs to be unlocked before returning.
++		 */
++		pjsip_dlg_dec_lock(inv_session->dlg);
++	}
++
++	return res;
++}
++
++/*
++ * /internal
++ * /brief Create and initialize a pjsip invite session
++
++ * pjsip_inv_session adds, and maintains a reference to the dialog upon a successful
++ * invite session creation until the session is destroyed. However, we'll wait to
++ * remove the reference that was added for the dialog when it gets created since we're
++ * not ready to unlock the dialog in this function.
++ *
++ * So, if this function successfully returns that means it returns with its newly
++ * created, and associated dialog locked and with two references (i.e. dialog's
++ * reference count should be 2).
++ *
++ * \param endpoint A pointer to the endpoint
++ * \param rdata The request that is starting the dialog
++ *
++ * \retval A pjsip invite session object
++ * \retval NULL on error
++ */
+ static pjsip_inv_session *pre_session_setup(pjsip_rx_data *rdata, const struct ast_sip_endpoint *endpoint)
+ {
+ 	pjsip_tx_data *tdata;
+@@ -2960,15 +3029,28 @@ static pjsip_inv_session *pre_session_se
+ 		}
+ 		return NULL;
+ 	}
+-	dlg = ast_sip_create_dialog_uas(endpoint, rdata, &dlg_status);
++
++	dlg = ast_sip_create_dialog_uas_locked(endpoint, rdata, &dlg_status);
+ 	if (!dlg) {
+ 		if (dlg_status != PJ_EEXISTS) {
+ 			pjsip_endpt_respond_stateless(ast_sip_get_pjsip_endpoint(), rdata, 500, NULL, NULL, NULL);
+ 		}
+ 		return NULL;
+ 	}
++
++	/*
++	 * The returned dialog holds a lock and has a reference added. Any paths where the
++	 * dialog invite session is not returned must unlock the dialog and remove its reference.
++	 */
++
+ 	if (pjsip_inv_create_uas(dlg, rdata, NULL, options, &inv_session) != PJ_SUCCESS) {
+ 		pjsip_endpt_respond_stateless(ast_sip_get_pjsip_endpoint(), rdata, 500, NULL, NULL, NULL);
++		/*
++		 * The acquired dialog holds a lock, and a reference. Since the dialog is not
++		 * going to be returned here it must first be unlocked and de-referenced. This
++		 * must be done prior to calling dialog termination.
++		 */
++		pjsip_dlg_dec_lock(dlg);
+ 		pjsip_dlg_terminate(dlg);
+ 		return NULL;
+ 	}
+@@ -2977,12 +3059,13 @@ static pjsip_inv_session *pre_session_se
+ 	inv_session->sdp_neg_flags = PJMEDIA_SDP_NEG_ALLOW_MEDIA_CHANGE;
+ #endif
+ 	if (pjsip_dlg_add_usage(dlg, &session_module, NULL) != PJ_SUCCESS) {
+-		if (pjsip_inv_initial_answer(inv_session, rdata, 500, NULL, NULL, &tdata) != PJ_SUCCESS) {
+-			pjsip_inv_terminate(inv_session, 500, PJ_FALSE);
+-		}
+-		pjsip_inv_send_msg(inv_session, tdata);
++		/* Dialog's lock and a reference are removed in new_invite_initial_answer */
++		new_invite_initial_answer(inv_session, rdata, 500, 500, PJ_FALSE);
++		/* Remove 2nd reference added at inv_session creation */
++		pjsip_dlg_dec_session(inv_session->dlg, &session_module);
+ 		return NULL;
+ 	}
++
+ 	return inv_session;
+ }
+ 
+@@ -3121,7 +3204,6 @@ static void handle_new_invite_request(pj
+ {
+ 	RAII_VAR(struct ast_sip_endpoint *, endpoint,
+ 			ast_pjsip_rdata_get_endpoint(rdata), ao2_cleanup);
+-	pjsip_tx_data *tdata = NULL;
+ 	pjsip_inv_session *inv_session = NULL;
+ 	struct ast_sip_session *session;
+ 	struct new_invite invite;
+@@ -3134,27 +3216,48 @@ static void handle_new_invite_request(pj
+ 		return;
+ 	}
+ 
++	/*
++	 * Upon a successful pre_session_setup the associated dialog is returned locked
++	 * and with an added reference. Well actually two references. One added when the
++	 * dialog itself was created, and another added when the pjsip invite session was
++	 * created and the dialog was added to it.
++	 *
++	 * In order to ensure the dialog's, and any of its internal attributes, lifetimes
++	 * we'll hold the lock and maintain the reference throughout the entire new invite
++	 * handling process. See ast_sip_create_dialog_uas_locked for more details but,
++	 * basically we do this to make sure a transport failure does not destroy the dialog
++	 * and/or transaction out from underneath us between pjsip calls. Alternatively, we
++	 * could probably release the lock if we needed to, but then we'd have to re-lock and
++	 * check the dialog and transaction prior to every pjsip call.
++	 *
++	 * That means any off nominal/failure paths in this function must remove the associated
++	 * dialog reference added at dialog creation, and remove the lock. As well the
++	 * referenced pjsip invite session must be "cleaned up", which should also then
++	 * remove its reference to the dialog at that time.
++	 *
++	 * Nominally we'll unlock the dialog, and release the reference when all new invite
++	 * process handling has successfully completed.
++	 */
++
+ #ifdef HAVE_PJSIP_INV_SESSION_REF
+ 	if (pjsip_inv_add_ref(inv_session) != PJ_SUCCESS) {
+ 		ast_log(LOG_ERROR, "Can't increase the session reference counter\n");
+-		if (inv_session->state != PJSIP_INV_STATE_DISCONNECTED) {
+-			if (pjsip_inv_initial_answer(inv_session, rdata, 500, NULL, NULL, &tdata) == PJ_SUCCESS) {
+-				pjsip_inv_terminate(inv_session, 500, PJ_FALSE);
+-			} else {
+-				pjsip_inv_send_msg(inv_session, tdata);
+-			}
++		/* Dialog's lock and a reference are removed in new_invite_initial_answer */
++		if (!new_invite_initial_answer(inv_session, rdata, 500, 500, PJ_FALSE)) {
++			/* Terminate the session if it wasn't done in the answer */
++			pjsip_inv_terminate(inv_session, 500, PJ_FALSE);
+ 		}
+ 		return;
+ 	}
+ #endif
+-
+ 	session = ast_sip_session_alloc(endpoint, NULL, inv_session, rdata);
+ 	if (!session) {
+-		if (pjsip_inv_initial_answer(inv_session, rdata, 500, NULL, NULL, &tdata) == PJ_SUCCESS) {
++		/* Dialog's lock and reference are removed in new_invite_initial_answer */
++		if (!new_invite_initial_answer(inv_session, rdata, 500, 500, PJ_FALSE)) {
++			/* Terminate the session if it wasn't done in the answer */
+ 			pjsip_inv_terminate(inv_session, 500, PJ_FALSE);
+-		} else {
+-			pjsip_inv_send_msg(inv_session, tdata);
+ 		}
++
+ #ifdef HAVE_PJSIP_INV_SESSION_REF
+ 		pjsip_inv_dec_ref(inv_session);
+ #endif
+@@ -3172,6 +3275,17 @@ static void handle_new_invite_request(pj
+ 	invite.rdata = rdata;
+ 	new_invite(&invite);
+ 
++	/*
++	 * The dialog lock and reference added at dialog creation time must be
++	 * maintained throughout the new invite process. Since we're pretty much
++	 * done at this point with things it's safe to go ahead and remove the lock
++	 * and the reference here. See ast_sip_create_dialog_uas_locked for more info.
++	 *
++	 * Note, any future functionality added that does work using the dialog must
++	 * be done before this.
++	 */
++	pjsip_dlg_dec_lock(inv_session->dlg);
++
+ 	ao2_ref(session, -1);
+ }
+ 

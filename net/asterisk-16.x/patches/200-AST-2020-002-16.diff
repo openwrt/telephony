@@ -1,0 +1,102 @@
+From f83efa12f7411dd100f49933bf71297c8ed9f765 Mon Sep 17 00:00:00 2001
+From: Ben Ford <bford@digium.com>
+Date: Mon, 02 Nov 2020 10:29:31 -0600
+Subject: [PATCH] AST-2020-002 - res_pjsip: Stop sending INVITEs after challenge limit.
+
+If Asterisk sends out an INVITE and receives a challenge with a
+different nonce value each time, it will continuously send out INVITEs,
+even if the call is hung up. The endpoint must be configured for
+outbound authentication for this to occur. A limit has been set on
+outbound INVITEs so that, once reached, Asterisk will stop sending
+INVITEs and the transaction will terminate.
+
+ASTERISK-29013
+
+Change-Id: I2d001ca745b00ca8aa12030f2240cd72363b46f7
+---
+
+--- a/include/asterisk/res_pjsip.h
++++ b/include/asterisk/res_pjsip.h
+@@ -63,6 +63,9 @@ struct pjsip_tpselector;
+ /*! \brief Maximum number of ciphers supported for a TLS transport */
+ #define SIP_TLS_MAX_CIPHERS 64
+ 
++/*! Maximum number of challenges before assuming that we are in a loop */
++#define MAX_RX_CHALLENGES	10
++
+ /*!
+  * \brief Structure for SIP transport information
+  */
+--- a/include/asterisk/res_pjsip_session.h
++++ b/include/asterisk/res_pjsip_session.h
+@@ -215,8 +215,10 @@ struct ast_sip_session {
+ 	enum ast_sip_dtmf_mode dtmf;
+ 	/*! Initial incoming INVITE Request-URI.  NULL otherwise. */
+ 	pjsip_uri *request_uri;
+-	/* Media statistics for negotiated RTP streams */
++	/*! Media statistics for negotiated RTP streams */
+ 	AST_VECTOR(, struct ast_rtp_instance_stats *) media_stats;
++	/*! Number of challenges received during outgoing requests to determine if we are in a loop */
++	unsigned int authentication_challenge_count:4;
+ };
+ 
+ typedef int (*ast_sip_session_request_creation_cb)(struct ast_sip_session *session, pjsip_tx_data *tdata);
+--- a/res/res_pjsip.c
++++ b/res/res_pjsip.c
+@@ -4027,8 +4027,6 @@ static pj_bool_t does_method_match(const
+ 	return pj_stristr(&method, message_method) ? PJ_TRUE : PJ_FALSE;
+ }
+ 
+-/*! Maximum number of challenges before assuming that we are in a loop */
+-#define MAX_RX_CHALLENGES	10
+ #define TIMER_INACTIVE		0
+ #define TIMEOUT_TIMER2		5
+ 
+--- a/res/res_pjsip_session.c
++++ b/res/res_pjsip_session.c
+@@ -2052,7 +2052,6 @@ static pjsip_module session_reinvite_mod
+ 	.on_rx_request = session_reinvite_on_rx_request,
+ };
+ 
+-
+ void ast_sip_session_send_request_with_cb(struct ast_sip_session *session, pjsip_tx_data *tdata,
+ 		ast_sip_session_response_cb on_response)
+ {
+@@ -2301,6 +2300,9 @@ struct ast_sip_session *ast_sip_session_
+ 		return NULL;
+ 	}
+ 
++	/* Track the number of challenges received on outbound requests */
++	session->authentication_challenge_count = 0;
++
+ 	/* Fire seesion begin handlers */
+ 	handle_session_begin(session);
+ 
+@@ -2470,6 +2472,11 @@ static pj_bool_t outbound_invite_auth(pj
+ 
+ 	session = inv->mod_data[session_module.id];
+ 
++	if (++session->authentication_challenge_count > MAX_RX_CHALLENGES) {
++		ast_debug(1, "Initial INVITE reached maximum number of auth attempts.\n");
++		return PJ_FALSE;
++	}
++
+ 	if (ast_sip_create_request_with_auth(&session->endpoint->outbound_auths, rdata,
+ 		tsx->last_tx, &tdata)) {
+ 		return PJ_FALSE;
+@@ -3846,6 +3853,7 @@ static void session_inv_on_tsx_state_cha
+ 						ast_debug(1, "reINVITE received final response code %d\n",
+ 							tsx->status_code);
+ 						if ((tsx->status_code == 401 || tsx->status_code == 407)
++							&& ++session->authentication_challenge_count < MAX_RX_CHALLENGES
+ 							&& !ast_sip_create_request_with_auth(
+ 								&session->endpoint->outbound_auths,
+ 								e->body.tsx_state.src.rdata, tsx->last_tx, &tdata)) {
+@@ -3920,6 +3928,7 @@ static void session_inv_on_tsx_state_cha
+ 						(int) pj_strlen(&tsx->method.name), pj_strbuf(&tsx->method.name),
+ 						tsx->status_code);
+ 					if ((tsx->status_code == 401 || tsx->status_code == 407)
++						&& ++session->authentication_challenge_count < MAX_RX_CHALLENGES
+ 						&& !ast_sip_create_request_with_auth(
+ 							&session->endpoint->outbound_auths,
+ 							e->body.tsx_state.src.rdata, tsx->last_tx, &tdata)) {
