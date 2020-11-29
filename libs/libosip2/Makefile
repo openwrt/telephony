@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libosip2
-PKG_VERSION:=5.1.0
+PKG_VERSION:=5.1.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/osip
-PKG_HASH:=40573a997a656f967b2b5ebafbd36d7f1d4a4634abcf312643854057d061f145
+PKG_HASH:=2bc0400f21a64cf4f2cbc9827bf8bdbb05a9b52ecc8e791b4ec0f1f9410c1291
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -30,7 +30,7 @@ define Package/libosip2
   CATEGORY:=Libraries
   TITLE:=GNU oSIP library
   URL:=http://www.gnu.org/software/osip/
-  ABI_VERSION:=12
+  ABI_VERSION:=13
   DEPENDS:=+librt
 endef
 
@@ -44,7 +44,6 @@ TARGET_CFLAGS += $(if $(CONFIG_arc),-U__arc__)
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
-	--disable-debug \
 	--disable-silent-rules \
 	--disable-trace \
 	--disable-mpatrol \
@@ -52,7 +51,6 @@ CONFIGURE_ARGS += \
 	--disable-mt \
 	--enable-pthread \
 	--enable-semaphore \
-	--disable-sysv \
 	--disable-gperf \
 	--disable-test \
 	--disable-minisize
