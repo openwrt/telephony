@@ -8,15 +8,13 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=chan-sccp
-PKG_VERSION:=v4.3.2-20190730
+PKG_NAME:=asterisk-chan-sccp
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=08c9457b131e2e7fea92b2dfea786abfd171a5fe
-PKG_MIRROR_HASH:=be86af36c2ba4524d392fab1b88e4f4ceaaea6678dd814443ae5636337ed4c77
+PKG_SOURCE_VERSION:=a61c6d2cecdd149db767307cd71b736e77913251
+PKG_SOURCE_DATE:=2020-10-26
+PKG_MIRROR_HASH:=b879a44b855c5a891558781967abff0cb9350d8765c1b4f7774a4fae4cfeda4c
 PKG_SOURCE_PROTO:=git
 
 PKG_FIXUP:=autoreconf
@@ -27,65 +25,47 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_INSTALL:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
-
 include $(INCLUDE_DIR)/package.mk
 # chan-sccp needs iconv
 include $(INCLUDE_DIR)/nls.mk
 
-define Package/chan-sccp/Default
+define Package/asterisk-chan-sccp
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
   TITLE:=SCCP channel support
   URL:=https://github.com/chan-sccp/chan-sccp
-  DEPENDS:=$(ICONV_DEPENDS) +libltdl
+  DEPENDS:=asterisk $(ICONV_DEPENDS) +libltdl \
+	  +asterisk-bridge-holding \
+	  +asterisk-bridge-native-rtp \
+	  +asterisk-bridge-simple \
+	  +asterisk-bridge-softmix \
+	  +asterisk-res-stasis-device-state
+  CONFLICTS:=asterisk-chan-skinny
 endef
 
-define Package/asterisk16-chan-sccp
-$(call Package/chan-sccp/Default)
-  DEPENDS += asterisk16 \
-	  +asterisk16-bridge-holding \
-	  +asterisk16-bridge-native-rtp \
-	  +asterisk16-bridge-simple \
-	  +asterisk16-bridge-softmix \
-	  +asterisk16-res-stasis-device-state \
-	  +asterisk16-voicemail
-  VARIANT:=asterisk16
-  CONFLICTS:=asterisk16-chan-skinny
-endef
-
-define Package/description/Default
+define Package/asterisk-chan-sccp/description
 Replacement for the SCCP channel driver (chan_skinny) in Asterisk.
 Extended features include shared lines, presence / BLF, customizable
 feature buttons and custom device state.
 endef
 
-Package/asterisk16-chan-sccp/description = $(Package/description/Default)
-
 CONFIGURE_ARGS += \
 	--disable-debug \
 	--enable-advanced-functions \
 	--enable-conference \
-	--enable-video
+	--enable-video \
+	--with-asterisk=$(STAGING_DIR)/usr
 
-ifeq ($(BUILD_VARIANT),asterisk16)
-  CONFIGURE_ARGS += --with-asterisk=$(STAGING_DIR)/usr/include/asterisk-16
-endif
-
-define Package/conffiles/Default
+define Package/asterisk-chan-sccp/conffiles
 /etc/asterisk/sccp.conf
 endef
 
-Package/asterisk16-chan-sccp/conffiles = $(Package/conffiles/Default)
-
-define Package/Install/Default
+define Package/asterisk-chan-sccp/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/asterisk/sccp.conf $(1)/etc/asterisk
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/asterisk/sccp.conf $(1)/etc/asterisk
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/asterisk/modules/chan_sccp.so $(1)/usr/lib/asterisk/modules/
 endef
 
-Package/asterisk16-chan-sccp/install = $(Package/Install/Default)
-
-$(eval $(call BuildPackage,asterisk16-chan-sccp))
+$(eval $(call BuildPackage,asterisk-chan-sccp))

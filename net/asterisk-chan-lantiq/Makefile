@@ -7,15 +7,13 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=asterisk16-chan-lantiq
-PKG_VERSION:=20190803
+PKG_NAME:=asterisk-chan-lantiq
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/kochstefan/asterisk_channel_lantiq.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=1d940b38cde0348dfe129d2b764e6faee440c45b
-PKG_MIRROR_HASH:=ff838ff2a4c5353fadd73806e1513f59f224914582b6ba004165712268bc94e5
+PKG_SOURCE_DATE:=2019-08-03
+PKG_MIRROR_HASH:=f8aa4cccc90ad8503c94ddb03c4af7870f3262b99f1dca198c0e8d351aa96588
 PKG_SOURCE_PROTO:=git
 
 PKG_LICENSE:=GPL-2.0
@@ -32,11 +30,11 @@ define Package/$(PKG_NAME)
   CATEGORY:=Network
   TITLE:=Lantiq channel driver
   URL:=https://github.com/kochstefan/asterisk_channel_lantiq
-  DEPENDS:=+asterisk16 +kmod-ltq-vmmc
+  DEPENDS:=+asterisk +kmod-ltq-vmmc
 endef
 
 define Package/$(PKG_NAME)/description
-An implementation of a Lantiq TAPI channel driver for Asterisk 16.
+An implementation of a Lantiq TAPI channel driver for Asterisk.
 endef
 
 define Package/$(PKG_NAME)/conffiles
@@ -48,7 +46,6 @@ define Build/Compile
 	$(TARGET_CC) -o chan_lantiq.o -c chan_lantiq.c -MD -MT chan_lantiq.o \
 		-MF .chan_lantiq.o.d -MP -pthread \
 		$(TARGET_CFLAGS) -DAST_MODULE_SELF_SYM=__internal_chan_lantiq_self \
-		-I$(STAGING_DIR)/usr/include/asterisk-16/include \
 		$(TARGET_CPPFLAGS) \
 		-Wall -Wstrict-prototypes -Wmissing-prototypes \
 		-Wmissing-declarations $(FPIC) -DAST_MODULE=\"chan_lantiq\" && \
@@ -59,7 +56,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/asterisk
-	$(INSTALL_CONF) \
+	$(INSTALL_DATA) \
 		$(PKG_BUILD_DIR)/src/configs/samples/lantiq.conf.sample \
 		$(1)/etc/asterisk/lantiq.conf
 	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
