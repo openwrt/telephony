@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio5
 PKG_VERSION:=5.4.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)$(PKG_VARIANT)_src.tar.gz
@@ -407,7 +407,7 @@ EXTRA_MODULES:= \
 # When CONFIG_CPU_TYPE matches one of the identifiers in the list below, set
 # ARCH to "mips2" to get FAST_LOCK support.
 ifeq ($(call qstrip,$(CONFIG_ARCH)),mips)
-CPU_MIPS2:=mips32 24kc 34kc 74kc
+CPU_MIPS2:=mips32 24kc 34kc 4kec 74kc
 endif
 
 MAKE_FLAGS += \
