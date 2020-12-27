@@ -304,7 +304,6 @@ MODULES_AVAILABLE:= \
 	res-stun-monitor \
 	res-timing-dahdi \
 	res-timing-pthread \
-	res-timing-timerfd \
 	res-xmpp
 
 UTILS_AVAILABLE:= \
@@ -493,7 +492,7 @@ AST_CFG_FILES:= \
 AST_EMB_MODULES:=\
 	app_dial app_echo app_macro app_playback \
 	func_callerid func_logic func_strings func_timeout \
-	pbx_config res_crypto
+	pbx_config res_crypto res_timing_timerfd
 
 define Package/$(PKG_NAME)/install
 $(call Package/$(PKG_NAME)/install/lib,$(1),libasteriskssl)
@@ -848,7 +847,7 @@ $(eval $(call BuildAsteriskModule,chan-audiosocket,Audiosocket channel,Audiosock
 $(eval $(call BuildAsteriskModule,chan-bridge-media,Bridge media channel driver,Bridge media channel driver.,,,chan_bridge_media,,))
 $(eval $(call BuildAsteriskModule,chan-console,Console channel driver,Console channel driver.,+portaudio,console.conf,chan_console,,))
 $(eval $(call BuildAsteriskModule,chan-dahdi,DAHDI channel,DAHDI telephony.,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,chan_dahdi.conf,chan_dahdi,,))
-$(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,Inter Asterisk eXchange.,+$(PKG_NAME)-res-timing-timerfd,iax.conf iaxprov.conf,chan_iax2,,))
+$(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,Inter Asterisk eXchange.,,iax.conf iaxprov.conf,chan_iax2,,))
 $(eval $(call BuildAsteriskModule,chan-mgcp,MGCP,Media Gateway Control Protocol.,,mgcp.conf,chan_mgcp,,))
 $(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile device channel driver.,+bluez-libs,chan_mobile.conf,chan_mobile,,))
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle channel driver.,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
@@ -974,7 +973,7 @@ $(eval $(call BuildAsteriskModule,res-hep,HEPv3 API,HEPv3 API.,,hep.conf,res_hep
 $(eval $(call BuildAsteriskModule,res-hep-pjsip,PJSIP HEPv3 Logger,PJSIP HEPv3 logger.,+$(PKG_NAME)-res-hep +$(PKG_NAME)-pjsip,,res_hep_pjsip,,))
 $(eval $(call BuildAsteriskModule,res-hep-rtcp,RTCP HEPv3 Logger,RTCP HEPv3 logger.,+$(PKG_NAME)-res-hep,,res_hep_rtcp,,))
 $(eval $(call BuildAsteriskModule,res-fax-spandsp,Spandsp T.38 and G.711,Spandsp G.711 and T.38 FAX technologies.,+$(PKG_NAME)-res-fax +libspandsp +libtiff,,res_fax_spandsp,,))
-$(eval $(call BuildAsteriskModule,res-fax,FAX modules,Generic FAX applications.,+$(PKG_NAME)-res-timing-pthread,res_fax.conf,res_fax,,))
+$(eval $(call BuildAsteriskModule,res-fax,FAX modules,Generic FAX applications.,,res_fax.conf,res_fax,,))
 $(eval $(call BuildAsteriskModule,res-format-attr-celt,CELT format attribute module,CELT format attribute module.,,,res_format_attr_celt,,))
 $(eval $(call BuildAsteriskModule,res-format-attr-g729,G.729 format attribute module,G.729 format attribute module.,,,res_format_attr_g729,,))
 $(eval $(call BuildAsteriskModule,res-format-attr-h263,H.263 format attribute module,H.263 format attribute module.,,,res_format_attr_h263,,))
@@ -1027,7 +1026,6 @@ $(eval $(call BuildAsteriskModule,res-stir-shaken,STIR/SHAKEN resource module,ST
 $(eval $(call BuildAsteriskModule,res-stun-monitor,STUN monitoring,STUN network monitor.,,res_stun_monitor.conf,res_stun_monitor,,))
 $(eval $(call BuildAsteriskModule,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface.,+$(PKG_NAME)-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,pthread timing interface.,,,res_timing_pthread,,))
-$(eval $(call BuildAsteriskModule,res-timing-timerfd,Timerfd Timing Interface,Timerfd timing interface.,,,res_timing_timerfd,,))
 $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,Asterisk XMPP interface.,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
 
 ################################
