@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=dahdi-linux
 PKG_VERSION:=3.1.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-linux/releases
@@ -81,8 +81,8 @@ endef
 
 define Build/Prepare
 	$(Build/Prepare/Default)
-	mkdir -p $(PKG_BUILD_DIR)/drivers/staging/echo/
-	$(CP) ./files/oslec.h $(PKG_BUILD_DIR)/drivers/staging/echo/
+	mkdir -p $(PKG_BUILD_DIR)/include/dahdi/
+	$(CP) ./files/oslec.h $(PKG_BUILD_DIR)/include/dahdi
 endef
 
 define Build/Compile
@@ -98,6 +98,7 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/include/dahdi/dahdi_config.h $(1)/usr/include/dahdi/
 	$(CP) $(PKG_BUILD_DIR)/include/dahdi/fasthdlc.h     $(1)/usr/include/dahdi/
 	$(CP) $(PKG_BUILD_DIR)/include/dahdi/kernel.h       $(1)/usr/include/dahdi/
+	$(CP) $(PKG_BUILD_DIR)/include/dahdi/oslec.h        $(1)/usr/include/dahdi/
 	$(CP) $(PKG_BUILD_DIR)/include/dahdi/user.h         $(1)/usr/include/dahdi/
 	$(CP) $(PKG_BUILD_DIR)/include/dahdi/wctdm_user.h   $(1)/usr/include/dahdi/
 endef
