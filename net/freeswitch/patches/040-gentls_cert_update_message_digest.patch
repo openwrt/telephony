@@ -22,8 +22,6 @@ Date:   Wed Nov 13 20:29:50 2019 +0100
     
     Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
 
-diff --git a/scripts/gentls_cert.in b/scripts/gentls_cert.in
-index 43aa8ac605..dd56c9f6dc 100644
 --- a/scripts/gentls_cert.in
 +++ b/scripts/gentls_cert.in
 @@ -89,7 +89,7 @@ setup_ca() {

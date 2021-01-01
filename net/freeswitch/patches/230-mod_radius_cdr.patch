@@ -11,23 +11,12 @@
  $(RADCLIENT_LA): $(RADCLIENT_BUILDDIR)/Makefile
 --- /dev/null
 +++ b/src/mod/event_handlers/mod_radius_cdr/freeradius-client-1.1.6-configure-in.diff
-@@ -0,0 +1,32 @@
-+diff --git a/configure.in b/configure.in
-+index 4f194bd..647e9b9 100644
+@@ -0,0 +1,21 @@
 +--- a/configure.in
 ++++ b/configure.in
-+@@ -209,7 +209,7 @@ AC_CHECK_FUNCS(stricmp random rand snprintf vsnprintf)
-+ if test "$ac_cv_func_uname" = 'yes'
-+ then
-+ 	AC_MSG_CHECKING([for field domainname in struct utsname])
-+-	AC_TRY_RUN([
-++	AC_COMPILE_IFELSE([
-+ 	#include <sys/utsname.h>
-+ 	
-+ 	main(int argc, char **argv)
-+@@ -224,13 +224,11 @@ then
-+ 	)
-+ fi
++@@ -234,13 +234,11 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([
++                   enable_getrandom=getentropy],
++                  [AC_MSG_RESULT(no)])
 + 
 +-AC_MSG_CHECKING([for /dev/urandom])
 +-if test -c /dev/urandom
@@ -43,4 +32,4 @@
 ++  AC_DEFINE(HAVE_DEV_URANDOM)
 + fi
 + 
-+ dnl Determine PATH setting
++ AC_ARG_WITH([nettle], [AS_HELP_STRING([--with-nettle],

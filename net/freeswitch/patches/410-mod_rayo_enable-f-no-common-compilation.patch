@@ -4,8 +4,6 @@ Date:   Tue Sep 1 12:13:28 2020 -0400
 
     [mod_rayo] Enable -fno-common compilation
 
-diff --git a/src/mod/event_handlers/mod_rayo/iks_helpers.h b/src/mod/event_handlers/mod_rayo/iks_helpers.h
-index e221abe390..b98dbf5be6 100644
 --- a/src/mod/event_handlers/mod_rayo/iks_helpers.h
 +++ b/src/mod/event_handlers/mod_rayo/iks_helpers.h
 @@ -51,8 +51,7 @@ struct xmpp_error {
