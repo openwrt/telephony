@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dahdi-tools
 PKG_VERSION:=3.1.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-tools/releases
@@ -52,7 +52,16 @@ define Package/dahdi-tools-libtonezone
   TITLE:=DAHDI tonezone library
 endef
 
-CONFIGURE_ARGS+=--disable-silent-rules
+CONFIGURE_ARGS += \
+	--disable-silent-rules \
+	--with-perllib="" \
+	--without-libusb \
+	--without-libusbx \
+	--without-newt \
+	--without-pcap \
+	--without-ppp \
+	--without-selinux \
+	--without-usb
 
 # https://issues.asterisk.org/jira/browse/DAHTOOL-85
 TARGET_CFLAGS+=-fcommon
