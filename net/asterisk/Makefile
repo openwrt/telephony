@@ -853,7 +853,7 @@ $(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle channel driver.,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsteriskModule,chan-ooh323,H.323 channel,Objective Systems H.323 channel.,,ooh323.conf,chan_ooh323,,))
 $(eval $(call BuildAsteriskModule,chan-oss,OSS channel,OSS console channel driver.,,oss.conf,chan_oss,,))
-$(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP media channel.,,,chan_rtp,,))
+$(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP media channel.,+asterisk-res-rtp-multicast,,chan_rtp,,))
 $(eval $(call BuildAsteriskModule,chan-sip,SIP channel,Session Initiation Protocol.,+$(PKG_NAME)-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsteriskModule,chan-skinny,Skinny channel,Skinny Client Control Protocol.,,skinny.conf,chan_skinny,,))
 $(eval $(call BuildAsteriskModule,chan-unistim,Unistim channel,UNISTIM protocol.,,unistim.conf,chan_unistim,,))
