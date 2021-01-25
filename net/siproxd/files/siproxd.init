@@ -11,8 +11,8 @@ CONF_DIR="/var/etc/siproxd"
 REG_DIR="/var/lib/siproxd"
 PID_DIR="/var/run/siproxd"
 PLUGIN_DIR="/usr/lib/siproxd/"
-UID="nobody"
-GID="nogroup"
+SIPROXD_UID="nobody"
+SIPROXD_GID="nogroup"
 
 # Some options need special handling or conflict with procd/jail setup.
 append CONF_SKIP "interface_inbound interface_outbound chrootjail"
@@ -74,7 +74,7 @@ apply_defaults() {
 	default_conf tcp_keepalive 20
 	default_conf default_expires 600
 	default_conf daemonize 0
-	default_conf user "$UID"
+	default_conf user "$SIPROXD_UID"
 	default_conf registration_file "$REG_DIR/siproxd-$sec.reg"
 	default_conf plugindir "$PLUGIN_DIR"
 }
@@ -116,7 +116,7 @@ section_end() {
 	[ -d "$plugin_dir" ] && procd_add_jail_mount "$plugin_dir"
 	# Ensure registration file exists for jail
 	[ -f "$reg_file" ] || touch "$reg_file"
-	chown "$UID:$GID" "$reg_file"
+	chown "$SIPROXD_UID:$SIPROXD_GID" "$reg_file"
 	procd_add_jail_mount_rw "$reg_file"
 	procd_close_instance
 }
@@ -163,7 +163,7 @@ service_triggers()
 start_service() {
 	mkdir -p "$CONF_DIR" "$REG_DIR" "$PID_DIR"
 	chmod 755 "$CONF_DIR" "$REG_DIR" "$PID_DIR"
-	chown "$UID:$GID" "$REG_DIR"
+	chown "$SIPROXD_UID:$SIPROXD_GID" "$REG_DIR"
 
 	siproxd_cb
 	config_load 'siproxd'
