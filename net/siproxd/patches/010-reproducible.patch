@@ -1,0 +1,11 @@
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -22,7 +22,7 @@
+ AM_CFLAGS = -D_GNU_SOURCE $(LTDLDEF) \
+             -Werror-implicit-function-declaration \
+             -DBUILDSTR="\"`cat .buildno`\"" \
+-            -DBUILDDATE="\"`date -u '+%Y-%m-%dT%H:%M:%S'`\""
++            -DBUILDDATE="$(PKG_SOURCE_DATE_EPOCH)"
+ #&&&INCLUDES = $(LTDLINCL)
+ AM_CPPFLAGS = $(LTDLINCL)
+ 
