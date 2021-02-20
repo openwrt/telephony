@@ -31,6 +31,10 @@ PKG_BUILD_PARALLEL:=0
 
 PKG_BUILD_DEPENDS:=gperf/host
 
+# With below variable set, $(PKG_SYMVERS_DIR)/rtpengine.symvers gets generated
+# from kernel-module/Module.symvers.
+PKG_EXTMOD_SUBDIRS:=kernel-module
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
@@ -239,10 +243,10 @@ define Build/Compile
 
 ifneq ($(CONFIG_PACKAGE_kmod-ipt-rtpengine),)
 	RTPENGINE_VERSION=$(PKG_VERSION) $(MAKE) \
+		$(PKG_JOBS) \
 		-C $(PKG_BUILD_DIR)/kernel-module \
 		KSRC=$(LINUX_DIR) \
-		ARCH=$(LINUX_KARCH) \
-		CROSS_COMPILE=$(TARGET_CROSS)
+		$(KERNEL_MAKE_FLAGS)
 endif
 
 ifneq ($(CONFIG_PACKAGE_iptables-mod-rtpengine),)
@@ -262,8 +266,10 @@ endef
 define Build/InstallDev
 endef
 
-$(eval $(call BuildPackage,rtpengine-no-transcode))
+# KernelPackage calls need to go first, otherwise hooks like
+# collect_module_symvers won't get added.
 $(eval $(call KernelPackage,ipt-rtpengine))
+$(eval $(call BuildPackage,rtpengine-no-transcode))
 $(eval $(call BuildPackage,iptables-mod-rtpengine))
 $(eval $(call BuildPackage,rtpengine))
 $(eval $(call BuildPackage,rtpengine-recording))
