@@ -18,7 +18,7 @@ Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
 
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1429,7 +1429,11 @@ AC_LINK_IFELSE(
+@@ -1431,7 +1431,11 @@ AC_LINK_IFELSE(
  			#include <arpa/nameser.h>
  			#endif
  			#include <resolv.h>],
