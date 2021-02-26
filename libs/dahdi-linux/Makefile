@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=dahdi-linux
 PKG_VERSION:=3.1.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/dahdi-linux/releases
@@ -19,6 +19,10 @@ PKG_HASH:=db5b758437d066a7edad34b54313f08a4ccdde28373492986b72c798e8561b4d
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Vittorio Gambaletta <openwrt@vittgam.net>
+
+# With below variable set, $(PKG_SYMVERS_DIR)/dahdi-linux.symvers gets
+# generated from drivers/dahdi/Module.symvers.
+PKG_EXTMOD_SUBDIRS:=drivers/dahdi
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -86,10 +90,8 @@ define Build/Prepare
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		ARCH="$(LINUX_KARCH)" \
-		$(TARGET_CONFIGURE_OPTS) \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		$(KERNEL_MAKE_FLAGS) \
 		KSRC="$(LINUX_DIR)"
 endef
 
