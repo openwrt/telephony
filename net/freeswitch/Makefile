@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.5
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
@@ -230,7 +230,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_freeswitch-misc-perl-esl \
 	CONFIG_SOFT_FLOAT
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 # iconv support
 include $(INCLUDE_DIR)/nls.mk
@@ -368,8 +367,8 @@ $(call Package/freeswitch/Default)
   MENU:=1
   USERID:=freeswitch=372:freeswitch=372
   DEPENDS:= \
-	  $(CXX_DEPENDS) \
 	  $(ICONV_DEPENDS) \
+	  +libstdcpp \
 	  +!BUSYBOX_DEFAULT_SU:shadow-utils \
 	  +!BUSYBOX_DEFAULT_SU:shadow-su \
 	  +@OPENSSL_WITH_DEPRECATED \

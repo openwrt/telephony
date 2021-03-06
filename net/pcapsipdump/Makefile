@@ -13,20 +13,19 @@ PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_URL:=https://svn.code.sf.net/p/pcapsipdump/code/trunk
 PKG_SOURCE_VERSION:=151
 PKG_SOURCE_DATE=2019-10-07
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MIRROR_HASH:=a029b29946f0492220fc9c60ef3e7f0a7a0c660f0047957eab6802ae6b9f9ed4
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=LICENSE
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pcapsipdump
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=$(CXX_DEPENDS) +USE_GLIBC:libbsd +libpcap
+  DEPENDS:=+libstdcpp +USE_GLIBC:libbsd +libpcap
   TITLE:=SIP sessions dumping tool
   URL:=http://sourceforge.net/projects/pcapsipdump/
 endef
