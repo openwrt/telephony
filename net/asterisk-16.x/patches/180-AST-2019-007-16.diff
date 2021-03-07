@@ -21,9 +21,6 @@ Reported by: Eliel Sardañons
 Change-Id: Ic4c9dedc34c426f03c8c14fce334a71386d8a5fa
 ---
 
-diff --git a/doc/UPGRADE-staging/AMI-Originate.txt b/doc/UPGRADE-staging/AMI-Originate.txt
-new file mode 100644
-index 0000000..f2d3133
 --- /dev/null
 +++ b/doc/UPGRADE-staging/AMI-Originate.txt
 @@ -0,0 +1,5 @@
@@ -32,11 +29,9 @@ index 0000000..f2d3133
 +The AMI Originate action, which optionally takes a dialplan application as
 +an argument, no longer accepts "Originate" as the application due to
 +security concerns.
-diff --git a/main/manager.c b/main/manager.c
-index f138801..1963151 100644
 --- a/main/manager.c
 +++ b/main/manager.c
-@@ -5744,6 +5744,7 @@
+@@ -5697,6 +5697,7 @@ static int action_originate(struct manse
  				                                     EAGI(/bin/rm,-rf /)       */
  				strcasestr(app, "mixmonitor") ||  /* MixMonitor(blah,,rm -rf)  */
  				strcasestr(app, "externalivr") || /* ExternalIVR(rm -rf)       */

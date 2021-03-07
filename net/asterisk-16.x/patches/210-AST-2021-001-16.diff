@@ -1,0 +1,87 @@
+From 757b7f8d7cfee4f541e8d7586e2408556a74201d Mon Sep 17 00:00:00 2001
+From: Ivan Poddubnyi <ivan.poddubny@gmail.com>
+Date: Mon, 28 Dec 2020 13:43:23 +0100
+Subject: [PATCH] res_pjsip_diversion: Fix adding more than one histinfo to
+ Supported
+
+New responses sent within a PJSIP sessions are based on those that were
+sent before. Therefore, adding/modifying a header once causes it to be
+sent on all responses that follow.
+
+Sending 181 Call Is Being Forwarded many times first adds "histinfo"
+duplicated more and more, and eventually overflows past the array
+boundary.
+
+This commit adds a check preventing adding "histinfo" more than once,
+and skipping it if there is no more space in the header.
+
+Similar overflow situations can also occur in res_pjsip_path and
+res_pjsip_outbound_registration so those were also modified to
+check the bounds and suppress duplicate Supported values.
+
+ASTERISK-29227
+Reported by: Ivan Poddubny
+
+Change-Id: Id43704a1f1a0293e35cc7f844026f0b04f2ac322
+---
+ res/res_pjsip_diversion.c             | 14 ++++++++++++++
+ res/res_pjsip_outbound_registration.c | 12 ++++++++++++
+ res/res_pjsip_path.c                  | 12 ++++++++++++
+ 3 files changed, 38 insertions(+)
+
+--- a/res/res_pjsip_outbound_registration.c
++++ b/res/res_pjsip_outbound_registration.c
+@@ -580,6 +580,7 @@ static int handle_client_registration(vo
+ 
+ 	if (client_state->support_path) {
+ 		pjsip_supported_hdr *hdr;
++		int i;
+ 
+ 		hdr = pjsip_msg_find_hdr(tdata->msg, PJSIP_H_SUPPORTED, NULL);
+ 		if (!hdr) {
+@@ -593,6 +594,17 @@ static int handle_client_registration(vo
+ 			pjsip_msg_add_hdr(tdata->msg, (pjsip_hdr *)hdr);
+ 		}
+ 
++		/* Don't add the value if it's already there */
++		for (i = 0; i < hdr->count; ++i) {
++			if (pj_stricmp(&hdr->values[i], &PATH_NAME) == 0) {
++				return 1;
++			}
++		}
++
++		if (hdr->count >= PJSIP_GENERIC_ARRAY_MAX_COUNT) {
++			return 0;
++		}
++
+ 		/* add on to the existing Supported header */
+ 		pj_strassign(&hdr->values[hdr->count++], &PATH_NAME);
+ 	}
+--- a/res/res_pjsip_path.c
++++ b/res/res_pjsip_path.c
+@@ -122,6 +122,7 @@ static int path_get_string(pj_pool_t *po
+ static int add_supported(pjsip_tx_data *tdata)
+ {
+ 	pjsip_supported_hdr *hdr;
++	int i;
+ 
+ 	hdr = pjsip_msg_find_hdr(tdata->msg, PJSIP_H_SUPPORTED, NULL);
+ 	if (!hdr) {
+@@ -134,6 +135,17 @@ static int add_supported(pjsip_tx_data *
+ 		pjsip_msg_add_hdr(tdata->msg, (pjsip_hdr *)hdr);
+ 	}
+ 
++	/* Don't add the value if it's already there */
++	for (i = 0; i < hdr->count; ++i) {
++		if (pj_stricmp(&hdr->values[i], &PATH_SUPPORTED_NAME) == 0) {
++			return 0;
++		}
++	}
++
++	if (hdr->count >= PJSIP_GENERIC_ARRAY_MAX_COUNT) {
++		return -1;
++	}
++
+ 	/* add on to the existing Supported header */
+ 	pj_strassign(&hdr->values[hdr->count++], &PATH_SUPPORTED_NAME);
+ 
