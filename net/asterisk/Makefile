@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
 PKG_VERSION:=18.1.1
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -326,7 +326,6 @@ PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(subst _,-,$(UTILS_AVAILABLE))) \
 	CONFIG_ASTERISK_LOW_MEMORY
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
 # Needed for res-config-mysql and func-iconv to find iconv
@@ -448,7 +447,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=$(CXX_DEPENDS) +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  DEPENDS:=+libstdcpp +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
   USERID:=asterisk=385:asterisk=385
 endef
 

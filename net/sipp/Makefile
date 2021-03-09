@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sipp
 PKG_VERSION:=3.6.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/SIPp/sipp/releases/download/v$(PKG_VERSION)
@@ -18,7 +18,6 @@ PKG_HASH:=6a560e83aff982f331ddbcadfb3bd530c5896cd5b757dd6eb682133cc860ecb1
 PKG_LICENSE:=GPL-2.0+ BSD-3-Clause Zlib
 PKG_LICENSE_FILES:=LICENSE.txt
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
@@ -28,7 +27,7 @@ define Package/sipp
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Telephony
-  DEPENDS:=$(CXX_DEPENDS) +libncurses +libpcap +libpthread
+  DEPENDS:=+libstdcpp +libncurses +libpcap +libpthread
   TITLE:=test tool / traffic generator for the SIP protocol
   URL:=http://sipp.sourceforge.net/
 endef

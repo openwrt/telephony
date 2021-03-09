@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libctb
 PKG_VERSION:=0.16
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://iftools.com/download/ctb/$(PKG_VERSION)
@@ -23,7 +23,6 @@ PKG_LICENSE:=LGPL
 PKG_LICENSE_FILES:=build/COPYING
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
@@ -32,7 +31,7 @@ define Package/$(PKG_NAME)
   CATEGORY:=Libraries
   TITLE:=Communications toolbox - ctb
   URL:=https://iftools.com/opensource/ctb.en.php
-  DEPENDS:=$(CXX_DEPENDS)
+  DEPENDS:=+libstdcpp
 endef
 
 define Package/$(PKG_NAME)/description

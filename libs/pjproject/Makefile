@@ -28,7 +28,6 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_CONFIG_DEPENDS:=CONFIG_SOFT_FLOAT
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/pjproject/Default
@@ -36,7 +35,7 @@ define Package/pjproject/Default
   CATEGORY:=Libraries
   SUBMENU:=Telephony
   URL:=https://www.pjsip.org
-  DEPENDS:=$(CXX_DEPENDS) +libopenssl +libuuid +libpthread
+  DEPENDS:=+libstdcpp +libopenssl +libuuid +libpthread
 endef
 
 define Package/pjproject/install/lib

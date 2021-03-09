@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.1.0-1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -39,7 +39,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress \
 	CONFIG_SOFT_FLOAT
 
-include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 # Needed for yate-mod-mysqldb to find iconv
 include $(INCLUDE_DIR)/nls.mk
@@ -53,7 +52,7 @@ endef
 
 define Package/$(PKG_NAME)
   $(call Package/yate/Default)
-  DEPENDS:=+libpthread $(CXX_DEPENDS)
+  DEPENDS:=+libpthread +libstdcpp
   TITLE:=Yet Another Telephony Engine
   MENU:=1
 endef
