@@ -9,19 +9,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch-mod-bcg729
 
-PKG_VERSION:=20170629
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_LICENSE:=MPL-1.1
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_SOURCE:=freeswitch-mod-bcg729-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/xadhoom/mod_bcg729.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_SUBDIR:=freeswitch-mod-bcg729-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=686eb06d4a395d94c364efff4b63579af76ebec7
-PKG_MIRROR_HASH:=efc9421223bba3ba7dd127531aa6887c39ed42d5fb8c0b0c67b15f3c98134b0a
+PKG_SOURCE_DATE:=2017-06-29
+PKG_MIRROR_HASH:=005a7d3c69beda7d32c1a671bfe0befa5477ac3c67f21bf086d588f4c760e303
 
 include $(INCLUDE_DIR)/package.mk
 
