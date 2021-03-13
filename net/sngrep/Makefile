@@ -9,14 +9,16 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sngrep
 
+PKG_VERSION:=1.4.8
+PKG_RELEASE:=1
+
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=COPYING
 
-PKG_SOURCE_URL:=https://github.com/irontec/sngrep.git
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=564ad9264ebe8b77ed18a923fef3643de920087c
-PKG_SOURCE_DATE=2019-12-02
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/irontec/sngrep/releases/download/v$(PKG_VERSION)
+PKG_HASH:=f39fded8dc9ef0b7a41319f223dd4afa348bb2418bea578ed281557726829728
 
 PKG_RELEASE:=1
 
