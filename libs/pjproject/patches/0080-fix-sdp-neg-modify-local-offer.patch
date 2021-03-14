@@ -1,8 +1,6 @@
-diff --git a/pjmedia/src/pjmedia/sdp_neg.c b/pjmedia/src/pjmedia/sdp_neg.c
-index 3b85b4273..a14009662 100644
 --- a/pjmedia/src/pjmedia/sdp_neg.c
 +++ b/pjmedia/src/pjmedia/sdp_neg.c
-@@ -304,7 +304,6 @@ PJ_DEF(pj_status_t) pjmedia_sdp_neg_modify_local_offer2(
+@@ -304,7 +304,6 @@ PJ_DEF(pj_status_t) pjmedia_sdp_neg_modi
  {
      pjmedia_sdp_session *new_offer;
      pjmedia_sdp_session *old_offer;
@@ -10,7 +8,7 @@ index 3b85b4273..a14009662 100644
      unsigned oi; /* old offer media index */
      pj_status_t status;
  
-@@ -323,8 +322,19 @@ PJ_DEF(pj_status_t) pjmedia_sdp_neg_modify_local_offer2(
+@@ -323,8 +322,19 @@ PJ_DEF(pj_status_t) pjmedia_sdp_neg_modi
      /* Change state to STATE_LOCAL_OFFER */
      neg->state = PJMEDIA_SDP_NEG_STATE_LOCAL_OFFER;
  
