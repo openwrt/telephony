@@ -11,7 +11,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
 PKG_VERSION:=2.10
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 # download "vX.Y.tar.gz" as "pjproject-vX.Y.tar.gz"
 PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
@@ -19,7 +19,6 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_URL_FILE)
 PKG_SOURCE_URL:=https://github.com/pjsip/$(PKG_NAME)/archive
 PKG_HASH:=936a4c5b98601b52325463a397ddf11ab4106c6a7b04f8dc7cdd377efbb597de
 PKG_INSTALL:=1
-PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -95,6 +94,7 @@ CONFIGURE_ARGS+= \
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Build/Compile
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) dep
 	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)
 endef
 
