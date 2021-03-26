@@ -4,8 +4,9 @@ NAME=freeswitch
 COMMAND=/etc/init.d/$NAME
 
 LOGGER="/usr/bin/logger -t $NAME-hotplug"
-LOG_ERR="$LOGGER -p user.err --"
-LOG_NOTICE="$LOGGER -p user.notice --"
+LOG_ERR="$LOGGER -p daemon.err --"
+LOG_INFO="$LOGGER -p daemon.info --"
+LOG_WARN="$LOGGER -p daemon.warn --"
 
 [ "$ACTION" = ifup ] || exit 0
 
@@ -18,7 +19,7 @@ config_get interface hotplug interface
 
 pidof $NAME &> /dev/null
 if [ $? -eq 0 ]; then
-  $LOG_NOTICE stopping $NAME
+  $LOG_INFO stopping $NAME
   $COMMAND stop &> /dev/null
 fi
 
@@ -43,7 +44,7 @@ config_get mount_point hotplug mount_point
 
   while [ -n "$notReady" -a $tmp_timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOG_NOTICE "$mnt" not yet mounted, timeout in $tmp_timeout s
+      $LOG_INFO "$mnt" not yet mounted, timeout in $tmp_timeout s
       sleep 5
       tmp_timeout=$(($tmp_timeout-5))
     fi
@@ -61,7 +62,7 @@ config_get mount_point hotplug mount_point
     $LOG_ERR not starting $NAME
     exit 1
   else
-    $LOG_NOTICE "$mnt" mounted
+    $LOG_INFO "$mnt" mounted
   fi
 
 }
@@ -87,7 +88,7 @@ config_get_bool ntpd hotplug ntpd 0
 
   while [ -n "$notReady" -a $tmp_timeout -gt 0 ]; do
     if [ "$notReady" != start ]; then
-      $LOG_NOTICE system time not in sync yet, timeout in $tmp_timeout s
+      $LOG_INFO system time not in sync yet, timeout in $tmp_timeout s
       sleep 5
       tmp_timeout=$(($tmp_timeout-5))
     fi
@@ -97,20 +98,20 @@ config_get_bool ntpd hotplug ntpd 0
     result=$(ntpq -c 'timeout 300' -c 'rv 0 stratum' 2> /dev/null | \
                     awk -F '=' '{print $2}' | grep -o -E '^[0-9]+')
     if [ -z $result ]; then
-      $LOG_ERR failed to extract stratum from ntpd
+      $LOG_WARN failed to extract stratum from ntpd
       notReady="unable to extract stratum"
     else
-      $LOG_NOTICE ntpd stratum $result
+      $LOG_INFO ntpd stratum $result
       if [ $result -lt 16 ] 2> /dev/null; then
         result=$(ntpq -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
-                 | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
+                 | awk -F '=' '{print $2}' | grep -o -E '^[-+]?[0-9]+')
         if [ -z $result ]; then
-          $LOG_ERR failed to extract offset from ntpd
+          $LOG_WARN failed to extract offset from ntpd
           notReady="unable to extract offset"
         else
           # "-0" looks stupid, so remove "-"
           result=$(echo $result | grep -o '[0-9]*')
-          $LOG_NOTICE ntpd to system time offset \+\/\- $result ms
+          $LOG_INFO ntpd to system time offset \+\/\- $result ms
           # If offset < 100 ms consider system time in sync
           [ $result -lt 100 ] || notReady="system time not in sync yet"
         fi
@@ -125,7 +126,7 @@ config_get_bool ntpd hotplug ntpd 0
     $LOG_ERR not starting $NAME
     exit 1
   else
-    $LOG_NOTICE system time in sync
+    $LOG_INFO system time in sync
   fi
 
 }
@@ -134,7 +135,7 @@ $COMMAND start &> /dev/null
 sleep 1
 pidof $NAME &>/dev/null
 if [ $? -eq 0 ]; then
-  $LOG_NOTICE started $NAME due to \"ifup "$INTERFACE"\" event
+  $LOG_INFO started $NAME due to \"ifup "$INTERFACE"\" event
 else
   $LOG_ERR start of $NAME due to \"ifup "$INTERFACE"\" event failed
   exit 1
