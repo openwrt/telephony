@@ -12,7 +12,7 @@
  #include <errno.h>
  #include <string.h>
  #include <stdio.h>
-@@ -531,14 +532,10 @@ int main(void)
+@@ -534,14 +535,10 @@ int main(void)
  }], [
      ac_cv_strerror_r_rc_int=yes ], [
      ac_cv_strerror_r_rc_int=no ], [
@@ -42,7 +42,7 @@
  #include <errno.h>
  #include <string.h>
  #include <stdio.h>
-@@ -531,14 +532,10 @@ int main(void)
+@@ -534,14 +535,10 @@ int main(void)
  }], [
      ac_cv_strerror_r_rc_int=yes ], [
      ac_cv_strerror_r_rc_int=no ], [
