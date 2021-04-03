@@ -103,7 +103,7 @@ config_get_bool ntpd hotplug ntpd 0
       $LOG_NOTICE ntpd stratum $result
       if [ $result -lt 16 ] 2> /dev/null; then
         result=$(ntpq -c 'timeout 300' -c 'rv 0 offset' 2> /dev/null \
-                 | awk -F '=' '{print $2}' | grep -o -E '^-?[0-9]+')
+                 | awk -F '=' '{print $2}' | grep -o -E '^[-+]?[0-9]+')
         if [ -z $result ]; then
           $LOG_ERR failed to extract offset from ntpd
           notReady="unable to extract offset"

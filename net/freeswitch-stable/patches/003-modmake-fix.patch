@@ -1,11 +1,20 @@
 --- a/build/modmake.rulesam
 +++ b/build/modmake.rulesam
-@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = foreign subdir-object
+@@ -1,8 +1,8 @@
+ AUTOMAKE_OPTIONS = foreign subdir-objects
  AM_CFLAGS   = $(SWITCH_AM_CFLAGS) $(SWITCH_ANSI_CFLAGS)
- AM_CPPFLAGS = $(SWITCH_AM_CXXFLAGS)
+-AM_CPPFLAGS = $(SWITCH_AM_CXXFLAGS)
++AM_CPPFLAGS = $(SWITCH_AM_CPPFLAGS)
  AM_LDFLAGS  = $(SWITCH_AM_LDFLAGS)
 -DEFAULT_VARS = CFLAGS="$(CFLAGS)" CPPFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" CC="$(CC)" CXX="$(CXX)"
 +DEFAULT_VARS = CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" CC="$(CC)" CXX="$(CXX)"
  DEFAULT_ARGS = --build=$(build) --host=$(host) --target=$(target) --prefix="$(prefix)" --exec_prefix="$(exec_prefix)" --libdir="$(libdir)" --disable-shared --with-pic
  
  moddir=@modulesdir@
+@@ -18,4 +18,4 @@ extraclean-modules: extraclean
+ print_tests:
+ 	@set +e; \
+ 	test -z "$(TESTS)" || for i in $(TESTS); do echo $(subdir)/$$i; done;
+-	
+\ No newline at end of file
++	
