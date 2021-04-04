@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -703,7 +703,7 @@ PKG_CHECK_MODULES([MARIADB], [libmariadb
+@@ -709,7 +709,7 @@ PKG_CHECK_MODULES([MARIADB], [libmariadb
    ])
  ])
  
