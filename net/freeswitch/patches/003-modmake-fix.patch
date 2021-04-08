@@ -11,10 +11,3 @@
  DEFAULT_ARGS = --build=$(build) --host=$(host) --target=$(target) --prefix="$(prefix)" --exec_prefix="$(exec_prefix)" --libdir="$(libdir)" --disable-shared --with-pic
  
  moddir=@modulesdir@
-@@ -18,4 +18,4 @@ extraclean-modules: extraclean
- print_tests:
- 	@set +e; \
- 	test -z "$(TESTS)" || for i in $(TESTS); do echo $(subdir)/$$i; done;
--	
-\ No newline at end of file
-+	
