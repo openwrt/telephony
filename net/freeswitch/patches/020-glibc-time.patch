@@ -1,0 +1,24 @@
+From b43b00bf48491cba7ab201ed0223b636713b3eea Mon Sep 17 00:00:00 2001
+From: Rosen Penev <rosenp@gmail.com>
+Date: Tue, 20 Apr 2021 16:03:23 -0700
+Subject: [PATCH] fix compilation with newer glibc 32-bit
+
+glibc as opposed to musl uses a different define to indicate whether or
+not time_t is 32 or 64 bit. Add support for it.
+
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ src/include/switch_platform.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/include/switch_platform.h
++++ b/src/include/switch_platform.h
+@@ -270,7 +270,7 @@ typedef intptr_t switch_ssize_t;
+ #if defined(__FreeBSD__) && SIZEOF_VOIDP == 4
+ #define TIME_T_FMT "d"
+ #else
+-#if __USE_TIME_BITS64
++#if __USE_TIME_BITS64 || (__TIMESIZE == 64)
+ #define TIME_T_FMT SWITCH_INT64_T_FMT
+ #else
+ #define TIME_T_FMT "ld"
