@@ -11,10 +11,9 @@ PKG_NAME:=pcapsipdump
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_URL:=https://svn.code.sf.net/p/pcapsipdump/code/trunk
-PKG_SOURCE_VERSION:=151
-PKG_SOURCE_DATE=2019-10-07
-PKG_RELEASE:=3
-PKG_MIRROR_HASH:=a029b29946f0492220fc9c60ef3e7f0a7a0c660f0047957eab6802ae6b9f9ed4
+PKG_SOURCE_VERSION:=157
+PKG_SOURCE_DATE=2020-03-03
+PKG_RELEASE:=1
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=LICENSE
@@ -26,14 +25,15 @@ define Package/pcapsipdump
   CATEGORY:=Network
   SUBMENU:=Telephony
   DEPENDS:=+libstdcpp +USE_GLIBC:libbsd +libpcap
-  TITLE:=SIP sessions dumping tool
+  TITLE:=SIP Sessions Dumping Tool
   URL:=http://sourceforge.net/projects/pcapsipdump/
 endef
 
 define Package/pcapsipdump/description
- pcapsipdump is a tool for dumping SIP sessions (+RTP traffic, if available) to disk in a
- fashion similar to "tcpdump -w" (format is exactly the same), but one file per sip session
- (even if there is thousands of concurrect SIP sessions).
+ pcapsipdump is a tool for dumping SIP sessions (plus RTP traffic, if
+ available) to disk in a fashion similar to "tcpdump -w" (format is
+ exactly the same), but one file per SIP session (even if there are
+ thousands of concurrent SIP sessions).
 endef
 
 MAKE_FLAGS+=LIBS="-lpcap"
