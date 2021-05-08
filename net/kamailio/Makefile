@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
-PKG_VERSION:=5.4.2
+PKG_VERSION:=5.5.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)_src.tar.gz
-PKG_HASH:=e710824d6810d3053ec79a39ee532c51bb91738a07f16c3a103aa07e0f8b80b5
+PKG_HASH:=d51cc08d20338fbb41f17d4fd2e4c4b67508c74f44613f0bd0c65269ff3557a3
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -120,6 +120,7 @@ MODULES_AVAILABLE:= \
 	ldap \
 	log_custom \
 	lost \
+	lrkproxy \
 	mangler \
 	matrix \
 	maxfwd \
@@ -212,7 +213,7 @@ MODULES_AVAILABLE:= \
 	uid_gflags \
 	uid_uri_db \
 	uri_db \
-	userblacklist \
+	userblocklist \
 	usrloc \
 	utils \
 	uuid \
@@ -552,6 +553,7 @@ $(eval $(call BuildKamailioModule,lcr,Least Cost Routing,,+kamailio-mod-tm +libp
 $(eval $(call BuildKamailioModule,ldap,LDAP connector,,+libopenldap))
 $(eval $(call BuildKamailioModule,log_custom,Logging to custom backends,,))
 $(eval $(call BuildKamailioModule,lost,HELD and LOST routing,,+kamailio-mod-http-client,))
+$(eval $(call BuildKamailioModule,lrkproxy,pylrkproxy media stream relay,,,))
 $(eval $(call BuildKamailioModule,mangler,SDP mangling,,))
 $(eval $(call BuildKamailioModule,matrix,Matrix operations,,))
 $(eval $(call BuildKamailioModule,maxfwd,Max-Forward processor,,))
@@ -644,7 +646,7 @@ $(eval $(call BuildKamailioModule,uid_domain,Domains management,,))
 $(eval $(call BuildKamailioModule,uid_gflags,Global attributes and flags,,))
 $(eval $(call BuildKamailioModule,uid_uri_db,Database URI operations,,))
 $(eval $(call BuildKamailioModule,uri_db,Database-backend SIP URI checking,,))
-$(eval $(call BuildKamailioModule,userblacklist,User blacklists,,+kamailio-lib-libtrie))
+$(eval $(call BuildKamailioModule,userblocklist,User blocklists,,+kamailio-lib-libtrie))
 $(eval $(call BuildKamailioModule,usrloc,User location,,))
 $(eval $(call BuildKamailioModule,utils,Misc utilities,,+libcurl,))
 $(eval $(call BuildKamailioModule,uuid,UUID utilities,,+libuuid))
