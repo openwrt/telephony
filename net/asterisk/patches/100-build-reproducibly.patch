@@ -23,6 +23,6 @@
  		printf "$$x " ; \
 -		for i in `find $$x -name '*.c'`; do \
 +		for i in `find $$x -name '*.c' | LC_ALL=C sort`; do \
- 			$(AWK) -f build_tools/get_documentation $$i >> $@ ; \
- 		done ; \
- 	done
+ 			MODULEINFO=$$($(AWK) -f build_tools/get_moduleinfo $$i) ; \
+ 			if [ -n "$$MODULEINFO" ] ; \
+ 			then \
