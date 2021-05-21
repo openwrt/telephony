@@ -20,7 +20,16 @@
  
  ASTMODDIR=$(libdir)/asterisk/modules
 -MODULES=codec_opus_open_source format_ogg_opus_open_source format_vp8 res_format_attr_opus
-+MODULES=codec_opus_open_source
++MODULES=codec_opus_open_source format_ogg_opus_open_source
  
  .SUFFIXES: .c .so
  
+@@ -38,7 +38,7 @@ codec_opus_open_source: DEFS+=-DAST_MODU
+ 	-DAST_MODULE_SELF_SYM=__internal_codec_opus_open_source_self
+ codec_opus_open_source: codecs/codec_opus_open_source.so
+ 
+-format_ogg_opus_open_source: CPATH+=-I/usr/include/opus
++format_ogg_opus_open_source: CPATH+=-I$(STAGING_DIR)/usr/include/opus
+ format_ogg_opus_open_source: LIBS+=-lopus -lopusfile
+ format_ogg_opus_open_source: DEFS+=-DAST_MODULE=\"format_ogg_opus_open_source\" \
+ 	-DAST_MODULE_SELF_SYM=__internal_format_ogg_opus_open_source_self

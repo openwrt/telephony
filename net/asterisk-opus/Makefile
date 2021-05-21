@@ -25,13 +25,17 @@ include $(INCLUDE_DIR)/package.mk
 TARGET_CFLAGS += \
 	$(FPIC)
 
-define Package/asterisk-codec-opus
+define Package/asterisk-opus/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=Opus codec support
   URL:=https://github.com/traud/asterisk-opus
   DEPENDS:=asterisk +libopus
+endef
+
+define Package/asterisk-codec-opus
+$(call Package/asterisk-opus/Default)
+  TITLE:=Opus codec support
 endef
 
 define Package/asterisk-codec-opus/description
@@ -54,7 +58,24 @@ define Package/asterisk-codec-opus/install
 		$(1)/usr/lib/asterisk/modules
 endef
 
+define Package/asterisk-format-ogg-opus
+$(call Package/asterisk-opus/Default)
+  TITLE:=OGG/Opus audio support
+  DEPENDS+=+libopusfile +libopusenc
+endef
+
+define Package/asterisk-format-ogg-opus/description
+  Reading and writing audio files in the OGG/Opus format.
+endef
+
+define Package/asterisk-format-ogg-opus/install
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/formats/format_ogg_opus_open_source.so \
+		$(1)/usr/lib/asterisk/modules
+endef
+
 define Build/Configure
 endef
 
 $(eval $(call BuildPackage,asterisk-codec-opus))
+$(eval $(call BuildPackage,asterisk-format-ogg-opus))
