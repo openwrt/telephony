@@ -9,39 +9,44 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
-PKG_VERSION:=6.1.0-1
-PKG_RELEASE:=3
+PKG_VERSION:=6.3.0-1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
-PKG_HASH:=ed88519c8e2f63eec0d699bc6ed8831854af9b32b654b3d7e7c2697b528aa377
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+PKG_HASH:=cbd3afc417da7b26b4d7f57146c815a667db2bf1ff4d1ea9dae986954cbcd62f
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_FIXUP:=autoreconf
-
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 # Yate currently does not compile with FORTIFY_SOURCE enabled
 PKG_FORTIFY_SOURCE:=0
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-g722webrtc \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbccodec \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-isaccodec \
-	CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb \
-	CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-speexcodec \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-sqlitedb \
+	CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard \
 	CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
-# Needed for yate-mod-mysqldb to find iconv
 include $(INCLUDE_DIR)/nls.mk
+
+TAR_OPTIONS+= --strip-components 1
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
@@ -82,49 +87,38 @@ define Package/$(PKG_NAME)-sounds
   TITLE := Sounds for Yate
 endef
 
-define Package/$(PKG_NAME)-collection-basic
-  $(call Package/yate/Default)
-  DEPENDS += $(PKG_NAME) \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-sounds \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-dumbchan \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-regfile \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-regexroute \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-rmanager \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-tonegen \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-yrtpchan \
-	+PACKAGE_$(PKG_NAME)-collection-basic:$(PKG_NAME)-mod-ysipchan
-   TITLE := Basic Yate Server
-endef
-
 # Otherwise yate ignores CPPFLAGS
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
-	$(if $(CONFIG_x86_64),--enable-sse2) \
 	--disable-sctp \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard),,--disable-dahdi --disable-zaptel) \
-	--disable-wpcard \
 	--disable-tdmcard \
 	--disable-wanpipe \
-	--enable-ilbc \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql=yes,--with-mysql=no) \
-	--without-wphwec \
-	--without-libgsm \
+	--disable-wpcard \
 	--without-amrnb \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan),--with-spandsp="$(STAGING_DIR)/usr/include",--without-spandsp) \
-	--without-pwlib \
-	--without-openh323 \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl),--with-openssl,--without-openssl) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress),--with-zlib="$(STAGING_DIR)/usr",--without-zlib) \
-	--without-libqt4 \
-	--without-qtstatic \
 	--without-coredumper \
 	--without-doxygen \
-	--without-kdoc
+	--without-kdoc \
+	--without-libgsm \
+	--without-libqt4 \
+	--without-openh323 \
+	--without-pwlib \
+	--without-qtstatic \
+	--without-wphwec \
+	$(if $(CONFIG_x86_64),--enable-sse2) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-faxchan),--with-spandsp="$(STAGING_DIR)/usr/include",--without-spandsp) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-g722webrtc),--enable-g722-webrtc,--disable-g722-webrtc) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbccodec),--enable-ilbc,--disable-ilbc) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-ilbcwebrtc),--enable-ilbc-webrtc,--disable-ilbc-webrtc) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-mysqldb),--with-mysql=yes,--without-mysql) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-openssl),--with-openssl,--without-openssl) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-pgsqldb),--with-libpq="$(STAGING_DIR)/usr",--without-libpq) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-speexcodec),--with-libspeex="$(STAGING_DIR)/usr/include",--without-libspeex) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-sqlitedb),--with-sqlite,--without-sqlite) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard),,--disable-dahdi --disable-zaptel) \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress),--with-zlib="$(STAGING_DIR)/usr",--without-zlib)
 
-# The regexp implementation of musl 1.1.19 is not fully compatible with yate
+# The regexp implementation of musl 1.1.24 is not fully compatible with yate
 CONFIGURE_ARGS+= \
 	--enable-internalregex
 
@@ -138,11 +132,11 @@ endif
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	
+
 	for yatelib in "" asn sig mgcp jabber script; do \
 		$(CP) $(PKG_INSTALL_DIR)/usr/lib/libyate$$$${yatelib}.so* $(1)/usr/lib ;\
 	done
-	
+
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/yate $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/$(PKG_NAME)
@@ -162,9 +156,6 @@ define Package/$(PKG_NAME)-sounds/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/yate/sounds/ $(1)/usr/share/yate/
 endef
 
-define Package/$(PKG_NAME)-collection-basic/install
-endef
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(STAGING_DIR)/usr/include/
@@ -182,11 +173,11 @@ define BuildPlugin
   define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/conffiles
 $(if $(6),/etc/yate/$(1).conf)
   endef
-  
+
   define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/description
     $(3) module for $(PKG_NAME)
   endef
-  
+
   define Package/$(PKG_NAME)-mod-$(subst _,-,$(1))/install
 	$$(INSTALL_DIR) $$(1)/usr/lib/yate/$(2)
 	$$(INSTALL_BIN) $$(PKG_INSTALL_DIR)/usr/lib/yate/$(2)/$(1).yate $$(1)/usr/lib/yate/$(2)/$(1).yate
@@ -204,7 +195,6 @@ $(if $(6),/etc/yate/$(1).conf)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call BuildPackage,$(PKG_NAME)-collection-basic))
 $(eval $(call BuildPackage,$(PKG_NAME)-scripts-perl))
 $(eval $(call BuildPackage,$(PKG_NAME)-sounds))
 
@@ -244,6 +234,7 @@ $(eval $(call BuildPlugin,extmodule,,External Module Handler,,/usr/share/yate/sc
 $(eval $(call BuildPlugin,faxchan,,Spandsp Fax Channel,+libspandsp))
 $(eval $(call BuildPlugin,fileinfo,,File Info Holder,,,y))
 $(eval $(call BuildPlugin,filetransfer,,File Transfer Driver,,,y))
+$(eval $(call BuildPlugin,g722webrtc,,G.722 codec using library based on WebRTC project,))
 $(eval $(call BuildPlugin,gvoice,,Google Voice support,,,y))
 $(eval $(call BuildPlugin,heartbeat,server,Linux-HA compatible heartbeat,,,y))
 $(eval $(call BuildPlugin,ilbccodec,,iLBC Codec,))
@@ -279,6 +270,7 @@ $(eval $(call BuildPlugin,rmanager,,Yate Remote Management,,,y))
 $(eval $(call BuildPlugin,sigtransport,server,SIGTRAN (SS7 over IP) connection provider,,,y))
 $(eval $(call BuildPlugin,sip_cnam_lnp,sip,Query CNAM and LNP databases using SIP INVITE,,,y))
 $(eval $(call BuildPlugin,sipfeatures,server,SIP Features (SUBSCRIBE/NOTIFY),,,y))
+$(eval $(call BuildPlugin,speexcodec,,Speex codec module written by Olaf Conradi,+libspeex))
 $(eval $(call BuildPlugin,sqlitedb,server,SQLite Support,+libsqlite3,,y))
 $(eval $(call BuildPlugin,ss7_lnp_ansi,sig,Query LNP Databases,,,y))
 $(eval $(call BuildPlugin,subscription,server,Subcription handler and presence notifier,,,y))
@@ -287,6 +279,7 @@ $(eval $(call BuildPlugin,tonedetect,,Detectors for Various Tones,))
 $(eval $(call BuildPlugin,tonegen,,Tones Generator,,,y))
 $(eval $(call BuildPlugin,users,server,Users,,,y))
 $(eval $(call BuildPlugin,wavefile,,Wav file Record and Playback,))
+$(eval $(call BuildPlugin,wiresniff,,Capture interface for YATE messages,,,y))
 $(eval $(call BuildPlugin,wpcard,server,Wanpipe PRI cards Signalling and Data Driver,@BROKEN)) # Mising wanpipe and PRI libraries
 $(eval $(call BuildPlugin,yiaxchan,,IAX Channel,,,y))
 $(eval $(call BuildPlugin,yjinglechan,,Jingle Channel,,,y))
@@ -299,4 +292,3 @@ $(eval $(call BuildPlugin,ysockschan,,SOCKS Channel,,,y))
 $(eval $(call BuildPlugin,ystunchan,,STUN Support,,,y))
 $(eval $(call BuildPlugin,zapcard,server,Zaptel PRI/TDM/FXS/FXO cards,@!aarch64 +kmod-dahdi,,y))
 $(eval $(call BuildPlugin,zlibcompress,,Zlib Compression,+zlib,,y))
-
