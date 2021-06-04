@@ -1,0 +1,11 @@
+--- a/conf.d/ysipchan.conf.sample
++++ b/conf.d/ysipchan.conf.sample
+@@ -80,7 +80,7 @@
+ 
+ ; maxpkt: int: Maximum received UDP packet size, 524 to 65528, default 1500
+ ; This parameter is applied on reload and can be overridden in UDP listener sections
+-;maxpkt=1500
++maxpkt=8192
+ 
+ ; buffer: int: Requested size of UDP socket's receive buffer, 0 to use default
+ ; This can be overridden in UDP listener sections
