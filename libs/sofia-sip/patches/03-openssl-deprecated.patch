@@ -1,0 +1,37 @@
+--- a/libsofia-sip-ua/tport/tport_tls.c
++++ b/libsofia-sip-ua/tport/tport_tls.c
+@@ -44,6 +44,7 @@
+ 
+ #include <openssl/lhash.h>
+ #include <openssl/bn.h>
++#include <openssl/dh.h>
+ #include <openssl/x509.h>
+ #include <openssl/x509v3.h>
+ #include <openssl/ssl.h>
+@@ -95,8 +96,10 @@ static int tls_ex_data_idx = -1; /* see
+ static void
+ tls_init_once(void)
+ {
++#if 0
+   SSL_library_init();
+   SSL_load_error_strings();
++#endif
+   tls_ex_data_idx = SSL_get_ex_new_index(0, "sofia-sip private data", NULL, NULL, NULL);
+ }
+ 
+--- a/libsofia-sip-ua/tport/ws.c
++++ b/libsofia-sip-ua/tport/ws.c
+@@ -100,11 +100,13 @@ static void pthreads_thread_id(CRYPTO_TH
+ 
+ 
+ void init_ssl(void) {
++#if 0
+ 	SSL_library_init();
+ 
+ 
+ 	OpenSSL_add_all_algorithms();   /* load & register cryptos */
+ 	SSL_load_error_strings();     /* load all error messages */
++#endif
+ 	ws_globals.ssl_method = SSLv23_server_method();   /* create server instance */
+ 	ws_globals.ssl_ctx = SSL_CTX_new(ws_globals.ssl_method);         /* create context */
+ 	assert(ws_globals.ssl_ctx);
