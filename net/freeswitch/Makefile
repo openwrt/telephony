@@ -825,20 +825,24 @@ endif
 endef
 
 define Build/InstallDev/libfreetdm
-	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/include $(1)$(FS_LIB_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_PKGCONFIG_DIR)/freetdm.pc \
 						$(1)$(FS_PKGCONFIG_DIR)
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)$(FS_LIB_DIR)/libfreetdm.so* \
+						$(1)$(FS_LIB_DIR)
 endef
 
 define Build/InstallDev/freeswitch
-	$(INSTALL_DIR) $(1)$(FS_INCLUDES_DIR)
+	$(INSTALL_DIR) $(1)$(FS_INCLUDES_DIR) $(1)$(FS_LIB_DIR)
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_INCLUDES_DIR)/*.h \
 						$(1)$(FS_INCLUDES_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_PKGCONFIG_DIR)/freeswitch.pc \
 						$(1)$(FS_PKGCONFIG_DIR)
+	$(CP) $(PKG_INSTALL_DIR)$(FS_LIB_DIR)/libfreeswitch.so* \
+						$(1)$(FS_LIB_DIR)
 endef
 
 define Build/InstallDev
