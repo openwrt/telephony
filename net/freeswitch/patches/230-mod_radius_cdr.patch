@@ -5,7 +5,7 @@
  $(RADCLIENT_BUILDDIR)/Makefile: $(RADCLIENT_DIR)
  	mkdir -p $(RADCLIENT_BUILDDIR)
 -	cd $(RADCLIENT_BUILDDIR) && $(DEFAULT_VARS) $(RADCLIENT_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(RADCLIENT_DIR)
-+	cd $(RADCLIENT_BUILDDIR) && patch -p1 < ../../src/mod/event_handlers/mod_radius_cdr/freeradius-client-1.1.6-configure-in.diff && autoreconf -v -f -i -s && $(DEFAULT_VARS) CFLAGS+="-Wno-cpp" $(RADCLIENT_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(RADCLIENT_DIR)
++	cd $(RADCLIENT_BUILDDIR) && patch --forward -p1 < ../../src/mod/event_handlers/mod_radius_cdr/freeradius-client-1.1.6-configure-in.diff || true && autoreconf -v -f -i -s && $(DEFAULT_VARS) CFLAGS+="-Wno-cpp" $(RADCLIENT_DIR)/configure $(DEFAULT_ARGS) --srcdir=$(RADCLIENT_DIR)
  	$(TOUCH_TARGET)
  
  $(RADCLIENT_LA): $(RADCLIENT_BUILDDIR)/Makefile
