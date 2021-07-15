@@ -1,0 +1,29 @@
+--- a/src/Makefile.defs
++++ b/src/Makefile.defs
+@@ -1260,7 +1260,7 @@ ifeq	($(ARCH), arm)
+ ifeq		($(CC_NAME), gcc)
+ 				C_DEFS+=-DCC_GCC_LIKE_ASM
+ 				#common stuff
+-				CFLAGS=-marm -march=armv5t $(CC_OPT) -fsigned-char $(PROFILE)
++				CFLAGS=-marm $(CC_OPT) -fsigned-char $(PROFILE)
+ 			#if gcc 4.5+ or 4.2+
+ ifeq (,$(strip $(filter-out 4.2+ 4.5+ 5.0+ 6.0+ 7.0+ 8.0+ 9.0+,$(CC_SHORTVER))))
+ 					CFLAGS+= -ftree-vectorize -fno-strict-overflow
+@@ -1308,7 +1308,7 @@ ifeq	($(ARCH), arm6)
+ ifeq		($(CC_NAME), gcc)
+ 				C_DEFS+=-DCC_GCC_LIKE_ASM
+ 				#common stuff
+-				CFLAGS=-march=armv6 $(CC_OPT) -fsigned-char \
++				CFLAGS=$(CC_OPT) -fsigned-char \
+ 						$(PROFILE)
+ 			#if gcc 7.0+, 6.0+, 5.0+, 4.5+ or 4.2+
+ ifeq (,$(strip $(filter-out 4.2+ 4.5+ 5.0+ 6.0+ 7.0+ 8.0+ 9.0+,$(CC_SHORTVER))))
+@@ -1355,7 +1355,7 @@ ifeq	($(ARCH), arm7)
+ ifeq		($(CC_NAME), gcc)
+ 				C_DEFS+=-DCC_GCC_LIKE_ASM
+ 				#common stuff, use armv7-a as lowest common architecture
+-				CFLAGS=-march=armv7-a $(CC_OPT) -fsigned-char \
++				CFLAGS=$(CC_OPT) -fsigned-char \
+ 						$(PROFILE)
+ 			#if gcc 7.0+, 6.0+, 5.0+, 4.5+ or 4.2+
+ ifeq (,$(strip $(filter-out 4.2+ 4.5+ 5.0+ 6.0+ 7.0+ 8.0+ 9.0+,$(CC_SHORTVER))))
