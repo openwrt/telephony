@@ -433,6 +433,9 @@ define Build/Prepare
 	# Upstream adds "-funroll-loops" to compiler flags, which increases
 	# binary size significantly. Remove this flag.
 	$(SED) 's/[ ]*-funroll-loops//' $(PKG_BUILD_DIR)/src/Makefile.defs
+	# Also remove -march=arm... flags as they can clash with
+	# CONFIG_TARGET_OPTIMIZATION.
+	$(SED) 's/-march=armv[0-7a-z-]*[ ]*//' $(PKG_BUILD_DIR)/src/Makefile.defs
 endef
 
 define Build/Configure
