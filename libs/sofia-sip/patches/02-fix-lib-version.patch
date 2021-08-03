@@ -1,0 +1,20 @@
+commit d2cc5ce437880ca135ef8ee857cf41ba58981675
+Author: Andrey Volk <andywolk@gmail.com>
+Date:   Thu Jun 24 19:18:45 2021 +0300
+
+    Update library version information back to 6:0:6
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -22,9 +22,9 @@ AC_CONFIG_MACRO_DIR([m4])
+ AC_SUBST(VER_LIBSOFIA_SIP_UA_MAJOR_MINOR, [1.13])
+ dnl Includedir specific to this sofia version
+ AC_SUBST(include_sofiadir, '${includedir}/sofia-sip-1.13')
+-AC_SUBST(LIBVER_SOFIA_SIP_UA_CUR, [4])
++AC_SUBST(LIBVER_SOFIA_SIP_UA_CUR, [6])
+ AC_SUBST(LIBVER_SOFIA_SIP_UA_REV, [0])
+-AC_SUBST(LIBVER_SOFIA_SIP_UA_AGE, [4])
++AC_SUBST(LIBVER_SOFIA_SIP_UA_AGE, [6])
+ AC_SUBST(LIBVER_SOFIA_SIP_UA_SOVER, [0]) # CUR-AGE
+ AC_SUBST(LIBVER_SOFIA_SIP_UA_GLIB_CUR, [3])
+ AC_SUBST(LIBVER_SOFIA_SIP_UA_GLIB_REV, [0])
