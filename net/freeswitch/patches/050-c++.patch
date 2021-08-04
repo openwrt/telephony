@@ -1,0 +1,35 @@
+From 8cf93d9c15b7138c69ffbaba2681b32bc18cf5b2 Mon Sep 17 00:00:00 2001
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+Date: Sun, 1 Aug 2021 11:32:50 +0200
+Subject: [PATCH] [mod_gsmopen]: Address gsmlib gcc-11 compat issue
+
+With gcc-11 mod_gsmopen fails to compile:
+
+In file included from /home/sk/tmp/openwrt/staging_dir/target-mips_24kc_musl/usr/include/gsmlib/gsm_sms.h:18,
+                 from gsmopen_protocol.cpp:44:
+/home/sk/tmp/openwrt/staging_dir/target-mips_24kc_musl/usr/include/gsmlib/gsm_error.h:84:58: error: ISO C++17 does not allow dynamic exception specifications
+   84 |   extern std::string getMEErrorText(const int errorCode) throw(GsmException);
+      |                                                          ^~~~~
+/home/sk/tmp/openwrt/staging_dir/target-mips_24kc_musl/usr/include/gsmlib/gsm_error.h:165:59: error: ISO C++17 does not allow dynamic exception specifications
+  165 |   extern std::string getSMSErrorText(const int errorCode) throw(GsmException);
+      |                                                           ^~~~~
+
+gsmlib has seen no upstream activity in years, so as a workaround this
+commit adds "--std=c++11" to mod_gsmopen's CXXFLAGS.
+
+Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+---
+ src/mod/endpoints/mod_gsmopen/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/mod/endpoints/mod_gsmopen/Makefile.am
++++ b/src/mod/endpoints/mod_gsmopen/Makefile.am
+@@ -3,7 +3,7 @@ MODNAME=mod_gsmopen
+ 
+ mod_LTLIBRARIES = mod_gsmopen.la
+ mod_gsmopen_la_SOURCES  = mod_gsmopen.cpp gsmopen_protocol.cpp 
+-mod_gsmopen_la_CXXFLAGS = $(SWITCH_AM_CXXFLAGS)
++mod_gsmopen_la_CXXFLAGS = $(SWITCH_AM_CXXFLAGS) --std=c++11
+ mod_gsmopen_la_CPPFLAGS = $(SPANDSP_CFLAGS) -I.
+ mod_gsmopen_la_LIBADD   = $(switch_builddir)/libfreeswitch.la $(SPANDSP_LIBS)
+ mod_gsmopen_la_LDFLAGS  = -avoid-version -module -no-undefined -lctb-0.16 -lgsmme
