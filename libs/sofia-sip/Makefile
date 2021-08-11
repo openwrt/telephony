@@ -11,10 +11,10 @@ PKG_NAME:=sofia-sip
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/freeswitch/sofia-sip.git
-PKG_SOURCE_DATE=2021-02-23
-PKG_SOURCE_VERSION:=d2f3f91bc752f8bf5be74e5baf508100e52f503d
-PKG_RELEASE:=2
-PKG_MIRROR_HASH:=9d0ad19c64c20aa7bc139d1e3eee75857d020dcbbd8607df720300c986f7b4a3
+PKG_SOURCE_DATE=2021-06-24
+PKG_SOURCE_VERSION:=f121ce44052831e3a0978fd4ddc306db73763c5d
+PKG_RELEASE:=1
+PKG_MIRROR_HASH:=8ffa1c186e8b3e6fdcbdc991e4d63a22c6a0d2571d2ed0f48a2a9385fcbe02c9
 
 # sofia-sip adds a version to include path
 # need to update this when the version changes
