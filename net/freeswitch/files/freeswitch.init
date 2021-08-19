@@ -2,6 +2,7 @@
 # Copyright (C) 2017 - 2018 OpenWrt.org
 
 START=90
+STOP=10
 
 USE_PROCD=1
 
