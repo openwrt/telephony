@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gsmlib
 PKG_VERSION:=1.10-20140304
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/vbouchaud/gsmlib.git
@@ -62,6 +62,8 @@ endef
 define Package/gsm-utils/description
 Some simple command line programs to access GSM mobile phones via GSM modems.
 endef
+
+CONFIGURE_ARGS += --disable-nls
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/$(PKG_NAME)

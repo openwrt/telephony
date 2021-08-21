@@ -19,6 +19,15 @@ Description: Update autotools-related stuff.
  dnl comment out this line to get extensive debugging output and asserts
  dnl CXXFLAGS="-DNDEBUG $CXXFLAGS"
  
+@@ -108,7 +111,7 @@ AC_SUBST(GSM_VERSION)
+ dnl national language support (NLS)
+ LINGUAS="de"
+ ALL_LINGUAS=$LINGUAS
+-AM_GNU_GETTEXT
++AM_GNU_GETTEXT([external])
+ dnl AM_GLIB_GNU_GETTEXT
+ 
+ dnl set locale dir (FIXME there must be a better way)
 --- /dev/null
 +++ b/po/Makevars
 @@ -0,0 +1,5 @@
@@ -29,7 +38,7 @@ Description: Update autotools-related stuff.
 +
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -11,6 +11,8 @@
+@@ -11,14 +11,12 @@
  # * Created: 21.5.1999
  # *************************************************************************
  
@@ -38,3 +47,11 @@ Description: Update autotools-related stuff.
  SUBDIRS_ =	po gsmlib apps tests doc scripts win32 ext
  
  EXTRA_DIST =	gsmlib.spec
+ 
+-if COMPILE_INTL
+-SUBDIRS =	intl $(SUBDIRS_) # po - make automake happy
+-else
+ SUBDIRS =	$(SUBDIRS_) # po intl - make automake happy
+-endif
+ 
+ all:
