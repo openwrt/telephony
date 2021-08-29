@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
-PKG_VERSION:=8.5.3.3
+PKG_VERSION:=8.5.5.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-mr$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/mr$(PKG_VERSION)?
-PKG_HASH:=754711a46fc50001b2e840521d3b6fd654cb2f9da11924ca40d8e165fba6bd98
+PKG_HASH:=962368495343d6e7d3e9c45a8a8499972c2af3cd068f4758f3d2abf40a465d84
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-mr$(PKG_VERSION)
 
@@ -64,7 +64,9 @@ RECORDING_DEPENDS := \
 	+libmariadb \
 	+libopenssl
 
-RTPENGINE_USERID:=$(PKG_NAME)=378:$(PKG_NAME)=378
+RTPENGINE_USERID:=378
+RTPENGINE_GROUPID:=$(RTPENGINE_USERID)
+RTPENGINE_USER:=$(PKG_NAME)=$(RTPENGINE_USERID):$(PKG_NAME)=$(RTPENGINE_GROUPID)
 
 define Package/rtpengine/Default
   URL:=https://github.com/sipwise/rtpengine
@@ -76,7 +78,7 @@ $(call Package/rtpengine/Default)
   CATEGORY:=Network
   SECTION:=net
   SUBMENU:=Telephony
-  USERID:=$(RTPENGINE_USERID)
+  USERID:=$(RTPENGINE_USER)
 endef
 
 define Package/rtpengine/description/Template
@@ -155,7 +157,7 @@ $(call Package/rtpengine/Default)
   CATEGORY:=Network
   SECTION:=net
   SUBMENU:=Telephony
-  USERID:=$(RTPENGINE_USERID)
+  USERID:=$(RTPENGINE_USER)
   DEPENDS:=$(patsubst +%,+PACKAGE_rtpengine-recording:%,$(RECORDING_DEPENDS))
 endef
 
@@ -209,8 +211,13 @@ $(call Package/rtpengine/Default)
 	  +PACKAGE_kmod-ipt-rtpengine:kmod-crypto-hash \
 	  +PACKAGE_kmod-ipt-rtpengine:kmod-ipt-core
   MODPARAMS.xt_RTPENGINE := \
-	  proc_uid=$(PKG_NAME) \
-	  proc_gid=$(PKG_NAME)
+	  proc_uid=$(RTPENGINE_USERID) \
+	  proc_gid=$(RTPENGINE_GROUPID)
+  USERID:=$(RTPENGINE_USER)
+endef
+
+define KernelPackage/ipt-rtpengine/conffiles
+/etc/modules.d/ipt-rtpengine
 endef
 
 define KernelPackage/ipt-rtpengine/description
