@@ -21,7 +21,8 @@ PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_FIXUP:=autoreconf
-PKG_BUILD_PARALLEL:=1
+# Sporadic build failures on the build bots
+PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
 
 # Yate currently does not compile with FORTIFY_SOURCE enabled
