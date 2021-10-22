@@ -51,7 +51,6 @@ start_service() {
   procd_open_instance
   procd_set_param command $COMMAND
   procd_append_param command \
-    -G "$NAME" \
     -U "$NAME" \
     $options \
     -f
