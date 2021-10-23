@@ -13,7 +13,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
 PKG_SOURCE_VERSION:=3d2a97f26ba84473a0926a9fe9a32e451a56bc36
 PKG_SOURCE_DATE=2021-09-29
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MIRROR_HASH:=b5baf737d39d522fa9b7055dea72c2d3241c272b20354fdf2a3bd09cce274844
 
 PKG_FIXUP:=autoreconf
@@ -62,6 +62,21 @@ define Package/asterisk-chan-dongle/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/dongle.conf $(1)/etc/asterisk
 	$(INSTALL_DIR) $(1)$(MODULES_DIR)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_dongle.so $(1)$(MODULES_DIR)
+endef
+
+define Package/asterisk-chan-dongle/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| asterisk-chan-dongle note                                         |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Adding the \"asterisk\" user to the \"dialout\" group might be        |"
+  echo "| required for asterisk to be able to access the dongle.            |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 $(eval $(call BuildPackage,asterisk-chan-dongle))
