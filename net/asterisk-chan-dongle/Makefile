@@ -64,4 +64,19 @@ define Package/asterisk-chan-dongle/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chan_dongle.so $(1)$(MODULES_DIR)
 endef
 
+define Package/asterisk-chan-dongle/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| asterisk-chan-dongle note                                         |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| Adding the \"asterisk\" user to the \"dialout\" group might be        |"
+  echo "| required for asterisk to be able to access the dongle.            |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
+endef
+
 $(eval $(call BuildPackage,asterisk-chan-dongle))
