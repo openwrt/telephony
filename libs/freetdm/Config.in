@@ -1,0 +1,12 @@
+menu "Configuration"
+	depends on PACKAGE_freetdm
+
+config FREETDM_WITH_DEBUG
+	bool "Compile with debug information"
+	default n
+	help
+	  Enable extra debug codepaths, like asserts and extra output. If you
+	  want to get meaningful backtraces see
+	  https://wiki.openwrt.org/doc/devel/debugging for starting points.
+
+endmenu
