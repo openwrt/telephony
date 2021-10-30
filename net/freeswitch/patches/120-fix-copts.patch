@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2075,7 +2075,12 @@ AC_SUBST(OUR_DISABLED_INSTALL_MODS)
+@@ -2263,7 +2263,12 @@ AC_SUBST(OUR_DISABLED_INSTALL_MODS)
  AC_SUBST(OUR_DISABLED_UNINSTALL_MODS)
  AC_SUBST(AM_MAKEFLAGS)
  
@@ -84,7 +84,7 @@
  AC_LANG_C
 --- a/libs/srtp/configure.ac
 +++ b/libs/srtp/configure.ac
-@@ -3,9 +3,12 @@ AC_INIT(srtp, 1.4.2, mcgrew@cisco.com)
+@@ -3,9 +3,12 @@ AC_INIT(srtp, 2.4.0, mcgrew@cisco.com)
  AC_CONFIG_AUX_DIR(build)
  AM_INIT_AUTOMAKE
  

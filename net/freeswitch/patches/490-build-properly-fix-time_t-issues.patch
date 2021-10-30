@@ -1,0 +1,177 @@
+From 80492dcd5a6a859cf4bfc7d22ba594c64e94e3fd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C3=89rico=20Nogueira?= <erico.erc@gmail.com>
+Date: Wed, 27 Oct 2021 20:38:28 -0300
+Subject: [PATCH] [build] properly fix time_t issues
+
+aa71d87528643fd1b3897a64ecec8c11e92b5b55 tried fixing the issue by
+adding yet another case to the TIME_T_FMT definition, but hardcoding
+values as hinted at by internal variables or by platform is not future
+proof or allows for improvements.
+
+The most portable fix for time_t handling is to always cast it to
+(long long) for printing and use "lld" for formatting.
+---
+ src/include/switch_platform.h                | 20 +++-----------------
+ src/mod/applications/mod_httapi/mod_httapi.c |  2 +-
+ src/mod/endpoints/mod_sofia/sofia_presence.c |  3 ++-
+ src/switch_channel.c                         | 20 ++++++++++----------
+ src/switch_ivr_originate.c                   |  2 +-
+ 5 files changed, 17 insertions(+), 30 deletions(-)
+
+--- a/src/include/switch_platform.h
++++ b/src/include/switch_platform.h
+@@ -245,10 +245,6 @@ typedef intptr_t switch_ssize_t;
+ #define SWITCH_INT64_T_FMT          "lld"
+ #define SWITCH_UINT64_T_FMT         "llu"
+ 
+-#ifndef TIME_T_FMT
+-#define TIME_T_FMT SWITCH_INT64_T_FMT
+-#endif
+-
+ #else
+ #ifndef SWITCH_SSIZE_T_FMT
+ #define SWITCH_SSIZE_T_FMT          (sizeof (switch_ssize_t) == sizeof (long) ? "ld" : sizeof (switch_ssize_t) == sizeof (int) ? "d" : "lld")
+@@ -266,25 +262,15 @@ typedef intptr_t switch_ssize_t;
+ #define SWITCH_UINT64_T_FMT         (sizeof (long) == 8 ? "lu" : "llu")
+ #endif
+ 
+-#ifndef TIME_T_FMT
+-#if defined(__FreeBSD__) && SIZEOF_VOIDP == 4
+-#define TIME_T_FMT "d"
+-#else
+-#if __USE_TIME_BITS64
+-#define TIME_T_FMT SWITCH_INT64_T_FMT
+-#else
+-#define TIME_T_FMT "ld"
+-#endif
+-#endif
+-#endif
+-
+-
+ #if UINTPTR_MAX == 0xffffffffffffffff
+ #define FS_64BIT 1
+ #endif
+ 
+ #endif
+ 
++#define TIME_T_FMT "lld"
++#define TIME_T_CAST(x) ((long long)(x))
++
+ #if defined(__sun__) && (defined(__x86_64) || defined(__arch64__))
+ #define SWITCH_TIME_T_FMT SWITCH_SIZE_T_FMT
+ #else
+--- a/src/mod/applications/mod_httapi/mod_httapi.c
++++ b/src/mod/applications/mod_httapi/mod_httapi.c
+@@ -2745,7 +2745,7 @@ static switch_status_t write_meta_file(h
+ 
+ 		switch_snprintf(write_data, sizeof(write_data),
+ 						"%" TIME_T_FMT ":%s",
+-						switch_epoch_time_now(NULL) + ttl,
++						TIME_T_CAST(switch_epoch_time_now(NULL) + ttl),
+ 						data);
+ 
+ 
+--- a/src/mod/endpoints/mod_sofia/sofia_presence.c
++++ b/src/mod/endpoints/mod_sofia/sofia_presence.c
+@@ -4200,7 +4200,8 @@ void sofia_presence_handle_sip_i_subscri
+ 				sql = switch_mprintf("insert into sip_dialogs (sip_from_user,sip_from_host,call_info,call_info_state,hostname,expires,rcd,profile_name) "
+ 									 "values ('%q','%q','%q','seized','%q',%"TIME_T_FMT",%ld,'%q')",
+ 									 to_user, to_host, switch_str_nil(p), mod_sofia_globals.hostname,
+-									 switch_epoch_time_now(NULL) + exp_delta, (long)now, profile->name);
++									 TIME_T_CAST(switch_epoch_time_now(NULL) + exp_delta), (long)now,
++									 profile->name);
+ 
+ 				if (mod_sofia_globals.debug_sla > 1) {
+ 					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "SEIZE SQL %s\n", sql);
+--- a/src/switch_channel.c
++++ b/src/switch_channel.c
+@@ -4700,39 +4700,39 @@ SWITCH_DECLARE(switch_status_t) switch_c
+ 
+ 		tt_created = (time_t) (caller_profile->times->created / 1000000);
+ 		mtt_created = (time_t) (caller_profile->times->created / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_created);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_created));
+ 		switch_channel_set_variable(channel, "start_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->created);
+ 		switch_channel_set_variable(channel, "start_uepoch", tmp);
+ 
+ 		tt_prof_created = (time_t) (caller_profile->times->profile_created / 1000000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_prof_created);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_prof_created));
+ 		switch_channel_set_variable(channel, "profile_start_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->profile_created);
+ 		switch_channel_set_variable(channel, "profile_start_uepoch", tmp);
+ 
+ 		tt_answered = (time_t) (caller_profile->times->answered / 1000000);
+ 		mtt_answered = (time_t) (caller_profile->times->answered / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_answered);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_answered));
+ 		switch_channel_set_variable(channel, "answer_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->answered);
+ 		switch_channel_set_variable(channel, "answer_uepoch", tmp);
+ 
+ 		tt_bridged = (time_t) (caller_profile->times->bridged / 1000000);
+ 		mtt_bridged = (time_t) (caller_profile->times->bridged / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_bridged);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_bridged));
+ 		switch_channel_set_variable(channel, "bridge_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->bridged);
+ 		switch_channel_set_variable(channel, "bridge_uepoch", tmp);
+ 
+ 		tt_last_hold = (time_t) (caller_profile->times->last_hold / 1000000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_last_hold);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_last_hold));
+ 		switch_channel_set_variable(channel, "last_hold_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->last_hold);
+ 		switch_channel_set_variable(channel, "last_hold_uepoch", tmp);
+ 
+ 		tt_hold_accum = (time_t) (caller_profile->times->hold_accum / 1000000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_hold_accum);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_hold_accum));
+ 		switch_channel_set_variable(channel, "hold_accum_seconds", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->hold_accum);
+ 		switch_channel_set_variable(channel, "hold_accum_usec", tmp);
+@@ -4740,28 +4740,28 @@ SWITCH_DECLARE(switch_status_t) switch_c
+ 		switch_channel_set_variable(channel, "hold_accum_ms", tmp);
+ 
+ 		tt_resurrected = (time_t) (caller_profile->times->resurrected / 1000000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_resurrected);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_resurrected));
+ 		switch_channel_set_variable(channel, "resurrect_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->resurrected);
+ 		switch_channel_set_variable(channel, "resurrect_uepoch", tmp);
+ 
+ 		tt_progress = (time_t) (caller_profile->times->progress / 1000000);
+ 		mtt_progress = (time_t) (caller_profile->times->progress / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_progress);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_progress));
+ 		switch_channel_set_variable(channel, "progress_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->progress);
+ 		switch_channel_set_variable(channel, "progress_uepoch", tmp);
+ 
+ 		tt_progress_media = (time_t) (caller_profile->times->progress_media / 1000000);
+ 		mtt_progress_media = (time_t) (caller_profile->times->progress_media / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_progress_media);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_progress_media));
+ 		switch_channel_set_variable(channel, "progress_media_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->progress_media);
+ 		switch_channel_set_variable(channel, "progress_media_uepoch", tmp);
+ 
+ 		tt_hungup = (time_t) (caller_profile->times->hungup / 1000000);
+ 		mtt_hungup = (time_t) (caller_profile->times->hungup / 1000);
+-		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, tt_hungup);
++		switch_snprintf(tmp, sizeof(tmp), "%" TIME_T_FMT, TIME_T_CAST(tt_hungup));
+ 		switch_channel_set_variable(channel, "end_epoch", tmp);
+ 		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->hungup);
+ 		switch_channel_set_variable(channel, "end_uepoch", tmp);
+--- a/src/switch_ivr_originate.c
++++ b/src/switch_ivr_originate.c
+@@ -797,7 +797,7 @@ static uint8_t check_channel_status(orig
+ 					time_t elapsed = switch_epoch_time_now(NULL) - start;
+ 					oglobals->originate_status[i].per_channel_progress_timelimit_sec = elapsed + extend_timeout;
+ 					oglobals->originate_status[i].per_channel_timelimit_sec = elapsed + extend_timeout;
+-					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "elapsed %" TIME_T_FMT ", timelimit extended to %u\n", elapsed, oglobals->originate_status[i].per_channel_timelimit_sec);
++					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "elapsed %" TIME_T_FMT ", timelimit extended to %u\n", TIME_T_CAST(elapsed), oglobals->originate_status[i].per_channel_timelimit_sec);
+ 				} else if (oglobals->cancel_timeout || cancel_timeout) {
+ 					/* cancel timeout for this leg only */
+ 					oglobals->originate_status[i].per_channel_progress_timelimit_sec = 0;
