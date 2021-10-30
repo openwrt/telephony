@@ -151,6 +151,7 @@ FS_MOD_AVAILABLE:= \
 	portaudio_stream \
 	posix_timer \
 	prefix \
+	python3 \
 	radius_cdr \
 	random \
 	raven \
@@ -224,6 +225,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_ZRTP \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_freeswitch-misc-perl-esl \
+	CONFIG_PACKAGE_freeswitch-misc-python3-esl \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
@@ -232,6 +234,7 @@ include $(INCLUDE_DIR)/nls.mk
 
 FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
+include $(TOPDIR)/feeds/packages/lang/python/python3-host.mk
 include $(FS_PERL_FEED)/perlver.mk
 
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
@@ -239,6 +242,8 @@ PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 FS_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_PERL_FEED)/files/base.config | \
 			sed "s/^libs=//;s/'//g")
+
+FS_PYTHON3_SITE_DIR:=$(FS_LIB_DIR)/python$(PYTHON3_VERSION)/site-packages
 
 define Download/files
 define Download/$(1)
@@ -412,6 +417,27 @@ define Package/freeswitch-misc-perl-esl/install
 					$(1)$(PERL_SITELIB)/ESL
 endef
 
+define Package/freeswitch-misc-python3-esl
+$(call Package/freeswitch/Default)
+  TITLE:=Python3 ESL
+  DEPENDS:=freeswitch +PACKAGE_freeswitch-misc-python3-esl:python3-light
+endef
+
+define Package/freeswitch-misc-python3-esl/description
+This package contains the Python3 binding for FreeSWITCH's Event Socket
+Library (ESL).
+endef
+
+define Package/freeswitch-misc-python3-esl/install
+	$(INSTALL_DIR) $(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/_ESL.so \
+					$(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/ESL.py \
+					$(1)$(FS_PYTHON3_SITE_DIR)
+endef
+
 define Package/freeswitch-misc-timezones
 $(call Package/freeswitch/Default)
   TITLE:=Timezones file
@@ -509,6 +535,12 @@ ifeq ($(1),perl)
 		$(PKG_INSTALL_DIR)/usr/perl/freeswitch.pm \
 							$$(1)$(PERL_SITELIB)
 endif
+ifeq ($(1),python3)
+	$(INSTALL_DIR) $$(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/freeswitch.py \
+					$$(1)$(FS_PYTHON3_SITE_DIR)
+endif
 endef
 $$(eval $$(call BuildPackage,freeswitch-mod-$(subst _,-,$(1))))
 endef
@@ -555,6 +587,14 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_LIB_DIR)") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
 	$(if $(CONFIG_FS_WITH_PNG),,--without-png)
+
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl)$(CONFIG_PACKAGE_freeswitch-mod-python3),)
+CONFIGURE_ARGS+= \
+	--with-python3=$(STAGING_DIR_HOST)/bin/python3
+else
+CONFIGURE_ARGS+= \
+	--with-python3=no
+endif
 
 ifeq ($(CONFIG_PACKAGE_freeswitch-mod-erlang-event)$(CONFIG_PACKAGE_freeswitch-mod-kazoo),)
 CONFIGURE_ARGS+= \
@@ -625,6 +665,15 @@ else
 CONFIGURE_VARS+= \
 	ac_cv_have_perl=no \
 	ac_cv_prog_PERL=false
+endif
+
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl)$(CONFIG_PACKAGE_freeswitch-mod-python3),)
+CONFIGURE_VARS+= \
+	PYTHON3_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON3_VERSION)" \
+	PYTHON3_LDFLAGS="-lpython$(PYTHON3_VERSION)" \
+	PYTHON3_LIB="python$(PYTHON3_VERSION)" \
+	PYTHON3_LIBDIR="$(FS_LIB_DIR)" \
+	PYTHON3_SITE_DIR="$(FS_PYTHON3_SITE_DIR)"
 endif
 
 # mod_radius_cdr runs configure in libs/freeradius-client. Let
@@ -753,12 +802,18 @@ endif
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
 endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod)
+endif
 endef
 
 define Build/Install
 	$(call Build/Install/Default)
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
+endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
+	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod-install)
 endif
 endef
 
@@ -776,6 +831,7 @@ endef
 
 $(eval $(call BuildPackage,freeswitch))
 $(eval $(call BuildPackage,freeswitch-misc-perl-esl))
+$(eval $(call BuildPackage,freeswitch-misc-python3-esl))
 $(eval $(call BuildPackage,freeswitch-misc-timezones))
 
 ################################
@@ -914,6 +970,7 @@ $(eval $(call Package/freeswitch/Module,portaudio,Portaudio,Voice through a loca
 $(eval $(call Package/freeswitch/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/freeswitch/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/freeswitch/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
+$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,+python3-light))
 $(eval $(call Package/freeswitch/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/freeswitch/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/freeswitch/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
