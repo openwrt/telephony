@@ -1,6 +1,6 @@
 --- a/src/include/switch_core_media.h
 +++ b/src/include/switch_core_media.h
-@@ -197,7 +197,7 @@ SWITCH_DECLARE(switch_status_t) switch_c
+@@ -203,7 +203,7 @@ SWITCH_DECLARE(switch_status_t) switch_c
  SWITCH_DECLARE(void) switch_media_handle_set_media_flag(switch_media_handle_t *smh, switch_core_media_flag_t flag);
  SWITCH_DECLARE(void) switch_media_handle_clear_media_flag(switch_media_handle_t *smh, switch_core_media_flag_t flag);
  SWITCH_DECLARE(int32_t) switch_media_handle_test_media_flag(switch_media_handle_t *smh, switch_core_media_flag_t flag);

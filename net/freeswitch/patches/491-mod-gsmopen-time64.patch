@@ -1,0 +1,51 @@
+--- a/src/mod/endpoints/mod_gsmopen/gsmopen_protocol.cpp
++++ b/src/mod/endpoints/mod_gsmopen/gsmopen_protocol.cpp
+@@ -853,7 +853,7 @@ int gsmopen_serial_read_AT(private_t *te
+ 
+ 				if (tech_pvt->interface_state != GSMOPEN_STATE_RING) {
+ 					gettimeofday(&(tech_pvt->call_incoming_time), NULL);
+-					DEBUGA_GSMOPEN("GSMOPEN_STATE_RING call_incoming_time.tv_sec=%ld\n", GSMOPEN_P_LOG, tech_pvt->call_incoming_time.tv_sec);
++					DEBUGA_GSMOPEN("GSMOPEN_STATE_RING call_incoming_time.tv_sec=%" TIME_T_FMT "\n", GSMOPEN_P_LOG, TIME_T_CAST(tech_pvt->call_incoming_time.tv_sec));
+ 
+ 				}
+ 
+@@ -1177,7 +1177,7 @@ int gsmopen_serial_read_AT(private_t *te
+ 					//mark the time of CALLFLOW_CALL_INCOMING
+ 					gettimeofday(&(tech_pvt->call_incoming_time), NULL);
+ 					tech_pvt->phone_callflow = CALLFLOW_CALL_INCOMING;
+-					DEBUGA_GSMOPEN("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%ld\n", GSMOPEN_P_LOG, tech_pvt->call_incoming_time.tv_sec);
++					DEBUGA_GSMOPEN("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%" TIME_T_FMT "\n", GSMOPEN_P_LOG, TIME_T_CAST(tech_pvt->call_incoming_time.tv_sec));
+ 
+ 				}
+ 			}
+@@ -1946,15 +1946,15 @@ int gsmopen_serial_read_AT(private_t *te
+ 		gettimeofday(&call_incoming_timeout, NULL);
+ 		call_incoming_timeout.tv_sec -= 3;
+ 		DEBUGA_GSMOPEN
+-			("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%ld, call_incoming_timeout.tv_sec=%ld\n",
+-			 GSMOPEN_P_LOG, tech_pvt->call_incoming_time.tv_sec, call_incoming_timeout.tv_sec);
++			("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%" TIME_T_FMT ", call_incoming_timeout.tv_sec=%" TIME_T_FMT "\n",
++			 GSMOPEN_P_LOG, TIME_T_CAST(tech_pvt->call_incoming_time.tv_sec), TIME_T_CAST(call_incoming_timeout.tv_sec));
+ 		if (call_incoming_timeout.tv_sec > tech_pvt->call_incoming_time.tv_sec) {
+ 
+ 			tech_pvt->call_incoming_time.tv_sec = 0;
+ 			tech_pvt->call_incoming_time.tv_usec = 0;
+ 			DEBUGA_GSMOPEN
+-				("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%ld, call_incoming_timeout.tv_sec=%ld\n",
+-				 GSMOPEN_P_LOG, tech_pvt->call_incoming_time.tv_sec, call_incoming_timeout.tv_sec);
++				("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%" TIME_T_FMT ", call_incoming_timeout.tv_sec=%" TIME_T_FMT "\n",
++				 GSMOPEN_P_LOG, TIME_T_CAST(tech_pvt->call_incoming_time.tv_sec), TIME_T_CAST(call_incoming_timeout.tv_sec));
+ 			int res = gsmopen_serial_write_AT_ack(tech_pvt, "AT+CPBS=RC");
+ 			if (res) {
+ 				ERRORA("AT+CPBS=RC (select memory of received calls) was not answered by the phone\n", GSMOPEN_P_LOG);
+@@ -1983,8 +1983,8 @@ int gsmopen_serial_read_AT(private_t *te
+ 		if (call_incoming_timeout.tv_sec > tech_pvt->ringtime.tv_sec) {
+ 			ERRORA("Ringing stopped and I have not answered. Why?\n", GSMOPEN_P_LOG);
+ 			DEBUGA_GSMOPEN
+-				("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%ld, call_incoming_timeout.tv_sec=%ld\n",
+-				 GSMOPEN_P_LOG, tech_pvt->call_incoming_time.tv_sec, call_incoming_timeout.tv_sec);
++				("CALLFLOW_CALL_INCOMING call_incoming_time.tv_sec=%" TIME_T_FMT ", call_incoming_timeout.tv_sec=%" TIME_T_FMT "\n",
++				 GSMOPEN_P_LOG, TIME_T_CAST(tech_pvt->call_incoming_time.tv_sec), TIME_T_CAST(call_incoming_timeout.tv_sec));
+ 			if (tech_pvt->owner) {
+ 				gsmopen_queue_control(tech_pvt->owner, GSMOPEN_CONTROL_HANGUP);
+ 				tech_pvt->owner->hangupcause = GSMOPEN_CAUSE_FAILURE;

@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.6
-PKG_RELEASE:=5
+PKG_VERSION:=1.10.7
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=9a08d4e184e6d715e1c12c43a0f901597151752ef236f0a37e40996272b5c38d
+PKG_HASH:=0919bddc2ea9cab2e4944314e71637bea9dd4f40d510722a74ea032104594c41
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -115,7 +115,6 @@ FS_MOD_AVAILABLE:= \
 	fail2ban \
 	fifo \
 	format_cdr \
-	freetdm \
 	fsk \
 	fsv \
 	g723_1 \
@@ -152,6 +151,7 @@ FS_MOD_AVAILABLE:= \
 	portaudio_stream \
 	posix_timer \
 	prefix \
+	python3 \
 	radius_cdr \
 	random \
 	raven \
@@ -224,10 +224,8 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_VPX \
 	CONFIG_FS_WITH_ZRTP \
 	CONFIG_LIBC \
-	CONFIG_PACKAGE_libfreetdm \
-	CONFIG_PACKAGE_libfreetdm-ftmod-libpri \
-	CONFIG_PACKAGE_libfreetdm-ftmod-pritap \
 	CONFIG_PACKAGE_freeswitch-misc-perl-esl \
+	CONFIG_PACKAGE_freeswitch-misc-python3-esl \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/package.mk
@@ -236,6 +234,7 @@ include $(INCLUDE_DIR)/nls.mk
 
 FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
+include $(TOPDIR)/feeds/packages/lang/python/python3-host.mk
 include $(FS_PERL_FEED)/perlver.mk
 
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
@@ -243,6 +242,8 @@ PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 FS_PERL_LIBS:=$(shell grep "^libs=" \
 	$(FS_PERL_FEED)/files/base.config | \
 			sed "s/^libs=//;s/'//g")
+
+FS_PYTHON3_SITE_DIR:=$(FS_LIB_DIR)/python$(PYTHON3_VERSION)/site-packages
 
 define Download/files
 define Download/$(1)
@@ -279,12 +280,6 @@ define Package/freeswitch/install/dir
 	done
 endef
 
-define Package/libfreetdm/install/ftmod
-	$(INSTALL_DIR) $(1)$(FS_MOD_DIR)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_MOD_DIR)/ftmod_$(2).so \
-						$(1)$(FS_MOD_DIR)
-endef
-
 define Package/freeswitch/install/lib
 	$(INSTALL_DIR) $(1)$(FS_LIB_DIR)
 	$(CP) $(PKG_INSTALL_DIR)$(FS_LIB_DIR)/$(2).so.* \
@@ -299,45 +294,6 @@ endef
 
 define Package/freeswitch/config
 	source "$(SOURCE)/Config.in"
-endef
-
-define Package/libfreetdm/Default
-  SECTION:=libs
-  CATEGORY:=Libraries
-  SUBMENU:=Telephony
-  URL:=https://www.freeswitch.org
-endef
-
-define Package/libfreetdm
-$(call Package/libfreetdm/Default)
-  DEPENDS:=
-  TITLE:=TDM signaling and media API
-  MENU:=1
-  URL:=https://www.freeswitch.org
-endef
-
-define Package/libfreetdm/description
-Provides a unified interface to hardware TDM cards and SS7 stacks.
-endef
-
-define Package/libfreetdm/install
-$(call Package/freeswitch/install/lib,$(1),libfreetdm)
-endef
-
-define Package/libfreetdm/FTModule
-define Package/libfreetdm-ftmod-$(subst _,-,$(1))
-$(call Package/libfreetdm/Default)
-  DEPENDS:=libfreetdm \
-	  $(patsubst +%,+PACKAGE_libfreetdm-ftmod-$(subst _,-,$(1)):%,$(4))
-  TITLE:=$(2) FreeTDM module
-endef
-define Package/libfreetdm-ftmod-$(subst _,-,$(1))/description
-$(subst \n,$(newline),$(3))
-endef
-define Package/libfreetdm-ftmod-$(subst _,-,$(1))/install
-$(call Package/libfreetdm/install/ftmod,$$(1),$(1))
-endef
-$$(eval $$(call BuildPackage,libfreetdm-ftmod-$(subst _,-,$(1))))
 endef
 
 define Package/freeswitch/Default
@@ -461,6 +417,27 @@ define Package/freeswitch-misc-perl-esl/install
 					$(1)$(PERL_SITELIB)/ESL
 endef
 
+define Package/freeswitch-misc-python3-esl
+$(call Package/freeswitch/Default)
+  TITLE:=Python3 ESL
+  DEPENDS:=freeswitch +PACKAGE_freeswitch-misc-python3-esl:python3-light
+endef
+
+define Package/freeswitch-misc-python3-esl/description
+This package contains the Python3 binding for FreeSWITCH's Event Socket
+Library (ESL).
+endef
+
+define Package/freeswitch-misc-python3-esl/install
+	$(INSTALL_DIR) $(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/_ESL.so \
+					$(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/ESL.py \
+					$(1)$(FS_PYTHON3_SITE_DIR)
+endef
+
 define Package/freeswitch-misc-timezones
 $(call Package/freeswitch/Default)
   TITLE:=Timezones file
@@ -558,6 +535,12 @@ ifeq ($(1),perl)
 		$(PKG_INSTALL_DIR)/usr/perl/freeswitch.pm \
 							$$(1)$(PERL_SITELIB)
 endif
+ifeq ($(1),python3)
+	$(INSTALL_DIR) $$(1)$(FS_PYTHON3_SITE_DIR)
+	$(INSTALL_DATA) \
+		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/freeswitch.py \
+					$$(1)$(FS_PYTHON3_SITE_DIR)
+endif
 endef
 $$(eval $$(call BuildPackage,freeswitch-mod-$(subst _,-,$(1))))
 endef
@@ -603,9 +586,15 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_WITH_FREETYPE),,--without-freetype) \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_LIB_DIR)") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_WITH_PNG),,--without-png) \
-	$(if $(CONFIG_PACKAGE_libfreetdm-ftmod-libpri),--with-libpri="$(STAGING_DIR)/usr",--without-libpri) \
-	$(if $(CONFIG_PACKAGE_libfreetdm-ftmod-pritap),--with-pritap,--without-pritap)
+	$(if $(CONFIG_FS_WITH_PNG),,--without-png)
+
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl)$(CONFIG_PACKAGE_freeswitch-mod-python3),)
+CONFIGURE_ARGS+= \
+	--with-python3=$(STAGING_DIR_HOST)/bin/python3
+else
+CONFIGURE_ARGS+= \
+	--with-python3=no
+endif
 
 ifeq ($(CONFIG_PACKAGE_freeswitch-mod-erlang-event)$(CONFIG_PACKAGE_freeswitch-mod-kazoo),)
 CONFIGURE_ARGS+= \
@@ -676,6 +665,15 @@ else
 CONFIGURE_VARS+= \
 	ac_cv_have_perl=no \
 	ac_cv_prog_PERL=false
+endif
+
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl)$(CONFIG_PACKAGE_freeswitch-mod-python3),)
+CONFIGURE_VARS+= \
+	PYTHON3_CFLAGS="-I$(STAGING_DIR)/usr/include/python$(PYTHON3_VERSION)" \
+	PYTHON3_LDFLAGS="-lpython$(PYTHON3_VERSION)" \
+	PYTHON3_LIB="python$(PYTHON3_VERSION)" \
+	PYTHON3_LIBDIR="$(FS_LIB_DIR)" \
+	PYTHON3_SITE_DIR="$(FS_PYTHON3_SITE_DIR)"
 endif
 
 # mod_radius_cdr runs configure in libs/freeradius-client. Let
@@ -799,61 +797,41 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-mod-radius-cdr),)
 	$(CP) $(DL_DIR)/$(FS_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
 endif
 
-# Compile FreeTDM first
-ifneq ($(CONFIG_PACKAGE_libfreetdm),)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/freetdm)
-endif
-ifneq ($(CONFIG_PACKAGE_freeswitch),)
 	$(call Build/Compile/Default)
-endif
+
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
+endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod)
 endif
 endef
 
 define Build/Install
-# Again, FreeTDM first
-ifneq ($(CONFIG_PACKAGE_libfreetdm),)
-	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/freetdm install)
-endif
-ifneq ($(CONFIG_PACKAGE_freeswitch),)
 	$(call Build/Install/Default)
-endif
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
 endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
+	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod-install)
+endif
 endef
 
-define Build/InstallDev/libfreetdm
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_PKGCONFIG_DIR)/freetdm.pc \
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)$(FS_INCLUDES_DIR) $(1)$(FS_LIB_DIR) \
 						$(1)$(FS_PKGCONFIG_DIR)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
-endef
-
-define Build/InstallDev/freeswitch
-	$(INSTALL_DIR) $(1)$(FS_INCLUDES_DIR)
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_INCLUDES_DIR)/*.h \
 						$(1)$(FS_INCLUDES_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_PKGCONFIG_DIR)/freeswitch.pc \
 						$(1)$(FS_PKGCONFIG_DIR)
+	$(CP) $(PKG_INSTALL_DIR)$(FS_LIB_DIR)/libfreeswitch.so* \
+						$(1)$(FS_LIB_DIR)
 endef
 
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)$(FS_PKGCONFIG_DIR)
-ifneq ($(CONFIG_PACKAGE_libfreetdm),)
-	$(call Build/InstallDev/libfreetdm,$(1))
-endif
-ifneq ($(CONFIG_PACKAGE_freeswitch),)
-	$(call Build/InstallDev/freeswitch,$(1))
-endif
-endef
-
-$(eval $(call BuildPackage,libfreetdm))
 $(eval $(call BuildPackage,freeswitch))
 $(eval $(call BuildPackage,freeswitch-misc-perl-esl))
+$(eval $(call BuildPackage,freeswitch-misc-python3-esl))
 $(eval $(call BuildPackage,freeswitch-misc-timezones))
 
 ################################
@@ -870,22 +848,6 @@ $(eval $(call Package/freeswitch/Example,sbc))
 $(eval $(call Package/freeswitch/Example,softphone))
 $(eval $(call Package/freeswitch/Example,testing))
 $(eval $(call Package/freeswitch/Example,vanilla))
-
-################################
-# FreeTDM modules
-# Params:
-# 1 - Package subname
-# 2 - Package title
-# 3 - Module description
-# 4 - Module dependencies
-################################
-
-$(eval $(call Package/libfreetdm/FTModule,analog,Analog,Offers generic FXO/FXS support for any type of card supported by FreeTDM.,))
-$(eval $(call Package/libfreetdm/FTModule,analog_em,Analog EM,Offers generic E&M signaling for any type of card supported by FreeTDM.,))
-$(eval $(call Package/libfreetdm/FTModule,libpri,LibPRI,Offers support for PRI lines using the open source libpri stack for any\ntype of card supported by FreeTDM. Supports both PRI and BRI signalling.,+libpri @!aarch64))
-$(eval $(call Package/libfreetdm/FTModule,pritap,PRI tapping,This module is used to tap PRI lines.,+libfreetdm-ftmod-libpri))
-$(eval $(call Package/libfreetdm/FTModule,skel,Skeleton,ftmod_skel is an example module.,))
-$(eval $(call Package/libfreetdm/FTModule,zt,DAHDI I/O,This module supports the DAHDI interface. The DAHDI interface is used by\nseveral hardware vendors.,))
 
 ################################
 # FreeSWITCH language files
@@ -972,7 +934,6 @@ $(eval $(call Package/freeswitch/Module,expr,Expr,This module adds expr support 
 $(eval $(call Package/freeswitch/Module,fail2ban,Fail2ban logging,Provides support for Fail2ban logging.,))
 $(eval $(call Package/freeswitch/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/freeswitch/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
-$(eval $(call Package/freeswitch/Module,freetdm,FreeTDM endpoint,This module is the glue between FreeSWITCH and FreeTDM.,+libfreetdm))
 $(eval $(call Package/freeswitch/Module,fsk,FSK,This module adds frequency-shift keying support which can be used to\nsend and receive caller ID.,))
 $(eval $(call Package/freeswitch/Module,fsv,FSV,This module provides dialplan applications for recording and playing\nvideos.,))
 $(eval $(call Package/freeswitch/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
@@ -1009,6 +970,7 @@ $(eval $(call Package/freeswitch/Module,portaudio,Portaudio,Voice through a loca
 $(eval $(call Package/freeswitch/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/freeswitch/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/freeswitch/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
+$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,+python3-light))
 $(eval $(call Package/freeswitch/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/freeswitch/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/freeswitch/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
@@ -1057,7 +1019,7 @@ $(eval $(call Package/freeswitch/Module,translate,Number translation,This module
 $(eval $(call Package/freeswitch/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/freeswitch/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
 $(eval $(call Package/freeswitch/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
-$(eval $(call Package/freeswitch/Module,verto,Verto,Verto signaling protocol.,))
+$(eval $(call Package/freeswitch/Module,verto,Verto,Verto signaling protocol.,+libks))
 $(eval $(call Package/freeswitch/Module,video_filter,Video filter chromakey,This module provides a media bug for chromakey functionality.,))
 $(eval $(call Package/freeswitch/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
 $(eval $(call Package/freeswitch/Module,voicemail,Voicemail,This module provides a voicemail system.,))
