@@ -17,12 +17,12 @@
   * build.h
 --- a/Makefile
 +++ b/Makefile
-@@ -484,7 +484,7 @@ doc/core-en_US.xml: makeopts .lastclean
+@@ -489,7 +489,7 @@ doc/core-en_US.xml: makeopts .lastclean
  	@echo "<docs xmlns:xi=\"http://www.w3.org/2001/XInclude\">" >> $@
  	@for x in $(MOD_SUBDIRS); do \
  		printf "$$x " ; \
 -		for i in `find $$x -name '*.c'`; do \
 +		for i in `find $$x -name '*.c' | LC_ALL=C sort`; do \
- 			$(AWK) -f build_tools/get_documentation $$i >> $@ ; \
- 		done ; \
- 	done
+ 			MODULEINFO=$$($(AWK) -f build_tools/get_moduleinfo $$i) ; \
+ 			if [ -n "$$MODULEINFO" ] ; \
+ 			then \
