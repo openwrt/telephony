@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-opus
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_URL:=https://github.com/traud/asterisk-opus.git
-PKG_SOURCE_DATE:=2017-10-09
-PKG_SOURCE_VERSION:=83e1b458c77e0e287adeca494eeb79edb077b0ff
-PKG_MIRROR_HASH:=c71b859db7518cdafff1650e629c5901b290fe68f8af54ef1afd57bc9f15b122
+PKG_SOURCE_DATE:=2021-11-01
+PKG_SOURCE_VERSION:=20522fbcd3fdf6f0adb20602d096d14cd69055e8
+PKG_MIRROR_HASH:=e14dc42b0e5f4720e3f028e0b426f4e660bf315a103a015820ca3697e1fe9985
 PKG_SOURCE_PROTO:=git
 
 PKG_LICENSE:=GPL-2.0
@@ -23,16 +23,19 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 include $(INCLUDE_DIR)/package.mk
 
 TARGET_CFLAGS += \
-	-DAST_MODULE_SELF_SYM=__internal_codec_opus_open_source_self \
 	$(FPIC)
 
-define Package/asterisk-codec-opus
+define Package/asterisk-opus/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=Opus codec support
   URL:=https://github.com/traud/asterisk-opus
   DEPENDS:=asterisk +libopus
+endef
+
+define Package/asterisk-codec-opus
+$(call Package/asterisk-opus/Default)
+  TITLE:=Opus codec support
 endef
 
 define Package/asterisk-codec-opus/description
@@ -55,7 +58,24 @@ define Package/asterisk-codec-opus/install
 		$(1)/usr/lib/asterisk/modules
 endef
 
+define Package/asterisk-format-ogg-opus
+$(call Package/asterisk-opus/Default)
+  TITLE:=OGG/Opus audio support
+  DEPENDS+=+libopusfile +libopusenc
+endef
+
+define Package/asterisk-format-ogg-opus/description
+  Reading and writing audio files in the OGG/Opus format.
+endef
+
+define Package/asterisk-format-ogg-opus/install
+	$(INSTALL_DIR) $(1)/usr/lib/asterisk/modules
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/formats/format_ogg_opus_open_source.so \
+		$(1)/usr/lib/asterisk/modules
+endef
+
 define Build/Configure
 endef
 
 $(eval $(call BuildPackage,asterisk-codec-opus))
+$(eval $(call BuildPackage,asterisk-format-ogg-opus))
