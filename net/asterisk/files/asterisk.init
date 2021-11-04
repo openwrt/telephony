@@ -76,3 +76,11 @@ reregister() {
     $COMMAND -x 'pjsip send unregister *all' -x 'pjsip send register *all'
   }
 }
+
+service_triggers() {
+  config_load $NAME
+  config_get_bool enabled general enabled 0
+  config_get interface general interface ""
+
+  [ $enabled -eq 1 -a -n "$interface" ] && procd_add_interface_trigger "interface.*.up" "$interface" /etc/init.d/$NAME reregister
+}
