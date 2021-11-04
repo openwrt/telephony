@@ -66,3 +66,13 @@ start_service() {
 reload_service() {
   procd_send_signal $NAME
 }
+
+extra_command "reregister" "Re-register all outbound registrations"
+reregister() {
+  MODULES=`$COMMAND -x 'module show'` || exit 1
+
+  echo "$MODULES" | grep -q -s '^res_pjsip.so' && {
+    log info "re-registering all outbound pjsip registrations"
+    $COMMAND -x 'pjsip send unregister *all' -x 'pjsip send register *all'
+  }
+}
