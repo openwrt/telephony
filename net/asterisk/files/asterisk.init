@@ -62,3 +62,7 @@ start_service() {
   procd_set_param stdout $log_stdout
   procd_close_instance
 }
+
+reload_service() {
+  procd_send_signal $NAME
+}
