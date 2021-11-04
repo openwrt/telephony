@@ -4,16 +4,18 @@
 START=99
 
 USE_PROCD=1
-
 #PROCD_DEBUG=1
 
 NAME=asterisk
 COMMAND=/usr/sbin/$NAME
 
-LOGGER="/usr/bin/logger -p daemon.err -s -t $NAME --"
+log() {
+  level=$1
+  shift
+  /usr/bin/logger -p daemon.$level -s -t $NAME "$@"
+}
 
 start_service() {
-
   dbdir=/var/lib/asterisk/astdb
   logdir=/var/log/asterisk
   cdrcsvdir=$logdir/cdr-csv
@@ -25,7 +27,7 @@ start_service() {
 
   config_get_bool enabled general enabled 0
   if [ $enabled -eq 0 ]; then
-    $LOGGER service not enabled in /etc/config/$NAME
+    log err "service not enabled in /etc/config/$NAME"
     return 1
   fi
 
@@ -59,7 +61,6 @@ start_service() {
   # same for stdout
   procd_set_param stdout $log_stdout
   procd_close_instance
-
 }
 
 reload_service() {
