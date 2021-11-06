@@ -234,7 +234,7 @@ include $(INCLUDE_DIR)/nls.mk
 
 FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
-include $(TOPDIR)/feeds/packages/lang/python/python3-host.mk
+include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 include $(FS_PERL_FEED)/perlver.mk
 
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
