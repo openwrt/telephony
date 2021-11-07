@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freetdm
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE_PROTO:=git
@@ -40,7 +40,8 @@ FS_MOD_DIR:=$(FS_LIB_DIR)/freeswitch/mod
 FS_PKGCONFIG_DIR:=$(FS_LIB_DIR)/pkgconfig
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_FT_WITH_DEBUG \
+	CONFIG_FREETDM_WITH_DEBUG \
+	CONFIG_FS_WITH_MODCONF \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_libfreetdm-ftmod-libpri \
 	CONFIG_PACKAGE_libfreetdm-ftmod-pritap \
@@ -133,19 +134,6 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FREETDM_WITH_DEBUG,debug) \
 	$(if $(CONFIG_PACKAGE_libfreetdm-ftmod-libpri),--with-libpri="$(STAGING_DIR)/usr",--without-libpri) \
 	$(if $(CONFIG_PACKAGE_libfreetdm-ftmod-pritap),--with-pritap,--without-pritap)
-
-define Build/InstallDev/libfreetdm
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_PKGCONFIG_DIR)/freetdm.pc \
-						$(1)$(FS_PKGCONFIG_DIR)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
-endef
-
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)$(FS_PKGCONFIG_DIR)
-	$(call Build/InstallDev/libfreetdm,$(1))
-endef
 
 $(eval $(call BuildPackage,libfreetdm))
 $(eval $(call BuildPackage,freeswitch-mod-freetdm))
