@@ -1,0 +1,25 @@
+--- a/libpjproject.pc.in
++++ b/libpjproject.pc.in
+@@ -2,8 +2,8 @@
+ 
+ prefix=@PREFIX@
+ exec_prefix=${prefix}
+-libdir=@LIBDIR@
+-includedir=@INCLUDEDIR@
++libdir=${exec_prefix}/lib
++includedir=${prefix}/include
+ 
+ Name: libpjproject
+ Description: Multimedia communication library
+--- a/build.mak.in
++++ b/build.mak.in
+@@ -314,8 +314,7 @@ export PJ_LIBXX_FILES := $(APP_LIBXX_FIL
+ # And here are the variables to use if application is using the
+ # library from the install location (i.e. --prefix)
+ export PJ_INSTALL_DIR := @prefix@
+-export PJ_INSTALL_INC_DIR := @includedir@
+ export PJ_INSTALL_LIB_DIR := @libdir@
+-export PJ_INSTALL_CFLAGS := -I$(PJ_INSTALL_INC_DIR) -DPJ_AUTOCONF=1 @CFLAGS@
++export PJ_INSTALL_CFLAGS := -DPJ_AUTOCONF=1 @CFLAGS@
+ export PJ_INSTALL_CXXFLAGS := @CXXFLAGS@ $(PJ_INSTALL_CFLAGS)
+ export PJ_INSTALL_LDFLAGS := -L$(PJ_INSTALL_LIB_DIR) $(APP_LDLIBS)
