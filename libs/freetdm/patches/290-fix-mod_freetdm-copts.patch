@@ -1,5 +1,5 @@
---- a/libs/freetdm/mod_freetdm/Makefile.in
-+++ b/libs/freetdm/mod_freetdm/Makefile.in
+--- a/mod_freetdm/Makefile.in
++++ b/mod_freetdm/Makefile.in
 @@ -1,4 +1,4 @@
 -FT_CFLAGS=@CFLAGS@ @COMP_VENDOR_CFLAGS@ @DEFS@
 +FT_CFLAGS=@COMP_VENDOR_CFLAGS@ @DEFS@

@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PRG_NAME:=freeswitch
 PKG_NAME:=$(PRG_NAME)-stable
-PKG_VERSION:=1.10.6
-PKG_RELEASE:=2
+PKG_VERSION:=1.10.7
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=$(PRG_NAME)-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.$(PRG_NAME).org/releases/$(PRG_NAME)
-PKG_HASH:=9a08d4e184e6d715e1c12c43a0f901597151752ef236f0a37e40996272b5c38d
+PKG_HASH:=0919bddc2ea9cab2e4944314e71637bea9dd4f40d510722a74ea032104594c41
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -73,9 +73,6 @@ FS_STABLE_SYSCONF_DIR:=/etc
 FS_STABLE_TLS_DIR:=$(FS_STABLE_SYSCONF_DIR)/$(PRG_NAME)/tls
 FS_STABLE_TZ_DIR:=$(FS_STABLE_DATA_DIR)/tz
 
-FTDM:=freetdm
-PKG_LIBFTDM:=lib$(FTDM)-stable
-
 FS_STABLE_MOD_AVAILABLE:= \
 	abstraction \
 	alsa \
@@ -122,7 +119,6 @@ FS_STABLE_MOD_AVAILABLE:= \
 	fail2ban \
 	fifo \
 	format_cdr \
-	$(FTDM) \
 	fsk \
 	fsv \
 	g723_1 \
@@ -226,15 +222,13 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_STABLE_WITH_DEBUG \
 	CONFIG_FS_STABLE_WITH_FREETYPE \
 	CONFIG_FS_STABLE_WITH_LIBYUV \
+	CONFIG_FS_STABLE_WITH_MODCONF \
 	CONFIG_FS_STABLE_WITH_ODBC \
 	CONFIG_FS_STABLE_WITH_PNG \
 	CONFIG_FS_STABLE_WITH_SRTP \
 	CONFIG_FS_STABLE_WITH_VPX \
 	CONFIG_FS_STABLE_WITH_ZRTP \
 	CONFIG_LIBC \
-	CONFIG_PACKAGE_$(PKG_LIBFTDM) \
-	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri \
-	CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap \
 	CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl \
 	CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl \
 	CONFIG_SOFT_FLOAT
@@ -299,12 +293,6 @@ define Package/$(PKG_NAME)/install/dir
 	done
 endef
 
-define Package/$(PKG_LIBFTDM)/install/ftmod
-	$(INSTALL_DIR) $(1)$(FS_STABLE_MOD_DIR)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)$(FS_STABLE_MOD_DIR)/ftmod_$(2).so \
-						$(1)$(FS_STABLE_MOD_DIR)
-endef
-
 define Package/$(PKG_NAME)/install/lib
 	$(INSTALL_DIR) $(1)$(FS_STABLE_LIB_DIR)
 	$(CP) $(PKG_INSTALL_DIR)$(FS_STABLE_LIB_DIR)/$(2).so.* \
@@ -319,45 +307,6 @@ endef
 
 define Package/$(PKG_NAME)/config
 	source "$(SOURCE)/Config.in"
-endef
-
-define Package/$(PKG_LIBFTDM)/Default
-  SECTION:=libs
-  CATEGORY:=Libraries
-  SUBMENU:=Telephony
-  URL:=https://www.$(PRG_NAME).org
-endef
-
-define Package/$(PKG_LIBFTDM)
-$(call Package/$(PKG_LIBFTDM)/Default)
-  DEPENDS:=
-  TITLE:=TDM signaling and media API
-  MENU:=1
-  URL:=https://www.$(PRG_NAME).org
-endef
-
-define Package/$(PKG_LIBFTDM)/description
-Provides a unified interface to hardware TDM cards and SS7 stacks.
-endef
-
-define Package/$(PKG_LIBFTDM)/install
-$(call Package/$(PKG_NAME)/install/lib,$(1),lib$(FTDM))
-endef
-
-define Package/$(PKG_LIBFTDM)/FTModule
-define Package/$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1))
-$(call Package/$(PKG_LIBFTDM)/Default)
-  DEPENDS:=$(PKG_LIBFTDM) \
-	  $(patsubst +%,+PACKAGE_$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1)):%,$(4))
-  TITLE:=$(2) FreeTDM module
-endef
-define Package/$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1))/description
-$(subst \n,$(newline),$(3))
-endef
-define Package/$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1))/install
-$(call Package/$(PKG_LIBFTDM)/install/ftmod,$$(1),$(1))
-endef
-$$(eval $$(call BuildPackage,$(PKG_LIBFTDM)-ftmod-$(subst _,-,$(1))))
 endef
 
 define Package/$(PKG_NAME)/Default
@@ -633,6 +582,7 @@ CONFIGURE_ARGS+= \
 	--with-dbdir=/tmp/$(PRG_NAME)/db \
 	--with-imagesdir=$(FS_STABLE_IMAGES_DIR) \
 	--with-logfiledir=/tmp/$(PRG_NAME)/log \
+	--with-python3=no \
 	--with-recordingsdir=/tmp/$(PRG_NAME)/recordings \
 	--with-storagedir=/tmp/$(PRG_NAME)/storage \
 	$(call autoconf_bool,CONFIG_FS_STABLE_WITH_DEBUG,debug) \
@@ -644,9 +594,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FS_STABLE_WITH_FREETYPE),,--without-freetype) \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_STABLE_LIB_DIR)") \
 	$(if $(CONFIG_FS_STABLE_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
-	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png) \
-	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-libpri),--with-libpri="$(STAGING_DIR)/usr",--without-libpri) \
-	$(if $(CONFIG_PACKAGE_$(PKG_LIBFTDM)-ftmod-pritap),--with-pritap,--without-pritap)
+	$(if $(CONFIG_FS_STABLE_WITH_PNG),,--without-png)
 
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl)$(CONFIG_PACKAGE_$(PKG_NAME)-mod-python),)
 CONFIGURE_ARGS+= \
@@ -856,14 +804,7 @@ endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-mod-radius-cdr),)
 	$(CP) $(DL_DIR)/$(FS_STABLE_FREERADIUS_CLIENT_FILE) $(PKG_BUILD_DIR)/libs
 endif
-
-# Compile FreeTDM first
-ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/$(FTDM))
-endif
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
 	$(call Build/Compile/Default)
-endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl perlmod)
 endif
@@ -873,13 +814,7 @@ endif
 endef
 
 define Build/Install
-# Again, FreeTDM first
-ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/$(FTDM) install)
-endif
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
 	$(call Build/Install/Default)
-endif
 ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-perl-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl DESTDIR=$(PKG_INSTALL_DIR) perlmod-install)
 endif
@@ -888,34 +823,18 @@ ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)-misc-python-esl),)
 endif
 endef
 
-define Build/InstallDev/$(PKG_LIBFTDM)
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) \
-		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(FTDM).pc \
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)$(FS_STABLE_INCLUDES_DIR) $(1)$(FS_STABLE_LIB_DIR) \
 						$(1)$(FS_STABLE_PKGCONFIG_DIR)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
-endef
-
-define Build/InstallDev/$(PKG_NAME)
-	$(INSTALL_DIR) $(1)$(FS_STABLE_INCLUDES_DIR)
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)$(FS_STABLE_INCLUDES_DIR)/*.h \
 						$(1)$(FS_STABLE_INCLUDES_DIR)
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_STABLE_PKGCONFIG_DIR)/$(PRG_NAME).pc \
 						$(1)$(FS_STABLE_PKGCONFIG_DIR)
+	$(CP) $(PKG_INSTALL_DIR)$(FS_STABLE_LIB_DIR)/libfreeswitch.so* \
+						$(1)$(FS_STABLE_LIB_DIR)
 endef
 
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)$(FS_STABLE_PKGCONFIG_DIR)
-ifneq ($(CONFIG_PACKAGE_$(PKG_LIBFTDM)),)
-	$(call Build/InstallDev/$(PKG_LIBFTDM),$(1))
-endif
-ifneq ($(CONFIG_PACKAGE_$(PKG_NAME)),)
-	$(call Build/InstallDev/$(PKG_NAME),$(1))
-endif
-endef
-
-$(eval $(call BuildPackage,$(PKG_LIBFTDM)))
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-perl-esl))
 $(eval $(call BuildPackage,$(PKG_NAME)-misc-python-esl))
@@ -935,22 +854,6 @@ $(eval $(call Package/$(PKG_NAME)/Example,sbc))
 $(eval $(call Package/$(PKG_NAME)/Example,softphone))
 $(eval $(call Package/$(PKG_NAME)/Example,testing))
 $(eval $(call Package/$(PKG_NAME)/Example,vanilla))
-
-################################
-# FreeTDM modules
-# Params:
-# 1 - Package subname
-# 2 - Package title
-# 3 - Module description
-# 4 - Module dependencies
-################################
-
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,analog,Analog,Offers generic FXO/FXS support for any type of card supported by FreeTDM.,))
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,analog_em,Analog EM,Offers generic E&M signaling for any type of card supported by FreeTDM.,))
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,libpri,LibPRI,Offers support for PRI lines using the open source libpri stack for any\ntype of card supported by FreeTDM. Supports both PRI and BRI signalling.,+libpri @!aarch64))
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,pritap,PRI tapping,This module is used to tap PRI lines.,+$(PKG_LIBFTDM)-ftmod-libpri))
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,skel,Skeleton,ftmod_skel is an example module.,))
-$(eval $(call Package/$(PKG_LIBFTDM)/FTModule,zt,DAHDI I/O,This module supports the DAHDI interface. The DAHDI interface is used by\nseveral hardware vendors.,))
 
 ################################
 # FreeSWITCH language files
@@ -1038,7 +941,6 @@ $(eval $(call Package/$(PKG_NAME)/Module,expr,Expr,This module adds expr support
 $(eval $(call Package/$(PKG_NAME)/Module,fail2ban,Fail2ban logging,Provides support for Fail2ban logging.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fifo,FIFO,This module adds a first-in first-out queue system.,))
 $(eval $(call Package/$(PKG_NAME)/Module,format_cdr,Multiformat CDR,A superset of mod_json_cdr and mod_xml_cdr.,))
-$(eval $(call Package/$(PKG_NAME)/Module,$(FTDM),FreeTDM endpoint,This module is the glue between FreeSWITCH and FreeTDM.,+$(PKG_LIBFTDM)))
 $(eval $(call Package/$(PKG_NAME)/Module,fsk,FSK,This module adds frequency-shift keying support which can be used to\nsend and receive caller ID.,))
 $(eval $(call Package/$(PKG_NAME)/Module,fsv,FSV,This module provides dialplan applications for recording and playing\nvideos.,))
 $(eval $(call Package/$(PKG_NAME)/Module,g723_1,G.723.1 passthrough,G.723.1 codec passthrough.,))
@@ -1124,7 +1026,7 @@ $(eval $(call Package/$(PKG_NAME)/Module,translate,Number translation,This modul
 $(eval $(call Package/$(PKG_NAME)/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
 $(eval $(call Package/$(PKG_NAME)/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
 $(eval $(call Package/$(PKG_NAME)/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
-$(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,))
+$(eval $(call Package/$(PKG_NAME)/Module,verto,Verto,Verto signaling protocol.,+libks))
 $(eval $(call Package/$(PKG_NAME)/Module,video_filter,Video filter chromakey,This module provides a media bug for chromakey functionality.,))
 $(eval $(call Package/$(PKG_NAME)/Module,vmd,Voicemail detection,This module detects voicemail beeps.,))
 $(eval $(call Package/$(PKG_NAME)/Module,voicemail,Voicemail,This module provides a voicemail system.,))

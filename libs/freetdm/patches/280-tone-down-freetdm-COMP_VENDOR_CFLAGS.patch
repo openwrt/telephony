@@ -1,5 +1,5 @@
---- a/libs/freetdm/configure.ac
-+++ b/libs/freetdm/configure.ac
+--- a/configure.ac
++++ b/configure.ac
 @@ -88,7 +88,7 @@ AC_ARG_ENABLE([enable_64],
  
  case "${ax_cv_c_compiler_vendor}" in
