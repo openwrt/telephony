@@ -1,6 +1,25 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1865,24 +1865,12 @@ then
+@@ -1853,36 +1853,24 @@ then
+ 		fi
+ 		AC_MSG_RESULT([$PYTHON3_VER])
+ 
+-		AC_MSG_CHECKING([for python3 distutils])
+-		python3_result="`$PYTHON3 -c 'import distutils;' 2>&1`"
+-		if test -z "$python3_result" ; then
++		#AC_MSG_CHECKING([for python3 distutils])
++		#python3_result="`$PYTHON3 -c 'import distutils;' 2>&1`"
++		#if test -z "$python3_result" ; then
+ 			python3_has_distutils="yes"
+-		else
+-			python3_has_distutils="no"
+-		fi
+-		AC_MSG_RESULT([$python3_has_distutils])
++		#else
++		#	python3_has_distutils="no"
++		#fi
++		#AC_MSG_RESULT([$python3_has_distutils])
+ 
  		if test "$python3_has_distutils" != "no" ; then
  			AC_MSG_CHECKING([location of python3 site-packages])
  
