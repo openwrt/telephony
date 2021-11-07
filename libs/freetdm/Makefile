@@ -40,7 +40,8 @@ FS_MOD_DIR:=$(FS_LIB_DIR)/freeswitch/mod
 FS_PKGCONFIG_DIR:=$(FS_LIB_DIR)/pkgconfig
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_FT_WITH_DEBUG \
+	CONFIG_FREETDM_WITH_DEBUG \
+	CONFIG_FS_WITH_MODCONF \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_libfreetdm-ftmod-libpri \
 	CONFIG_PACKAGE_libfreetdm-ftmod-pritap \
