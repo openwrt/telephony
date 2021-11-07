@@ -1,9 +1,9 @@
 --- a/libs/esl/python/Makefile
 +++ b/libs/esl/python/Makefile
 @@ -1,6 +1,4 @@
--LOCAL_CFLAGS=`python ./python-config --includes`
--LOCAL_LDFLAGS=`python ./python-config --ldflags`
--SITE_DIR=$(DESTDIR)/`python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"`
+-LOCAL_CFLAGS=`$(PYTHON) ./python-config --includes`
+-LOCAL_LDFLAGS=`$(PYTHON) ./python-config --ldflags`
+-SITE_DIR=$(DESTDIR)/`$(PYTHON) -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"`
 +SITE_DIR=$(DESTDIR)/$(PYTHON_SITE_DIR)
  
  all: _ESL.so
@@ -23,21 +23,21 @@
  	mkdir -p $(SITE_DIR)
 --- a/libs/esl/Makefile.am
 +++ b/libs/esl/Makefile.am
-@@ -77,7 +77,7 @@ luamod: $(MYLIB)
+@@ -79,7 +79,7 @@ luamod: $(MYLIB)
  	$(MAKE) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" LUA_CFLAGS="$(LUA_CFLAGS)" LUA_LIBS="$(LUA_LIBS)" -C lua
  
  pymod: $(MYLIB)
--	$(MAKE) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" -C python
-+	$(MAKE) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" PYTHON_CFLAGS="$(PYTHON_CFLAGS)" PYTHON_LDFLAGS="$(PYTHON_LDFLAGS)" -C python
+-	$(MAKE) PYTHON=$(PYTHON) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" -C python
++	$(MAKE) PYTHON=$(PYTHON) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" PYTHON_CFLAGS="$(PYTHON_CFLAGS)" PYTHON_LDFLAGS="$(PYTHON_LDFLAGS)" -C python
  
- tclmod: $(MYLIB)
- 	$(MAKE) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" -C tcl
-@@ -98,7 +98,7 @@ phpmod-install: phpmod
+ py3mod: $(MYLIB)
+ 	$(MAKE) PYTHON3=$(PYTHON3) MYLIB="../$(MYLIB)" SOLINK="$(SOLINK)" CFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS)" CXXFLAGS="-I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS)" CXX_CFLAGS="$(CXX_CFLAGS)" -C python3
+@@ -103,7 +103,7 @@ phpmod-install: phpmod
  	$(MAKE) -C php install
  
  pymod-install: pymod
--	$(MAKE) -C python install
-+	$(MAKE) PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)" -C python install
+-	$(MAKE) PYTHON=$(PYTHON) -C python install
++	$(MAKE) PYTHON=$(PYTHON) PYTHON_SITE_DIR="$(PYTHON_SITE_DIR)" -C python install
  
- rubymod-install: rubymod
- 	$(MAKE) -C ruby install
+ py3mod-install: py3mod
+ 	$(MAKE) PYTHON3=$(PYTHON3) -C python3 install
