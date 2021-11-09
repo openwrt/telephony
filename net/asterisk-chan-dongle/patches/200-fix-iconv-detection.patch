@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -83,7 +83,7 @@ fi
+@@ -90,7 +90,7 @@ fi
  
  dnl Checks for libraries.
  dnl AC_CHECK_LIB([pthread], [pthread_create])  # should use ast_pthread_join everywhere?
