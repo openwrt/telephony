@@ -24,8 +24,6 @@ Date:   Mon May 6 21:07:48 2019 +0200
     
     Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
 
-diff --git a/src/sccp_utils.c b/src/sccp_utils.c
-index df043d1a..f917c0c9 100644
 --- a/src/sccp_utils.c
 +++ b/src/sccp_utils.c
 @@ -10,6 +10,7 @@
