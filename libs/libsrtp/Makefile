@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
-PKG_VERSION:=2.3.0
-PKG_RELEASE:=1
+PKG_VERSION:=2.4.2
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=libsrtp-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/cisco/libsrtp/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=94093a5d04c5f4743e8d81182b76938374df6d393b45322f24960d250b0110e8
+PKG_HASH:=3b1bcb14ebda572b04b9bdf07574a449c84cb924905414e4d94e62837d22b628
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -26,8 +26,9 @@ define Package/libsrtp2
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Secure RTP (SRTP) library, v$(PKG_VERSION)
-  URL:=http://sourceforge.net/projects/srtp
+  URL:=https://github.com/cisco/libsrtp
   DEPENDS:=
+  ABI_VERSION:=1
 endef
 
 define Package/libsrtp2/description
@@ -52,7 +53,7 @@ endef
 define Package/libsrtp2/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so.* \
+		$(PKG_INSTALL_DIR)/usr/lib/libsrtp2.so.$(ABI_VERSION)* \
 		$(1)/usr/lib/
 endef
 
