@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rem
-PKG_VERSION:=0.6.0
-PKG_RELEASE:=2
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.creytiv.com/pub
-PKG_HASH:=417620da3986461598aef327c782db87ec3dd02c534701e68f4c255e54e5272c
+PKG_SOURCE_URL:=https://codeload.github.com/baresip/rem/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=bcc91bb521fae183357fb422b00a3981477a22e99d3afe165c4ec50a6bbed9da
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -31,7 +31,7 @@ define Package/librem
   CATEGORY:=Libraries
   DEPENDS:=+libre
   TITLE:=Audio and video processing media library
-  URL:=http://www.creytiv.com
+  URL:=https://github.com/baresip/rem
 endef
 
 MAKE_FLAGS+= \
