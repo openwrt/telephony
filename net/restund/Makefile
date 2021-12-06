@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=restund
 PKG_VERSION:=0.4.12
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.creytiv.com/pub
@@ -90,6 +90,24 @@ define Package/restund/conffiles
 /etc/default/restund
 /etc/init.d/restund
 /etc/restund.conf
+endef
+
+define Package/restund/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+  echo
+  echo "o-------------------------------------------------------------------o"
+  echo "| restund note                                                      |"
+  echo "o-------------------------------------------------------------------o"
+  echo "| restund has been dropped upstream and will be deleted from the    |"
+  echo "| OpenWrt telephony feed in February 2022.                          |"
+  echo "|                                                                   |"
+  echo "| You may want to migrate to the coturn package, which provides     |"
+  echo "| turnserver.                                                       |"
+  echo "o-------------------------------------------------------------=^_^=-o"
+  echo
+fi
+exit 0
 endef
 
 #
