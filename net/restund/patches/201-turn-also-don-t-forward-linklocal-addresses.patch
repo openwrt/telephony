@@ -1,0 +1,29 @@
+From e2f4094e23c73d4563a55f0de72244f34bb5b702 Mon Sep 17 00:00:00 2001
+From: Dusan Stevanovic <dule@wire.com>
+Date: Thu, 11 Mar 2021 11:53:50 +0100
+Subject: [PATCH] turn: also don't forward linklocal addresses
+
+---
+ modules/turn/turn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/modules/turn/turn.c
++++ b/modules/turn/turn.c
+@@ -181,7 +181,7 @@ static bool indication_handler(struct re
+ 		return true;
+ 	}
+ 
+-	if (sa_is_loopback(psa) || sa_is_any(psa))
++	if (sa_is_loopback(psa) || sa_is_any(psa) || sa_is_linklocal(psa))
+ 		err = EPERM;
+ 	else
+ 		err = udp_send(al->rel_us, psa, &data->v.data);
+@@ -234,7 +234,7 @@ static bool raw_handler(int proto, const
+ 
+ 	mb->end = mb->pos + len;
+ 
+-	if (sa_is_loopback(psa) || sa_is_any(psa))
++	if (sa_is_loopback(psa) || sa_is_any(psa) || sa_is_linklocal(psa))
+ 		err = EPERM;
+ 	else
+ 		err = udp_send(al->rel_us, psa, mb);

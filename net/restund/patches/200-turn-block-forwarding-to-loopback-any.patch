@@ -1,0 +1,69 @@
+From ffa2d56cac3d37715fe1381df81802774240da92 Mon Sep 17 00:00:00 2001
+From: Dusan Stevanovic <dule@wire.com>
+Date: Thu, 11 Mar 2021 10:58:32 +0100
+Subject: [PATCH] turn: block forwarding to loopback/any
+
+---
+ modules/turn/turn.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+--- a/modules/turn/turn.c
++++ b/modules/turn/turn.c
+@@ -153,6 +153,7 @@ static bool indication_handler(struct re
+ 	struct stun_attr *data, *peer;
+ 	struct allocation *al;
+ 	struct perm *perm;
++	const struct sa *psa;
+ 	int err;
+ 	(void)sock;
+ 	(void)ctx;
+@@ -173,13 +174,17 @@ static bool indication_handler(struct re
+ 	if (!peer || !data)
+ 		return true;
+ 
+-	perm = perm_find(al->perms, &peer->v.xor_peer_addr);
++	psa = &peer->v.xor_peer_addr;
++	perm = perm_find(al->perms, psa);
+ 	if (!perm) {
+ 		++al->dropc_tx;
+ 		return true;
+ 	}
+ 
+-	err = udp_send(al->rel_us, &peer->v.xor_peer_addr, &data->v.data);
++	if (sa_is_loopback(psa) || sa_is_any(psa))
++		err = EPERM;
++	else
++		err = udp_send(al->rel_us, psa, &data->v.data);
+ 	if (err)
+ 		turnd.errc_tx++;
+ 	else {
+@@ -200,6 +205,7 @@ static bool raw_handler(int proto, const
+ 	uint16_t numb, len;
+ 	struct perm *perm;
+ 	struct chan *chan;
++	const struct sa *psa;
+ 	int err;
+ 
+ 	al = allocation_find(proto, src, dst);
+@@ -219,7 +225,8 @@ static bool raw_handler(int proto, const
+ 	if (!chan)
+ 		return false;
+ 
+-	perm = perm_find(al->perms, chan_peer(chan));
++	psa = chan_peer(chan);
++	perm = perm_find(al->perms, psa);
+ 	if (!perm) {
+ 		++al->dropc_tx;
+ 		return false;
+@@ -227,7 +234,10 @@ static bool raw_handler(int proto, const
+ 
+ 	mb->end = mb->pos + len;
+ 
+-	err = udp_send(al->rel_us, chan_peer(chan), mb);
++	if (sa_is_loopback(psa) || sa_is_any(psa))
++		err = EPERM;
++	else
++		err = udp_send(al->rel_us, psa, mb);
+ 	if (err)
+ 		turnd.errc_tx++;
+ 	else {
