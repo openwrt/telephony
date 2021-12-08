@@ -127,6 +127,7 @@ MAKE_FLAGS+= \
 	LIBRE_MK="$(STAGING_DIR)/usr/share/re/re.mk" \
 	LIBRE_INC="$(STAGING_DIR)/usr/include/re" \
 	LIBRE_SO="$(STAGING_DIR)/usr/lib" \
+	LIBREM_PATH="$(STAGING_DIR)/usr" \
 	OS=linux \
 	RELEASE=1 \
 	SYSROOT="$(shell $(FIND) $(TOOLCHAIN_DIR) -path '*/include/pthread.h' | sed -ne '1s|/include/pthread.h||p')" \
