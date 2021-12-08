@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=re
-PKG_VERSION:=1.0.0
-PKG_RELEASE:=1
+PKG_VERSION:=2.0.1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/baresip/re/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=bf0abfc511b7278462e7d54aaae39e7231b9f35423d5026c8210a322c7c8ef2f
+PKG_HASH:=43aa439b96aff75fe5768b9f9d49dea97042e42e7647df47b345465763e2f7ed
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -32,6 +32,7 @@ define Package/libre
   DEPENDS:=+libopenssl +zlib
   TITLE:=Generic library for real-time communications with async IO support
   URL:=https://github.com/baresip/re
+  ABI_VERSION:=1
 endef
 
 # re.mk is used for this and all related packages (rem, restund and baresip).
@@ -68,12 +69,12 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/re $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so} $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.{a,so*} $(1)/usr/lib
 endef
 
 define Package/libre/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libre.so.$(ABI_VERSION)* $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,libre))
