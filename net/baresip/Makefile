@@ -61,6 +61,7 @@ PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_baresip-mod-%,$(subst _,-,$(baresip-mods)))
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/baresip/Default
   SECTION:=net
