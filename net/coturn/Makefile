@@ -59,6 +59,7 @@ define Package/coturn/conffiles
 /etc/config/turnserver
 /etc/init.d/turnserver
 /etc/turnserver.conf
+/etc/turnserver
 endef
 
 define Package/coturn/config
