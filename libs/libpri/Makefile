@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpri
 PKG_VERSION:=1.6.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/libpri/releases
@@ -34,6 +34,10 @@ define Package/libpri/description
 	May 12, 2001, it has been tested work with NI-2, Nortel DMS-100, and
 	Lucent 5E Custom protocols on switches from Nortel and Lucent.
 endef
+
+MAKE_FLAGS += \
+	OSARCH=Linux \
+	LDCONFIG=ldconfig
 
 define Build/Configure
 endef

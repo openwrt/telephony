@@ -1,7 +1,5 @@
-Index: libpri-1.4.15/pritest.c
-===================================================================
---- libpri-1.4.15.orig/pritest.c
-+++ libpri-1.4.15/pritest.c
+--- a/pritest.c
++++ b/pritest.c
 @@ -41,7 +41,7 @@
  #include <sys/ioctl.h>
  #include <stdlib.h>
@@ -11,10 +9,8 @@ Index: libpri-1.4.15/pritest.c
  #include <sys/select.h>
  #include <sys/wait.h>
  #include <sys/resource.h>
-Index: libpri-1.4.15/testprilib.c
-===================================================================
---- libpri-1.4.15.orig/testprilib.c
-+++ libpri-1.4.15/testprilib.c
+--- a/testprilib.c
++++ b/testprilib.c
 @@ -41,7 +41,7 @@
  #include <sys/ioctl.h>
  #include <stdlib.h>
