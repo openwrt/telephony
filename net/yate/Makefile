@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
 PKG_VERSION:=6.4.0-1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
@@ -24,6 +24,8 @@ PKG_FIXUP:=autoreconf
 # Sporadic build failures on the build bots
 PKG_BUILD_PARALLEL:=0
 PKG_INSTALL:=1
+
+PKG_BUILD_DEPENDS:=HOST_OS_MACOS:fakeuname/host
 
 # Yate currently does not compile with FORTIFY_SOURCE enabled
 PKG_FORTIFY_SOURCE:=0
@@ -45,6 +47,9 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
+ifeq ($(CONFIG_HOST_OS_MACOS),y)
+    include $(TOPDIR)/feeds/packages/utils/fakeuname/fakeuname.mk
+endif
 
 TAR_OPTIONS+= --strip-components 1
 TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
@@ -90,6 +95,9 @@ endef
 
 # Otherwise yate ignores CPPFLAGS
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
+
+CONFIGURE_VARS+= \
+	$(if $(CONFIG_HOST_OS_MACOS),PATH=$(FAKEUNAME_PATH):$(TARGET_PATH_PKG))
 
 CONFIGURE_ARGS+= \
 	--disable-sctp \
