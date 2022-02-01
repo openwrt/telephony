@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=coturn
 PKG_VERSION:=4.5.2
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/coturn/coturn/tar.gz/$(PKG_VERSION)?
@@ -129,6 +129,7 @@ CONFIGURE_ARGS+= \
 	--turndbdir=/etc/turnserver
 
 CONFIGURE_VARS+= \
+	ARCHIVERCMD="$(TARGET_AR) -r" \
 	LIBEV_OK=1 \
 	TURN_NO_PROMETHEUS=1 \
 	TURN_NO_SCTP=1 \
