@@ -1,0 +1,39 @@
+Upstream issue: https://issues.asterisk.org/jira/browse/PRI-188
+
+From ec1d6589c6e4eb6550cb92d5e0f214f7b31e8d5f Mon Sep 17 00:00:00 2001
+From: "Sergey V. Lobanov" <sergey@lobanov.in>
+Date: Sun, 30 Jan 2022 13:25:17 +0300
+Subject: [PATCH] Add an ability to build libpri on MacOS for Linux target
+
+This patch allows to rededine ar and ranlib tool using AR and
+RANLIB make flags.
+
+Fixes: PRI-188
+
+Signed-off-by: Sergey V. Lobanov <sergey@lobanov.in>
+---
+ Makefile | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/Makefile
++++ b/Makefile
+@@ -27,6 +27,8 @@
+ CC=gcc
+ GREP=grep
+ AWK=awk
++AR=ar
++RANLIB=ranlib
+ 
+ OSARCH=$(shell uname -s)
+ PROC?=$(shell uname -m)
+@@ -193,8 +195,8 @@ MAKE_DEPS= -MD -MT $@ -MF .$(subst /,_,$
+ 	$(CC) $(CFLAGS) $(MAKE_DEPS) -c -o $@ $<
+ 
+ $(STATIC_LIBRARY): $(STATIC_OBJS)
+-	ar rcs $(STATIC_LIBRARY) $(STATIC_OBJS)
+-	ranlib $(STATIC_LIBRARY)
++	$(AR) rcs $(STATIC_LIBRARY) $(STATIC_OBJS)
++	$(RANLIB) $(STATIC_LIBRARY)
+ 
+ $(DYNAMIC_LIBRARY): $(DYNAMIC_OBJS)
+ 	$(CC) $(SOFLAGS) -o $@ $(DYNAMIC_OBJS)
