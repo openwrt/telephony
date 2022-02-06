@@ -235,6 +235,7 @@ PKG_CONFIG_DEPENDS:= \
 
 include $(INCLUDE_DIR)/nls.mk
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/kernel.mk
 include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 
 # Build reproducibly
@@ -412,6 +413,8 @@ CPU_MIPS2:=mips32 24kc 34kc 4kec 74kc
 endif
 
 MAKE_FLAGS += \
+	OS=linux \
+	OSREL=$(LINUX_UNAME_VERSION) \
 	$(if $(findstring $(call qstrip,$(CONFIG_CPU_TYPE)),$(CPU_MIPS2)),ARCH="mips2",ARCH="$(ARCH)") \
 	CC_EXTRA_OPTS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
 	LD="$(TARGET_CC)" \
