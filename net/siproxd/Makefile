@@ -8,12 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
-PKG_VERSION:=0.8.3
-PKG_RELEASE:=4
+PKG_RELEASE:=$(AUTORELEASE)
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=@SF/siproxd
-PKG_HASH:=9a6d7a6bb6fff162775b1e1fb7018de9c69642cbf8626185dc6ffceeeba07736
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/hb9xar/siproxd.git
+PKG_SOURCE_DATE:=2022-02-18
+PKG_SOURCE_VERSION:=4750bea4ffedb4543a404dafc979c2b16b53e523
+PKG_MIRROR_HASH:=e6c4266b9eba43792908cf7c4ee73c32eee7b3a227ee671a5381cc335295fc05
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -59,6 +60,7 @@ define Package/siproxd/config
 endef
 
 CONFIGURE_ARGS+= \
+	--enable-reproducible-build \
 	--with-libosip-prefix="$(STAGING_DIR)/usr" \
 	--without-included-ltdl \
 	--disable-doc
