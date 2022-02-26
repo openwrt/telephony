@@ -29,7 +29,7 @@ PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 # errors.
 PKG_BUILD_PARALLEL:=0
 
-PKG_BUILD_DEPENDS:=gperf/host
+PKG_BUILD_DEPENDS:=gperf/host perl/host
 
 # With below variable set, $(PKG_SYMVERS_DIR)/rtpengine.symvers gets generated
 # from kernel-module/Module.symvers.
@@ -242,7 +242,9 @@ ifeq ($(QUILT),)
 	cd "$(PKG_BUILD_DIR)" && \
 		$(FIND) . -maxdepth 2 -name "*Makefile" | \
 		xargs  -I{} $(SED) \
-		'/shell which dpkg-/s/dpkg/OpenWrt-has-no-dpkg/' {}
+		'/shell which dpkg-/s/dpkg/OpenWrt-has-no-dpkg/' {} && \
+		$(SED) 's|#!/usr/bin/perl|#!$(STAGING_DIR_HOSTPKG)/usr/bin/perl|' \
+		utils/const_str_hash
 endif
 endef
 
