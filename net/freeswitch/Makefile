@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.7
-PKG_RELEASE:=2
+PKG_RELEASE:=$(AUTORELEASE)
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
@@ -894,7 +894,7 @@ $(eval $(call Package/freeswitch/Module,abstraction,API abstraction,This module 
 $(eval $(call Package/freeswitch/Module,alsa,ALSA endpoint,ALSA endpoint module.,+alsa-lib))
 $(eval $(call Package/freeswitch/Module,amr,AMR passthrough,Passthrough AMR codec support.,))
 $(eval $(call Package/freeswitch/Module,amrwb,AMR wideband passthrough,Passthrough AMR wideband codec support.,))
-$(eval $(call Package/freeswitch/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @x86_64))
+$(eval $(call Package/freeswitch/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN @x86_64))
 $(eval $(call Package/freeswitch/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
 $(eval $(call Package/freeswitch/Module,b64,Base64,Transfers data Base64 encoded.,))
 $(eval $(call Package/freeswitch/Module,basic,BASIC,BASIC module for FreeSWITCH.,))
