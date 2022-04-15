@@ -108,7 +108,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  	}
 --- a/res/res_http_media_cache.c
 +++ b/res/res_http_media_cache.c
-@@ -152,7 +152,7 @@ static void bucket_file_set_expiration(s
+@@ -150,7 +150,7 @@ static void bucket_file_set_expiration(s
  	}
  
  	/* Use 'now' if we didn't get an expiration time */
@@ -117,7 +117,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  
  	ast_bucket_file_metadata_set(bucket_file, "__actual_expires", time_buf);
  }
-@@ -302,7 +302,7 @@ static int bucket_file_expired(struct as
+@@ -314,7 +314,7 @@ static int bucket_file_expired(struct as
  		return 1;
  	}
  
@@ -128,7 +128,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  
 --- a/res/res_odbc.c
 +++ b/res/res_odbc.c
-@@ -1038,7 +1038,7 @@ static odbc_status odbc_obj_connect(stru
+@@ -1029,7 +1029,7 @@ static odbc_status odbc_obj_connect(stru
  	/* Dont connect while server is marked as unreachable via negative_connection_cache */
  	negative_cache_expiration = obj->parent->last_negative_connect.tv_sec + obj->parent->negative_connection_cache.tv_sec;
  	if (time(NULL) < negative_cache_expiration) {
@@ -217,7 +217,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  		addr,
 --- a/res/res_pjsip_pubsub.c
 +++ b/res/res_pjsip_pubsub.c
-@@ -4744,7 +4744,7 @@ static int persistence_expires_str2struc
+@@ -4872,7 +4872,7 @@ static int persistence_expires_str2struc
  static int persistence_expires_struct2str(const void *obj, const intptr_t *args, char **buf)
  {
  	const struct subscription_persistence *persistence = obj;
@@ -228,7 +228,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  #define RESOURCE_LIST_INIT_SIZE 4
 --- a/res/res_pjsip_registrar.c
 +++ b/res/res_pjsip_registrar.c
-@@ -1272,7 +1272,7 @@ static void *check_expiration_thread(voi
+@@ -1370,7 +1370,7 @@ static void *check_expiration_thread(voi
  	while (check_interval) {
  		sleep(check_interval);
  
@@ -239,7 +239,7 @@ Change-Id: Ic8d61b26033f5c486b917e738c9608b0923a844e
  		ast_debug(4, "Woke up at %s  Interval: %d\n", time, check_interval);
 --- a/res/res_stir_shaken.c
 +++ b/res/res_stir_shaken.c
-@@ -389,7 +389,7 @@ static void set_public_key_expiration(co
+@@ -441,7 +441,7 @@ static void set_public_key_expiration(co
  		actual_expires.tv_sec += EXPIRATION_BUFFER;
  	}
  
