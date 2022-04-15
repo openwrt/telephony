@@ -1,0 +1,366 @@
+From f50e793665ea66b5cea7c612cc95ca27bf45afb8 Mon Sep 17 00:00:00 2001
+From: Philip Prindeville <philipp@redfish-solutions.com>
+Date: Sun, 13 Feb 2022 12:06:37 -0700
+Subject: [PATCH] time: add support for time64 libcs
+
+Treat time_t's as entirely unique and use the POSIX API's for
+converting to/from strings.
+
+Lastly, a 64-bit integer formats as 20 digits at most in base10.
+Don't need to have any 100 byte buffers to hold that.
+
+ASTERISK-29674 #close
+
+Signed-off-by: Philip Prindeville <philipp@redfish-solutions.com>
+Change-Id: Id7b25bdca8f92e34229f6454f6c3e500f2cd6f56
+---
+ include/asterisk/time.h       | 20 ++++++++++++++++++++
+ main/Makefile                 |  1 +
+ main/time.c                   | 29 +++++++++++++++++++++++++++++
+ res/res_calendar_caldav.c     |  4 ++--
+ res/res_calendar_icalendar.c  |  4 ++--
+ res/res_http_media_cache.c    |  7 ++++---
+ res/res_odbc.c                |  4 +++-
+ res/res_pjsip/location.c      |  5 ++++-
+ res/res_pjsip/pjsip_options.c |  4 +++-
+ res/res_pjsip_history.c       | 25 ++++++++++++++-----------
+ res/res_pjsip_pubsub.c        |  6 +++++-
+ res/res_pjsip_registrar.c     |  5 +++--
+ res/res_stir_shaken.c         |  6 ++++--
+ 13 files changed, 94 insertions(+), 26 deletions(-)
+
+--- a/include/asterisk/time.h
++++ b/include/asterisk/time.h
+@@ -35,6 +35,13 @@
+ 
+ #include "asterisk/inline_api.h"
+ 
++/* A time_t can be represented as an unsigned long long (or uint64_t).
++ * Formatted in base 10, UINT64_MAX is 20 digits long, plus one for NUL.
++ * This should be the size of the receiving char buffer for calls to
++ * ast_time_t_to_string().
++ */
++#define AST_TIME_T_LEN		21
++
+ /* We have to let the compiler learn what types to use for the elements of a
+    struct timeval since on linux, it's time_t and suseconds_t, but on *BSD,
+    they are just a long.
+@@ -316,4 +323,17 @@ struct timeval ast_time_create_by_unit(u
+  */
+ struct timeval ast_time_create_by_unit_str(unsigned long val, const char *unit);
+ 
++/*!
++ * \brief Converts to a string representation of a time_t as decimal
++ * seconds since the epoch. Returns -1 on failure, zero otherwise.
++ *
++ * The buffer should be at least 22 bytes long.
++ */
++int ast_time_t_to_string(time_t time, char *buf, size_t length);
++
++/*!
++ * \brief Returns a time_t from a string containing seconds since the epoch.
++ */
++time_t ast_string_to_time_t(const char *str);
++
+ #endif /* _ASTERISK_TIME_H */
+--- a/main/Makefile
++++ b/main/Makefile
+@@ -169,6 +169,7 @@ sched.o: _ASTCFLAGS+=$(call get_menusele
+ tcptls.o: _ASTCFLAGS+=$(OPENSSL_INCLUDE) -Wno-deprecated-declarations
+ uuid.o: _ASTCFLAGS+=$(UUID_INCLUDE)
+ stasis.o: _ASTCFLAGS+=$(call get_menuselect_cflags,AO2_DEBUG)
++time.o: _ASTCFLAGS+=-D_XOPEN_SOURCE=700
+ 
+ 
+ OBJS:=$(sort $(OBJS))
+--- a/main/time.c
++++ b/main/time.c
+@@ -25,6 +25,7 @@
+ 
+ #include <inttypes.h>
+ #include <string.h>
++#include <strings.h>
+ #include <time.h>
+ 
+ #include "asterisk/time.h"
+@@ -143,3 +144,31 @@ struct timeval ast_time_create_by_unit_s
+ {
+ 	return ast_time_create_by_unit(val, ast_time_str_to_unit(unit));
+ }
++
++/*!
++ * \brief Returns a string representation of a time_t as decimal seconds
++ * since the epoch.
++ */
++int ast_time_t_to_string(time_t time, char *buf, size_t length)
++{
++	struct tm tm;
++
++	localtime_r(&time, &tm);
++	return (strftime(buf, length, "%s", &tm) == 0) ? -1 : 0;
++}
++
++/*!
++ * \brief Returns a time_t from a string containing seconds since the epoch.
++ */
++time_t ast_string_to_time_t(const char *str)
++{
++	struct tm tm = { 0, };
++
++	/* handle leading spaces */
++	if (strptime(str, " %s", &tm) == NULL) {
++		return (time_t)-1;
++	}
++	tm.tm_isdst = -1;
++	return mktime(&tm);
++}
++
+--- a/res/res_calendar_caldav.c
++++ b/res/res_calendar_caldav.c
+@@ -404,8 +404,8 @@ static void caldav_add_event(icalcompone
+ 		if (!ast_strlen_zero(event->summary)) {
+ 			ast_string_field_set(event, uid, event->summary);
+ 		} else {
+-			char tmp[100];
+-			snprintf(tmp, sizeof(tmp), "%ld", event->start);
++			char tmp[AST_TIME_T_LEN];
++			ast_time_t_to_string(event->start, tmp, sizeof(tmp));
+ 			ast_string_field_set(event, uid, tmp);
+ 		}
+ 	}
+--- a/res/res_calendar_icalendar.c
++++ b/res/res_calendar_icalendar.c
+@@ -245,8 +245,8 @@ static void icalendar_add_event(icalcomp
+ 		if (!ast_strlen_zero(event->summary)) {
+ 			ast_string_field_set(event, uid, event->summary);
+ 		} else {
+-			char tmp[100];
+-			snprintf(tmp, sizeof(tmp), "%ld", event->start);
++			char tmp[AST_TIME_T_LEN];
++			ast_time_t_to_string(event->start, tmp, sizeof(tmp));
+ 			ast_string_field_set(event, uid, tmp);
+ 		}
+ 	}
+--- a/res/res_http_media_cache.c
++++ b/res/res_http_media_cache.c
+@@ -116,7 +116,7 @@ static size_t curl_body_callback(void *p
+ static void bucket_file_set_expiration(struct ast_bucket_file *bucket_file)
+ {
+ 	struct ast_bucket_metadata *metadata;
+-	char time_buf[32];
++	char time_buf[32], secs[AST_TIME_T_LEN];
+ 	struct timeval actual_expires = ast_tvnow();
+ 
+ 	metadata = ast_bucket_file_metadata_get(bucket_file, "cache-control");
+@@ -150,7 +150,8 @@ static void bucket_file_set_expiration(s
+ 	}
+ 
+ 	/* Use 'now' if we didn't get an expiration time */
+-	snprintf(time_buf, sizeof(time_buf), "%30lu", actual_expires.tv_sec);
++	ast_time_t_to_string(actual_expires.tv_sec, secs, sizeof(secs));
++	snprintf(time_buf, sizeof(time_buf), "%30s", secs);
+ 
+ 	ast_bucket_file_metadata_set(bucket_file, "__actual_expires", time_buf);
+ }
+@@ -314,7 +315,7 @@ static int bucket_file_expired(struct as
+ 		return 1;
+ 	}
+ 
+-	if (sscanf(metadata->value, "%lu", &expires.tv_sec) != 1) {
++	if ((expires.tv_sec = ast_string_to_time_t(metadata->value)) == -1) {
+ 		return 1;
+ 	}
+ 
+--- a/res/res_odbc.c
++++ b/res/res_odbc.c
+@@ -1029,7 +1029,9 @@ static odbc_status odbc_obj_connect(stru
+ 	/* Dont connect while server is marked as unreachable via negative_connection_cache */
+ 	negative_cache_expiration = obj->parent->last_negative_connect.tv_sec + obj->parent->negative_connection_cache.tv_sec;
+ 	if (time(NULL) < negative_cache_expiration) {
+-		ast_log(LOG_WARNING, "Not connecting to %s. Negative connection cache for %ld seconds\n", obj->parent->name, negative_cache_expiration - time(NULL));
++		char secs[AST_TIME_T_LEN];
++		ast_time_t_to_string(negative_cache_expiration - time(NULL), secs, sizeof(secs));
++		ast_log(LOG_WARNING, "Not connecting to %s. Negative connection cache for %s seconds\n", obj->parent->name, secs);
+ 		return ODBC_FAIL;
+ 	}
+ 
+--- a/res/res_pjsip/location.c
++++ b/res/res_pjsip/location.c
+@@ -489,7 +489,10 @@ static int expiration_str2struct(const s
+ static int expiration_struct2str(const void *obj, const intptr_t *args, char **buf)
+ {
+ 	const struct ast_sip_contact *contact = obj;
+-	return (ast_asprintf(buf, "%ld", contact->expiration_time.tv_sec) < 0) ? -1 : 0;
++	char secs[AST_TIME_T_LEN];
++
++	ast_time_t_to_string(contact->expiration_time.tv_sec, secs, sizeof(secs));
++	return (ast_asprintf(buf, "%s", secs) < 0) ? -1 : 0;
+ }
+ 
+ static int permanent_uri_sort_fn(const void *obj_left, const void *obj_right, int flags)
+--- a/res/res_pjsip/pjsip_options.c
++++ b/res/res_pjsip/pjsip_options.c
+@@ -2722,6 +2722,7 @@ int ast_sip_format_contact_ami(void *obj
+ 	struct ast_sip_contact_status *status;
+ 	struct ast_str *buf;
+ 	const struct ast_sip_endpoint *endpoint = ami->arg;
++	char secs[AST_TIME_T_LEN];
+ 
+ 	buf = ast_sip_create_ami_event("ContactStatusDetail", ami);
+ 	if (!buf) {
+@@ -2733,7 +2734,8 @@ int ast_sip_format_contact_ami(void *obj
+ 	ast_str_append(&buf, 0, "AOR: %s\r\n", wrapper->aor_id);
+ 	ast_str_append(&buf, 0, "URI: %s\r\n", contact->uri);
+ 	ast_str_append(&buf, 0, "UserAgent: %s\r\n", contact->user_agent);
+-	ast_str_append(&buf, 0, "RegExpire: %ld\r\n", contact->expiration_time.tv_sec);
++	ast_time_t_to_string(contact->expiration_time.tv_sec, secs, sizeof(secs));
++	ast_str_append(&buf, 0, "RegExpire: %s\r\n", secs);
+ 	if (!ast_strlen_zero(contact->via_addr)) {
+ 		ast_str_append(&buf, 0, "ViaAddress: %s", contact->via_addr);
+ 		if (contact->via_port) {
+--- a/res/res_pjsip_history.c
++++ b/res/res_pjsip_history.c
+@@ -199,7 +199,7 @@ static int evaluate_equal(struct operato
+ 	{
+ 		struct timeval right = { 0, };
+ 
+-		if (sscanf(op_right->field, "%ld", &right.tv_sec) != 1) {
++		if ((right.tv_sec = ast_string_to_time_t(op_right->field)) == -1) {
+ 			ast_log(LOG_WARNING, "Unable to extract field '%s': not a timestamp\n", op_right->field);
+ 			return -1;
+ 		}
+@@ -270,7 +270,7 @@ static int evaluate_less_than(struct ope
+ 	{
+ 		struct timeval right = { 0, };
+ 
+-		if (sscanf(op_right->field, "%ld", &right.tv_sec) != 1) {
++		if ((right.tv_sec = ast_string_to_time_t(op_right->field)) == -1) {
+ 			ast_log(LOG_WARNING, "Unable to extract field '%s': not a timestamp\n", op_right->field);
+ 			return -1;
+ 		}
+@@ -319,7 +319,7 @@ static int evaluate_greater_than(struct
+ 	{
+ 		struct timeval right = { 0, };
+ 
+-		if (sscanf(op_right->field, "%ld", &right.tv_sec) != 1) {
++		if ((right.tv_sec = ast_string_to_time_t(op_right->field)) == -1) {
+ 			ast_log(LOG_WARNING, "Unable to extract field '%s': not a timestamp\n", op_right->field);
+ 			return -1;
+ 		}
+@@ -656,7 +656,7 @@ static struct pjsip_history_entry *pjsip
+ /*! \brief Format single line history entry */
+ static void sprint_list_entry(struct pjsip_history_entry *entry, char *line, int len)
+ {
+-	char addr[64];
++	char addr[64], secs[AST_TIME_T_LEN];
+ 
+ 	if (entry->transmitted) {
+ 		pj_sockaddr_print(&entry->dst, addr, sizeof(addr), 3);
+@@ -664,22 +664,24 @@ static void sprint_list_entry(struct pjs
+ 		pj_sockaddr_print(&entry->src, addr, sizeof(addr), 3);
+ 	}
+ 
++	ast_time_t_to_string(entry->timestamp.tv_sec, secs, sizeof(secs));
++
+ 	if (entry->msg->type == PJSIP_REQUEST_MSG) {
+ 		char uri[128];
+ 
+ 		pjsip_uri_print(PJSIP_URI_IN_REQ_URI, entry->msg->line.req.uri, uri, sizeof(uri));
+-		snprintf(line, len, "%-5.5d %-10.10ld %-5.5s %-24.24s %.*s %s SIP/2.0",
++		snprintf(line, len, "%-5.5d %-10.10s %-5.5s %-24.24s %.*s %s SIP/2.0",
+ 			entry->number,
+-			entry->timestamp.tv_sec,
++			secs,
+ 			entry->transmitted ? "* ==>" : "* <==",
+ 			addr,
+ 			(int)pj_strlen(&entry->msg->line.req.method.name),
+ 			pj_strbuf(&entry->msg->line.req.method.name),
+ 			uri);
+ 	} else {
+-		snprintf(line, len, "%-5.5d %-10.10ld %-5.5s %-24.24s SIP/2.0 %u %.*s",
++		snprintf(line, len, "%-5.5d %-10.10s %-5.5s %-24.24s SIP/2.0 %u %.*s",
+ 			entry->number,
+-			entry->timestamp.tv_sec,
++			secs,
+ 			entry->transmitted ? "* ==>" : "* <==",
+ 			addr,
+ 			entry->msg->line.status.code,
+@@ -1149,7 +1151,7 @@ static struct vector_history_t *filter_h
+ /*! \brief Print a detailed view of a single entry in the history to the CLI */
+ static void display_single_entry(struct ast_cli_args *a, struct pjsip_history_entry *entry)
+ {
+-	char addr[64];
++	char addr[64], secs[AST_TIME_T_LEN];
+ 	char *buf;
+ 
+ 	buf = ast_calloc(1, PJSIP_MAX_PKT_LEN * sizeof(char));
+@@ -1169,11 +1171,12 @@ static void display_single_entry(struct
+ 		pj_sockaddr_print(&entry->src, addr, sizeof(addr), 3);
+ 	}
+ 
+-	ast_cli(a->fd, "<--- History Entry %d %s %s at %-10.10ld --->\n",
++	ast_time_t_to_string(entry->timestamp.tv_sec, secs, sizeof(secs));
++	ast_cli(a->fd, "<--- History Entry %d %s %s at %-10.10s --->\n",
+ 		entry->number,
+ 		entry->transmitted ? "Sent to" : "Received from",
+ 		addr,
+-		entry->timestamp.tv_sec);
++		secs);
+ 	ast_cli(a->fd, "%s\n", buf);
+ 
+ 	ast_free(buf);
+--- a/res/res_pjsip_pubsub.c
++++ b/res/res_pjsip_pubsub.c
+@@ -4872,7 +4872,11 @@ static int persistence_expires_str2struc
+ static int persistence_expires_struct2str(const void *obj, const intptr_t *args, char **buf)
+ {
+ 	const struct subscription_persistence *persistence = obj;
+-	return (ast_asprintf(buf, "%ld", persistence->expires.tv_sec) < 0) ? -1 : 0;
++	char secs[AST_TIME_T_LEN];
++
++	ast_time_t_to_string(persistence->expires.tv_sec, secs, sizeof(secs));
++
++	return (ast_asprintf(buf, "%s", secs) < 0) ? -1 : 0;
+ }
+ 
+ #define RESOURCE_LIST_INIT_SIZE 4
+--- a/res/res_pjsip_registrar.c
++++ b/res/res_pjsip_registrar.c
+@@ -1365,12 +1365,13 @@ static void *check_expiration_thread(voi
+ {
+ 	struct ao2_container *contacts;
+ 	struct ast_variable *var;
+-	char *time = alloca(64);
++	char time[AST_TIME_T_LEN];
+ 
+ 	while (check_interval) {
+ 		sleep(check_interval);
+ 
+-		sprintf(time, "%ld", ast_tvnow().tv_sec);
++		ast_time_t_to_string(ast_tvnow().tv_sec, time, sizeof(time));
++
+ 		var = ast_variable_new("expiration_time <=", time, "");
+ 
+ 		ast_debug(4, "Woke up at %s  Interval: %d\n", time, check_interval);
+--- a/res/res_stir_shaken.c
++++ b/res/res_stir_shaken.c
+@@ -403,7 +403,7 @@ int ast_stir_shaken_add_verification(str
+  */
+ static void set_public_key_expiration(const char *public_cert_url, const struct curl_cb_data *data)
+ {
+-	char time_buf[32];
++	char time_buf[32], secs[AST_TIME_T_LEN];
+ 	char *value;
+ 	struct timeval actual_expires = ast_tvnow();
+ 	char hash[41];
+@@ -441,7 +441,9 @@ static void set_public_key_expiration(co
+ 		actual_expires.tv_sec += EXPIRATION_BUFFER;
+ 	}
+ 
+-	snprintf(time_buf, sizeof(time_buf), "%30lu", actual_expires.tv_sec);
++	ast_time_t_to_string(actual_expires.tv_sec, secs, sizeof(secs));
++
++	snprintf(time_buf, sizeof(time_buf), "%30s", secs);
+ 
+ 	ast_db_put(hash, "expiration", time_buf);
+ }
