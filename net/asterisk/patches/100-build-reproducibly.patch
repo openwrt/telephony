@@ -15,14 +15,14 @@
  cat << END
  /*
   * build.h
---- a/Makefile
-+++ b/Makefile
-@@ -489,7 +489,7 @@ doc/core-en_US.xml: makeopts .lastclean
- 	@echo "<docs xmlns:xi=\"http://www.w3.org/2001/XInclude\">" >> $@
- 	@for x in $(MOD_SUBDIRS); do \
- 		printf "$$x " ; \
--		for i in `find $$x -name '*.c'`; do \
-+		for i in `find $$x -name '*.c' | LC_ALL=C sort`; do \
- 			MODULEINFO=$$($(AWK) -f build_tools/get_moduleinfo $$i) ; \
- 			if [ -n "$$MODULEINFO" ] ; \
- 			then \
+--- a/build_tools/make_xml_documentation
++++ b/build_tools/make_xml_documentation
+@@ -187,7 +187,7 @@ printf "Building Documentation For: "
+ for subdir in ${mod_subdirs} ; do
+ 	printf "%s " "${subdir}"
+ 	subdir_path="${source_tree}/${subdir}"
+-	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc'); do
++	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc' | LC_ALL=C sort); do
+ 		if [ "${with_moduleinfo}" -eq "1" ] ; then
+ 			MODULEINFO=$(${AWK} -f "${source_tree}/build_tools/get_moduleinfo" "${i}")
+ 			if [ "${MODULEINFO}" != "" ] ; then
