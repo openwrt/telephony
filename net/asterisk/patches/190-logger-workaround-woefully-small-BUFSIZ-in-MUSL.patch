@@ -1,0 +1,76 @@
+From 140c19c2067a5e2dcedfbb4dfa08c57758b822cb Mon Sep 17 00:00:00 2001
+From: Philip Prindeville <philipp@redfish-solutions.com>
+Date: Mon, 21 Feb 2022 18:05:49 -0700
+Subject: [PATCH] logger: workaround woefully small BUFSIZ in MUSL
+
+MUSL defines BUFSIZ as 1024 which is not reasonable for log messages.
+
+More broadly, BUFSIZ is the amount of buffering stdio.h does, which
+is arbitrary and largely orthogonal to what logging should accept
+as the maximum message size.
+
+ASTERISK-29928
+
+Signed-off-by: Philip Prindeville <philipp@redfish-solutions.com>
+Change-Id: Iaa49fbbab029c64ae3d95e4b18270e0442cce170
+---
+ main/logger.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+--- a/main/logger.c
++++ b/main/logger.c
+@@ -97,6 +97,11 @@ static int logger_queue_limit = 1000;
+ static int logger_messages_discarded;
+ static unsigned int high_water_alert;
+ 
++/* On some platforms, like those with MUSL as the runtime, BUFSIZ is
++ * unreasonably small (1024). Use a larger value in those environments.
++ */
++#define LOGMSG_SIZE		MAX(BUFSIZ, 8192)
++
+ static enum rotatestrategy {
+ 	NONE = 0,                /* Do not rotate log files at all, instead rely on external mechanisms */
+ 	SEQUENTIAL = 1 << 0,     /* Original method - create a new file, in order */
+@@ -1665,7 +1670,7 @@ static struct sigaction handle_SIGXFSZ =
+ static void logger_print_normal(struct logmsg *logmsg)
+ {
+ 	struct logchannel *chan = NULL;
+-	char buf[BUFSIZ];
++	char buf[LOGMSG_SIZE];
+ 	int level = 0;
+ 
+ 	AST_RWLIST_RDLOCK(&logchannels);
+@@ -1698,13 +1703,13 @@ static void logger_print_normal(struct l
+ 
+ 					/* Don't use LOG_MAKEPRI because it's broken in glibc<2.17 */
+ 					syslog_level = chan->facility | syslog_level; /* LOG_MAKEPRI(chan->facility, syslog_level); */
+-					if (!chan->formatter.format_log(chan, logmsg, buf, BUFSIZ)) {
++					if (!chan->formatter.format_log(chan, logmsg, buf, sizeof(buf))) {
+ 						syslog(syslog_level, "%s", buf);
+ 					}
+ 				}
+ 				break;
+ 			case LOGTYPE_CONSOLE:
+-				if (!chan->formatter.format_log(chan, logmsg, buf, BUFSIZ)) {
++				if (!chan->formatter.format_log(chan, logmsg, buf, sizeof(buf))) {
+ 					ast_console_puts_mutable_full(buf, logmsg->level, logmsg->sublevel);
+ 				}
+ 				break;
+@@ -1716,7 +1721,7 @@ static void logger_print_normal(struct l
+ 						continue;
+ 					}
+ 
+-					if (chan->formatter.format_log(chan, logmsg, buf, BUFSIZ)) {
++					if (chan->formatter.format_log(chan, logmsg, buf, sizeof(buf))) {
+ 						continue;
+ 					}
+ 
+@@ -1780,7 +1785,7 @@ static struct logmsg * __attribute__((fo
+ 	}
+ 
+ 	/* Build string */
+-	res = ast_str_set_va(&buf, BUFSIZ, fmt, ap);
++	res = ast_str_set_va(&buf, LOGMSG_SIZE, fmt, ap);
+ 
+ 	/* If the build failed, then abort and free this structure */
+ 	if (res == AST_DYNSTR_BUILD_FAILED) {
