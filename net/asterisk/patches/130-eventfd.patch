@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1205,7 +1205,7 @@ if test "${ac_cv_have_variable_fdset}x"
+@@ -1260,7 +1260,7 @@ if test "${ac_cv_have_variable_fdset}x"
  fi
  
  AC_MSG_CHECKING([if we have usable eventfd support])
