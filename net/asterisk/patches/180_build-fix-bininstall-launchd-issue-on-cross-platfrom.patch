@@ -32,7 +32,7 @@ Signed-off-by: Sergey V. Lobanov <sergey@lobanov.in>
 
 --- a/Makefile
 +++ b/Makefile
-@@ -589,9 +589,9 @@ bininstall: _all installdirs $(SUBDIRS_I
+@@ -558,9 +558,9 @@ bininstall: _all installdirs $(SUBDIRS_I
  	$(INSTALL) -m 755 contrib/scripts/astversion "$(DESTDIR)$(ASTSBINDIR)/"
  	$(INSTALL) -m 755 contrib/scripts/astgenkey "$(DESTDIR)$(ASTSBINDIR)/"
  	$(INSTALL) -m 755 contrib/scripts/autosupport "$(DESTDIR)$(ASTSBINDIR)/"
@@ -47,7 +47,7 @@ Signed-off-by: Sergey V. Lobanov <sergey@lobanov.in>
  	$(INSTALL) -m 644 doc/core-*.xml "$(DESTDIR)$(ASTDATADIR)/documentation"
 --- a/makeopts.in
 +++ b/makeopts.in
-@@ -369,3 +369,5 @@ SNDFILE_LIB=@SNDFILE_LIB@
+@@ -373,3 +373,5 @@ SNDFILE_LIB=@SNDFILE_LIB@
  
  BEANSTALK_INCLUDE=@BEANSTALK_INCLUDE@
  BEANSTALK_LIB=@BEANSTALK_LIB@

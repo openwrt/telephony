@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=18.7.1
+PKG_VERSION:=18.11.2
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=11c8728718b59af74440276ba888484bc9201217719d56436e1e0e85bf533c17
+PKG_HASH:=b456d19610e53789446e097bb9773a82a04088922de0cfaff2b818326b67296b
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -88,6 +88,7 @@ MODULES_AVAILABLE:= \
 	app-sayunixtime \
 	app-senddtmf \
 	app-sendtext \
+	app-sf \
 	app-skel \
 	app-sms \
 	app-softhangup \
@@ -192,6 +193,7 @@ MODULES_AVAILABLE:= \
 	func-holdintercept \
 	func-iconv \
 	func-jitterbuffer \
+	func-json \
 	func-lock \
 	func-math \
 	func-md5 \
@@ -818,6 +820,7 @@ $(eval $(call BuildAsteriskModule,app-saycounted,Decline words,Decline words acc
 $(eval $(call BuildAsteriskModule,app-sayunixtime,Say Unix time,Say time.,,,app_sayunixtime,,))
 $(eval $(call BuildAsteriskModule,app-senddtmf,Send DTMF digits,Send DTMF digits application.,,,app_senddtmf,,))
 $(eval $(call BuildAsteriskModule,app-sendtext,Send text,Send text applications.,,,app_sendtext,,))
+$(eval $(call BuildAsteriskModule,app-sf,SF Sender and Receiver Applications,SF Sender and Receiver Applications.,,,app_sf,,))
 $(eval $(call BuildAsteriskModule,app-skel,Skeleton [sample],Skeleton application.,,app_skel.conf,app_skel,,))
 $(eval $(call BuildAsteriskModule,app-sms,SMS,SMS/PSTN handler.,,,app_sms,,))
 $(eval $(call BuildAsteriskModule,app-softhangup,Hang up requested channel,Hangs up the requested channel.,,,app_softhangup,,))
@@ -922,6 +925,7 @@ $(eval $(call BuildAsteriskModule,func-hangupcause,HANGUPCAUSE related functions
 $(eval $(call BuildAsteriskModule,func-holdintercept,Hold interception dialplan function,Hold interception dialplan function.,,,func_holdintercept,,))
 $(eval $(call BuildAsteriskModule,func-iconv,Charset conversion,Charset conversions.,,,func_iconv,,,$(ICONV_DEPENDS)))
 $(eval $(call BuildAsteriskModule,func-jitterbuffer,Jitter buffer for read side of channel,Jitter buffer for read side of channel.,,,func_jitterbuffer,,))
+$(eval $(call BuildAsteriskModule,func-json,JSON decoding function,JSON decoding function.,,,func_json,,))
 $(eval $(call BuildAsteriskModule,func-lock,Dialplan mutexes,Dialplan mutexes.,,,func_lock,,))
 $(eval $(call BuildAsteriskModule,func-math,Math functions,Mathematical dialplan function.,,,func_math,,))
 $(eval $(call BuildAsteriskModule,func-md5,MD5 digest dialplan functions,MD5 digest dialplan functions.,,,func_md5,,))
