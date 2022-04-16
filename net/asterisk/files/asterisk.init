@@ -30,7 +30,7 @@ start_service() {
   fi
 
   config_get_bool log_stderr general log_stderr 1
-  config_get_bool log_stdout general log_stdout 1
+  config_get_bool log_stdout general log_stdout 0
 
   config_get options general options
 
