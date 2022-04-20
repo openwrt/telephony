@@ -1,0 +1,55 @@
+From: https://issues.asterisk.org/jira/browse/ASTERISK-29905
+
+From d27d75ad8058f6ed35197737b949bac57202dd54 Mon Sep 17 00:00:00 2001
+From: "Sergey V. Lobanov" <sergey@lobanov.in>
+Date: Wed, 9 Feb 2022 01:29:46 +0300
+Subject: [PATCH] build: fix bininstall launchd issue on cross-platfrom build
+
+configure script detects /sbin/launchd, but the result of this
+check is not used in Makefile (bininstall). Makefile also detects
+/sbin/launchd file to decide if it is required to install
+safe_asterisk.
+
+configure script correctly detects cross compile build and sets
+PBX_LAUNCHD=0
+
+In case of building asterisk on MacOS host for Linux target using
+external toolchain (e.g. OpenWrt toolchain), bininstall does not
+install safe_asterisk (due to /sbin/launchd detection in Makefile),
+but it is required on target (Linux).
+
+This patch adds HAVE_SBIN_LAUNCHD=@PBX_LAUNCHD@ to makeopts.in to
+use the result of /sbin/launchd detection from configure script in
+Makefile.
+Also this patch uses HAVE_SBIN_LAUNCHD in Makefile (bininstall) to
+decide if it is required to install safe_asterisk.
+
+Signed-off-by: Sergey V. Lobanov <sergey@lobanov.in>
+---
+ Makefile    | 6 +++---
+ makeopts.in | 2 ++
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+--- a/Makefile
++++ b/Makefile
+@@ -558,9 +558,9 @@ bininstall: _all installdirs $(SUBDIRS_I
+ 	$(INSTALL) -m 755 contrib/scripts/astversion "$(DESTDIR)$(ASTSBINDIR)/"
+ 	$(INSTALL) -m 755 contrib/scripts/astgenkey "$(DESTDIR)$(ASTSBINDIR)/"
+ 	$(INSTALL) -m 755 contrib/scripts/autosupport "$(DESTDIR)$(ASTSBINDIR)/"
+-	if [ ! -f /sbin/launchd ]; then \
+-		./build_tools/install_subst contrib/scripts/safe_asterisk "$(DESTDIR)$(ASTSBINDIR)/safe_asterisk"; \
+-	fi
++ifneq ($(HAVE_SBIN_LAUNCHD),1)
++	./build_tools/install_subst contrib/scripts/safe_asterisk "$(DESTDIR)$(ASTSBINDIR)/safe_asterisk";
++endif
+ 
+ ifneq ($(DISABLE_XMLDOC),yes)
+ 	$(INSTALL) -m 644 doc/core-*.xml "$(DESTDIR)$(ASTDATADIR)/documentation"
+--- a/makeopts.in
++++ b/makeopts.in
+@@ -373,3 +373,5 @@ SNDFILE_LIB=@SNDFILE_LIB@
+ 
+ BEANSTALK_INCLUDE=@BEANSTALK_INCLUDE@
+ BEANSTALK_LIB=@BEANSTALK_LIB@
++
++HAVE_SBIN_LAUNCHD=@PBX_LAUNCHD@
