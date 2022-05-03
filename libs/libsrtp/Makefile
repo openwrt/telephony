@@ -21,13 +21,15 @@ PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
+CONFIGURE_ARGS+=--enable-openssl
+
 define Package/libsrtp2
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Secure RTP (SRTP) library, v$(PKG_VERSION)
   URL:=https://github.com/cisco/libsrtp
-  DEPENDS:=
+  DEPENDS:=+libopenssl
   ABI_VERSION:=1
 endef
 
