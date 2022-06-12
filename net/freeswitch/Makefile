@@ -237,6 +237,9 @@ FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 include $(FS_PERL_FEED)/perlver.mk
 
+# https://github.com/signalwire/freeswitch/issues/1670
+TARGET_CFLAGS+=-Wno-error=address
+
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 
 FS_PERL_LIBS:=$(shell grep "^libs=" \
