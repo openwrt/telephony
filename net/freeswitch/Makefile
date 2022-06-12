@@ -237,6 +237,9 @@ FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 include $(FS_PERL_FEED)/perlver.mk
 
+# https://github.com/signalwire/freeswitch/issues/1670
+TARGET_CFLAGS+=-Wno-error=address
+
 # Allow compiling with OpenSSL 3.0
 TARGET_CFLAGS+=-Wno-error=deprecated-declarations
 
