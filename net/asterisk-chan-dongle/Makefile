@@ -13,7 +13,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wdoekes/asterisk-chan-dongle.git
 PKG_SOURCE_VERSION:=3d046f7d6842298c6838b5ce5b51d495d383b158
 PKG_SOURCE_DATE=2021-10-06
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 PKG_MIRROR_HASH:=d485c89a7230ab8c318eed6c3a954b154d7e53cc7a0194abf96f4dcb83e6909c
 
 PKG_FIXUP:=autoreconf
@@ -43,8 +43,13 @@ endef
 
 CONFIGURE_ARGS+= \
 	--with-asterisk=$(STAGING_DIR)/usr/include \
-	--with-astversion=18 \
-	--with-iconv=$(ICONV_PREFIX)/include
+	--with-astversion=18
+
+ifeq ($(CONFIG_BUILD_NLS),y)
+CONFIGURE_ARGS+=--with-iconv=$(ICONV_PREFIX)/include
+else
+CONFIGURE_ARGS+=--with-iconv=$(TOOLCHAIN_DIR)/include
+endif
 
 MAKE_FLAGS+=LD="$(TARGET_CC)"
 
@@ -77,6 +82,16 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
   echo
 fi
 exit 0
+endef
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+ifeq ($(QUILT),)
+ifeq ($(CONFIG_BUILD_NLS),y)
+	$(SED) 's/\[iconv\], \[c iconv\]/[libiconv], [iconv]/' \
+		"$(PKG_BUILD_DIR)/configure.ac"
+endif
+endif
 endef
 
 $(eval $(call BuildPackage,asterisk-chan-dongle))
