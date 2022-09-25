@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sngrep
 
-PKG_VERSION:=1.4.10
+PKG_VERSION:=1.6.0
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
@@ -18,7 +18,7 @@ PKG_LICENSE_FILES:=COPYING
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/irontec/sngrep/releases/download/v$(PKG_VERSION)
-PKG_HASH:=cedbe521c9730deda004bff71e88c8c56ae66d3d147ddc6f5f965df2ca67a8df
+PKG_HASH:=fd80964d6560f2ff57b4f5bef2353d1a6f7c48d2f1a5f0a167c854bd2e801999
 
 PKG_RELEASE:=1
 
@@ -26,7 +26,11 @@ PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
-PKG_CONFIG_DEPENDS:=CONFIG_IPV6 CONFIG_SNGREP_ENABLE_EEP CONFIG_SNGREP_WITH_PCRE
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_IPV6 \
+	CONFIG_SNGREP_ENABLE_EEP \
+	CONFIG_SNGREP_WITH_PCRE \
+	CONFIG_SNGREP_WITH_ZLIB
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -34,7 +38,12 @@ define Package/sngrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libncursesw +libopenssl +libpcap +SNGREP_WITH_PCRE:libpcre
+  DEPENDS:= \
+	  +libncursesw \
+	  +libopenssl \
+	  +libpcap \
+	  +SNGREP_WITH_PCRE:libpcre2 \
+	  +SNGREP_WITH_ZLIB:zlib
   TITLE:=Ncurses SIP messages flow viewer
   URL:=https://github.com/irontec/sngrep
 endef
@@ -65,6 +74,12 @@ define Package/sngrep/config
       default y
       help
         Enable Perl compatible regular expressions
+
+    config SNGREP_WITH_ZLIB
+      bool "zlib support"
+      default y
+      help
+        Add support for opening gzip compressed input files
   endmenu
 endef
 
@@ -73,7 +88,9 @@ CONFIGURE_ARGS += \
 	--$(if $(CONFIG_IPV6),en,dis)able-ipv6 \
 	--enable-unicode \
 	--with-openssl \
-	--with$(if $(CONFIG_SNGREP_WITH_PCRE),,out)-pcre
+	--without-pcre \
+	--with$(if $(CONFIG_SNGREP_WITH_PCRE),,out)-pcre2 \
+	--with$(if $(CONFIG_SNGREP_WITH_ZLIB),,out)-zlib
 
 define Package/sngrep/install
 	$(INSTALL_DIR) $(1)/etc
