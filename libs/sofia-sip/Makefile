@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sofia-sip
 
-PKG_VERSION:=1.13.8
+PKG_VERSION:=1.13.9
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/freeswitch/$(PKG_NAME)/tar.gz/v${PKG_VERSION}?
-PKG_HASH:=792b99eb35e50d7abeb42e91a5dceaf28afc5be1a85ffb01995855792a747fec
+PKG_HASH:=3e7bfe9345e7d196bb13cf2c6e758cec8d959f1b9dbbb3bd5459b004f6f65c6c
 
 # sofia-sip adds a version to include path
 # need to update this when the version changes
