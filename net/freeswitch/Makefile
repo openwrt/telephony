@@ -66,6 +66,7 @@ FS_MOD_DIR:=$(FS_LIB_DIR)/freeswitch/mod
 FS_PKGCONFIG_DIR:=$(FS_LIB_DIR)/pkgconfig
 FS_SCRIPTS_DIR:=$(FS_DATA_DIR)/scripts
 FS_SOUNDS_DIR:=$(FS_DATA_DIR)/sounds
+FS_LUAESL_DIR:=$(FS_LIB_DIR)/lua
 FS_SYSCONF_DIR:=/etc
 FS_TLS_DIR:=$(FS_SYSCONF_DIR)/freeswitch/tls
 FS_TZ_DIR:=$(FS_DATA_DIR)/tz
@@ -227,6 +228,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_freeswitch-misc-perl-esl \
 	CONFIG_PACKAGE_freeswitch-misc-python3-esl \
+	CONFIG_PACKAGE_freeswitch-misc-lua-esl \
 	CONFIG_SOFT_FLOAT
 
 include $(INCLUDE_DIR)/uclibc++.mk
@@ -449,6 +451,25 @@ define Package/freeswitch-misc-python3-esl/install
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)$(FS_PYTHON3_SITE_DIR)/ESL.py \
 					$(1)$(FS_PYTHON3_SITE_DIR)
+endef
+
+define Package/freeswitch-misc-lua-esl
+$(call Package/freeswitch/Default)
+  TITLE:=Lua ESL
+  DEPENDS:=freeswitch \
+	  +PACKAGE_freeswitch-misc-lua-esl:lua \
+	  +PACKAGE_freeswitch-misc-lua-esl:liblua
+endef
+
+define Package/freeswitch-misc-lua-esl/description
+This package contains the Lua binding for FreeSWITCH's Event Socket
+Library (ESL).
+endef
+
+define Package/freeswitch-misc-lua-esl/install
+	$(INSTALL_DIR) $(1)$(FS_LUAESL_DIR)
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/$(FS_LUAESL_DIR)/ESL.so \
+					$(1)$(FS_LUAESL_DIR)
 endef
 
 define Package/freeswitch-misc-timezones
@@ -818,6 +839,9 @@ endif
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
 	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod)
 endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-lua-esl),)
+	$(call Build/Compile/Default,-C $(PKG_BUILD_DIR)/libs/esl luamod)
+endif
 endef
 
 define Build/Install
@@ -827,6 +851,11 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-misc-perl-esl),)
 endif
 ifneq ($(CONFIG_PACKAGE_freeswitch-misc-python3-esl),)
 	$(call Build/Install/Default,-C $(PKG_BUILD_DIR)/libs/esl py3mod-install)
+endif
+ifneq ($(CONFIG_PACKAGE_freeswitch-misc-lua-esl),)
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/$(FS_LUAESL_DIR)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libs/esl/lua/ESL.so \
+					$(PKG_INSTALL_DIR)/$(FS_LUAESL_DIR)
 endif
 endef
 
@@ -845,6 +874,7 @@ endef
 $(eval $(call BuildPackage,freeswitch))
 $(eval $(call BuildPackage,freeswitch-misc-perl-esl))
 $(eval $(call BuildPackage,freeswitch-misc-python3-esl))
+$(eval $(call BuildPackage,freeswitch-misc-lua-esl))
 $(eval $(call BuildPackage,freeswitch-misc-timezones))
 
 ################################
