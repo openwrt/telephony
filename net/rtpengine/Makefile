@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
-PKG_VERSION:=9.5.3.2
+PKG_VERSION:=10.5.2.6
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-mr$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/mr$(PKG_VERSION)?
-PKG_HASH:=03d8da1b5efcaa17ef88f306046f49e30ca87b3998c26a13bd96df922f8e729f
+PKG_HASH:=6f6d5cc2ebf27b6361ed2bd2f86a0ca74103503fd1a14af69ed423dba8340bc4
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-mr$(PKG_VERSION)
 
@@ -122,7 +122,7 @@ define Package/rtpengine/install
 	$(INSTALL_CONF) ./files/rtpengine.conf $(1)/etc/config/rtpengine
 
 	$(INSTALL_DIR) $(1)/etc/rtpengine
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/rtpengine.sample.conf \
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/rtpengine.conf \
 				$(1)/etc/rtpengine/rtpengine.conf
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
@@ -183,7 +183,7 @@ define Package/rtpengine-recording/install
 		$(1)/etc/config/rtpengine-recording
 
 	$(INSTALL_DIR) $(1)/etc/rtpengine
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/rtpengine-recording.sample.conf \
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/etc/rtpengine-recording.conf \
 				$(1)/etc/rtpengine/rtpengine-recording.conf
 endef
 

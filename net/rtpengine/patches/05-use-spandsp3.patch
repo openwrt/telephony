@@ -9,7 +9,7 @@
  CFLAGS+=	-DWITH_TRANSCODING
  CFLAGS+=        $(shell mysql_config --cflags)
  else
-@@ -68,7 +68,7 @@ LDLIBS+=	$(shell pkg-config --libs libav
+@@ -65,7 +65,7 @@ LDLIBS+=	$(shell pkg-config --libs libav
  LDLIBS+=	$(shell pkg-config --libs libavutil)
  LDLIBS+=	$(shell pkg-config --libs libswresample)
  LDLIBS+=	$(shell pkg-config --libs libavfilter)
