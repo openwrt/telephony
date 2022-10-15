@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.7
+PKG_VERSION:=1.10.8
 PKG_RELEASE:=$(AUTORELEASE)
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=0919bddc2ea9cab2e4944314e71637bea9dd4f40d510722a74ea032104594c41
+PKG_HASH:=1176b26b2f463de2980e5be953f81ced94d23c784452bd41e086d3933a88be5f
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -98,7 +98,6 @@ FS_MOD_AVAILABLE:= \
 	dialplan_asterisk \
 	dialplan_directory \
 	dialplan_xml \
-	dingaling \
 	directory \
 	distributor \
 	dptools \
@@ -198,7 +197,6 @@ FS_MOD_AVAILABLE:= \
 	tone_stream \
 	translate \
 	tts_commandline \
-	unimrcp \
 	valet_parking \
 	verto \
 	video_filter \
@@ -728,21 +726,12 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-mod-radius-cdr),)
 $(eval $(call Download/files,freeradius-client,$(FS_FREERADIUS_CLIENT_FILE),$(FS_LIBS_URL),$(FS_FREERADIUS_CLIENT_HASH)))
 endif
 
-# Need to update LDFLAGS for libs/unimrcp, otherwise it will try to link to a
-# different apr/apr-util if found.
-# FS_ANCHOR: string in build/acmacros/apr.m4 that will be replaced
-FS_ANCHOR:=dnl Get build information from APR
-FS_APR_LIBS:=-L$(PKG_BUILD_DIR)/libs/apr -L$(PKG_BUILD_DIR)/libs/apr-util
-
 define Build/Prepare
 	$(call Build/Prepare/Default)
 
 	echo '#applications/mod_random' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#codecs/mod_yuv' >> $(PKG_BUILD_DIR)/modules.conf
 	echo '#event_handlers/mod_event_test' >> $(PKG_BUILD_DIR)/modules.conf
-
-	$(SED) 's|$(FS_ANCHOR)|APR_SETVAR(LDFLAGS,[$(FS_APR_LIBS) $(TARGET_LDFLAGS)])|' \
-		$(PKG_BUILD_DIR)/libs/unimrcp/build/acmacros/apr.m4
 endef
 
 define Build/Configure
@@ -764,21 +753,9 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-mod-gsmopen),)
 	$(call Package/freeswitch/enable/plugin,mod_spandsp)
 endif
 
-# Hack for mod_rayo - it has a build-time dep on mod_dingaling
-ifneq ($(CONFIG_PACKAGE_freeswitch-mod-rayo),)
-	$(call Package/freeswitch/enable/plugin,mod_dingaling)
-endif
-
-# Hack for mod_ssml - it has a build-time dep on mod_rayo. And mod_rayo needs
-# mod_dingaling :)
+# Hack for mod_ssml - it has a build-time dep on mod_rayo.
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-ssml),)
 	$(call Package/freeswitch/enable/plugin,mod_rayo)
-	$(call Package/freeswitch/enable/plugin,mod_dingaling)
-endif
-
-# Hack for mod_unimrcp - it has a build-time dep on mod_sofia
-ifneq ($(CONFIG_PACKAGE_freeswitch-mod-unimrcp),)
-	$(call Package/freeswitch/enable/plugin,mod_sofia)
 endif
 
 	$(call Build/Configure/Default)
@@ -920,7 +897,6 @@ $(eval $(call Package/freeswitch/Module,db,DB,This module implements a simple db
 $(eval $(call Package/freeswitch/Module,dialplan_asterisk,Asterisk dialplan,Asterisk extensions.conf style dialplan parser.,))
 $(eval $(call Package/freeswitch/Module,dialplan_directory,Directory dialplan,Directory dialplan support.,))
 $(eval $(call Package/freeswitch/Module,dialplan_xml,XML dialplan,Standard FreeSWITCH XML dialplan support.,))
-$(eval $(call Package/freeswitch/Module,dingaling,Generic XMPP,Allows FreeSWITCH to be used as a client for XMPP Servers.,))
 $(eval $(call Package/freeswitch/Module,directory,Dial-by-name directory,This module implements a dial-by-name directory IVR.,))
 $(eval $(call Package/freeswitch/Module,distributor,Load distributor,This module implements a mechanism for performing load balancing.,))
 $(eval $(call Package/freeswitch/Module,dptools,Dialplan tools,This module implements basic dialplan tools.,))
@@ -1020,7 +996,6 @@ $(eval $(call Package/freeswitch/Module,theora,Theora passthrough,Theora video c
 $(eval $(call Package/freeswitch/Module,tone_stream,Tone stream,Tone generation stream.,))
 $(eval $(call Package/freeswitch/Module,translate,Number translation,This module implements number translation.,))
 $(eval $(call Package/freeswitch/Module,tts_commandline,TTS command-line,Run a command-line and play the output file.,))
-$(eval $(call Package/freeswitch/Module,unimrcp,UniMRCP,Allows communication with Media Resource Control Protocol servers.,))
 $(eval $(call Package/freeswitch/Module,valet_parking,Valet parking,This module implements the valet call parking strategy.,))
 $(eval $(call Package/freeswitch/Module,verto,Verto,Verto signaling protocol.,+libks))
 $(eval $(call Package/freeswitch/Module,video_filter,Video filter chromakey,This module provides a media bug for chromakey functionality.,))

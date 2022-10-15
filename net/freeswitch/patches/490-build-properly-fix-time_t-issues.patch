@@ -62,7 +62,7 @@ The most portable fix for time_t handling is to always cast it to
  #else
 --- a/src/mod/applications/mod_httapi/mod_httapi.c
 +++ b/src/mod/applications/mod_httapi/mod_httapi.c
-@@ -2745,7 +2745,7 @@ static switch_status_t write_meta_file(h
+@@ -2744,7 +2744,7 @@ static switch_status_t write_meta_file(h
  
  		switch_snprintf(write_data, sizeof(write_data),
  						"%" TIME_T_FMT ":%s",
