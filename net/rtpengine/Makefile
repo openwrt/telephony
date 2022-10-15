@@ -45,6 +45,7 @@ ENGINE_DEPENDS := \
 	+libevent2-pthreads \
 	+libhiredis \
 	+libip4tc \
+	+libmosquitto \
 	+libopenssl \
 	+libpcap \
 	+libpcre \
