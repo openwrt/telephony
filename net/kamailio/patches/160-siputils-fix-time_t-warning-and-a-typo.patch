@@ -1,0 +1,49 @@
+From f32e1d9c96f6ba9df3c27178c689ccd27eabaafc Mon Sep 17 00:00:00 2001
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+Date: Sun, 16 Oct 2022 16:51:41 +0200
+Subject: [PATCH] siputils: fix time_t warning and a typo
+
+Fix the below warning one gets when compiling siputils for a 32 bit
+target against a time64 libc (musl).
+
+Also fix a spelling mistake on the same line ("autdated" -> "outdated").
+
+siputils.c: In function 'ki_hdr_date_check':
+../../core/parser/../dprint.h:321:73: warning: format '%ld' expects argument of type 'long int', but argument 11 has type 'time_t' {aka 'long long int'} [-Wformat=]
+  321 |                                                         fprintf(stderr, "%2d(%d) %s: %.*s%s%s%s" fmt, \
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~
+../../core/parser/../dprint.h:345:25: note: in expansion of macro 'LOG_FX'
+  345 |                         LOG_FX(facility, level, lname, prefix, _FUNC_NAME_, fmt, ## args)
+      |                         ^~~~~~
+../../core/parser/../dprint.h:351:25: note: in expansion of macro 'LOG_FL'
+  351 |                         LOG_FL(facility, level, NULL, prefix, fmt, ## args)
+      |                         ^~~~~~
+../../core/parser/../dprint.h:354:25: note: in expansion of macro 'LOG_FP'
+  354 |                         LOG_FP(DEFAULT_FACILITY, (level), LOC_INFO, fmt, ## args)
+      |                         ^~~~~~
+../../core/parser/../dprint.h:392:37: note: in expansion of macro 'LOG'
+  392 | #       define ERR(fmt, args...)    LOG(L_ERR,    fmt , ## args)
+      |                                     ^~~
+../../core/parser/../dprint.h:418:16: note: in expansion of macro 'ERR'
+  418 | #define LM_ERR ERR
+      |                ^~~
+siputils.c:562:17: note: in expansion of macro 'LM_ERR'
+  562 |                 LM_ERR("autdated date header value (%ld sec)\n", tnow - tmsg + tdiff);
+      |                 ^~~~~~
+
+Signed-off-by: Sebastian Kemper <sebastian_ml@gmx.net>
+---
+ src/modules/siputils/siputils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/modules/siputils/siputils.c
++++ b/src/modules/siputils/siputils.c
+@@ -559,7 +559,7 @@ static int ki_hdr_date_check(sip_msg_t*
+ 	}
+ 
+ 	if (tnow > tmsg + tdiff) {
+-		LM_ERR("autdated date header value (%ld sec)\n", tnow - tmsg + tdiff);
++		LM_ERR("outdated date header value (%" TIME_T_FMT " sec)\n", TIME_T_CAST(tnow - tmsg + tdiff));
+ 		return -4;
+ 	} else {
+ 		LM_ERR("Date header value OK\n");
