@@ -371,6 +371,9 @@ define BuildKamailioModule
   define Package/kamailio-mod-$(subst _,-,$(1))/conffiles
 $(subst $(space),$(newline),$(foreach c,$(6),/etc/kamailio/$(c)))
   endef
+  define Package/kamailio-mod-$(subst _,-,$(1))/description
+$(subst \n,$(newline),$(3))
+  endef
   define Package/kamailio-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio/install/module,$$(1),$(1))
 $(foreach c,$(6),$(call Package/kamailio/install/conffile,$$(1),$(c));)
