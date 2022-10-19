@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=18.14.0
+PKG_VERSION:=20.0.0
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=c79a728688e1d8faaf3915be81b88b6e324f314dd377de791e37dfa6d081a246
+PKG_HASH:=949022c20dc6da65b456e1b1b5b42a7901bb41fc9ce20920891739e7220d72eb
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -53,7 +53,6 @@ MODULES_AVAILABLE:= \
 	app-chanspy \
 	app-confbridge \
 	app-controlplayback \
-	app-dahdiras \
 	app-dictate \
 	app-directed-pickup \
 	app-directory \
@@ -66,8 +65,6 @@ MODULES_AVAILABLE:= \
 	app-flash \
 	app-followme \
 	app-getcpeid \
-	app-ices \
-	app-image \
 	app-ivrdemo \
 	app-mf \
 	app-milliwatt \
@@ -101,7 +98,6 @@ MODULES_AVAILABLE:= \
 	app-talkdetect \
 	app-test \
 	app-transfer \
-	app-url \
 	app-userevent \
 	app-verbose \
 	app-waitforcond \
@@ -135,7 +131,6 @@ MODULES_AVAILABLE:= \
 	chan-mobile \
 	chan-motif \
 	chan-ooh323 \
-	chan-oss \
 	chan-rtp \
 	chan-sip \
 	chan-skinny \
@@ -329,8 +324,6 @@ UTILS_AVAILABLE:= \
 	astdb2bdb \
 	check_expr \
 	check_expr2 \
-	conf2ael \
-	muted \
 	smsq \
 	stereorize \
 	streamplayer
@@ -581,9 +574,6 @@ CONFIGURE_ARGS+= \
 	--with-gsm=internal \
 	--without-gtk2 \
 	--with-ilbc=internal \
-	--without-isdnnet \
-	--without-misdn \
-	--without-nbs \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
@@ -598,9 +588,7 @@ CONFIGURE_ARGS+= \
 	--without-radius \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-fax-spandsp),--with-spandsp="$(STAGING_DIR)/usr",--without-spandsp) \
 	--without-sdl \
-	--without-sqlite \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
-	--without-suppserv \
 	--without-tds \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-resolver-unbound),--with-unbound="$(STAGING_DIR)/usr",--without-unbound) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
@@ -800,7 +788,6 @@ $(eval $(call BuildAsteriskModule,app-channelredirect,Redirect a channel,Redirec
 $(eval $(call BuildAsteriskModule,app-chanspy,Channel listen in,Listen to the audio of an active channel.,,,app_chanspy,,))
 $(eval $(call BuildAsteriskModule,app-confbridge,ConfBridge,Conference bridge application.,+$(PKG_NAME)-bridge-builtin-features +$(PKG_NAME)-bridge-simple +$(PKG_NAME)-bridge-softmix,confbridge.conf,app_confbridge,,))
 $(eval $(call BuildAsteriskModule,app-controlplayback,Control playback,Control playback application.,,,app_controlplayback,,))
-$(eval $(call BuildAsteriskModule,app-dahdiras,Execute an ISDN RAS,DAHDI ISDN Remote Access Server.,+$(PKG_NAME)-chan-dahdi,,app_dahdiras,,))
 $(eval $(call BuildAsteriskModule,app-dictate,Virtual dictation machine,Virtual dictation machine.,,,app_dictate,,))
 $(eval $(call BuildAsteriskModule,app-directed-pickup,Directed call pickup,Directed call pickup application.,,,app_directed_pickup,,))
 $(eval $(call BuildAsteriskModule,app-directory,Extension directory,Extension directory.,,,app_directory,,))
@@ -813,8 +800,6 @@ $(eval $(call BuildAsteriskModule,app-festival,Simple festival interface,Simple 
 $(eval $(call BuildAsteriskModule,app-flash,Flash channel,Flash channel application.,+$(PKG_NAME)-chan-dahdi,,app_flash,,))
 $(eval $(call BuildAsteriskModule,app-followme,Find-me/follow-me,Find-Me/Follow-Me application.,,followme.conf,app_followme,,))
 $(eval $(call BuildAsteriskModule,app-getcpeid,Get ADSI CPE ID,Get ADSI CPE ID.,+asterisk-res-adsi,,app_getcpeid,,))
-$(eval $(call BuildAsteriskModule,app-ices,Encode and stream,Encode and stream via Icecast and IceS.,,,app_ices,,))
-$(eval $(call BuildAsteriskModule,app-image,Image transmission,Image transmission application.,,,app_image,,))
 $(eval $(call BuildAsteriskModule,app-ivrdemo,IVR demo,IVR demo application.,,,app_ivrdemo,,))
 $(eval $(call BuildAsteriskModule,app-mf,MF digits,Send MF digits Application.,,,app_mf,,))
 $(eval $(call BuildAsteriskModule,app-milliwatt,Digital milliwatt [mu-law] test app,Digital milliwatt test application.,,,app_milliwatt,,))
@@ -848,7 +833,6 @@ $(eval $(call BuildAsteriskModule,app-system,System exec,Generic system applicat
 $(eval $(call BuildAsteriskModule,app-talkdetect,File playback with audio detect,Playback with talk detection.,,,app_talkdetect,,))
 $(eval $(call BuildAsteriskModule,app-test,Interface test,Interface test application.,,,app_test,,))
 $(eval $(call BuildAsteriskModule,app-transfer,Transfers caller to other ext,Transfers a caller to another extension.,,,app_transfer,,))
-$(eval $(call BuildAsteriskModule,app-url,Send URL,Send URL applications.,,,app_url,,))
 $(eval $(call BuildAsteriskModule,app-userevent,Custom user event,Custom user event application.,,,app_userevent,,))
 $(eval $(call BuildAsteriskModule,app-verbose,Verbose logging,Send verbose output.,,,app_verbose,,))
 $(eval $(call BuildAsteriskModule,app-waitforcond,Wait for condition,Wait until condition is true.,,,app_waitforcond,,))
@@ -866,7 +850,7 @@ $(eval $(call BuildAsteriskModule,bridge-holding,Bridging for storing channels i
 $(eval $(call BuildAsteriskModule,bridge-native-rtp,Native RTP bridging technology module,Native RTP bridging module.,,,bridge_native_rtp,,))
 $(eval $(call BuildAsteriskModule,bridge-simple,Simple two channel bridging module,Simple two channel bridging module.,,,bridge_simple,,))
 $(eval $(call BuildAsteriskModule,bridge-softmix,Multi-party software based channel mixing,Multi-party software based channel mixing.,,,bridge_softmix,,))
-$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Records.,,cdr.conf cdr_custom.conf cdr_manager.conf cdr_syslog.conf,app_cdr app_forkcdr cdr_custom cdr_manager cdr_syslog func_cdr,,))
+$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Records.,,cdr.conf cdr_custom.conf cdr_manager.conf,app_cdr app_forkcdr cdr_custom cdr_manager func_cdr,,))
 $(eval $(call BuildAsteriskModule,cdr-csv,Provides CDR CSV,Comma Separated Values CDR backend.,,,cdr_csv,,))
 $(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,SQLite3 CDR backend.,libsqlite3,,cdr_sqlite3_custom,,))
 $(eval $(call BuildAsteriskModule,cel-custom,Customizable CSV CEL backend,Customizable Comma Separated Values CEL backend.,,cel_custom.conf,cel_custom,,))
@@ -882,7 +866,6 @@ $(eval $(call BuildAsteriskModule,chan-mgcp,MGCP,Media Gateway Control Protocol.
 $(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile device channel driver.,+bluez-libs,chan_mobile.conf,chan_mobile,,))
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle channel driver.,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsteriskModule,chan-ooh323,H.323 channel,Objective Systems H.323 channel.,,ooh323.conf,chan_ooh323,,))
-$(eval $(call BuildAsteriskModule,chan-oss,OSS channel,OSS console channel driver.,,oss.conf,chan_oss,,))
 $(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP media channel.,+asterisk-res-rtp-multicast,,chan_rtp,,))
 $(eval $(call BuildAsteriskModule,chan-sip,SIP channel,Session Initiation Protocol.,+$(PKG_NAME)-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
 $(eval $(call BuildAsteriskModule,chan-skinny,Skinny channel,Skinny Client Control Protocol.,,skinny.conf,chan_skinny,,))
@@ -1085,8 +1068,6 @@ $(eval $(call BuildAsteriskUtil,astdb2sqlite3,Convert astdb to SQLite 3.,,))
 $(eval $(call BuildAsteriskUtil,astdb2bdb,Convert astdb back to Berkeley DB 1.86.,,))
 $(eval $(call BuildAsteriskUtil,check_expr,Expression checker [older version].,,))
 $(eval $(call BuildAsteriskUtil,check_expr2,Expression checker [newer version].,,))
-$(eval $(call BuildAsteriskUtil,conf2ael,Convert .conf to .ael.,+$(PKG_NAME)-pbx-ael,))
-$(eval $(call BuildAsteriskUtil,muted,Listens for AMI events. Mutes soundcard during call.,,muted.conf))
 $(eval $(call BuildAsteriskUtil,smsq,Send messages from command line.,+libpopt,))
 $(eval $(call BuildAsteriskUtil,stereorize,Merge two mono WAV-files to one stereo WAV-file.,,))
 $(eval $(call BuildAsteriskUtil,streamplayer,A utility for reading from a raw TCP stream [MOH source].,,))
