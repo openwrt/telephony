@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
-PKG_VERSION:=5.5.2
+PKG_VERSION:=5.6.2
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)_src.tar.gz
-PKG_HASH:=998f337d0561b5d814ebb5c59b160e0c856e7c9f3e53bcee0f3285d003d1c05c
+PKG_HASH:=ea3cd5d688c34208b92072c3844c8276b693e0ca2c688168ea0357978c76b32d
 PKG_USE_MIPS16:=0
 
 PKG_LICENSE:=GPL-2.0+
@@ -125,6 +125,7 @@ MODULES_AVAILABLE:= \
 	matrix \
 	maxfwd \
 	mediaproxy \
+	misctest \
 	mohqueue \
 	mqueue \
 	msilo \
@@ -142,6 +143,7 @@ MODULES_AVAILABLE:= \
 	permissions \
 	pike \
 	pipelimit \
+	posops \
 	prefix_route \
 	presence \
 	presence_conference \
@@ -178,10 +180,12 @@ MODULES_AVAILABLE:= \
 	secfilter \
 	sipcapture \
 	sipdump \
+	siprepo \
 	sipt \
 	siptrace \
 	siputils \
 	sl \
+	slack \
 	sms \
 	smsops \
 	snmpstats \
@@ -371,6 +375,9 @@ define BuildKamailioModule
   define Package/kamailio-mod-$(subst _,-,$(1))/conffiles
 $(subst $(space),$(newline),$(foreach c,$(6),/etc/kamailio/$(c)))
   endef
+  define Package/kamailio-mod-$(subst _,-,$(1))/description
+$(subst \n,$(newline),$(3))
+  endef
   define Package/kamailio-mod-$(subst _,-,$(1))/install
 $(call Package/kamailio/install/module,$$(1),$(1))
 $(foreach c,$(6),$(call Package/kamailio/install/conffile,$$(1),$(c));)
@@ -552,7 +559,7 @@ $(eval $(call BuildKamailioModule,jansson,Access to JSON attributes,,+jansson))
 $(eval $(call BuildKamailioModule,janssonrpcc,Alternative JSONRPC server,,+kamailio-mod-jansson +libevent2))
 $(eval $(call BuildKamailioModule,json,Access to JSON document attributes,,+libjson-c))
 $(eval $(call BuildKamailioModule,jsonrpcs,JSONRPC server over HTTP,,+libevent2))
-$(eval $(call BuildKamailioModule,keepalive,SIP keepalive monitoring,+kamailio-mod-tm,))
+$(eval $(call BuildKamailioModule,keepalive,SIP keepalive monitoring,,+kamailio-mod-tm,,))
 $(eval $(call BuildKamailioModule,kemix,KEMI extensions,,,))
 $(eval $(call BuildKamailioModule,kex,Core extensions,,))
 $(eval $(call BuildKamailioModule,lcr,Least Cost Routing,,+kamailio-mod-tm +libpcre))
@@ -564,6 +571,7 @@ $(eval $(call BuildKamailioModule,mangler,SDP mangling,,))
 $(eval $(call BuildKamailioModule,matrix,Matrix operations,,))
 $(eval $(call BuildKamailioModule,maxfwd,Max-Forward processor,,))
 $(eval $(call BuildKamailioModule,mediaproxy,Automatic NAT traversal,,+kamailio-mod-dialog))
+$(eval $(call BuildKamailioModule,misctest,Debugging/testing,This is a debugging/test module. It implements functions (both script\nand rpcs) that can be used to stress the memory allocator or force\nmemory leaks.\n\nWarning: This module should never be used in a production environment.,,,))
 $(eval $(call BuildKamailioModule,mohqueue,Music on hold queuing system,,+kamailio-mod-rtpproxy +kamailio-mod-sl +kamailio-mod-tm))
 $(eval $(call BuildKamailioModule,mqueue,Generic message queue system,,))
 $(eval $(call BuildKamailioModule,msilo,SIP message silo,,+kamailio-mod-tm))
@@ -581,6 +589,7 @@ $(eval $(call BuildKamailioModule,pdt,Prefix-to-Domain translator,,))
 $(eval $(call BuildKamailioModule,permissions,Permissions control,,))
 $(eval $(call BuildKamailioModule,pike,Flood detector,,))
 $(eval $(call BuildKamailioModule,pipelimit,Traffic shaping policies,,+kamailio-mod-sl))
+$(eval $(call BuildKamailioModule,posops,Position SIP message buffer ops,The module exports utility functions to work with the position inside the SIP\nmessage buffer. Among them are function to add or remove content at\na specific position.,,,))
 $(eval $(call BuildKamailioModule,prefix_route,Execute based on prefix,,))
 $(eval $(call BuildKamailioModule,presence,Presence server,,+kamailio-mod-sl +kamailio-mod-tm,))
 $(eval $(call BuildKamailioModule,presence_conference,Conference events,,+kamailio-mod-presence))
@@ -617,10 +626,12 @@ $(eval $(call BuildKamailioModule,seas,Sip Express Application Server,,+kamailio
 $(eval $(call BuildKamailioModule,secfilter,Allow/block filters,,,))
 $(eval $(call BuildKamailioModule,sipcapture,SIP capture,,))
 $(eval $(call BuildKamailioModule,sipdump,Save SIP traffic,,))
+$(eval $(call BuildKamailioModule,siprepo,SIP Repo,This module can store and fetch SIP message content in an in-memory hash\ntable.,,,))
 $(eval $(call BuildKamailioModule,sipt,SIP-T and SIP-I operations,,))
 $(eval $(call BuildKamailioModule,siptrace,SIP trace,,))
 $(eval $(call BuildKamailioModule,siputils,SIP utilities,,+kamailio-mod-sl))
 $(eval $(call BuildKamailioModule,sl,Stateless replier,,))
+$(eval $(call BuildKamailioModule,slack,Slack integration,This module provides integration with Slack over webhooks.,+libcurl,,))
 $(eval $(call BuildKamailioModule,sms,SIP-to-SMS IM gateway,,+kamailio-mod-tm))
 $(eval $(call BuildKamailioModule,smsops,Handle SMS packets in SIP,,))
 $(eval $(call BuildKamailioModule,snmpstats,SNMP interface for statistics,,+libnetsnmp))
