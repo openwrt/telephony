@@ -1,0 +1,33 @@
+From 2234302185ea3857310538409ca651ca8587c07a Mon Sep 17 00:00:00 2001
+From: John Thomson <git@johnthomson.fastmail.com.au>
+Date: Wed, 14 Jun 2023 20:41:17 +1000
+Subject: [PATCH 1/1] fix ABS redefined (MIPS)
+
+dahdi_echocan_mg2.c:47: error: "ABS" redefined [-Werror]
+   47 | #define ABS(a) abs(a!=-32768?a:-32767)
+      |
+In file included from ./arch/mips/include/asm/bitops.h:19,
+                 from ./include/linux/bitops.h:68,
+                 from ./include/linux/kernel.h:22,
+                 from dahdi-linux-3.2.0/drivers/dahdi/dahdi_echocan_mg2.c:34:
+./arch/mips/include/asm/asm.h:92: note: this is the location of the previous definition
+   92 | #define ABS(symbol,value)                               \
+      |
+
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+---
+ drivers/dahdi/dahdi_echocan_mg2.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/dahdi/dahdi_echocan_mg2.c
++++ b/drivers/dahdi/dahdi_echocan_mg2.c
+@@ -44,6 +44,9 @@
+ static int debug;
+ static int aggressive;
+ 
++#ifdef ABS
++#undef ABS
++#endif
+ #define ABS(a) abs(a!=-32768?a:-32767)
+ 
+ #define RESTORE_COEFFS {\

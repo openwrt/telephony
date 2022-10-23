@@ -15,7 +15,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 
 --- a/drivers/dahdi/dahdi-base.c
 +++ b/drivers/dahdi/dahdi-base.c
-@@ -923,9 +923,9 @@ static int dahdi_seq_show(struct seq_fil
+@@ -928,9 +928,9 @@ static int dahdi_seq_show(struct seq_fil
  	if (!s)
  		return -ENODEV;
  
@@ -27,7 +27,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  		seq_printf(sfile, "\"%s\"", s->desc);
  	else
  		seq_printf(sfile, "\"\"");
-@@ -964,7 +964,7 @@ static int dahdi_seq_show(struct seq_fil
+@@ -969,7 +969,7 @@ static int dahdi_seq_show(struct seq_fil
  	for (x = 0; x < s->channels; x++) {
  		struct dahdi_chan *chan = s->chans[x];
  

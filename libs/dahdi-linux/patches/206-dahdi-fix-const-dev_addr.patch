@@ -1,0 +1,90 @@
+From 3619bf1cc9c0cc67213cbda0db3534f8a64f5cc8 Mon Sep 17 00:00:00 2001
+From: John Thomson <git@johnthomson.fastmail.com.au>
+Date: Wed, 14 Jun 2023 20:31:42 +1000
+Subject: [PATCH 1/1] fix for const dev_addr for linux 5.17
+
+Linux commit adeef3e32146 ("net: constify netdev->dev_addr")
+
+dev_addr_set and _mod were introduced in linux 5.15 with
+commit 48eab831ae8b ("net: create netdev->dev_addr assignment helpers")
+
+                 from dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c:24:
+dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c: In function 'wctc4xxp_net_register':
+dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c:646:22: error: passing argument 1 of '__builtin_memcpy' discards 'const' qualifier from pointer target type [-Werror=discarded-qualifiers]
+  646 |         memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
+      |                ~~~~~~^~~~~~~~~~
+./include/linux/fortify-string.h:469:27: note: in definition of macro '__fortify_memcpy_chk'
+  469 |         __underlying_##op(p, q, __fortify_size);                        \
+      |                           ^
+dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c:646:9: note: in expansion of macro 'memcpy'
+  646 |         memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
+      |         ^~~~~~
+dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c:646:22: note: expected 'void *' but argument is of type 'const unsigned char *'
+  646 |         memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
+      |                ~~~~~~^~~~~~~~~~
+./include/linux/fortify-string.h:469:27: note: in definition of macro '__fortify_memcpy_chk'
+  469 |         __underlying_##op(p, q, __fortify_size);                        \
+      |                           ^
+dahdi-linux-3.2.0/drivers/dahdi/wctc4xxp/base.c:646:9: note: in expansion of macro 'memcpy'
+  646 |         memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
+      |         ^~~~~~
+
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+---
+ drivers/dahdi/datamods/hdlc_fr.c      | 6 +++---
+ drivers/dahdi/datamods/hdlc_raw_eth.c | 4 ++--
+ drivers/dahdi/voicebus/voicebus_net.c | 2 +-
+ drivers/dahdi/wctc4xxp/base.c         | 2 +-
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+
+--- a/drivers/dahdi/datamods/hdlc_fr.c
++++ b/drivers/dahdi/datamods/hdlc_fr.c
+@@ -1089,10 +1089,10 @@ static int fr_add_pvc(struct net_device
+ 	}
+ 
+ 	if (type == ARPHRD_ETHER) {
+-		memcpy(dev->dev_addr, "\x00\x01", 2);
+-                get_random_bytes(dev->dev_addr + 2, ETH_ALEN - 2);
++		eth_hw_addr_random(dev);
++		dev_addr_mod(dev, 0, "\x00\x01", 2);
+ 	} else {
+-		*(u16*)dev->dev_addr = htons(dlci);
++		dev_addr_set(dev, htons(dlci));
+ 		dlci_to_q922(dev->broadcast, dlci);
+ 	}
+ 	dev->hard_start_xmit = pvc_xmit;
+--- a/drivers/dahdi/datamods/hdlc_raw_eth.c
++++ b/drivers/dahdi/datamods/hdlc_raw_eth.c
+@@ -98,8 +98,8 @@ int hdlc_raw_eth_ioctl(struct net_device
+ 		ether_setup(dev);
+ 		dev->change_mtu = old_ch_mtu;
+ 		dev->tx_queue_len = old_qlen;
+-		memcpy(dev->dev_addr, "\x00\x01", 2);
+-                get_random_bytes(dev->dev_addr + 2, ETH_ALEN - 2);
++		eth_hw_addr_random(dev);
++		dev_addr_mod(dev, 0, "\x00\x01", 2);
+ 		return 0;
+ 	}
+ 
+--- a/drivers/dahdi/voicebus/voicebus_net.c
++++ b/drivers/dahdi/voicebus/voicebus_net.c
+@@ -189,7 +189,7 @@ int vb_net_register(struct voicebus *vb,
+ 		return -ENOMEM;
+ 	priv = netdev_priv(netdev);
+ 	priv->vb = vb;
+-	memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
++	dev_addr_set(netdev, our_mac);
+ #	ifdef HAVE_NET_DEVICE_OPS
+ 	netdev->netdev_ops = &vb_netdev_ops;
+ #	else
+--- a/drivers/dahdi/wctc4xxp/base.c
++++ b/drivers/dahdi/wctc4xxp/base.c
+@@ -643,7 +643,7 @@ wctc4xxp_net_register(struct wcdte *wc)
+ 		return -ENOMEM;
+ 	priv = netdev_priv(netdev);
+ 	priv->wc = wc;
+-	memcpy(netdev->dev_addr, our_mac, sizeof(our_mac));
++	dev_addr_set(netdev, our_mac);
+ 
+ #	ifdef HAVE_NET_DEVICE_OPS
+ 	netdev->netdev_ops = &wctc4xxp_netdev_ops;

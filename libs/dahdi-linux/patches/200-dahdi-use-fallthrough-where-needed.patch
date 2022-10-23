@@ -5,7 +5,12 @@ Subject: [PATCH 1/6] dahdi: use fallthrough where needed
 
 Use fallthrough instead of comment to fix compilation warning.
 
+sed -i 's:/\*.*fall-\?through.*\*/:fallthrough;:I' $(find drivers/ -iname '*.c')
+
 Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+[refreshed for v3.2.0]
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+
 ---
  drivers/dahdi/dahdi-base.c      | 14 +++++++-------
  drivers/dahdi/wcaxx-base.c      |  2 ++
@@ -15,16 +20,32 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 
 --- a/drivers/dahdi/dahdi-base.c
 +++ b/drivers/dahdi/dahdi-base.c
-@@ -7921,7 +7921,7 @@ static inline void __dahdi_process_getau
+@@ -6233,11 +6233,13 @@ dahdi_chanandpseudo_ioctl(struct file *f
+ 	case DAHDI_GETCONF:  /* get conf stuff */
+ 		return dahdi_ioctl_getconf(file, data);
+ 
+-	case DAHDI_SETCONF_V1: /* Intentional fall through. */
++	case DAHDI_SETCONF_V1:
++		fallthrough;
+ 	case DAHDI_SETCONF:  /* set conf stuff */
+ 		return dahdi_ioctl_setconf(file, data);
+ 
+-	case DAHDI_CONFDIAG_V1: /* Intentional fall-through */
++	case DAHDI_CONFDIAG_V1:
++		fallthrough;
+ 	case DAHDI_CONFDIAG:  /* output diagnostic info to console */
+ 		return dahdi_ioctl_confdiag(file, data);
+ 
+@@ -7926,7 +7928,7 @@ static inline void __dahdi_process_getau
  			memset(getlin, 0, DAHDI_CHUNKSIZE * sizeof(short));
  			txb[0] = DAHDI_LIN2X(0, ms);
  			memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
--			/* fall through to normal conf mode */
+-			/* fallthrough */
 +			fallthrough;
  		case DAHDI_CONF_CONF:	/* Normal conference mode */
  			if (is_pseudo_chan(ms)) /* if pseudo-channel */
  			   {
-@@ -7945,7 +7945,7 @@ static inline void __dahdi_process_getau
+@@ -7950,7 +7952,7 @@ static inline void __dahdi_process_getau
  				memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
  				break;
  		 	   }
@@ -33,25 +54,34 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  		case DAHDI_CONF_CONFMON:	/* Conference monitor mode */
  			if (ms->confmode & DAHDI_CONF_LISTENER) {
  				/* Subtract out last sample written to conf */
-@@ -8484,7 +8484,7 @@ static void __dahdi_hooksig_pvt(struct d
+@@ -8252,7 +8254,7 @@ static inline void rbs_itimer_expire(str
  			break;
  		}
  #endif
--		/* fall through intentionally */
+-		/* fall thru intentionally */
++		fallthrough;
+ 	    default:  /* otherwise, its definitely off hook */
+ 		__qevent(chan,DAHDI_EVENT_RINGOFFHOOK);
+ 		break;
+@@ -8489,7 +8491,7 @@ static void __dahdi_hooksig_pvt(struct d
+ 			break;
+ 		}
+ #endif
+-		/* fallthrough */
 +		fallthrough;
  	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
  		if (rxsig == DAHDI_RXSIG_ONHOOK) {
  			chan->ringdebtimer = RING_DEBOUNCE_TIME;
-@@ -8503,7 +8503,7 @@ static void __dahdi_hooksig_pvt(struct d
+@@ -8508,7 +8510,7 @@ static void __dahdi_hooksig_pvt(struct d
  				chan->gotgs = 1;
  			}
  		}
--		/* fall through intentionally */
+-		/* fallthrough */
 +		fallthrough;
  	   case DAHDI_SIG_FXOLS: /* FXO Loopstart */
  	   case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
  		switch(rxsig) {
-@@ -8603,7 +8603,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+@@ -8608,7 +8610,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
  			__dahdi_hooksig_pvt(chan, DAHDI_RXSIG_START);
  			break;
  		}
@@ -60,7 +90,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	    case DAHDI_SIG_EM_E1:
  	    case DAHDI_SIG_FXOLS: /* FXO Loopstart */
  	    case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
-@@ -8621,7 +8621,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+@@ -8626,7 +8628,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
  		break;
  	   case DAHDI_SIG_FXSKS:  /* FXS Kewlstart */
  	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
@@ -69,7 +99,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	   case DAHDI_SIG_FXSLS:
  		if (!(cursig & DAHDI_BBIT)) {
  			/* Check for ringing first */
-@@ -9050,7 +9050,7 @@ static inline void __dahdi_process_putau
+@@ -9055,7 +9057,7 @@ static inline void __dahdi_process_putau
  				memcpy(ss->putlin, putlin, DAHDI_CHUNKSIZE * sizeof(short));
  				break;
  			   }
@@ -80,38 +110,65 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  				/* Store temp value */
 --- a/drivers/dahdi/wcaxx-base.c
 +++ b/drivers/dahdi/wcaxx-base.c
-@@ -1446,6 +1446,7 @@ wcaxx_check_battery_lost(struct wcaxx *w
+@@ -1456,13 +1456,13 @@ wcaxx_check_battery_lost(struct wcaxx *w
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
+-		/* fallthrough */
 +		fallthrough;
  	case BATTERY_PRESENT:
  		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
-@@ -1554,6 +1555,7 @@ wcaxx_check_battery_present(struct wcaxx
+ 		break;
+ 	case BATTERY_DEBOUNCING_LOST_FROM_PRESENT_ALARM:
+-		/* fallthrough */
++		fallthrough;
+ 	case BATTERY_DEBOUNCING_LOST: /* Intentional drop through */
+ 		if (time_after(wc->framecount, fxo->battdebounce_timer)) {
+ 			if (debug) {
+@@ -1513,7 +1513,7 @@ wcaxx_check_battery_present(struct wcaxx
+ 
+ 	switch (fxo->battery_state) {
+ 	case BATTERY_DEBOUNCING_PRESENT_FROM_LOST_ALARM:
+-		/* fallthrough */
++		fallthrough;
+ 	case BATTERY_DEBOUNCING_PRESENT: 
+ 		if (time_after(wc->framecount, fxo->battdebounce_timer)) {
+ 			if (debug) {
+@@ -1567,7 +1567,7 @@ wcaxx_check_battery_present(struct wcaxx
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
+-		/* fallthrough */
 +		fallthrough;
- 	case BATTERY_LOST: /* intentional drop through */
+ 	case BATTERY_LOST:
  		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
 --- a/drivers/dahdi/wctdm24xxp/base.c
 +++ b/drivers/dahdi/wctdm24xxp/base.c
-@@ -1955,6 +1955,7 @@ wctdm_check_battery_lost(struct wctdm *w
+@@ -1960,13 +1960,13 @@ wctdm_check_battery_lost(struct wctdm *w
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
+-		/* fallthrough */
 +		fallthrough;
  	case BATTERY_PRESENT:
  		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
-@@ -2063,6 +2064,7 @@ wctdm_check_battery_present(struct wctdm
+ 		break;
+ 	case BATTERY_DEBOUNCING_LOST_FROM_PRESENT_ALARM:
+-		/* fallthrough */
++		fallthrough;
+ 	case BATTERY_DEBOUNCING_LOST:
+ 		if (time_after(wc->framecount, fxo->battdebounce_timer)) {
+ 			if (debug) {
+@@ -2070,7 +2070,7 @@ wctdm_check_battery_present(struct wctdm
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
+-		/* fallthrough */
 +		fallthrough;
- 	case BATTERY_LOST: /* intentional drop through */
+ 	case BATTERY_LOST:
  		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
 --- a/drivers/dahdi/xpp/card_global.c
@@ -125,3 +182,51 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	case 'S':
  		do_subreg = 1;
  		num_args += 2;	/* register + subreg */
+--- a/drivers/dahdi/wcb4xxp/base.c
++++ b/drivers/dahdi/wcb4xxp/base.c
+@@ -457,8 +457,10 @@ static void hfc_gpio_init(struct b4xxp *
+ 	mb();
+ 
+ 	switch (b4->card_type) {
+-	case OCTOBRI:  /* fall through */
+-	case B800P_OV: /* fall through */
++	case OCTOBRI:
++		fallthrough;
++	case B800P_OV:
++		fallthrough;
+ 	case BN8S0:
+ 		/* GPIO0..15 S/T - HFC-8S uses GPIO8-15 for S/T ports 5-8 */
+ 		b4xxp_setreg8(b4, R_GPIO_SEL, 0x00);
+@@ -1333,8 +1335,10 @@ static void hfc_assign_dchan_fifo(struct
+ 	unsigned long irq_flags;
+ 
+ 	switch (b4->card_type) {
+-	case B800P_OV: /* fall through */
+-	case OCTOBRI: /* fall through */
++	case B800P_OV:
++		fallthrough;
++	case OCTOBRI:
++		fallthrough;
+ 	case BN8S0:
+ 		/* In HFC-8S cards we can't use ports 8-11 for dchan FIFOs */
+ 		fifo = port + 16;
+--- a/drivers/dahdi/xpp/card_pri.c
++++ b/drivers/dahdi/xpp/card_pri.c
+@@ -435,7 +435,7 @@ static int cas_regbase(xpd_t *xpd)
+ 	case PRI_PROTO_E1:
+ 		return REG_RS2_E;
+ 	case PRI_PROTO_T1:
+-		/* fall-through */
++		fallthrough;
+ 	case PRI_PROTO_J1:
+ 		return REG_RS1_E;
+ 	case PRI_PROTO_0:
+@@ -455,7 +455,7 @@ static int cas_numregs(xpd_t *xpd)
+ 	case PRI_PROTO_E1:
+ 		return NUM_CAS_RS_E;
+ 	case PRI_PROTO_T1:
+-		/* fall-through */
++		fallthrough;
+ 	case PRI_PROTO_J1:
+ 		return NUM_CAS_RS_T;
+ 	case PRI_PROTO_0:
