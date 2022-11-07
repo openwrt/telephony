@@ -1,0 +1,41 @@
+Prevent compile from failing due to mod-shout using deprecated libshout
+declarations.
+
+---
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -373,8 +373,20 @@ if test "$ax_cv_c_compiler_vendor" = "gn
+         [ac_cv_gcc_supports_w_no_err_format_truncation=no])])
+   CFLAGS="$saved_CFLAGS"
+   AC_MSG_RESULT($ac_cv_gcc_supports_w_no_err_format_truncation)
++
++  saved_CFLAGS="$CFLAGS"
++  AC_CACHE_CHECK([whether compiler supports -Wno-error=deprecated-declarations],
++    [ac_cv_gcc_supports_w_no_err_deprecated_declarations], [
++      CFLAGS="$CFLAGS -Wno-error=deprecated-declarations"
++      AC_TRY_COMPILE([],[return 0;],
++        [ac_cv_gcc_supports_w_no_err_deprecated_declarations=yes],
++        [ac_cv_gcc_supports_w_no_err_deprecated_declarations=no])])
++  CFLAGS="$saved_CFLAGS"
++  AC_MSG_RESULT($ac_cv_gcc_supports_w_no_err_deprecated_declarations)
+ fi
+ 
++AM_CONDITIONAL([W_NO_ERR_DEPRECATED_DECLARATIONS], [test x$ac_cv_gcc_supports_w_no_err_deprecated_declarations = xyes])
++
+ # tweak compiler specific flags
+ if test "x${ax_cv_c_compiler_vendor}"  =  "xsun" ; then
+     APR_ADDTO(SWITCH_AM_CFLAGS, -KPIC)
+--- a/src/mod/formats/mod_shout/Makefile.am
++++ b/src/mod/formats/mod_shout/Makefile.am
+@@ -12,6 +12,10 @@ mod_shout_la_CPPFLAGS = $(CURL_CFLAGS) $
+ mod_shout_la_LIBADD   = $(switch_builddir)/libfreeswitch.la
+ mod_shout_la_LDFLAGS  = $(CURL_LIBS) -avoid-version -module -no-undefined -shared $(SHOUT_LIBS) $(MP3LAME_LIBS) $(MPG123_LIBS)
+ 
++if W_NO_ERR_DEPRECATED_DECLARATIONS
++mod_shout_la_CFLAGS   += -Wno-error=deprecated-declarations
++endif
++
+ else
+ install: error
+ all: error
