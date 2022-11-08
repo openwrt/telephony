@@ -26,7 +26,7 @@ check_listen() {
 
   [ -z "$value" ] && {
     $LOG_ERR empty $type entry
-    exit 1
+    return 1
   }
 
   # IPv6 addresses need to be enclosed in square brackets. If there are
@@ -39,7 +39,7 @@ check_listen() {
   # Bail if more than 2 colons.
   [ $(echo "$value" | awk -F ":" '{print NF-1}') -gt 2 ] && {
     $LOG_ERR init script does not understand $type entry \""$value"\"
-    exit 1
+    return 1
   }
 
   IFS=":" read one two three << EOF
@@ -93,7 +93,7 @@ start_service() {
 
   if [ $enabled -eq 0 ]; then
     $LOG_ERR service not enabled in /etc/config/$NAME
-    exit 1
+    return 1
   fi
 
   config_get user       general user       $NAME
