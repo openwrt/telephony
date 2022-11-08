@@ -48,13 +48,13 @@ check_ipaddr() {
 
 	[ -z "$value" ] && {
 		$LOG_ERR empty $type entry
-		exit 1
+		return 1
 	}
 
 	# Bail if more than 1 slash.
 	[ $(echo "$value" | awk -F "/" '{print NF-1}') -gt 1 ] && {
 		$LOG_ERR init script does not understand $type entry \""$value"\"
-		exit 1
+		return 1
 	}
 
 	IFS="/" read one two << EOF
