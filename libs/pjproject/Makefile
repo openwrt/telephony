@@ -10,14 +10,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.10
-PKG_RELEASE:=7
+PKG_VERSION:=2.12.1
+PKG_RELEASE:=1
 
 # download "vX.Y.tar.gz" as "pjproject-vX.Y.tar.gz"
 PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_URL_FILE)
 PKG_SOURCE_URL:=https://github.com/pjsip/$(PKG_NAME)/archive
-PKG_HASH:=936a4c5b98601b52325463a397ddf11ab4106c6a7b04f8dc7cdd377efbb597de
+PKG_HASH:=d0feef6963b07934e821ba4328aecb4c36358515c1b3e507da5874555d713533
 PKG_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
@@ -60,6 +60,7 @@ endef
 
 CONFIGURE_ARGS+= \
 	$(if $(CONFIG_SOFT_FLOAT),--disable-floating-point) \
+	--disable-android-mediacodec \
 	--disable-bcg729 \
 	--disable-darwin-ssl \
 	--disable-ext-sound \
@@ -94,8 +95,8 @@ CONFIGURE_ARGS+= \
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 define Build/Compile
-	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) dep
-	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) EXCLUDE_APP=1 dep
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) EXCLUDE_APP=1
 endef
 
 PJPROJECT_LIBS:= \
@@ -110,7 +111,6 @@ define Build/InstallDev
 	$(foreach m,$(PJPROJECT_LIBS),$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(m)* $(1)/usr/lib;)
 
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(SED) 's|$(TARGET_CFLAGS)||g' $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpjproject.pc \
 		$(1)/usr/lib/pkgconfig
 endef

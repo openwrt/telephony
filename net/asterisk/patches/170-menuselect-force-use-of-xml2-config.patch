@@ -1,0 +1,17 @@
+Since commit dc701d6 in the OpenWrt packages repo the host libxml2 package
+provides a static lib only. But Asterisk does not check that and calls
+pkg-config without "--static". The result is that menuselect doesn't build.
+
+So don't use pkg-config for the libxml2 detection. Asterisk will resort to
+use xml2-config, which outputs all the flags needed.
+
+--- a/menuselect/configure.ac
++++ b/menuselect/configure.ac
+@@ -91,7 +91,6 @@ else
+   AST_EXT_LIB_CHECK([TINFO], [tinfo], [keypad], [curses.h])
+ fi
+ 
+-AST_PKG_CONFIG_CHECK([LIBXML2], [libxml-2.0])
+ AST_EXT_TOOL_CHECK([LIBXML2], [xml2-config], , ,
+         [#include <libxml/tree.h>
+         #include <libxml/parser.h>],
