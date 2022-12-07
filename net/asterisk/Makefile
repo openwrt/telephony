@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=18.11.2
+PKG_VERSION:=18.15.1
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=b456d19610e53789446e097bb9773a82a04088922de0cfaff2b818326b67296b
+PKG_HASH:=7594b045e1979a6e80f07ecfff634204830917fd2a7686b161cf4849454f4531
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -184,6 +184,7 @@ MODULES_AVAILABLE:= \
 	func-dialplan \
 	func-enum \
 	func-env \
+	func-evalexten \
 	func-extstate \
 	func-frame-drop \
 	func-frame-trace \
@@ -227,6 +228,7 @@ MODULES_AVAILABLE:= \
 	pgsql \
 	pjsip \
 	res-adsi \
+	res-aeap \
 	res-ael-share \
 	res-agi \
 	res-ari \
@@ -250,6 +252,7 @@ MODULES_AVAILABLE:= \
 	res-calendar-icalendar \
 	res-chan-stats \
 	res-clialiases \
+	res-cliexec \
 	res-clioriginate \
 	res-config-ldap \
 	res-config-mysql \
@@ -271,6 +274,7 @@ MODULES_AVAILABLE:= \
 	res-format-attr-siren14 \
 	res-format-attr-siren7 \
 	res-format-attr-vp8 \
+	res-geolocation \
 	res-http-media-cache \
 	res-http-websocket \
 	res-limit \
@@ -284,6 +288,7 @@ MODULES_AVAILABLE:= \
 	res-mwi-external-ami \
 	res-parking \
 	res-phoneprov \
+	res-pjsip-geolocation \
 	res-pjsip-phoneprov \
 	res-pjsip-stir-shaken \
 	res-pjproject \
@@ -300,6 +305,7 @@ MODULES_AVAILABLE:= \
 	res-sorcery \
 	res-sorcery-memory-cache \
 	res-speech \
+	res-speech-aeap \
 	res-srtp \
 	res-stasis \
 	res-stasis-answer \
@@ -334,6 +340,7 @@ AST_ENABLE:=
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-%,$(MODULES_AVAILABLE)) \
 	$(patsubst %,CONFIG_PACKAGE_$(PKG_NAME)-util-%,$(subst _,-,$(UTILS_AVAILABLE))) \
+	CONFIG_ASTERISK_LIBXSLT_SUPPORT \
 	CONFIG_ASTERISK_LOW_MEMORY
 
 include $(INCLUDE_DIR)/package.mk
@@ -374,6 +381,13 @@ endef
 define Package/$(PKG_NAME)/config
 	menu "Advanced configuration"
 		depends on PACKAGE_asterisk
+
+	config ASTERISK_LIBXSLT_SUPPORT
+		bool "Link Asterisk against libxslt"
+		default y if x86_64
+		help
+		  Build Asterisk with libxslt support. This is required for
+		  res-geolocation.
 
 	config ASTERISK_LOW_MEMORY
 		bool "Optimize Asterisk for low memory usage"
@@ -457,7 +471,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+libstdcpp +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  DEPENDS:=+ASTERISK_LIBXSLT_SUPPORT:libxslt +libstdcpp +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
   USERID:=asterisk=385:asterisk=385
 endef
 
@@ -573,7 +587,7 @@ CONFIGURE_ARGS+= \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
-	--without-libxslt \
+	$(if $(CONFIG_ASTERISK_LIBXSLT_SUPPORT),--with-libxslt,--without-libxslt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-snmp),--with-netsnmp="$(STAGING_DIR)/usr",--without-netsnmp) \
 	--without-newt \
 	--without-osptk \
@@ -885,7 +899,7 @@ $(eval $(call BuildAsteriskModule,codec-lpc10,Linear to LPC10 translation,LPC10 
 $(eval $(call BuildAsteriskModule,codec-resample,resample sLinear audio,SLIN resampling codec.,,,codec_resample,,))
 $(eval $(call BuildAsteriskModule,codec-speex,Speex Coder/Decoder,Speex coder/decoder.,@!SOFT_FLOAT +libspeex +libspeexdsp,,codec_speex,,))
 $(eval $(call BuildAsteriskModule,codec-ulaw,Signed linear to ulaw translation,Ulaw coder/decoder.,,,codec_ulaw,,))
-$(eval $(call BuildAsteriskModule,curl,CURL,cURL support,+libcurl,,func_curl res_config_curl res_curl,,))
+$(eval $(call BuildAsteriskModule,curl,CURL,cURL,+libcurl,,func_curl res_config_curl res_curl,,))
 $(eval $(call BuildAsteriskModule,format-g719,G.719,ITU G.719.,,,format_g719,,))
 $(eval $(call BuildAsteriskModule,format-g723,G.723.1,G.723.1 simple timestamp file format.,,,format_g723,,))
 $(eval $(call BuildAsteriskModule,format-g726,G.726,Raw G.726 data.,,,format_g726,,))
@@ -905,7 +919,7 @@ $(eval $(call BuildAsteriskModule,format-vox,VOX format,Dialogic VOX file format
 $(eval $(call BuildAsteriskModule,format-wav,WAV format (8000hz Signed Linear),Microsoft WAV/WAV16 format.,,,format_wav,,))
 $(eval $(call BuildAsteriskModule,format-wav-gsm,WAV format (Proprietary GSM),Microsoft WAV format.,,,format_wav_gsm,,))
 $(eval $(call BuildAsteriskModule,func-aes,AES dialplan functions,AES dialplan functions.,,,func_aes,,))
-$(eval $(call BuildAsteriskModule,func-base64,base64 support,Base64 encode/decode dialplan functions.,,,func_base64,,))
+$(eval $(call BuildAsteriskModule,func-base64,base64,Base64 encode/decode dialplan functions.,,,func_base64,,))
 $(eval $(call BuildAsteriskModule,func-blacklist,Blacklist on callerid,Look up Caller ID name/number from blacklist database.,,,func_blacklist,,))
 $(eval $(call BuildAsteriskModule,func-callcompletion,Call control configuration function,Call control configuration function.,,,func_callcompletion,,))
 $(eval $(call BuildAsteriskModule,func-channel,Channel info,Channel information dialplan functions.,,,func_channel,,))
@@ -917,6 +931,7 @@ $(eval $(call BuildAsteriskModule,func-dialgroup,Dialgroup dialplan function,Dia
 $(eval $(call BuildAsteriskModule,func-dialplan,Dialplan context/extension/priority checking functions,Dialplan context/extension/priority checking functions.,,,func_dialplan,,))
 $(eval $(call BuildAsteriskModule,func-enum,ENUM,ENUM related dialplan functions.,,enum.conf,func_enum,,))
 $(eval $(call BuildAsteriskModule,func-env,Environment functions,Environment/filesystem dialplan functions.,,,func_env,,))
+$(eval $(call BuildAsteriskModule,func-evalexten,Extension evaluation,Extension evaluation functions.,,,func_evalexten,,))
 $(eval $(call BuildAsteriskModule,func-extstate,Hinted extension state,Gets the state of an extension in the dialplan.,,,func_extstate,,))
 $(eval $(call BuildAsteriskModule,func-frame-drop,Frame drop,Function to drop frames on a channel.,,,func_frame_drop,,))
 $(eval $(call BuildAsteriskModule,func-frame-trace,Frame trace for internal ast_frame debugging,Frame trace for internal ast_frame debugging.,,,func_frame_trace,,))
@@ -960,6 +975,7 @@ $(eval $(call BuildAsteriskModule,pbx-spool,Call Spool,Outgoing spool support.,,
 $(eval $(call BuildAsteriskModule,pgsql,PostgreSQL,PostgreSQL support.,+libpq,cel_pgsql.conf cdr_pgsql.conf res_pgsql.conf,cel_pgsql cdr_pgsql res_config_pgsql,,))
 $(eval $(call BuildAsteriskModule,pjsip,pjsip channel,PJSIP SIP stack.,+$(PKG_NAME)-res-http-websocket +$(PKG_NAME)-res-pjproject +$(PKG_NAME)-res-sorcery +libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,pjsip.conf pjsip_notify.conf pjsip_wizard.conf,chan_pjsip func_pjsip_aor func_pjsip_contact func_pjsip_endpoint res_pjsip res_pjsip_acl res_pjsip_authenticator_digest res_pjsip_caller_id res_pjsip_config_wizard res_pjsip_dialog_info_body_generator res_pjsip_diversion res_pjsip_dlg_options res_pjsip_dtmf_info res_pjsip_empty_info res_pjsip_endpoint_identifier_anonymous res_pjsip_endpoint_identifier_ip res_pjsip_endpoint_identifier_user res_pjsip_exten_state res_pjsip_header_funcs res_pjsip_history res_pjsip_logger res_pjsip_messaging res_pjsip_mwi res_pjsip_mwi_body_generator res_pjsip_nat res_pjsip_notify res_pjsip_one_touch_record_info res_pjsip_outbound_authenticator_digest res_pjsip_outbound_publish res_pjsip_outbound_registration res_pjsip_path res_pjsip_pidf_body_generator res_pjsip_pidf_digium_body_supplement res_pjsip_pidf_eyebeam_body_supplement res_pjsip_publish_asterisk res_pjsip_pubsub res_pjsip_refer res_pjsip_registrar res_pjsip_rfc3326 res_pjsip_sdp_rtp res_pjsip_send_to_voicemail res_pjsip_session res_pjsip_sips_contact res_pjsip_t38 res_pjsip_transport_websocket res_pjsip_xpidf_body_generator,,))
 $(eval $(call BuildAsteriskModule,res-adsi,Provide ADSI,ADSI resource.,,,res_adsi,,))
+$(eval $(call BuildAsteriskModule,res-aeap,Provide AEAP,AEAP resource.,+asterisk-res-http-websocket,aeap.conf,res_aeap,,))
 $(eval $(call BuildAsteriskModule,res-ael-share,Shareable AEL code,Shareable code for AEL.,,,res_ael_share,,))
 $(eval $(call BuildAsteriskModule,res-agi,Asterisk Gateway Interface,Asterisk Gateway Interface.,+$(PKG_NAME)-res-speech,,res_agi,,))
 $(eval $(call BuildAsteriskModule,res-ari,Asterisk RESTful interface,Asterisk RESTful Interface.,+$(PKG_NAME)-res-http-websocket,ari.conf,res_ari,,))
@@ -983,6 +999,7 @@ $(eval $(call BuildAsteriskModule,res-calendar-exchange,Exchange calendar,Asteri
 $(eval $(call BuildAsteriskModule,res-calendar-icalendar,iCalendar calendar,Asterisk iCalendar .ics file integration.,+$(PKG_NAME)-res-calendar +libical +libneon,,res_calendar_icalendar,,))
 $(eval $(call BuildAsteriskModule,res-chan-stats,statsd channel stats,Example of how to use Stasis.,+$(PKG_NAME)-res-statsd,,res_chan_stats,,))
 $(eval $(call BuildAsteriskModule,res-clialiases,CLI aliases,CLI aliases.,,cli_aliases.conf,res_clialiases,,))
+$(eval $(call BuildAsteriskModule,res-cliexec,Execute from CLI,Simple dialplan execution from the CLI.,,,res_cliexec,,))
 $(eval $(call BuildAsteriskModule,res-clioriginate,Calls via CLI,Call origination and redirection from the CLI.,,,res_clioriginate,,))
 $(eval $(call BuildAsteriskModule,res-config-ldap,LDAP realtime interface,LDAP realtime interface.,+libopenldap,res_ldap.conf,res_config_ldap,,))
 $(eval $(call BuildAsteriskModule,res-config-mysql,MySQL CDR backend,MySQL realtime configuration driver.,+libmysqlclient,,res_config_mysql,,))
@@ -1004,8 +1021,9 @@ $(eval $(call BuildAsteriskModule,res-format-attr-silk,SILK format attribute mod
 $(eval $(call BuildAsteriskModule,res-format-attr-siren14,Siren14 format attribute module,Siren14 format attribute module.,,,res_format_attr_siren14,,))
 $(eval $(call BuildAsteriskModule,res-format-attr-siren7,Siren7 format attribute module,Siren7 format attribute module.,,,res_format_attr_siren7,,))
 $(eval $(call BuildAsteriskModule,res-format-attr-vp8,VP8 format attribute module,VP8 format attribute module.,,,res_format_attr_vp8,,))
+$(eval $(call BuildAsteriskModule,res-geolocation,Geolocation,Geolocation support.,@ASTERISK_LIBXSLT_SUPPORT,geolocation.conf,res_geolocation,,))
 $(eval $(call BuildAsteriskModule,res-http-media-cache,HTTP media cache backend,HTTP media cache backend.,+$(PKG_NAME)-curl,,res_http_media_cache,,))
-$(eval $(call BuildAsteriskModule,res-http-websocket,HTTP websocket support,HTTP WebSocket support.,,,res_http_websocket,,))
+$(eval $(call BuildAsteriskModule,res-http-websocket,HTTP websocket,HTTP WebSocket support.,,,res_http_websocket,,))
 $(eval $(call BuildAsteriskModule,res-limit,Resource limits,Resource limits.,,,res_limit,,))
 $(eval $(call BuildAsteriskModule,res-manager-devicestate,Device state topic forwarder,Manager device state topic forwarder.,,,res_manager_devicestate,,))
 $(eval $(call BuildAsteriskModule,res-manager-presencestate,Presence state topic forwarder,Manager presence state topic forwarder.,,,res_manager_presencestate,,))
@@ -1017,6 +1035,7 @@ $(eval $(call BuildAsteriskModule,res-mwi-external,Core external MWI resource,Co
 $(eval $(call BuildAsteriskModule,res-mwi-external-ami,AMI for external MWI,AMI support for external MWI.,+$(PKG_NAME)-res-mwi-external,,res_mwi_external_ami,,))
 $(eval $(call BuildAsteriskModule,res-parking,Phone Parking,Call parking resource.,+$(PKG_NAME)-bridge-holding,res_parking.conf,res_parking,,))
 $(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,HTTP phone provisioning.,,phoneprov.conf,res_phoneprov,,))
+$(eval $(call BuildAsteriskModule,res-pjsip-geolocation,PJSIP Geolocation,PJSIP Geolocation support.,+asterisk-pjsip +asterisk-res-geolocation,,res_pjsip_geolocation,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP phone provisioning.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-phoneprov,,res_pjsip_phoneprov_provider,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-stir-shaken,PJSIP STIR/SHAKEN resource module,PJSIP STIR/SHAKEN resource module.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-stir-shaken,,res_pjsip_stir_shaken,,))
 $(eval $(call BuildAsteriskModule,res-pjproject,Bridge PJPROJECT to Asterisk logging,PJProject log and utility support.,+asterisk-res-sorcery +libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
@@ -1033,6 +1052,7 @@ $(eval $(call BuildAsteriskModule,res-snmp,SNMP [Sub]Agent for Asterisk,SNMP age
 $(eval $(call BuildAsteriskModule,res-sorcery,Sorcery data layer,Sorcery backend modules for data access intended for using realtime as\nbackend.,,sorcery.conf,res_sorcery_astdb res_sorcery_config res_sorcery_memory res_sorcery_realtime,,))
 $(eval $(call BuildAsteriskModule,res-sorcery-memory-cache,Sorcery memory cache object wizard,Sorcery memory cache object wizard.,,,res_sorcery_memory_cache,,))
 $(eval $(call BuildAsteriskModule,res-speech,Speech Recognition API,Generic speech recognition API.,,,res_speech,,))
+$(eval $(call BuildAsteriskModule,res-speech-aeap,AEAP Speech Engine,AEAP Speech Engine support.,+asterisk-res-aeap +asterisk-res-speech,,res_speech_aeap,,))
 $(eval $(call BuildAsteriskModule,res-srtp,SRTP Support,Secure RTP.,+libsrtp2,,res_srtp,,))
 $(eval $(call BuildAsteriskModule,res-stasis,Stasis application,Stasis application support.,,,res_stasis,,))
 $(eval $(call BuildAsteriskModule,res-stasis-answer,Stasis application answer,Stasis application answer support.,+$(PKG_NAME)-res-stasis,,res_stasis_answer,,))
