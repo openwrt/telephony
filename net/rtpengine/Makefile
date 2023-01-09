@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
 PKG_VERSION:=10.5.2.6
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-mr$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/mr$(PKG_VERSION)?
@@ -49,7 +49,7 @@ ENGINE_DEPENDS := \
 	+libopenssl \
 	+libpcap \
 	+libpcre \
-	+libwebsockets \
+	+libwebsockets-openssl \
 	+xmlrpc-c-client \
 	+zlib
 
