@@ -48,7 +48,7 @@ ENGINE_DEPENDS := \
 	+libopenssl \
 	+libpcap \
 	+libpcre \
-	+libwebsockets \
+	+libwebsockets-openssl \
 	+xmlrpc-c-client \
 	+zlib
 
