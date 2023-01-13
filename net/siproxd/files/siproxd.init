@@ -60,8 +60,10 @@ setup_networks() {
 	[ -z $_int_outbound ] && die 1 "$sec.interface_outbound not defined"
 
 	. /lib/functions/network.sh
+	ubus -t 30 wait_for network.interface network.$_int_inbound 2>/dev/null
 	network_get_physdev _dev_inbound $_int_inbound
 	[ -z $_dev_inbound ] && die 1 "$sec.interface_inbound, $_int_inbound isn't a valid interface"
+	ubus -t 30 wait_for network.interface network.$_int_outbound 2>/dev/null
 	network_get_physdev _dev_outbound $_int_outbound
 	[ -z $_dev_outbound ] && die 1 "$sec.interface_outbound, $_int_outbound isn't a valid interface"
 
