@@ -52,8 +52,8 @@ setup_networks() {
 	config_get _int_outbound "$sec" interface_outbound
 
 	. /lib/functions/network.sh
-	network_get_physdev _dev_inbound $_int_inbound
-	network_get_physdev _dev_outbound $_int_outbound
+	network_get_device _dev_inbound $_int_inbound
+	network_get_device _dev_outbound $_int_outbound
 
 	default_conf if_inbound $_dev_inbound
 	default_conf if_outbound $_dev_outbound
