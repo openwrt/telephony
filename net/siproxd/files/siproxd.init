@@ -6,6 +6,12 @@ START=50
 
 USE_PROCD=1
 
+die() {
+	local err=$1; shift
+	echo "siproxd[ERROR]: $*" >&2
+	exit $err
+}
+
 PROG="/usr/sbin/siproxd"
 CONF_DIR="/var/etc/siproxd"
 REG_DIR="/var/lib/siproxd"
@@ -49,11 +55,15 @@ setup_networks() {
 	local _dev_inbound _dev_outbound
 
 	config_get _int_inbound "$sec" interface_inbound
+	[ -z $_int_inbound ] && die 1 "$sec.interface_inbound not defined"
 	config_get _int_outbound "$sec" interface_outbound
+	[ -z $_int_outbound ] && die 1 "$sec.interface_outbound not defined"
 
 	. /lib/functions/network.sh
 	network_get_physdev _dev_inbound $_int_inbound
+	[ -z $_dev_inbound ] && die 1 "$sec.interface_inbound, $_int_inbound isn't a valid interface"
 	network_get_physdev _dev_outbound $_int_outbound
+	[ -z $_dev_outbound ] && die 1 "$sec.interface_outbound, $_int_outbound isn't a valid interface"
 
 	default_conf if_inbound $_dev_inbound
 	default_conf if_outbound $_dev_outbound
