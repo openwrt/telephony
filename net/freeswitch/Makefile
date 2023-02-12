@@ -238,6 +238,9 @@ include $(FS_PERL_FEED)/perlver.mk
 # https://github.com/signalwire/freeswitch/issues/1670
 TARGET_CFLAGS+=-Wno-error=address
 
+# Allow compiling with OpenSSL 3.0
+TARGET_CFLAGS+=-Wno-error=deprecated-declarations
+
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 
 FS_PERL_LIBS:=$(shell grep "^libs=" \
