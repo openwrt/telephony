@@ -1,8 +1,8 @@
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -573,8 +573,15 @@ libs/libedit/src/.libs/libedit.a:
- libs/libzrtp/libzrtp.a:
- 	cd libs/libzrtp && $(MAKE)
+@@ -557,8 +557,15 @@ src/include/switch_version.h: src/includ
+ libs/libedit/src/.libs/libedit.a:
+ 	cd libs/libedit && $(MAKE)
  
 +# !!! OpenWrt was here !!!
 +# - added CROSS and set target to generic-gnu for cross-compile

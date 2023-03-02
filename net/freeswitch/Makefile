@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.8
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=1.10.9
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=1176b26b2f463de2980e5be953f81ced94d23c784452bd41e086d3933a88be5f
+PKG_HASH:=f649d53af7beccb59c1d03864cd8f2d287e4ea26ef652b5c4969d29121ced063
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -220,7 +220,6 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_FS_WITH_PNG \
 	CONFIG_FS_WITH_SRTP \
 	CONFIG_FS_WITH_VPX \
-	CONFIG_FS_WITH_ZRTP \
 	CONFIG_LIBC \
 	CONFIG_PACKAGE_freeswitch-misc-perl-esl \
 	CONFIG_PACKAGE_freeswitch-misc-python3-esl \
@@ -586,7 +585,6 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_FS_WITH_ODBC,core-odbc-support) \
 	$(call autoconf_bool,CONFIG_FS_WITH_SRTP,srtp) \
 	$(call autoconf_bool,CONFIG_FS_WITH_VPX,libvpx) \
-	$(call autoconf_bool,CONFIG_FS_WITH_ZRTP,zrtp) \
 	$(if $(CONFIG_FS_WITH_FREETYPE),,--without-freetype) \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc-lib="$(STAGING_DIR)$(FS_LIB_DIR)") \
 	$(if $(CONFIG_FS_WITH_ODBC),--with-odbc="$(STAGING_DIR)/usr") \
