@@ -9,7 +9,7 @@
  						} else {
  							switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Invalid expire time for %s. Defaulting to 300 sec\n", jsock->uid);
  							jsock->exptime = now + 300;
-@@ -2000,7 +2000,7 @@ static void client_run(jsock_t *jsock)
+@@ -2008,7 +2008,7 @@ static void client_run(jsock_t *jsock)
  
  			if (now >= jsock->exptime) {
  				switch_set_flag(jsock, JPFLAG_AUTH_EXPIRED);
