@@ -85,7 +85,7 @@ The most portable fix for time_t handling is to always cast it to
  					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "SEIZE SQL %s\n", sql);
 --- a/src/switch_channel.c
 +++ b/src/switch_channel.c
-@@ -4700,39 +4700,39 @@ SWITCH_DECLARE(switch_status_t) switch_c
+@@ -4643,39 +4643,39 @@ SWITCH_DECLARE(switch_status_t) switch_c
  
  		tt_created = (time_t) (caller_profile->times->created / 1000000);
  		mtt_created = (time_t) (caller_profile->times->created / 1000);
@@ -131,7 +131,7 @@ The most portable fix for time_t handling is to always cast it to
  		switch_channel_set_variable(channel, "hold_accum_seconds", tmp);
  		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->hold_accum);
  		switch_channel_set_variable(channel, "hold_accum_usec", tmp);
-@@ -4740,28 +4740,28 @@ SWITCH_DECLARE(switch_status_t) switch_c
+@@ -4683,28 +4683,28 @@ SWITCH_DECLARE(switch_status_t) switch_c
  		switch_channel_set_variable(channel, "hold_accum_ms", tmp);
  
  		tt_resurrected = (time_t) (caller_profile->times->resurrected / 1000000);
