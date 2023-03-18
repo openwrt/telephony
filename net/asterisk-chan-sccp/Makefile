@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-chan-sccp
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 # Updated to v4.3.3 release
 PKG_SOURCE_URL:=https://github.com/chan-sccp/chan-sccp.git
@@ -25,6 +25,9 @@ PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_INSTALL:=1
+
+# need iconv.m4, otherwise error during autoreconf
+PKG_BUILD_DEPENDS:=gettext-full
 
 include $(INCLUDE_DIR)/package.mk
 # chan-sccp needs iconv
