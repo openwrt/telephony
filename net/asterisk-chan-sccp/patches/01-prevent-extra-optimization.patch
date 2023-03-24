@@ -1,6 +1,6 @@
 --- a/autoconf/extra.m4
 +++ b/autoconf/extra.m4
-@@ -491,17 +491,6 @@ AC_DEFUN([CS_ENABLE_OPTIMIZATION], [
+@@ -516,17 +516,6 @@ AC_DEFUN([CS_ENABLE_OPTIMIZATION], [
  			], SUPPORTED_CFLAGS)
  		])
  		AC_SUBST([strip_binaries])
@@ -16,5 +16,5 @@
 -		esac
 -		CFLAGS_saved="${CFLAGS_saved} ${optimize_flag} "
  	])
- 
+ 	
  	AS_IF([test "X${enable_debug}" == "Xyes"], [
