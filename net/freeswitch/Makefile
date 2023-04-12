@@ -237,6 +237,9 @@ FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 include $(FS_PERL_FEED)/perlver.mk
 
+# Allow compiling with OpenSSL 3.0
+TARGET_CFLAGS+=-Wno-error=deprecated-declarations
+
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 
 FS_PERL_LIBS:=$(shell grep "^libs=" \
