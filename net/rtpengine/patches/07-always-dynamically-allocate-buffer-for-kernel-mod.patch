@@ -1,0 +1,36 @@
+--- a/kernel-module/xt_RTPENGINE.c
++++ b/kernel-module/xt_RTPENGINE.c
+@@ -3455,14 +3455,11 @@ static inline ssize_t proc_control_read_
+ 	struct inode *inode;
+ 	uint32_t id;
+ 	struct rtpengine_table *t;
+-	struct rtpengine_message msgbuf;
+ 	struct rtpengine_message *msg;
+ 	int err;
+ 
+ 	if (buflen < sizeof(*msg))
+ 		return -EIO;
+-	if (buflen == sizeof(*msg))
+-		msg = &msgbuf;
+ 	else { /* > */
+ 		msg = kmalloc(buflen, GFP_KERNEL);
+ 		if (!msg)
+@@ -3559,16 +3556,14 @@ static inline ssize_t proc_control_read_
+ 			goto out;
+ 	}
+ 
+-	if (msg != &msgbuf)
+-		kfree(msg);
++	kfree(msg);
+ 
+ 	return buflen;
+ 
+ err:
+ 	table_put(t);
+ out:
+-	if (msg != &msgbuf)
+-		kfree(msg);
++	kfree(msg);
+ 	return err;
+ }
+ static ssize_t proc_control_write(struct file *file, const char __user *ubuf, size_t buflen, loff_t *off) {
