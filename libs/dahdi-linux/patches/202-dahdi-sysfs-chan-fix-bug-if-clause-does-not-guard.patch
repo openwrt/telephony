@@ -1,0 +1,28 @@
+From d0699f781e96df6c1fd10551c92fa27695b297da Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:19:45 +0200
+Subject: [PATCH 3/6] dahdi-sysfs-chan: fix bug if clause does not guard
+
+Fix bug if clause does not guard by a typo by missing the if clause and
+not correctly removing the device.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/dahdi-sysfs-chan.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/dahdi/dahdi-sysfs-chan.c
++++ b/drivers/dahdi/dahdi-sysfs-chan.c
+@@ -381,10 +381,11 @@ static void fixed_devfiles_remove(void)
+ 		return;
+ 	for (i = 0; i < ARRAY_SIZE(fixed_minors); i++) {
+ 		void *d = fixed_minors[i].dev;
+-		if (d && !IS_ERR(d))
++		if (d && !IS_ERR(d)) {
+ 			dahdi_dbg(DEVICES, "Removing fixed device file %s\n",
+ 				fixed_minors[i].name);
+ 			DEL_DAHDI_DEV(fixed_minors[i].minor);
++		}
+ 	}
+ }
+ 

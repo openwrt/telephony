@@ -1,0 +1,23 @@
+From be9cab7860ef0872e9fa0a0bc42f1a391d7ac8da Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:20:42 +0200
+Subject: [PATCH 4/6] wcte13xp: fix missing break in t13x_set_linemode
+
+Fix missing break in t13x_set_linemode as currently it does uncorrectly
+fallthrough.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/wcte13xp-base.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/dahdi/wcte13xp-base.c
++++ b/drivers/dahdi/wcte13xp-base.c
+@@ -1875,6 +1875,7 @@ static int t13x_set_linemode(struct dahd
+ 			 "Changing from %s to E1 line mode.\n",
+ 			 dahdi_spantype2str(wc->span.spantype));
+ 		res = t13x_software_init(wc, J1);
++		break;
+ 	default:
+ 		dev_err(&wc->xb.pdev->dev,
+ 			"Got invalid linemode '%s' from dahdi\n",

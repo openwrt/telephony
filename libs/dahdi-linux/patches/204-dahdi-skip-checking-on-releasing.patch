@@ -1,0 +1,38 @@
+From 88cfe20bcd0be443fc7613fd287147d1c54b5f7f Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:21:39 +0200
+Subject: [PATCH 5/6] dahdi: skip checking on releasing
+
+Skip checking on releasing since xb is statically allocated and always
+present.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/wcte13xp-base.c | 3 +--
+ drivers/dahdi/wcte43x-base.c  | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+--- a/drivers/dahdi/wcte13xp-base.c
++++ b/drivers/dahdi/wcte13xp-base.c
+@@ -2702,8 +2702,7 @@ static int __devinit te13xp_init_one(str
+ 	return 0;
+ 
+ fail_exit:
+-	if (&wc->xb)
+-		wcxb_release(&wc->xb);
++	wcxb_release(&wc->xb);
+ 
+ 	free_wc(wc);
+ 	return res;
+--- a/drivers/dahdi/wcte43x-base.c
++++ b/drivers/dahdi/wcte43x-base.c
+@@ -3515,8 +3515,7 @@ static int __devinit t43x_init_one(struc
+ 	return 0;
+ 
+ fail_exit:
+-	if (&wc->xb)
+-		wcxb_release(&wc->xb);
++	wcxb_release(&wc->xb);
+ 
+ 	if (debug)
+ 		dev_info(&wc->xb.pdev->dev, "***At fail_exit in init_one***\n");

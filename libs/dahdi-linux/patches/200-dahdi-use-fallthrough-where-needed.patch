@@ -1,0 +1,127 @@
+From f9bc391e1cd830c830b3b4fb5fd46a59b41de373 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:18:13 +0200
+Subject: [PATCH 1/6] dahdi: use fallthrough where needed
+
+Use fallthrough instead of comment to fix compilation warning.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/dahdi-base.c      | 14 +++++++-------
+ drivers/dahdi/wcaxx-base.c      |  2 ++
+ drivers/dahdi/wctdm24xxp/base.c |  2 ++
+ drivers/dahdi/xpp/card_global.c |  2 +-
+ 4 files changed, 12 insertions(+), 8 deletions(-)
+
+--- a/drivers/dahdi/dahdi-base.c
++++ b/drivers/dahdi/dahdi-base.c
+@@ -7921,7 +7921,7 @@ static inline void __dahdi_process_getau
+ 			memset(getlin, 0, DAHDI_CHUNKSIZE * sizeof(short));
+ 			txb[0] = DAHDI_LIN2X(0, ms);
+ 			memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
+-			/* fall through to normal conf mode */
++			fallthrough;
+ 		case DAHDI_CONF_CONF:	/* Normal conference mode */
+ 			if (is_pseudo_chan(ms)) /* if pseudo-channel */
+ 			   {
+@@ -7945,7 +7945,7 @@ static inline void __dahdi_process_getau
+ 				memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
+ 				break;
+ 		 	   }
+-			/* fall through */
++			fallthrough;
+ 		case DAHDI_CONF_CONFMON:	/* Conference monitor mode */
+ 			if (ms->confmode & DAHDI_CONF_LISTENER) {
+ 				/* Subtract out last sample written to conf */
+@@ -8484,7 +8484,7 @@ static void __dahdi_hooksig_pvt(struct d
+ 			break;
+ 		}
+ #endif
+-		/* fall through intentionally */
++		fallthrough;
+ 	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
+ 		if (rxsig == DAHDI_RXSIG_ONHOOK) {
+ 			chan->ringdebtimer = RING_DEBOUNCE_TIME;
+@@ -8503,7 +8503,7 @@ static void __dahdi_hooksig_pvt(struct d
+ 				chan->gotgs = 1;
+ 			}
+ 		}
+-		/* fall through intentionally */
++		fallthrough;
+ 	   case DAHDI_SIG_FXOLS: /* FXO Loopstart */
+ 	   case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
+ 		switch(rxsig) {
+@@ -8603,7 +8603,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+ 			__dahdi_hooksig_pvt(chan, DAHDI_RXSIG_START);
+ 			break;
+ 		}
+-		/* Fall through */
++		fallthrough;
+ 	    case DAHDI_SIG_EM_E1:
+ 	    case DAHDI_SIG_FXOLS: /* FXO Loopstart */
+ 	    case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
+@@ -8621,7 +8621,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+ 		break;
+ 	   case DAHDI_SIG_FXSKS:  /* FXS Kewlstart */
+ 	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
+-		/* Fall through */
++		fallthrough;
+ 	   case DAHDI_SIG_FXSLS:
+ 		if (!(cursig & DAHDI_BBIT)) {
+ 			/* Check for ringing first */
+@@ -9050,7 +9050,7 @@ static inline void __dahdi_process_putau
+ 				memcpy(ss->putlin, putlin, DAHDI_CHUNKSIZE * sizeof(short));
+ 				break;
+ 			   }
+-			/* fall through */
++			fallthrough;
+ 		case DAHDI_CONF_CONFANN:  /* Conference with announce */
+ 			if (ms->confmode & DAHDI_CONF_TALKER) {
+ 				/* Store temp value */
+--- a/drivers/dahdi/wcaxx-base.c
++++ b/drivers/dahdi/wcaxx-base.c
+@@ -1446,6 +1446,7 @@ wcaxx_check_battery_lost(struct wcaxx *w
+ 		break;
+ 	case BATTERY_UNKNOWN:
+ 		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
++		fallthrough;
+ 	case BATTERY_PRESENT:
+ 		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
+ 		fxo->battdebounce_timer = wc->framecount + battdebounce;
+@@ -1554,6 +1555,7 @@ wcaxx_check_battery_present(struct wcaxx
+ 		break;
+ 	case BATTERY_UNKNOWN:
+ 		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
++		fallthrough;
+ 	case BATTERY_LOST: /* intentional drop through */
+ 		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
+ 		fxo->battdebounce_timer = wc->framecount + battdebounce;
+--- a/drivers/dahdi/wctdm24xxp/base.c
++++ b/drivers/dahdi/wctdm24xxp/base.c
+@@ -1955,6 +1955,7 @@ wctdm_check_battery_lost(struct wctdm *w
+ 		break;
+ 	case BATTERY_UNKNOWN:
+ 		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
++		fallthrough;
+ 	case BATTERY_PRESENT:
+ 		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
+ 		fxo->battdebounce_timer = wc->framecount + battdebounce;
+@@ -2063,6 +2064,7 @@ wctdm_check_battery_present(struct wctdm
+ 		break;
+ 	case BATTERY_UNKNOWN:
+ 		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
++		fallthrough;
+ 	case BATTERY_LOST: /* intentional drop through */
+ 		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
+ 		fxo->battdebounce_timer = wc->framecount + battdebounce;
+--- a/drivers/dahdi/xpp/card_global.c
++++ b/drivers/dahdi/xpp/card_global.c
+@@ -148,7 +148,7 @@ static int execute_chip_command(xpd_t *x
+ 		XPD_NOTICE(xpd,
+ 			"'I' is deprecated in register commands. "
+ 			"Use 'S' instead.\n");
+-		/* fall through */
++		fallthrough;
+ 	case 'S':
+ 		do_subreg = 1;
+ 		num_args += 2;	/* register + subreg */

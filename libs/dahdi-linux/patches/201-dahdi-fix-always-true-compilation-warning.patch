@@ -1,0 +1,60 @@
+From eea6daaa4cae1ddcd8e32c8b9e4273ba3244838c Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:19:04 +0200
+Subject: [PATCH 2/6] dahdi: fix always true compilation warning
+
+Fix always true compilation warning on statically allocated array. Check
+content of the array instead.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/dahdi-base.c          | 6 +++---
+ drivers/dahdi/dahdi_dynamic_ethmf.c | 2 +-
+ drivers/dahdi/xpp/xbus-core.c       | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+--- a/drivers/dahdi/dahdi-base.c
++++ b/drivers/dahdi/dahdi-base.c
+@@ -923,9 +923,9 @@ static int dahdi_seq_show(struct seq_fil
+ 	if (!s)
+ 		return -ENODEV;
+ 
+-	if (s->name)
++	if (*(s->name))
+ 		seq_printf(sfile, "Span %d: %s ", s->spanno, s->name);
+-	if (s->desc)
++	if (*(s->desc))
+ 		seq_printf(sfile, "\"%s\"", s->desc);
+ 	else
+ 		seq_printf(sfile, "\"\"");
+@@ -964,7 +964,7 @@ static int dahdi_seq_show(struct seq_fil
+ 	for (x = 0; x < s->channels; x++) {
+ 		struct dahdi_chan *chan = s->chans[x];
+ 
+-		if (chan->name)
++		if (*(chan->name))
+ 			seq_printf(sfile, "\t%4d %s ", chan->channo,
+ 					chan->name);
+ 
+--- a/drivers/dahdi/dahdi_dynamic_ethmf.c
++++ b/drivers/dahdi/dahdi_dynamic_ethmf.c
+@@ -535,7 +535,7 @@ static void ztdethmf_destroy(struct dahd
+ 		kfree(z->msgbuf);
+ 		kfree(z);
+ 	} else {
+-		if (z && z->span && z->span->name) {
++		if (z && z->span && *(z->span->name)) {
+ 			printk(KERN_ERR "Cannot find interface for %s\n",
+ 				z->span->name);
+ 		}
+--- a/drivers/dahdi/xpp/xbus-core.c
++++ b/drivers/dahdi/xpp/xbus-core.c
+@@ -120,7 +120,7 @@ int xbus_check_unique(xbus_t *xbus)
+ {
+ 	if (!xbus)
+ 		return -ENOENT;
+-	if (xbus->label && *(xbus->label)) {
++	if (*(xbus->label)) {
+ 		xbus_t *xbus_old;
+ 
+ 		XBUS_DBG(DEVICES, xbus, "Checking LABEL='%s'\n", xbus->label);
