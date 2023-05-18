@@ -7,7 +7,7 @@
 -ESL_la_CFLAGS    = $(CC_CFLAGS) $(CFLAGS) -I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS) $(PERL_CFLAGS)
 -ESL_la_CXXFLAGS  = -I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS) $(CXXFLAGS) -w $(PERL_INC)
 +ESL_la_CFLAGS    = $(CC_CFLAGS) -I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CFLAGS) $(PERL_CFLAGS)
-+ESL_la_CXXFLAGS  = -I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS) -w $(PERL_INC)
++ESL_la_CXXFLAGS  = -I$(switch_srcdir)/libs/esl/src/include $(SWITCH_AM_CXXFLAGS) $(PERL_CFLAGS) -w $(PERL_INC)
  ESL_la_LDFLAGS   = -avoid-version -module -no-undefined -shared $(PERL_LDFLAGS)
  ESL_la_LIBADD    = ../libesl.la
  

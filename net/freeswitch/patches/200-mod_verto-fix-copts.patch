@@ -7,7 +7,7 @@
 -MCAST_la_CFLAGS    = $(CC_CFLAGS) $(CFLAGS) $(SWITCH_AM_CFLAGS) $(PERL_CFLAGS)
 -MCAST_la_CXXFLAGS  = $(SWITCH_AM_CXXFLAGS) $(CXXFLAGS) -w $(PERL_INC)
 +MCAST_la_CFLAGS    = $(CC_CFLAGS) $(SWITCH_AM_CFLAGS) $(PERL_CFLAGS)
-+MCAST_la_CXXFLAGS  = $(SWITCH_AM_CXXFLAGS) -w $(PERL_INC)
++MCAST_la_CXXFLAGS  = $(SWITCH_AM_CXXFLAGS) $(PERL_CFLAGS) -w $(PERL_INC)
  MCAST_la_CPPFLAGS  = -I$(switch_srcdir)/src/mod/endpoints/mod_verto/mcast
  MCAST_la_LDFLAGS   = -avoid-version -module -no-undefined -shared $(PERL_LDFLAGS)
  
