@@ -1,0 +1,38 @@
+From 8546fb87e3277b675bd47eba9435f739cf3bb69d Mon Sep 17 00:00:00 2001
+From: Daniel-Constantin Mierla <miconda@gmail.com>
+Date: Fri, 13 Jan 2023 12:33:20 +0100
+Subject: [PATCH] app_python3: proper check of PY_VERSION_HEX for python 3.11
+
+---
+ src/modules/app_python3/apy_kemi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/src/modules/app_python3/apy_kemi.c
++++ b/src/modules/app_python3/apy_kemi.c
+@@ -1810,7 +1810,7 @@ PyObject *sr_apy_kemi_exec_func(PyObject
+ 	PyObject *ret = NULL;
+ 	PyThreadState *pstate = NULL;
+ 	PyFrameObject *pframe = NULL;
+-#if PY_VERSION_HEX >= 0x03100000
++#if PY_VERSION_HEX >= 0x030B0000
+ 	PyCodeObject *pcode = NULL;
+ #endif
+ 	struct timeval tvb = {0}, tve = {0};
+@@ -1836,7 +1836,7 @@ PyObject *sr_apy_kemi_exec_func(PyObject
+ 		if(tdiff >= cfg_get(core, core_cfg, latency_limit_action)) {
+ 			pstate = PyThreadState_GET();
+ 			if (pstate != NULL) {
+-#if PY_VERSION_HEX >= 0x03100000
++#if PY_VERSION_HEX >= 0x030B0000
+ 				pframe = PyThreadState_GetFrame(pstate);
+ 				if(pframe != NULL) {
+ 					pcode = PyFrame_GetCode(pframe);
+@@ -1846,7 +1846,7 @@ PyObject *sr_apy_kemi_exec_func(PyObject
+ #endif
+ 			}
+ 
+-#if PY_VERSION_HEX >= 0x03100000
++#if PY_VERSION_HEX >= 0x030B0000
+ 			LOG(cfg_get(core, core_cfg, latency_log),
+ 					"alert - action KSR.%s%s%s(...)"
+ 					" took too long [%u ms] (file:%s func:%s line:%d)\n",
