@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
 PKG_VERSION:=5.6.2
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=4
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)_src.tar.gz
