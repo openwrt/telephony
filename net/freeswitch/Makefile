@@ -950,7 +950,7 @@ $(eval $(call Package/freeswitch/Module,portaudio,Portaudio,Voice through a loca
 $(eval $(call Package/freeswitch/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/freeswitch/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/freeswitch/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
-$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,+python3-light))
+$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,@BROKEN +python3-light))
 $(eval $(call Package/freeswitch/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/freeswitch/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/freeswitch/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
