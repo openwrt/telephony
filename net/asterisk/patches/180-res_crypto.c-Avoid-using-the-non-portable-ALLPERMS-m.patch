@@ -1,0 +1,33 @@
+From 94c884d5b8afca96164852cfb29fc496bc5b9e0a Mon Sep 17 00:00:00 2001
+From: Sean Bright <sean@seanbright.com>
+Date: Mon, 5 Jun 2023 18:17:47 -0400
+Subject: [PATCH] res_crypto.c: Avoid using the non-portable ALLPERMS macro.
+
+ALLPERMS is not POSIX and it's trivial enough to not jump through
+autoconf hoops to check for it.
+
+Fixes #149.
+---
+ res/res_crypto.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/res/res_crypto.c
++++ b/res/res_crypto.c
+@@ -217,10 +217,15 @@ static struct ast_key *try_load_key(cons
+ 		return NULL;
+ 	}
+ 
++	/* PERM_MASK is a bitwise OR of all possible file mode bits encoded in the
++	 * `st_mode` member of `struct stat`. For POSIX compatible systems this
++	 * will be 07777. */
++#define PERM_MASK (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
++
+ 	/* only user read or read/write modes allowed */
+ 	if (ktype == AST_KEY_PRIVATE &&
+-	    ((st.st_mode & ALLPERMS) & ~(S_IRUSR | S_IWUSR)) != 0) {
+-		ast_log(LOG_ERROR, "Private key file has bad permissions: %s: %#4o\n", ffname, st.st_mode & ALLPERMS);
++	    ((st.st_mode & PERM_MASK) & ~(S_IRUSR | S_IWUSR)) != 0) {
++		ast_log(LOG_ERROR, "Private key file has bad permissions: %s: %#4o\n", ffname, st.st_mode & PERM_MASK);
+ 		fclose(f);
+ 		return NULL;
+ 	}
