@@ -1,0 +1,20 @@
+From 2e296a9a6864dd18ae44ad3c9a224cb41be09a3e Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Thu, 20 Oct 2022 10:02:37 +0200
+Subject: [PATCH] res_crypto: fix compilation
+
+res_crypto.c:383:84: error: 'RSA_PKCS1_PADDING' undeclared (first use in this function)
+---
+ res/res_crypto.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/res/res_crypto.c
++++ b/res/res_crypto.c
+@@ -39,6 +39,7 @@
+ #include <openssl/err.h>            /* for ERR_print_errors_fp */
+ #include <openssl/ssl.h>            /* for NID_sha1, RSA */
+ #include <openssl/evp.h>            /* for EVP_PKEY, EVP_sha1(), ... */
++#include <openssl/rsa.h>            /* for EVP_PKEY_CTX_set_rsa_padding(), ... */
+ #include <openssl/md5.h>            /* for MD5_DIGEST_LENGTH */
+ #include <openssl/sha.h>            /* for SHA_DIGEST_LENGTH */
+ 

@@ -1,0 +1,61 @@
+From 0f6efaf64d11fc6b06621576ea90d06b7bba9dcd Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Tue, 21 Feb 2023 13:23:36 +0100
+Subject: [PATCH] Fix compilation with OPENSSL_NO_DEPRECATED
+
+---
+ main/tcptls.c          | 10 ++++------
+ res/res_rtp_asterisk.c |  2 +-
+ 2 files changed, 5 insertions(+), 7 deletions(-)
+
+--- a/main/tcptls.c
++++ b/main/tcptls.c
+@@ -46,8 +46,7 @@
+ #include <openssl/x509v3.h>             /* for GENERAL_NAME, sk_GENERAL_NAME... */
+ #ifndef OPENSSL_NO_DH
+ #include <openssl/bio.h>                /* for BIO_free, BIO_new_file */
+-#include <openssl/dh.h>                 /* for DH_free */
+-#include <openssl/pem.h>                /* for PEM_read_bio_DHparams */
++#include <openssl/pem.h>                /* for PEM_read_bio_Parameters */
+ #endif /* OPENSSL_NO_DH */
+ #ifndef OPENSSL_NO_EC
+ #include <openssl/ec.h>                 /* for EC_KEY_free, EC_KEY_new_by_cu... */
+@@ -189,7 +188,7 @@ static void *handle_tcptls_connection(vo
+ 			|| (!tcptls_session->client && ast_test_flag(&tcptls_session->parent->tls_cfg->flags, AST_SSL_VERIFY_CLIENT))) {
+ 			X509 *peer;
+ 			long res;
+-			peer = SSL_get_peer_certificate(ssl);
++			peer = SSL_get1_peer_certificate(ssl);
+ 			if (!peer) {
+ 				ast_log(LOG_ERROR, "No SSL certificate to verify from peer '%s'\n",
+ 					ast_sockaddr_stringify(&tcptls_session->remote_address));
+@@ -530,16 +529,15 @@ static int __ssl_setup(struct ast_tls_co
+ 	if (!ast_strlen_zero(cfg->pvtfile)) {
+ 		BIO *bio = BIO_new_file(cfg->pvtfile, "r");
+ 		if (bio != NULL) {
+-			DH *dh = PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
++			EVP_PKEY  *dh = PEM_read_bio_Parameters(bio, NULL);
+ 			if (dh != NULL) {
+-				if (SSL_CTX_set_tmp_dh(cfg->ssl_ctx, dh)) {
++				if (SSL_CTX_set0_tmp_dh_pkey(cfg->ssl_ctx, dh)) {
+ 					long options = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_SINGLE_DH_USE | SSL_OP_SINGLE_ECDH_USE;
+ 					options = SSL_CTX_set_options(cfg->ssl_ctx, options);
+ 					if (!suppress_progress_msgs) {
+ 						ast_verb(2, "TLS/SSL DH initialized, PFS cipher-suites enabled\n");
+ 					}
+ 				}
+-				DH_free(dh);
+ 			}
+ 			BIO_free(bio);
+ 		}
+--- a/res/res_rtp_asterisk.c
++++ b/res/res_rtp_asterisk.c
+@@ -3122,7 +3122,7 @@ static int dtls_srtp_setup(struct ast_rt
+ 	if (rtp->dtls_verify & AST_RTP_DTLS_VERIFY_FINGERPRINT) {
+ 		X509 *certificate;
+ 
+-		if (!(certificate = SSL_get_peer_certificate(dtls->ssl))) {
++		if (!(certificate = SSL_get1_peer_certificate(dtls->ssl))) {
+ 			ast_log(LOG_WARNING, "No certificate was provided by the peer on RTP instance '%p'\n", instance);
+ 			return -1;
+ 		}
