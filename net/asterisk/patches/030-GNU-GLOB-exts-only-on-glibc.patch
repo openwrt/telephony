@@ -1,6 +1,6 @@
 --- a/res/ael/ael.flex
 +++ b/res/ael/ael.flex
-@@ -601,7 +601,7 @@ includes	{ STORE_POS; return KW_INCLUDES
+@@ -598,7 +598,7 @@ includes	{ STORE_POS; return KW_INCLUDES
  		   snprintf(fnamebuf2,sizeof(fnamebuf2), "%s/%s", (char *)ast_config_AST_CONFIG_DIR, fnamebuf);
  		   ast_copy_string(fnamebuf,fnamebuf2,sizeof(fnamebuf));
  		}
@@ -11,7 +11,7 @@
  			glob_ret = glob(fnamebuf, GLOB_NOMAGIC|GLOB_BRACE, NULL, &globbuf);
 --- a/res/ael/ael_lex.c
 +++ b/res/ael/ael_lex.c
-@@ -1982,7 +1982,7 @@ YY_RULE_SETUP
+@@ -1966,7 +1966,7 @@ YY_RULE_SETUP
  		   snprintf(fnamebuf2,sizeof(fnamebuf2), "%s/%s", (char *)ast_config_AST_CONFIG_DIR, fnamebuf);
  		   ast_copy_string(fnamebuf,fnamebuf2,sizeof(fnamebuf));
  		}

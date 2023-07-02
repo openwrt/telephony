@@ -1,0 +1,27 @@
+From ac685b30c17be461b2bf5b46a772ed9742b8e985 Mon Sep 17 00:00:00 2001
+From: Riza Sulistyo <trengginas@users.noreply.github.com>
+Date: Thu, 9 Feb 2023 13:19:23 +0700
+Subject: [PATCH] Make sure that NOTIFY tdata is set before sending it.
+
+---
+ pjsip/src/pjsip-simple/evsub.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/pjsip/src/pjsip-simple/evsub.c
++++ b/pjsip/src/pjsip-simple/evsub.c
+@@ -2224,9 +2224,12 @@ static void on_tsx_state_uas( pjsip_evsu
+         /* Send the pending NOTIFY sent by app from inside
+          * on_rx_refresh() callback.
+          */
+-        pj_assert(sub->pending_notify);
+-        status = pjsip_evsub_send_request(sub, sub->pending_notify);
+-        sub->pending_notify = NULL;
++        //pj_assert(sub->pending_notify);
++        /* Make sure that pending_notify is set. */
++        if (sub->pending_notify) {
++            status = pjsip_evsub_send_request(sub, sub->pending_notify);
++            sub->pending_notify = NULL;
++        }
+ 
+     } else if (pjsip_method_cmp(&tsx->method, &pjsip_notify_method)==0) {
+ 
