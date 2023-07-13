@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
 PKG_VERSION:=18.15.1
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=2
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
@@ -633,7 +633,7 @@ CONFIGURE_ARGS+= \
 	--with-ogg="$(STAGING_DIR)/usr"
 endif
 
-ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-pjproject)$(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
+ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-res-srtp),)
 CONFIGURE_ARGS+= \
 	--without-srtp
 else
@@ -1038,7 +1038,7 @@ $(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,HTTP phone pr
 $(eval $(call BuildAsteriskModule,res-pjsip-geolocation,PJSIP Geolocation,PJSIP Geolocation support.,+asterisk-pjsip +asterisk-res-geolocation,,res_pjsip_geolocation,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP phone provisioning.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-phoneprov,,res_pjsip_phoneprov_provider,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-stir-shaken,PJSIP STIR/SHAKEN resource module,PJSIP STIR/SHAKEN resource module.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-stir-shaken,,res_pjsip_stir_shaken,,))
-$(eval $(call BuildAsteriskModule,res-pjproject,Bridge PJPROJECT to Asterisk logging,PJProject log and utility support.,+asterisk-res-sorcery +libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2 +libsrtp2,pjproject.conf,res_pjproject,,))
+$(eval $(call BuildAsteriskModule,res-pjproject,Bridge PJPROJECT to Asterisk logging,PJProject log and utility support.,+asterisk-res-sorcery +libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2,pjproject.conf,res_pjproject,,))
 $(eval $(call BuildAsteriskModule,res-pktccops,PktcCOPS manager for MGCP,PktcCOPS manager for MGCP.,,res_pktccops.conf,res_pktccops,,))
 $(eval $(call BuildAsteriskModule,res-prometheus,Prometheus resource module,Prometheus resource module.,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,prometheus.conf,res_prometheus,,))
 $(eval $(call BuildAsteriskModule,res-realtime,RealTime CLI,Realtime data lookup/rewrite.,,,res_realtime,,))
