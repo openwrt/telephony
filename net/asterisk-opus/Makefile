@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-opus
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://github.com/traud/asterisk-opus.git
 PKG_SOURCE_DATE:=2021-11-01
