@@ -1,0 +1,25 @@
+From d26a00ef3484f7fa602044e73e31bcefc8ca1917 Mon Sep 17 00:00:00 2001
+From: Sean Bright <sean@seanbright.com>
+Date: Fri, 7 Jul 2023 15:57:39 -0400
+Subject: [PATCH] chan_iax2.c: Avoid crash with IAX2 switch support.
+
+A change made in 82cebaa0 did not properly handle the case when a
+channel was not provided, triggering a crash. ast_check_hangup(...)
+does not protect against NULL pointers.
+
+Fixes #180
+---
+ channels/chan_iax2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/channels/chan_iax2.c
++++ b/channels/chan_iax2.c
+@@ -14323,7 +14323,7 @@ static struct iax2_dpcache *find_cache(s
+ 			ast_log(LOG_WARNING, "Timeout waiting for %s exten %s\n", data, exten);
+ 		}
+ 
+-		if (ast_check_hangup(chan)) {
++		if (chan && ast_check_hangup(chan)) {
+ 			doabort = 1;
+ 		}
+ 
