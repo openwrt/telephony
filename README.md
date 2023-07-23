@@ -2,7 +2,7 @@
 
 ## Description
 
-This is an OpenWrt package feed containing community maintained telephony packages.
+This is an OpenWrt package feed containing user maintained telephony packages.
 
 ## Usage
 
@@ -20,4 +20,5 @@ This feed should be included and enabled by default in the OpenWrt buildroot. To
 ./scripts/feeds install -a -p telephony
 ```
 
-The telephony packages should now appear in menuconfig.
+The telephony packages should appear in menuconfig.
+copyright @Rasstadonai
