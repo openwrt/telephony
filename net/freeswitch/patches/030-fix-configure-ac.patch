@@ -40,7 +40,7 @@
  AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
  
  case $host in
-@@ -1663,13 +1639,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+@@ -1683,13 +1659,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
  # -a "x$ac_cv_have_EXTERN_h" != "xno"
  
  if test "x$ac_cv_have_perl" != "xno"; then
