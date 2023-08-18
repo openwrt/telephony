@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libks
 
-PKG_VERSION:=1.8.2
+PKG_VERSION:=2.0.2
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=libks-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/signalwire/libks/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=131d7896c81a7f3c9bf06860e4f564ca558d4be1614568fec688b3eb66d38107
+PKG_HASH:=af94f9fcdb2022b8f09187309ac2d372a5a4cc639af77cd4375f2d5c88b4fd63
 
 PKG_BUILD_PARALLEL:=1
 CMAKE_INSTALL:=1
@@ -33,13 +33,13 @@ PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-define Package/$(PKG_NAME)
+define Package/libks
   SUBMENU:=Telephony
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Foundational support for SignalWire C products
   URL:=https://github.com/signalwire/libks
-  ABI_VERSION:=1
+  ABI_VERSION:=2
   DEPENDS:=+libatomic +libopenssl +libuuid
 endef
 
@@ -47,20 +47,20 @@ endef
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/$(PKG_NAME)
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/$(PKG_NAME)/*.h \
-		$(1)/usr/include/$(PKG_NAME)
-	$(INSTALL_DIR) $(1)/usr/lib/{cmake/$(PKG_NAME),pkgconfig}
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/$(PKG_NAME)/cmake/* \
-		$(1)/usr/lib/cmake/$(PKG_NAME)
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(PKG_NAME).so* $(1)/usr/lib
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/$(PKG_NAME).pc \
+	$(INSTALL_DIR) $(1)/usr/include/libks2/libks/cmake
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/libks2/libks/*.h \
+		$(1)/usr/include/libks2/libks
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/libks2/libks/cmake/* \
+		$(1)/usr/include/libks2/libks/cmake
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libks2.so* $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libks2.pc \
 		$(1)/usr/lib/pkgconfig
 endef
 
-define Package/$(PKG_NAME)/install
+define Package/libks/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/$(PKG_NAME).so.$(ABI_VERSION)* $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libks2.so.$(ABI_VERSION)* $(1)/usr/lib
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,libks))
