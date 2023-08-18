@@ -4,9 +4,9 @@
  # Must include cotire before anything else for auto pch setup
  #include(cmake/cotire.cmake)
  
-+# Declare our project, libks
-+project(LibKS VERSION 1.8.2 LANGUAGES C CXX)
-+message("LibKS Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
++# Declare our project, libks2
++project(LibKS2 VERSION 2.0.2 LANGUAGES C CXX)
++message("LibKS2 Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 +
  # Load our common utility api and setup the platfomrm and build
  include(cmake/ksutil.cmake)
@@ -15,9 +15,9 @@
  	endif()
  endif()
  
--# Declare our project, libks
--project(LibKS VERSION 1.8.2 LANGUAGES C CXX)
--message("LibKS Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
+-# Declare our project, libks2
+-project(LibKS2 VERSION 2.0.2 LANGUAGES C CXX)
+-message("LibKS2 Version ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 -
  # Set package version
  set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
