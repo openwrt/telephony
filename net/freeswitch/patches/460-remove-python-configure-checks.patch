@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1856,36 +1856,24 @@ then
+@@ -1876,36 +1876,24 @@ then
  		fi
  		AC_MSG_RESULT([$PYTHON3_VER])
  

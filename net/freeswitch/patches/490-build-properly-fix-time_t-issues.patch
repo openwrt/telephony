@@ -62,7 +62,7 @@ The most portable fix for time_t handling is to always cast it to
  #else
 --- a/src/mod/applications/mod_httapi/mod_httapi.c
 +++ b/src/mod/applications/mod_httapi/mod_httapi.c
-@@ -2744,7 +2744,7 @@ static switch_status_t write_meta_file(h
+@@ -2742,7 +2742,7 @@ static switch_status_t write_meta_file(h
  
  		switch_snprintf(write_data, sizeof(write_data),
  						"%" TIME_T_FMT ":%s",
@@ -73,7 +73,7 @@ The most portable fix for time_t handling is to always cast it to
  
 --- a/src/mod/endpoints/mod_sofia/sofia_presence.c
 +++ b/src/mod/endpoints/mod_sofia/sofia_presence.c
-@@ -4200,7 +4200,8 @@ void sofia_presence_handle_sip_i_subscri
+@@ -4198,7 +4198,8 @@ void sofia_presence_handle_sip_i_subscri
  				sql = switch_mprintf("insert into sip_dialogs (sip_from_user,sip_from_host,call_info,call_info_state,hostname,expires,rcd,profile_name) "
  									 "values ('%q','%q','%q','seized','%q',%"TIME_T_FMT",%ld,'%q')",
  									 to_user, to_host, switch_str_nil(p), mod_sofia_globals.hostname,
@@ -85,7 +85,7 @@ The most portable fix for time_t handling is to always cast it to
  					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "SEIZE SQL %s\n", sql);
 --- a/src/switch_channel.c
 +++ b/src/switch_channel.c
-@@ -4643,39 +4643,39 @@ SWITCH_DECLARE(switch_status_t) switch_c
+@@ -4662,39 +4662,39 @@ SWITCH_DECLARE(switch_status_t) switch_c
  
  		tt_created = (time_t) (caller_profile->times->created / 1000000);
  		mtt_created = (time_t) (caller_profile->times->created / 1000);
@@ -131,7 +131,7 @@ The most portable fix for time_t handling is to always cast it to
  		switch_channel_set_variable(channel, "hold_accum_seconds", tmp);
  		switch_snprintf(tmp, sizeof(tmp), "%" SWITCH_TIME_T_FMT, caller_profile->times->hold_accum);
  		switch_channel_set_variable(channel, "hold_accum_usec", tmp);
-@@ -4683,28 +4683,28 @@ SWITCH_DECLARE(switch_status_t) switch_c
+@@ -4702,28 +4702,28 @@ SWITCH_DECLARE(switch_status_t) switch_c
  		switch_channel_set_variable(channel, "hold_accum_ms", tmp);
  
  		tt_resurrected = (time_t) (caller_profile->times->resurrected / 1000000);
@@ -166,7 +166,7 @@ The most portable fix for time_t handling is to always cast it to
  		switch_channel_set_variable(channel, "end_uepoch", tmp);
 --- a/src/switch_ivr_originate.c
 +++ b/src/switch_ivr_originate.c
-@@ -797,7 +797,7 @@ static uint8_t check_channel_status(orig
+@@ -800,7 +800,7 @@ static uint8_t check_channel_status(orig
  					time_t elapsed = switch_epoch_time_now(NULL) - start;
  					oglobals->originate_status[i].per_channel_progress_timelimit_sec = elapsed + extend_timeout;
  					oglobals->originate_status[i].per_channel_timelimit_sec = elapsed + extend_timeout;
