@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.9
-PKG_RELEASE:=2
+PKG_VERSION:=1.10.10
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=f649d53af7beccb59c1d03864cd8f2d287e4ea26ef652b5c4969d29121ced063
+PKG_HASH:=d2c702c7f4bd6eca539c3981cf859ad5c1846d9283829e24cd75686f2322b9df
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -233,12 +233,6 @@ FS_PERL_FEED:=$(TOPDIR)/feeds/packages/lang/perl
 
 include $(TOPDIR)/feeds/packages/lang/python/python3-version.mk
 include $(FS_PERL_FEED)/perlver.mk
-
-# https://github.com/signalwire/freeswitch/issues/1670
-TARGET_CFLAGS+=-Wno-error=address
-
-# Allow compiling with OpenSSL 3.0
-TARGET_CFLAGS+=-Wno-error=deprecated-declarations
 
 PERL_SITELIB:=/usr/lib/perl$(PERL_MAJOR)/$(PERL_VERSION2)
 
@@ -875,7 +869,7 @@ $(eval $(call Package/freeswitch/Module,abstraction,API abstraction,This module 
 $(eval $(call Package/freeswitch/Module,alsa,ALSA endpoint,ALSA endpoint module.,+alsa-lib))
 $(eval $(call Package/freeswitch/Module,amr,AMR passthrough,Passthrough AMR codec support.,))
 $(eval $(call Package/freeswitch/Module,amrwb,AMR wideband passthrough,Passthrough AMR wideband codec support.,))
-$(eval $(call Package/freeswitch/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @BROKEN @x86_64))
+$(eval $(call Package/freeswitch/Module,av,AV,Video codec and format support via FFmpeg.,+libffmpeg-full @x86_64))
 $(eval $(call Package/freeswitch/Module,avmd,Voicemail detection,This module attempts to determine when a voicemail system has answered\nthe call.,))
 $(eval $(call Package/freeswitch/Module,b64,Base64,Transfers data Base64 encoded.,))
 $(eval $(call Package/freeswitch/Module,basic,BASIC,BASIC module for FreeSWITCH.,))
@@ -950,7 +944,7 @@ $(eval $(call Package/freeswitch/Module,portaudio,Portaudio,Voice through a loca
 $(eval $(call Package/freeswitch/Module,portaudio_stream,Portaudio streaming,Stream from an external audio source for Music on Hold.,+portaudio))
 $(eval $(call Package/freeswitch/Module,posix_timer,POSIX timer,Add POSIX timer support.,))
 $(eval $(call Package/freeswitch/Module,prefix,Prefix match,This module provides a data store with fast lookups by the longest\nprefix match rule.,))
-$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,@BROKEN +python3-light))
+$(eval $(call Package/freeswitch/Module,python3,Python3,Python3 support module.,+python3-light))
 $(eval $(call Package/freeswitch/Module,radius_cdr,Radius CDR,Radius Call Detail Record handler.,))
 $(eval $(call Package/freeswitch/Module,random,Entropy,This module extracts entropy from FreeSWITCH and feeds it into\n/dev/random.,))
 $(eval $(call Package/freeswitch/Module,raven,Raven logging,Adds support for logging to Raven instances.,))
