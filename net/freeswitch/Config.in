@@ -46,13 +46,6 @@ config FS_WITH_VPX
 	help
 	  Compile with VPx video codec support
 
-config FS_WITH_ZRTP
-	bool "Compile with ZRTP support"
-	depends on aarch64||aarch64_be||arm||armeb||i386||mips||mips64||mips64el||mipsel||powerpc||powerpc64||powerpcle||sparc||x86_64
-	default y if x86_64
-	help
-	  Compile with ZRTP support.
-
 config FS_WITH_MODCONF
 	bool "Include module examples"
 	default y if x86_64

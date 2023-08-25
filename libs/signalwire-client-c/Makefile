@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=signalwire-client-c
 
-PKG_VERSION:=1.3.0
+PKG_VERSION:=1.3.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=signalwire-c-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/signalwire/signalwire-c/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=77bc7fbd8405283ef64ccbc22fba6687fc936ed76fafcc15e7e90290e2906884
+PKG_SOURCE_URL:=https://codeload.github.com/signalwire/signalwire-c/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=c4e065f471c822df9d08d3597102dd7033032e112561387b9d89b4f5adf698d7
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/signalwire-c-$(PKG_VERSION)
 
