@@ -10,6 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=asterisk
 PKG_VERSION:=20.3.0
 PKG_RELEASE:=2
+PKG_CPE_ID:=cpe:/a:digium:asterisk
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
