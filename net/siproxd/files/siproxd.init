@@ -19,6 +19,20 @@ append CONF_SKIP "interface_inbound interface_outbound chrootjail"
 append CONF_SKIP "daemonize user plugindir registration_file pid_file"
 
 
+# Check if a UCI option is set and append it to config
+
+apply_conf() {
+	local var="$1"
+	local sec="$2"
+	local opt="$3"
+	local val
+
+	config_get "$var" "$sec" "$opt"
+	eval "val=\"\${$var}\""
+
+	[ -z "$val" ] || append_conf "$opt" = "$val"
+}
+
 # Check if a UCI option is set, or else apply a provided default.
 
 default_conf() {
@@ -34,6 +48,8 @@ default_conf() {
 	config_set "$sec" "$opt" "$default"
 	append_conf "$opt" = "$default"
 }
+
+# Append value to config file
 
 append_conf() {
 	echo $* >> "$CONF_DIR/siproxd-$sec.conf"
@@ -98,13 +114,12 @@ section_end() {
 
 	local conf_file="$CONF_DIR/siproxd-$sec.conf"
 	local pid_file="$PID_DIR/siproxd-$sec.pid"
-	local reg_file plugin_dir
+	local registration_file plugindir
 
 	setup_networks "$sec"
 	apply_defaults "$sec"
-
-	config_get plugin_dir "$sec" plugindir
-	config_get reg_file "$sec" registration_file
+	apply_conf plugindir "$sec" plugindir
+	apply_conf registration_file "$sec" registration_file
 
 	procd_open_instance "$sec"
 	procd_set_param command "$PROG" --config "$conf_file"
@@ -113,11 +128,11 @@ section_end() {
 	procd_add_jail siproxd log
 	procd_add_jail_mount /etc/passwd /etc/group /etc/TZ /dev/null
 	procd_add_jail_mount "$conf_file"
-	[ -d "$plugin_dir" ] && procd_add_jail_mount "$plugin_dir"
+	[ -d "$plugindir" ] && procd_add_jail_mount "$plugindir"
 	# Ensure registration file exists for jail
-	[ -f "$reg_file" ] || touch "$reg_file"
-	chown "$SIPROXD_UID:$SIPROXD_GID" "$reg_file"
-	procd_add_jail_mount_rw "$reg_file"
+	[ -f "$registration_file" ] || touch "$registration_file"
+	chown "$SIPROXD_UID:$SIPROXD_GID" "$registration_file"
+	procd_add_jail_mount_rw "$registration_file"
 	procd_close_instance
 }
 
