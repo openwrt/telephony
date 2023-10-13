@@ -6,11 +6,11 @@
  obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_WCTE13XP)		+= wcte13xp.o
 +obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_HFCS)		+= hfcs/
  
- wcte13xp-objs := wcte13xp-base.o wcxb_spi.o wcxb.o wcxb_flash.o
- CFLAGS_wcte13xp-base.o += -I$(src)/oct612x -I$(src)/oct612x/include -I$(src)/oct612x/octdeviceapi -I$(src)/oct612x/octdeviceapi/oct6100api
+ ifndef HOTPLUG_FIRMWARE
+ ifneq (,$(filter y m,$(CONFIG_FW_LOADER)))
 --- a/drivers/dahdi/Kconfig
 +++ b/drivers/dahdi/Kconfig
-@@ -223,4 +223,14 @@ config DAHDI_DYNAMIC_LOC
+@@ -235,4 +235,14 @@ config DAHDI_DYNAMIC_LOC
  	  If unsure, say Y.
  
  
