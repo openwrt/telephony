@@ -17,7 +17,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sipcapture/sipgrep.git
 PKG_SOURCE_VERSION:=1cc00079cd80310f7e8b1a696e9a02b8a2b25e04
 PKG_SOURCE_DATE=2019-06-27
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MIRROR_HASH:=3480f83a4af2a2972f3aa981343b067fa35ddc74f42c3e459630f31aba8f2d91
 
 PKG_BUILD_PARALLEL:=1
@@ -33,7 +33,7 @@ define Package/sipgrep
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Telephony
-  DEPENDS:=+libpcap +libpcre
+  DEPENDS:=+libpcap +libpcre2
   TITLE:=Command line tool to sniff, capture, display SIP messages
   URL:=https://github.com/sipcapture/sipgrep
 endef
