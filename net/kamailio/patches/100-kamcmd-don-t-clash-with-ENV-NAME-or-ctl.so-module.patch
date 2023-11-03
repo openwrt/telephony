@@ -1,0 +1,45 @@
+From 8421e2be8331a03b0087eb33241fac98e1fd821f Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 3 Nov 2023 03:09:21 +0100
+Subject: [PATCH] kamcmd: don't clash with ENV NAME or ctl.so module
+
+NAME variable might be set to the current HOSTNAME in some shell and
+also clash with the value set by the module calling MOD_INSTALL_UTILS by
+passing a NAME variable.
+
+With commit 1774cee62098 ("kamcmd: allow defining the name of the
+application from command line") this resulted in the kamcmd bin being
+renamed to all kind of name from hostname to ctl.so.
+
+Fix this by checking the variable to a more safe name that is not
+already defined in shell by default and also that doesn't clash with
+module variables, use UTIL_NAME as an alternative to NAME.
+
+UTIL_NAME now needs to be used to create kamcmd with custom name.
+
+Fixes: 1774cee62098 ("kamcmd: allow defining the name of the application from command line")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ utils/kamcmd/Makefile | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/utils/kamcmd/Makefile
++++ b/utils/kamcmd/Makefile
+@@ -8,10 +8,15 @@ include $(COREPATH)/Makefile.targets
+ auto_gen=
+ RELEASE=1.5
+ UTIL_SRC_NAME=kamcmd
++# Pass CUSTOM_NAME to overwrite the kamcmd/sercmd bin name
++ifeq ($(CUSTOM_NAME),)
+ ifeq ($(FLAVOUR),ser)
+-	NAME?=sercmd
++	NAME=sercmd
+ else
+-	NAME?=kamcmd
++	NAME=kamcmd
++endif
++else
++	NAME=$(CUSTOM_NAME)
+ endif
+ 
+ readline_localpath=$(LOCALBASE)/include/readline/readline.h
