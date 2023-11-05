@@ -1,21 +1,43 @@
 #!/usr/bin/perl
 
-# This yate module will monitor failed authentications and send the source
-# IP addresses of users who fail to authenticate to the iptables extension
-# "recent" for filtering.
+# This yate script will monitor authentication requests and update an
+# nftables set with IP addresses of users who consistently fail to
+# authenticate. The nftables set can then be used in OpenWrt's
+# firewall configuration to block these IP addresses.
 #
-# You have to have the iptables extension "recent" installed and you need to
-# create and reference a "recent" list in your firewall configuration.
-# For most people it's probably enough to add this custom firewall rule
-# to /etc/firewall.user:
+# The nftables set has to exist before launching yate.
 #
-#  iptables -A input_rule -m recent --name yate_auth_failures --rcheck --seconds 3600 --hitcount 5 -j DROP
+# Here's an example configuration that creates an nftables set, where
+# entries expire after 12 hours, and configures the OpenWrt firewall
+# to drop packets where the source IP address is in the set. Put this
+# in /etc/nftables.d/99-yate.nft:
 #
-# This line will drop all incoming traffic from users who have failed to
-# authenticate 5 consecutive times within the last hour.
+#  set yate_denylist {
+#      type ipv4_addr
+#      timeout 12h
+#  }
 #
-# To enable this script in yate, add this script to the [scripts] section
-# in /etc/yate/extmodule.conf.
+#  chain yate_filter {
+#      type filter hook input priority -1; policy accept;
+#      ip saddr @yate_denylist counter drop comment "Drop packets from bad SIP clients"
+#  }
+#
+#
+# To enable this script in yate, add it to the [scripts] section in
+# /etc/yate/extmodule.conf.
+#
+# You can tweak how tolerant this script should be by modifying the
+# constants below.
+
+# A user's IP address will be added to the nftables set if there are
+# more than MAX_AUTH_FAILURES consecutive authentication failures in
+# MAX_AUTH_FAILURES_TIME_PERIOD seconds.
+my $MAX_AUTH_FAILURES = 5;
+my $MAX_AUTH_FAILURES_TIME_PERIOD = 3600;  # seconds
+
+# The name of the nftables table and set where IP addresses are added.
+my $NFTABLES_TABLE = 'inet fw4';
+my $NFTABLES_SET = 'yate_denylist';
 
 
 use strict;
@@ -23,28 +45,42 @@ use warnings;
 use lib '/usr/share/yate/scripts';
 use Yate;
 
-my $RECENT_LIST_NAME = '/proc/net/xt_recent/yate_auth_failures';
+my %ip_auth_failures = ();
 
 sub OnAuthenticationRequest($) {
   my $yate = shift;
+
+  # Forget any expired failed authentications
+  foreach my $ip (keys(%ip_auth_failures)) {
+    my $failures = \@{$ip_auth_failures{$ip}};
+    while (@$failures &&
+           time() - @$failures[0] > $MAX_AUTH_FAILURES_TIME_PERIOD) {
+        shift(@$failures);
+    }
+
+    if (!@$failures) {
+      delete $ip_auth_failures{$ip};
+    }
+  }
+
   my $remote_ip = $yate->param('ip_host');
+  my $remote_device = $yate->param('device') || '<unknown>';
 
   if ($yate->header('processed') eq 'true') {
-    # Successful authentication, forget previous failures
-    `echo -$remote_ip > $RECENT_LIST_NAME`;
+    $yate->output("banbrutes: Successful authentication from $remote_ip");
+    delete $ip_auth_failures{$remote_ip};
     return;
   }
 
-  `echo +$remote_ip > $RECENT_LIST_NAME`;
+  $yate->output("banbrutes: Failed authentication from $remote_ip");
+  push(@{$ip_auth_failures{$remote_ip}}, time());
+  if (scalar(@{$ip_auth_failures{$remote_ip}}) > $MAX_AUTH_FAILURES) {
+    $yate->output("banbrutes: Adding $remote_ip to nftables set $NFTABLES_SET (remote device: $remote_device)");
+    `nft add element $NFTABLES_TABLE $NFTABLES_SET { $remote_ip }`;
+    delete $ip_auth_failures{$remote_ip};
+  }
 }
-
 
 my $yate = new Yate();
-
-if (! -f $RECENT_LIST_NAME) {
-  $yate->output("iptables recent list $RECENT_LIST_NAME does not exist");
-  exit 1;
-}
-
-$yate->install_watcher('user.auth', \&OnAuthenticationRequest);
+$yate->install_watcher("user.auth", \&OnAuthenticationRequest);
 $yate->listen();
