@@ -1,0 +1,43 @@
+--- a/lib/common.Makefile
++++ b/lib/common.Makefile
+@@ -34,12 +34,6 @@ $(DAEMONSRCS) $(HASHSRCS):	$(patsubst %,
+ 		echo '#line 1' && \
+ 		cat ../daemon/"$@" ) > "$@"
+ 
+-%.8: ../docs/%.md
+-	cat "$<" | sed '/^# /d; s/^##/#/' | \
+-		pandoc -s -t man \
+-			-M "footer:$(RTPENGINE_VERSION)" \
+-			-M "date:$(BUILD_DATE)" \
+-			-o "$@"
+ 
+ resample.c codeclib.strhash.c mix.c packet.c:	fix_frame_channel_layout.h
+ 
+--- a/daemon/Makefile
++++ b/daemon/Makefile
+@@ -93,11 +93,8 @@ LIBASM=		mvr2s_x64_avx2.S mvr2s_x64_avx5
+ endif
+ OBJS=		$(SRCS:.c=.o) $(LIBSRCS:.c=.o) $(LIBASM:.S=.o)
+ 
+-MDS=		rtpengine.ronn
+-MANS=		$(MDS:.ronn=.8)
+ 
+ include ../lib/common.Makefile
+ 
+ install: $(TARGET) $(MANS)
+ 	install -m 0755 -D $(TARGET) $(DESTDIR)/usr/bin/$(TARGET)
+-	install -m 0644 -D $(TARGET).8 $(DESTDIR)/usr/share/man/man8/$(TARGET).8
+--- a/recording-daemon/Makefile
++++ b/recording-daemon/Makefile
+@@ -39,11 +39,8 @@ LIBSRCS=	loglib.c auxlib.c rtplib.c code
+ LIBASM=		mvr2s_x64_avx2.S mvr2s_x64_avx512.S mix_in_x64_avx2.S mix_in_x64_avx512bw.S mix_in_x64_sse2.S
+ OBJS=		$(SRCS:.c=.o) $(LIBSRCS:.c=.o) $(LIBASM:.S=.o)
+ 
+-MDS=		rtpengine-recording.ronn
+-MANS=		$(MDS:.ronn=.8)
+ 
+ include ../lib/common.Makefile
+ 
+ install: $(TARGET) $(MANS)
+ 	install -m 0755 -D $(TARGET) $(DESTDIR)/usr/bin/$(TARGET)
+-	install -m 0644 -D $(TARGET).8 $(DESTDIR)/usr/share/man/man8/$(TARGET).8
