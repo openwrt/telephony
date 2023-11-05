@@ -14,7 +14,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 
 --- a/drivers/dahdi/wcte13xp-base.c
 +++ b/drivers/dahdi/wcte13xp-base.c
-@@ -2702,8 +2702,7 @@ static int __devinit te13xp_init_one(str
+@@ -2707,8 +2707,7 @@ static int __devinit te13xp_init_one(str
  	return 0;
  
  fail_exit:
@@ -26,7 +26,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	return res;
 --- a/drivers/dahdi/wcte43x-base.c
 +++ b/drivers/dahdi/wcte43x-base.c
-@@ -3515,8 +3515,7 @@ static int __devinit t43x_init_one(struc
+@@ -3521,8 +3521,7 @@ static int __devinit t43x_init_one(struc
  	return 0;
  
  fail_exit:

@@ -15,16 +15,16 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 
 --- a/drivers/dahdi/dahdi-base.c
 +++ b/drivers/dahdi/dahdi-base.c
-@@ -7921,7 +7921,7 @@ static inline void __dahdi_process_getau
+@@ -7930,7 +7930,7 @@ static inline void __dahdi_process_getau
  			memset(getlin, 0, DAHDI_CHUNKSIZE * sizeof(short));
  			txb[0] = DAHDI_LIN2X(0, ms);
  			memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
--			/* fall through to normal conf mode */
+-			/* fallthrough */
 +			fallthrough;
  		case DAHDI_CONF_CONF:	/* Normal conference mode */
  			if (is_pseudo_chan(ms)) /* if pseudo-channel */
  			   {
-@@ -7945,7 +7945,7 @@ static inline void __dahdi_process_getau
+@@ -7954,7 +7954,7 @@ static inline void __dahdi_process_getau
  				memset(txb + 1, txb[0], DAHDI_CHUNKSIZE - 1);
  				break;
  		 	   }
@@ -33,25 +33,25 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  		case DAHDI_CONF_CONFMON:	/* Conference monitor mode */
  			if (ms->confmode & DAHDI_CONF_LISTENER) {
  				/* Subtract out last sample written to conf */
-@@ -8484,7 +8484,7 @@ static void __dahdi_hooksig_pvt(struct d
+@@ -8493,7 +8493,7 @@ static void __dahdi_hooksig_pvt(struct d
  			break;
  		}
  #endif
--		/* fall through intentionally */
+-		/* fallthrough */
 +		fallthrough;
  	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
  		if (rxsig == DAHDI_RXSIG_ONHOOK) {
  			chan->ringdebtimer = RING_DEBOUNCE_TIME;
-@@ -8503,7 +8503,7 @@ static void __dahdi_hooksig_pvt(struct d
+@@ -8512,7 +8512,7 @@ static void __dahdi_hooksig_pvt(struct d
  				chan->gotgs = 1;
  			}
  		}
--		/* fall through intentionally */
+-		/* fallthrough */
 +		fallthrough;
  	   case DAHDI_SIG_FXOLS: /* FXO Loopstart */
  	   case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
  		switch(rxsig) {
-@@ -8603,7 +8603,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+@@ -8612,7 +8612,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
  			__dahdi_hooksig_pvt(chan, DAHDI_RXSIG_START);
  			break;
  		}
@@ -60,7 +60,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	    case DAHDI_SIG_EM_E1:
  	    case DAHDI_SIG_FXOLS: /* FXO Loopstart */
  	    case DAHDI_SIG_FXOKS: /* FXO Kewlstart */
-@@ -8621,7 +8621,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
+@@ -8630,7 +8630,7 @@ void dahdi_rbsbits(struct dahdi_chan *ch
  		break;
  	   case DAHDI_SIG_FXSKS:  /* FXS Kewlstart */
  	   case DAHDI_SIG_FXSGS:  /* FXS Groundstart */
@@ -69,7 +69,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  	   case DAHDI_SIG_FXSLS:
  		if (!(cursig & DAHDI_BBIT)) {
  			/* Check for ringing first */
-@@ -9050,7 +9050,7 @@ static inline void __dahdi_process_putau
+@@ -9059,7 +9059,7 @@ static inline void __dahdi_process_putau
  				memcpy(ss->putlin, putlin, DAHDI_CHUNKSIZE * sizeof(short));
  				break;
  			   }
@@ -80,38 +80,42 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
  				/* Store temp value */
 --- a/drivers/dahdi/wcaxx-base.c
 +++ b/drivers/dahdi/wcaxx-base.c
-@@ -1446,6 +1446,7 @@ wcaxx_check_battery_lost(struct wcaxx *w
+@@ -1456,7 +1456,7 @@ wcaxx_check_battery_lost(struct wcaxx *w
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
+-		/* fallthrough */
 +		fallthrough;
  	case BATTERY_PRESENT:
  		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
-@@ -1554,6 +1555,7 @@ wcaxx_check_battery_present(struct wcaxx
+@@ -1567,7 +1567,7 @@ wcaxx_check_battery_present(struct wcaxx
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
+-		/* fallthrough */
 +		fallthrough;
- 	case BATTERY_LOST: /* intentional drop through */
+ 	case BATTERY_LOST:
  		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
 --- a/drivers/dahdi/wctdm24xxp/base.c
 +++ b/drivers/dahdi/wctdm24xxp/base.c
-@@ -1955,6 +1955,7 @@ wctdm_check_battery_lost(struct wctdm *w
+@@ -1964,7 +1964,7 @@ wctdm_check_battery_lost(struct wctdm *w
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_ONHOOK);
+-		/* fallthrough */
 +		fallthrough;
  	case BATTERY_PRESENT:
  		fxo->battery_state = BATTERY_DEBOUNCING_LOST;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
-@@ -2063,6 +2064,7 @@ wctdm_check_battery_present(struct wctdm
+@@ -2074,7 +2074,7 @@ wctdm_check_battery_present(struct wctdm
  		break;
  	case BATTERY_UNKNOWN:
  		mod_hooksig(wc, mod, DAHDI_RXSIG_OFFHOOK);
+-		/* fallthrough */
 +		fallthrough;
- 	case BATTERY_LOST: /* intentional drop through */
+ 	case BATTERY_LOST:
  		fxo->battery_state = BATTERY_DEBOUNCING_PRESENT;
  		fxo->battdebounce_timer = wc->framecount + battdebounce;
 --- a/drivers/dahdi/xpp/card_global.c

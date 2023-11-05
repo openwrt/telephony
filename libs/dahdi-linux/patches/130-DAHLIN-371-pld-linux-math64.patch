@@ -8,7 +8,7 @@
  #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
  #include <linux/slab.h>
-@@ -1754,11 +1755,13 @@ out:
+@@ -1768,11 +1769,13 @@ out:
  
  static void xbus_fill_proc_queue(struct seq_file *sfile, struct xframe_queue *q)
  {
@@ -127,7 +127,7 @@
  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
  #include <asm/uaccess.h>
  #else
-@@ -886,7 +887,7 @@ static void xpp_send_callback(struct urb
+@@ -891,7 +892,7 @@ static void xpp_send_callback(struct urb
  		usec = 0; /* System clock jumped */
  	if (usec > xusb->max_tx_delay)
  		xusb->max_tx_delay = usec;
