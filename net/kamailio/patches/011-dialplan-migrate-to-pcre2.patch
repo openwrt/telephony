@@ -1,0 +1,456 @@
+From 374227b15ff7fbed8660beb93d52da15dcb4ba9e Mon Sep 17 00:00:00 2001
+From: Victor Seva <linuxmaniac@torreviejawireless.org>
+Date: Mon, 21 Aug 2023 12:27:43 +0200
+Subject: [PATCH] dialplan: migrate to pcre2
+
+---
+ src/modules/dialplan/Makefile   |  11 +---
+ src/modules/dialplan/dialplan.c |   5 ++
+ src/modules/dialplan/dialplan.h |  20 ++++---
+ src/modules/dialplan/dp_db.c    | 103 +++++++++++++++++++-------------
+ src/modules/dialplan/dp_repl.c  |  56 +++++++++++------
+ 5 files changed, 121 insertions(+), 74 deletions(-)
+
+--- a/src/modules/dialplan/Makefile
++++ b/src/modules/dialplan/Makefile
+@@ -6,20 +6,15 @@ auto_gen=
+ NAME=dialplan.so
+ 
+ ifeq ($(CROSS_COMPILE),)
+-PCRE_BUILDER = $(shell \
+-	if pkg-config --exists libcre; then \
+-		echo 'pkg-config libpcre'; \
+-	else \
+-		which pcre-config; \
+-	fi)
++PCRE_BUILDER = $(shell command -v pcre2-config)
+ endif
+ 
+ ifeq ($(PCRE_BUILDER),)
+ 	PCREDEFS=-I$(LOCALBASE)/include
+-	PCRELIBS=-L$(LOCALBASE)/lib -lpcre
++	PCRELIBS=-L$(LOCALBASE)/lib -lpcre2-8
+ else
+ 	PCREDEFS = $(shell $(PCRE_BUILDER) --cflags)
+-	PCRELIBS = $(shell $(PCRE_BUILDER) --libs)
++	PCRELIBS = $(shell $(PCRE_BUILDER) --libs8)
+ endif
+ DEFS+=$(PCREDEFS)
+ LIBS=$(PCRELIBS)
+--- a/src/modules/dialplan/dialplan.c
++++ b/src/modules/dialplan/dialplan.c
+@@ -5,6 +5,8 @@
+  *
+  * Copyright (C)  2014 Olle E. Johansson, Edvina AB
+  *
++ * Copyright (C)  2023 Victor Seva
++ *
+  * This file is part of Kamailio, a free SIP server.
+  *
+  * Kamailio is free software; you can redistribute it and/or modify
+@@ -79,6 +81,9 @@ static int ki_dp_translate_vars(
+ int dp_replace_fixup(void **param, int param_no);
+ int dp_replace_fixup_free(void **param, int param_no);
+ 
++pcre2_general_context *dpl_gctx = NULL;
++pcre2_compile_context *dpl_ctx = NULL;
++
+ str dp_attr_pvar_s = STR_NULL;
+ pv_spec_t *dp_attr_pvar = NULL;
+ 
+--- a/src/modules/dialplan/dialplan.h
++++ b/src/modules/dialplan/dialplan.h
+@@ -13,8 +13,8 @@
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+- * You should have received a copy of the GNU General Public License 
+- * along with this program; if not, write to the Free Software 
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  *
+  */
+@@ -30,7 +30,8 @@
+ #ifndef _DP_DIALPLAN_H
+ #define _DP_DIALPLAN_H
+ 
+-#include <pcre.h>
++#define PCRE2_CODE_UNIT_WIDTH 8
++#include <pcre2.h>
+ #include "../../core/pvar.h"
+ #include "../../core/parser/msg_parser.h"
+ 
+@@ -43,6 +44,9 @@
+ #define DP_TFLAGS_PV_MATCH (1 << 0)
+ #define DP_TFLAGS_PV_SUBST (1 << 1)
+ 
++extern pcre2_general_context *dpl_gctx;
++extern pcre2_compile_context *dpl_ctx;
++
+ typedef struct dpl_node
+ {
+ 	int dpid;					  /* dialplan id */
+@@ -52,8 +56,8 @@ typedef struct dpl_node
+ 	str match_exp;				  /* match-first string */
+ 	str subst_exp;				  /* match string with subtitution groupping */
+ 	str repl_exp;				  /* replacement expression string */
+-	pcre *match_comp;			  /* compiled matching expression */
+-	pcre *subst_comp;			  /* compiled substitution expression */
++	pcre2_code *match_comp;		  /* compiled matching expression */
++	pcre2_code *subst_comp;		  /* compiled substitution expression */
+ 	struct subst_expr *repl_comp; /* compiled replacement */
+ 	str attrs;					  /* attributes string */
+ 	unsigned int tflags;		  /* flags for type of values for matching */
+@@ -103,8 +107,8 @@ struct subst_expr *repl_exp_parse(str su
+ void repl_expr_free(struct subst_expr *se);
+ int dp_translate_helper(
+ 		sip_msg_t *msg, str *user_name, str *repl_user, dpl_id_p idp, str *);
+-int rule_translate(
+-		sip_msg_t *msg, str *instr, dpl_node_t *rule, pcre *subst_comp, str *);
++int rule_translate(sip_msg_t *msg, str *instr, dpl_node_t *rule,
++		pcre2_code *subst_comp, str *);
+ 
+-pcre *reg_ex_comp(const char *pattern, int *cap_cnt, int mtype);
++pcre2_code *reg_ex_comp(const char *pattern, int *cap_cnt, int mtype);
+ #endif
+--- a/src/modules/dialplan/dp_db.c
++++ b/src/modules/dialplan/dp_db.c
+@@ -196,11 +196,31 @@ void dp_disconnect_db(void)
+ 	}
+ }
+ 
++static void *pcre2_malloc(size_t size, void *ext)
++{
++	return shm_malloc(size);
++}
++
++static void pcre2_free(void *ptr, void *ext)
++{
++	shm_free(ptr);
++	ptr = NULL;
++}
+ 
+ int init_data(void)
+ {
+ 	int *p;
+ 
++	if((dpl_gctx = pcre2_general_context_create(pcre2_malloc, pcre2_free, NULL))
++			== NULL) {
++		LM_ERR("pcre2 general context creation failed\n");
++		return -1;
++	}
++	if((dpl_ctx = pcre2_compile_context_create(dpl_gctx)) == NULL) {
++		LM_ERR("pcre2 compile context creation failed\n");
++		return -1;
++	}
++
+ 	dp_rules_hash = (dpl_id_p *)shm_malloc(2 * sizeof(dpl_id_p));
+ 	if(!dp_rules_hash) {
+ 		LM_ERR("out of shm memory\n");
+@@ -227,6 +247,14 @@ int init_data(void)
+ 
+ void destroy_data(void)
+ {
++	if(dpl_ctx) {
++		pcre2_compile_context_free(dpl_ctx);
++	}
++
++	if(dpl_gctx) {
++		pcre2_general_context_free(dpl_gctx);
++	}
++
+ 	if(dp_rules_hash) {
+ 		destroy_hash(0);
+ 		destroy_hash(1);
+@@ -373,55 +401,50 @@ int dpl_str_to_shm(str src, str *dest, i
+ 
+ 
+ /* Compile pcre pattern
+- * if mtype==0 - return pointer to shm copy of result
+- * if mtype==1 - return pcre pointer that has to be pcre_free() */
+-pcre *reg_ex_comp(const char *pattern, int *cap_cnt, int mtype)
+-{
+-	pcre *re, *result;
+-	const char *error;
+-	int rc, err_offset;
+-	size_t size;
++ * if mtype==0 - return pointer using shm
++ * if mtype==1 - return pcre2_code pointer that has to be pcre2_code_free() */
++pcre2_code *reg_ex_comp(const char *pattern, int *cap_cnt, int mtype)
++{
++	pcre2_code *re;
++	int pcre_error_num = 0;
++	char pcre_error[128];
++	size_t pcre_erroffset;
++	int rc;
+ 
+-	re = pcre_compile(pattern, 0, &error, &err_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0,
++			&pcre_error_num, &pcre_erroffset, mtype == 0 ? dpl_ctx : NULL);
+ 	if(re == NULL) {
+-		LM_ERR("PCRE compilation of '%s' failed at offset %d: %s\n", pattern,
+-				err_offset, error);
+-		return (pcre *)0;
+-	}
+-	rc = pcre_fullinfo(re, NULL, PCRE_INFO_SIZE, &size);
+-	if(rc != 0) {
+-		pcre_free(re);
+-		LM_ERR("pcre_fullinfo on compiled pattern '%s' yielded error: %d\n",
+-				pattern, rc);
+-		return (pcre *)0;
++		switch(pcre2_get_error_message(
++				pcre_error_num, (PCRE2_UCHAR *)pcre_error, 128)) {
++			case PCRE2_ERROR_NOMEMORY:
++				snprintf(pcre_error, 128,
++						"unknown error[%d]: pcre2 error buffer too small",
++						pcre_error_num);
++				break;
++			case PCRE2_ERROR_BADDATA:
++				snprintf(pcre_error, 128, "unknown pcre2 error[%d]",
++						pcre_error_num);
++				break;
++		}
++		LM_ERR("PCRE compilation of '%s' failed at offset %zu: %s\n", pattern,
++				pcre_erroffset, pcre_error);
++		return NULL;
+ 	}
+-	rc = pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, cap_cnt);
++	rc = pcre2_pattern_info(re, PCRE2_INFO_CAPTURECOUNT, cap_cnt);
+ 	if(rc != 0) {
+-		pcre_free(re);
++		pcre2_code_free(re);
+ 		LM_ERR("pcre_fullinfo on compiled pattern '%s' yielded error: %d\n",
+ 				pattern, rc);
+-		return (pcre *)0;
+-	}
+-	if(mtype == 0) {
+-		result = (pcre *)shm_malloc(size);
+-		if(result == NULL) {
+-			pcre_free(re);
+-			LM_ERR("not enough shared memory for compiled PCRE pattern\n");
+-			return (pcre *)0;
+-		}
+-		memcpy(result, re, size);
+-		pcre_free(re);
+-		return result;
+-	} else {
+-		return re;
++		return NULL;
+ 	}
++	return re;
+ }
+ 
+ 
+ /*compile the expressions, and if ok, build the rule */
+ dpl_node_t *build_rule(db_val_t *values)
+ {
+-	pcre *match_comp, *subst_comp;
++	pcre2_code *match_comp, *subst_comp;
+ 	struct subst_expr *repl_comp;
+ 	dpl_node_t *new_rule;
+ 	str match_exp, subst_exp, repl_exp, attrs;
+@@ -544,9 +567,9 @@ dpl_node_t *build_rule(db_val_t *values)
+ 
+ err:
+ 	if(match_comp)
+-		shm_free(match_comp);
++		pcre2_code_free(match_comp);
+ 	if(subst_comp)
+-		shm_free(subst_comp);
++		pcre2_code_free(subst_comp);
+ 	if(repl_comp)
+ 		repl_expr_free(repl_comp);
+ 	if(new_rule)
+@@ -692,10 +715,10 @@ void destroy_rule(dpl_node_t *rule)
+ 	LM_DBG("destroying rule with priority %i\n", rule->pr);
+ 
+ 	if(rule->match_comp)
+-		shm_free(rule->match_comp);
++		pcre2_code_free(rule->match_comp);
+ 
+ 	if(rule->subst_comp)
+-		shm_free(rule->subst_comp);
++		pcre2_code_free(rule->subst_comp);
+ 
+ 	/*destroy repl_exp*/
+ 	if(rule->repl_comp)
+--- a/src/modules/dialplan/dp_repl.c
++++ b/src/modules/dialplan/dp_repl.c
+@@ -15,8 +15,8 @@
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+- * You should have received a copy of the GNU General Public License 
+- * along with this program; if not, write to the Free Software 
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  *
+  */
+@@ -38,7 +38,7 @@
+ 
+ typedef struct dpl_dyn_pcre
+ {
+-	pcre *re;
++	pcre2_code *re;
+ 	int cnt;
+ 	str expr;
+ 
+@@ -186,9 +186,10 @@ int dpl_detect_avp_indx(const pv_elem_p
+ 	return 0;
+ }
+ 
+-pcre *dpl_dyn_pcre_comp(sip_msg_t *msg, str *expr, str *vexpr, int *cap_cnt)
++pcre2_code *dpl_dyn_pcre_comp(
++		sip_msg_t *msg, str *expr, str *vexpr, int *cap_cnt)
+ {
+-	pcre *re = NULL;
++	pcre2_code *re = NULL;
+ 	int ccnt = 0;
+ 
+ 	if(expr == NULL || expr->s == NULL || expr->len <= 0 || vexpr == NULL
+@@ -225,7 +226,7 @@ dpl_dyn_pcre_p dpl_dynamic_pcre_list(sip
+ 	dpl_dyn_pcre_p rt = NULL;
+ 	struct str_list *l = NULL;
+ 	struct str_list *t = NULL;
+-	pcre *re = NULL;
++	pcre2_code *re = NULL;
+ 	int cnt = 0;
+ 	str vexpr = STR_NULL;
+ 
+@@ -294,7 +295,7 @@ error:
+ 	while(re_list) {
+ 		rt = re_list->next;
+ 		if(re_list->re)
+-			pcre_free(re_list->re);
++			pcre2_code_free(re_list->re);
+ 		pkg_free(re_list);
+ 		re_list = rt;
+ 	}
+@@ -400,15 +401,16 @@ error:
+ #define MAX_PHONE_NB_DIGITS 127
+ static char dp_output_buf[MAX_PHONE_NB_DIGITS + 1];
+ int rule_translate(sip_msg_t *msg, str *instr, dpl_node_t *rule,
+-		pcre *subst_comp, str *result)
++		pcre2_code *subst_comp, str *result)
+ {
+ 	int repl_nb, offset, match_nb, rc, cap_cnt;
+ 	struct replace_with token;
+ 	struct subst_expr *repl_comp;
++	pcre2_match_data *pcre_md = NULL;
+ 	str match;
+ 	pv_value_t sv;
+ 	str *uri;
+-	int ovector[3 * (MAX_REPLACE_WITH + 1)];
++	PCRE2_SIZE *ovector = NULL;
+ 	char *p;
+ 	int size;
+ 
+@@ -424,7 +426,7 @@ int rule_translate(sip_msg_t *msg, str *
+ 
+ 	if(subst_comp) {
+ 		/*just in case something went wrong at load time*/
+-		rc = pcre_fullinfo(subst_comp, NULL, PCRE_INFO_CAPTURECOUNT, &cap_cnt);
++		rc = pcre2_pattern_info(subst_comp, PCRE2_INFO_CAPTURECOUNT, &cap_cnt);
+ 		if(rc != 0) {
+ 			LM_ERR("pcre_fullinfo on compiled pattern yielded error: %d\n", rc);
+ 			return -1;
+@@ -441,15 +443,19 @@ int rule_translate(sip_msg_t *msg, str *
+ 		}
+ 
+ 		/*search for the pattern from the compiled subst_exp*/
+-		if(pcre_exec(subst_comp, NULL, instr->s, instr->len, 0, 0, ovector,
+-				   3 * (MAX_REPLACE_WITH + 1))
++		pcre_md = pcre2_match_data_create_from_pattern(subst_comp, NULL);
++		if(pcre2_match(subst_comp, (PCRE2_SPTR)instr->s, (PCRE2_SIZE)instr->len,
++				   0, 0, pcre_md, NULL)
+ 				<= 0) {
+ 			LM_DBG("the string %.*s matched "
+ 				   "the match_exp %.*s but not the subst_exp %.*s!\n",
+ 					instr->len, instr->s, rule->match_exp.len,
+ 					rule->match_exp.s, rule->subst_exp.len, rule->subst_exp.s);
++			if(pcre_md)
++				pcre2_match_data_free(pcre_md);
+ 			return -1;
+ 		}
++		ovector = pcre2_get_ovector_pointer(pcre_md);
+ 	}
+ 
+ 	/*simply copy from the replacing string*/
+@@ -463,6 +469,8 @@ int rule_translate(sip_msg_t *msg, str *
+ 		memcpy(result->s, repl_comp->replacement.s, repl_comp->replacement.len);
+ 		result->len = repl_comp->replacement.len;
+ 		result->s[result->len] = '\0';
++		if(pcre_md)
++			pcre2_match_data_free(pcre_md);
+ 		return 0;
+ 	}
+ 
+@@ -571,11 +579,15 @@ int rule_translate(sip_msg_t *msg, str *
+ 	}
+ 
+ 	result->s[result->len] = '\0';
++	if(pcre_md)
++		pcre2_match_data_free(pcre_md);
+ 	return 0;
+ 
+ error:
+ 	result->s = 0;
+ 	result->len = 0;
++	if(pcre_md)
++		pcre2_match_data_free(pcre_md);
+ 	return -1;
+ }
+ 
+@@ -584,6 +596,7 @@ static char dp_attrs_buf[DP_MAX_ATTRS_LE
+ int dp_translate_helper(
+ 		sip_msg_t *msg, str *input, str *output, dpl_id_p idp, str *attrs)
+ {
++	pcre2_match_data *pcre_md = NULL;
+ 	dpl_node_p rulep;
+ 	dpl_index_p indexp;
+ 	int user_len, rez;
+@@ -624,21 +637,28 @@ search_rule:
+ 					rez = -1;
+ 					do {
+ 						if(rez < 0) {
+-							rez = pcre_exec(re_list->re, NULL, input->s,
+-									input->len, 0, 0, NULL, 0);
++							pcre_md = pcre2_match_data_create_from_pattern(
++									re_list->re, NULL);
++							rez = pcre2_match(re_list->re, (PCRE2_SPTR)input->s,
++									(PCRE2_SIZE)input->len, 0, 0, pcre_md,
++									NULL);
+ 							LM_DBG("match check: [%.*s] %d\n",
+ 									re_list->expr.len, re_list->expr.s, rez);
+ 						} else
+ 							LM_DBG("match check skipped: [%.*s] %d\n",
+ 									re_list->expr.len, re_list->expr.s, rez);
+ 						rt = re_list->next;
+-						pcre_free(re_list->re);
++						pcre2_match_data_free(pcre_md);
++						pcre2_code_free(re_list->re);
+ 						pkg_free(re_list);
+ 						re_list = rt;
+ 					} while(re_list);
+ 				} else {
+-					rez = pcre_exec(rulep->match_comp, NULL, input->s,
+-							input->len, 0, 0, NULL, 0);
++					pcre_md = pcre2_match_data_create_from_pattern(
++							rulep->match_comp, NULL);
++					rez = pcre2_match(rulep->match_comp, (PCRE2_SPTR)input->s,
++							(PCRE2_SIZE)input->len, 0, 0, pcre_md, 0);
++					pcre2_match_data_free(pcre_md);
+ 				}
+ 				break;
+ 
+@@ -728,7 +748,7 @@ repl:
+ 				LM_DBG("subst check skipped: [%.*s] %d\n", re_list->expr.len,
+ 						re_list->expr.s, rez);
+ 			rt = re_list->next;
+-			pcre_free(re_list->re);
++			pcre2_code_free(re_list->re);
+ 			pkg_free(re_list);
+ 			re_list = rt;
+ 		} while(re_list);

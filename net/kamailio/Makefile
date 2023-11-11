@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
-PKG_VERSION:=5.6.2
-PKG_RELEASE:=4
+PKG_VERSION:=5.7.2
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
 PKG_SOURCE:=kamailio-$(PKG_VERSION)_src.tar.gz
-PKG_HASH:=ea3cd5d688c34208b92072c3844c8276b693e0ca2c688168ea0357978c76b32d
+PKG_HASH:=72c9a067da8d6fa920d3737d98cd7f66c321f80cbe1076e2d5a392b422503122
 PKG_BUILD_FLAGS:=no-mips16
 
 PKG_LICENSE:=GPL-2.0+
@@ -521,7 +521,7 @@ $(eval $(call BuildKamailioModule,db_text,Text DB-backend,,,dbtext/kamailio))
 $(eval $(call BuildKamailioModule,db_unixodbc,UnixODBC DB-backend,,+unixodbc))
 $(eval $(call BuildKamailioModule,debugger,Interactive config file debugger,,))
 $(eval $(call BuildKamailioModule,dialog,Dialog support,,+kamailio-mod-rr +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,dialplan,Dialplan management,,+libpcre))
+$(eval $(call BuildKamailioModule,dialplan,Dialplan management,,+libpcre2))
 $(eval $(call BuildKamailioModule,dispatcher,Dispatcher,,))
 $(eval $(call BuildKamailioModule,diversion,Diversion header insertion,,))
 $(eval $(call BuildKamailioModule,dlgs,Track active calls in stateless mode,,))
@@ -562,7 +562,7 @@ $(eval $(call BuildKamailioModule,jsonrpcs,JSONRPC server over HTTP,,+libevent2)
 $(eval $(call BuildKamailioModule,keepalive,SIP keepalive monitoring,,+kamailio-mod-tm,,))
 $(eval $(call BuildKamailioModule,kemix,KEMI extensions,,,))
 $(eval $(call BuildKamailioModule,kex,Core extensions,,))
-$(eval $(call BuildKamailioModule,lcr,Least Cost Routing,,+kamailio-mod-tm +libpcre))
+$(eval $(call BuildKamailioModule,lcr,Least Cost Routing,,+kamailio-mod-tm +libpcre2))
 $(eval $(call BuildKamailioModule,ldap,LDAP connector,,+libopenldap))
 $(eval $(call BuildKamailioModule,log_custom,Logging to custom backends,,))
 $(eval $(call BuildKamailioModule,lost,HELD and LOST routing,,+kamailio-mod-http-client,))
@@ -610,7 +610,7 @@ $(eval $(call BuildKamailioModule,pv,Pseudo-Variables,,))
 $(eval $(call BuildKamailioModule,pv_headers,Flexible SIP header management,,))
 $(eval $(call BuildKamailioModule,qos,QoS control,,+kamailio-mod-dialog))
 $(eval $(call BuildKamailioModule,ratelimit,Traffic shapping,,))
-$(eval $(call BuildKamailioModule,regex,Regular Expression,,+libpcre))
+$(eval $(call BuildKamailioModule,regex,Regular Expression,,+libpcre2))
 $(eval $(call BuildKamailioModule,registrar,SIP Registrar,,+kamailio-mod-usrloc))
 $(eval $(call BuildKamailioModule,rls,Resource List Server,,+kamailio-mod-presence +kamailio-mod-pua +kamailio-mod-tm,))
 $(eval $(call BuildKamailioModule,rr,Record-Route and Route,,))
