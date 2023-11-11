@@ -6,6 +6,12 @@ START=50
 
 USE_PROCD=1
 
+die() {
+	local err=$1; shift
+	echo "siproxd[ERROR]: $*" >&2
+	exit $err
+}
+
 PROG="/usr/sbin/siproxd"
 CONF_DIR="/var/etc/siproxd"
 REG_DIR="/var/lib/siproxd"
@@ -45,18 +51,28 @@ append_conf() {
 
 setup_networks() {
 	local sec="$1"
-	local _int_inbound _int_outbound
-	local _dev_inbound _dev_outbound
+	local _int _dev _up
 
-	config_get _int_inbound "$sec" interface_inbound
-	config_get _int_outbound "$sec" interface_outbound
+	for _role in inbound outbound; do
+		config_get _int "$sec" interface_$_role
+		[ -z $_int ] && die 1 "$sec.interface_$_role not defined"
 
-	. /lib/functions/network.sh
-	network_get_physdev _dev_inbound $_int_inbound
-	network_get_physdev _dev_outbound $_int_outbound
+		ubus -t 30 wait_for network.interface.$_int 2> /dev/null || die 1 "$sec.interface_$_role - $_int isn't a valid interface"
 
-	default_conf if_inbound $_dev_inbound
-	default_conf if_outbound $_dev_outbound
+		for i in `seq 30`; do
+			if [ -z $_dev ]; then
+				_dev=`ifstatus $_int | jsonfilter -qe '$.l3_device'`
+			else
+				_up=`ifstatus $_int | jsonfilter -qe '$.up'`
+				[ $_up = true ] && break
+			fi
+
+			[ $i -eq 30 ] && die 1 "$sec.interface_$_role - $_int timeout, interface not up"
+			sleep 1
+		done
+
+		default_conf if_$_role $_dev
+	done
 }
 
 # Apply default values to key options if unset in user's UCI config.
