@@ -1,0 +1,42 @@
+From 69fb69b36ed13d6715b2918e706113ed034d4859 Mon Sep 17 00:00:00 2001
+From: CharlesMengCA <CharlesMeng@outlook.com>
+Date: Fri, 10 Nov 2023 23:31:41 -0500
+Subject: [PATCH] dahdi: fix ABS redefined error
+
+openwrt/build_dir/target-mips_24kc_musl/linux-ath79_nand/dahdi-linux-2023-09-21-1bb9088f/drivers/dahdi/dahdi_echocan_mg2.c:47:
+error: "ABS" redefined [-Werror]
+   47 | #define ABS(a) abs(a!=-32768?a:-32767)
+
+Signed-off-by: CharlesMengCA <CharlesMeng@outlook.com>
+---
+ drivers/dahdi/dahdi_echocan_mg2.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/dahdi/dahdi_echocan_mg2.c b/drivers/dahdi/dahdi_echocan_mg2.c
+index 4038ff2..343e466 100644
+--- a/drivers/dahdi/dahdi_echocan_mg2.c
++++ b/drivers/dahdi/dahdi_echocan_mg2.c
+@@ -44,7 +44,7 @@
+ static int debug;
+ static int aggressive;
+ 
+-#define ABS(a) abs(a!=-32768?a:-32767)
++#define DAHDI_ABS(a) abs(a!=-32768?a:-32767)
+ 
+ #define RESTORE_COEFFS {\
+ 				int x;\
+@@ -464,9 +464,9 @@ static inline short sample_update(struct ec_pvt *pvt, short iref, short isig)
+ 			RESTORE_COEFFS;
+ 		}
+ 
+-		sign_error = ABS(rs) - ABS(isig);
++		sign_error = DAHDI_ABS(rs) - DAHDI_ABS(isig);
+ 
+-		if (ABS(sign_error) > MAX_SIGN_ERROR)
++		if (DAHDI_ABS(sign_error) > MAX_SIGN_ERROR)
+ 		{
+ 			rs = 0;
+ 			RESTORE_COEFFS;
+-- 
+2.42.0.windows.2
+
