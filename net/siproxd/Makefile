@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/hb9xar/siproxd.git
@@ -24,6 +24,7 @@ PKG_CONFIG_DEPENDS:=CONFIG_SIPROXD_MAX_CLIENTS
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=Tony Ambardar <itugrok@yahoo.com>
 
 include $(INCLUDE_DIR)/package.mk
 
