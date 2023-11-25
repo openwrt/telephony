@@ -39,6 +39,12 @@ append_conf() {
 	echo $* >> "$CONF_DIR/siproxd-$sec.conf"
 }
 
+# Resolve network device by layer 3 first, then layer 2
+
+siproxd_get_device() {
+	network_get_device $1 $2 || network_get_physdev $1 $2
+}
+
 # Use user-friendly network names (e.g. "wan", "lan") from options
 # 'interface_inbound' and 'interface_outbound', but use standard siproxd
 # parameters 'if_inbound' and 'if_outbound' if explicitly set.
@@ -51,9 +57,8 @@ setup_networks() {
 	config_get _int_inbound "$sec" interface_inbound
 	config_get _int_outbound "$sec" interface_outbound
 
-	. /lib/functions/network.sh
-	network_get_physdev _dev_inbound $_int_inbound
-	network_get_physdev _dev_outbound $_int_outbound
+	siproxd_get_device _dev_inbound $_int_inbound
+	siproxd_get_device _dev_outbound $_int_outbound
 
 	default_conf if_inbound $_dev_inbound
 	default_conf if_outbound $_dev_outbound
@@ -165,6 +170,7 @@ start_service() {
 	chmod 755 "$CONF_DIR" "$REG_DIR" "$PID_DIR"
 	chown "$SIPROXD_UID:$SIPROXD_GID" "$REG_DIR"
 
+	. /lib/functions/network.sh
 	siproxd_cb
 	config_load 'siproxd'
 }
