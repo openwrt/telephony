@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.10
-PKG_RELEASE:=2
+PKG_VERSION:=1.10.11
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=d2c702c7f4bd6eca539c3981cf859ad5c1846d9283829e24cd75686f2322b9df
+PKG_HASH:=7f9603a691220d9f47da42f3b19290b629b69dceb2eee56448f0a7cefcf9d1a1
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
