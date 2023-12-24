@@ -166,7 +166,7 @@ The most portable fix for time_t handling is to always cast it to
  		switch_channel_set_variable(channel, "end_uepoch", tmp);
 --- a/src/switch_ivr_originate.c
 +++ b/src/switch_ivr_originate.c
-@@ -800,7 +800,7 @@ static uint8_t check_channel_status(orig
+@@ -804,7 +804,7 @@ static uint8_t check_channel_status(orig
  					time_t elapsed = switch_epoch_time_now(NULL) - start;
  					oglobals->originate_status[i].per_channel_progress_timelimit_sec = elapsed + extend_timeout;
  					oglobals->originate_status[i].per_channel_timelimit_sec = elapsed + extend_timeout;
