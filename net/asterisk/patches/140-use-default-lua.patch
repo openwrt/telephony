@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2616,7 +2616,7 @@ if test -z "$__opus_include" -o x"$__opu
+@@ -2608,7 +2608,7 @@ if test -z "$__opus_include" -o x"$__opu
  fi
  AST_EXT_LIB_CHECK([OPUSFILE], [opusfile], [op_open_callbacks], [opus/opusfile.h], [], [$__opus_include])
  
