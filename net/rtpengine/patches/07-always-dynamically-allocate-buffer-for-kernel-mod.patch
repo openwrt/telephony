@@ -1,6 +1,6 @@
 --- a/kernel-module/xt_RTPENGINE.c
 +++ b/kernel-module/xt_RTPENGINE.c
-@@ -3455,14 +3455,11 @@ static inline ssize_t proc_control_read_
+@@ -3457,14 +3457,11 @@ static inline ssize_t proc_control_read_
  	struct inode *inode;
  	uint32_t id;
  	struct rtpengine_table *t;
@@ -15,7 +15,7 @@
  	else { /* > */
  		msg = kmalloc(buflen, GFP_KERNEL);
  		if (!msg)
-@@ -3559,16 +3556,14 @@ static inline ssize_t proc_control_read_
+@@ -3561,16 +3558,14 @@ static inline ssize_t proc_control_read_
  			goto out;
  	}
  
