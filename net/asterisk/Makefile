@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=18.15.1
-PKG_RELEASE:=3
+PKG_VERSION:=18.20.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=7594b045e1979a6e80f07ecfff634204830917fd2a7686b161cf4849454f4531
+PKG_HASH:=7ee8499fc704e5fcae57c5f195f806f2ce4da7ae5f62faa43e73b3e6d218747f
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
