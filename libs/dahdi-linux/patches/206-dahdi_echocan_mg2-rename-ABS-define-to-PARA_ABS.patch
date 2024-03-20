@@ -1,0 +1,42 @@
+From d2563faf053da31e1329e7313339669f31c989da Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Wed, 20 Mar 2024 19:48:33 +0100
+Subject: [PATCH] dahdi_echocan_mg2: rename ABS define to PARA_ABS
+
+Rename ABS define to PARA_ABS to fix compilation error with mips 24kc
+arch.
+
+This target define in his ASM header a similar define ABS that cause
+conflicts and redefinition error for this driver.
+
+Rename ABS to PARA_ABS to better suite the usage as it's abs usage with
+value decremented by one if it's the max negative int.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/dahdi_echocan_mg2.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/dahdi/dahdi_echocan_mg2.c
++++ b/drivers/dahdi/dahdi_echocan_mg2.c
+@@ -44,7 +44,7 @@
+ static int debug;
+ static int aggressive;
+ 
+-#define ABS(a) abs(a!=-32768?a:-32767)
++#define PARA_ABS(a) abs(a!=-32768?a:-32767)
+ 
+ #define RESTORE_COEFFS {\
+ 				int x;\
+@@ -464,9 +464,9 @@ static inline short sample_update(struct
+ 			RESTORE_COEFFS;
+ 		}
+ 
+-		sign_error = ABS(rs) - ABS(isig);
++		sign_error = PARA_ABS(rs) - PARA_ABS(isig);
+ 
+-		if (ABS(sign_error) > MAX_SIGN_ERROR)
++		if (PARA_ABS(sign_error) > MAX_SIGN_ERROR)
+ 		{
+ 			rs = 0;
+ 			RESTORE_COEFFS;
