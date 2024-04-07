@@ -1,0 +1,39 @@
+From 650b109dbcfe2c3083e09c987bae7ca39e4a19d2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=D0=94=D0=B8=D0=BB=D1=8F=D0=BD=20=D0=9F=D0=B0=D0=BB=D0=B0?=
+ =?UTF-8?q?=D1=83=D0=B7=D0=BE=D0=B2?= <git-dpa@aegee.org>
+Date: Wed, 21 Jun 2023 21:34:21 +0200
+Subject: [PATCH] regex: typos
+
+---
+ src/modules/regex/regex_mod.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/src/modules/regex/regex_mod.c
++++ b/src/modules/regex/regex_mod.c
+@@ -230,7 +230,7 @@ static void destroy(void)
+ }
+ 
+ 
+-/*! \brief Convert the file content into regular expresions and store them in pcres */
++/*! \brief Convert the file content into regular expressions and store them in pcres */
+ static int load_pcres(int action)
+ {
+ 	int i, j;
+@@ -307,7 +307,7 @@ static int load_pcres(int action)
+ 		}
+ 
+ 		llen = strlen(line);
+-		/* Check if the patter size is too big (aprox) */
++		/* Check if the pattern size is too big (approx) */
+ 		if(strlen(patterns[i]) + llen >= group_max_size - 4) {
+ 			LM_ERR("pattern max file exceeded\n");
+ 			fclose(f);
+@@ -387,7 +387,7 @@ static int load_pcres(int action)
+ 		pcres_tmp[i] = NULL;
+ 	}
+ 
+-	/* Compile the patters */
++	/* Compile the patterns */
+ 	for(i = 0; i < num_pcres_tmp; i++) {
+ 
+ 		pcre_tmp = pcre_compile(

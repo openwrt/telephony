@@ -1,0 +1,67 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2014 OpenWrt.org
+
+START=99
+
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+NAME=asterisk
+COMMAND=/usr/sbin/$NAME
+
+LOGGER="/usr/bin/logger -p daemon.err -s -t $NAME --"
+
+start_service() {
+
+  dbdir=/var/lib/asterisk/astdb
+  logdir=/var/log/asterisk
+  cdrcsvdir=$logdir/cdr-csv
+  rundir=/var/run/asterisk
+  spooldir=/var/spool/asterisk
+  varlibdir=/var/lib/asterisk
+
+  config_load $NAME
+
+  config_get_bool enabled general enabled 0
+  if [ $enabled -eq 0 ]; then
+    $LOGGER service not enabled in /etc/config/$NAME
+    return 1
+  fi
+
+  config_get_bool log_stderr general log_stderr 1
+  config_get_bool log_stdout general log_stdout 0
+
+  config_get options general options
+
+  for i in \
+    "$logdir" \
+    "$cdrcsvdir" \
+    "$rundir" \
+    "$spooldir" \
+    "$varlibdir" \
+    "$dbdir"
+  do
+    if ! [ -e "$i" ]; then
+      mkdir -m 0750 -p "$i"
+      [ -d "$i" ] && chown $NAME:$NAME "$i"
+    fi
+  done
+
+  procd_open_instance
+  procd_set_param command $COMMAND
+  procd_append_param command \
+    -U "$NAME" \
+    $options \
+    -f
+  # forward stderr to logd
+  procd_set_param stderr $log_stderr
+  # same for stdout
+  procd_set_param stdout $log_stdout
+  procd_close_instance
+
+}
+
+reload_service() {
+  procd_send_signal $NAME
+}

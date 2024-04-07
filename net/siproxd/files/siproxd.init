@@ -1,0 +1,176 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2008 Alina Friedrichsen
+# Copyright (C) 2011 OpenWrt.org
+
+START=50
+
+USE_PROCD=1
+
+PROG="/usr/sbin/siproxd"
+CONF_DIR="/var/etc/siproxd"
+REG_DIR="/var/lib/siproxd"
+PID_DIR="/var/run/siproxd"
+PLUGIN_DIR="/usr/lib/siproxd/"
+SIPROXD_UID="nobody"
+SIPROXD_GID="nogroup"
+
+# Some options need special handling or conflict with procd/jail setup.
+append CONF_SKIP "interface_inbound interface_outbound chrootjail"
+append CONF_SKIP "daemonize user plugindir registration_file pid_file"
+
+
+# Check if a UCI option is set, or else apply a provided default.
+
+default_conf() {
+	local opt="$1"
+	local default="$2"
+	local val
+
+	config_get "$opt" "$sec" "$opt"
+	eval "val=\"\${$opt}\""
+
+	[ -z "$val" ] || return 0
+	[ -n "$default" ] || return 0
+	config_set "$sec" "$opt" "$default"
+	append_conf "$opt" = "$default"
+}
+
+append_conf() {
+	echo $* >> "$CONF_DIR/siproxd-$sec.conf"
+}
+
+# Resolve network device by layer 3 first, then layer 2
+
+siproxd_get_device() {
+	network_get_device $1 $2 || network_get_physdev $1 $2
+}
+
+# Use user-friendly network names (e.g. "wan", "lan") from options
+# 'interface_inbound' and 'interface_outbound', but use standard siproxd
+# parameters 'if_inbound' and 'if_outbound' if explicitly set.
+
+setup_networks() {
+	local sec="$1"
+	local _int_inbound _int_outbound
+	local _dev_inbound _dev_outbound
+
+	config_get _int_inbound "$sec" interface_inbound
+	config_get _int_outbound "$sec" interface_outbound
+
+	siproxd_get_device _dev_inbound $_int_inbound
+	siproxd_get_device _dev_outbound $_int_outbound
+
+	default_conf if_inbound $_dev_inbound
+	default_conf if_outbound $_dev_outbound
+}
+
+# Apply default values to key options if unset in user's UCI config.
+
+apply_defaults() {
+	local sec="$1"
+
+	default_conf sip_listen_port 5060
+	default_conf autosave_registrations 300
+	default_conf rtp_port_low 7070
+	default_conf rtp_port_high 7089
+	default_conf rtp_timeout 300
+	default_conf rtp_dscp 46
+	default_conf tcp_timeout 600
+	default_conf tcp_keepalive 20
+	default_conf default_expires 600
+	default_conf daemonize 0
+	default_conf user "$SIPROXD_UID"
+	default_conf registration_file "$REG_DIR/siproxd-$sec.reg"
+	default_conf plugindir "$PLUGIN_DIR"
+}
+
+# Handle activities at start of a new 'siproxd' section.
+# Initialize section processing and save section name.
+
+section_start() {
+	local sec="$1"
+
+	rm -f "$CONF_DIR/siproxd-$sec.conf"
+	append_conf "# config auto-generated from /etc/config/siproxd"
+}
+
+# Handle activities at close of a 'siproxd' section.
+# Parse OpenWRT interface names (e.g. "wan"), apply defaults and
+# set up procd jail.
+
+section_end() {
+	local sec="$1"
+
+	local conf_file="$CONF_DIR/siproxd-$sec.conf"
+	local pid_file="$PID_DIR/siproxd-$sec.pid"
+	local reg_file plugin_dir
+
+	setup_networks "$sec"
+	apply_defaults "$sec"
+
+	config_get plugin_dir "$sec" plugindir
+	config_get reg_file "$sec" registration_file
+
+	procd_open_instance "$sec"
+	procd_set_param command "$PROG" --config "$conf_file"
+	procd_set_param pidfile "$pid_file"
+	procd_set_param respawn
+	procd_add_jail siproxd log
+	procd_add_jail_mount /etc/passwd /etc/group /etc/TZ /dev/null
+	procd_add_jail_mount "$conf_file"
+	[ -d "$plugin_dir" ] && procd_add_jail_mount "$plugin_dir"
+	# Ensure registration file exists for jail
+	[ -f "$reg_file" ] || touch "$reg_file"
+	chown "$SIPROXD_UID:$SIPROXD_GID" "$reg_file"
+	procd_add_jail_mount_rw "$reg_file"
+	procd_close_instance
+}
+
+# Setup callbacks for parsing siproxd sections, options, and lists.
+# This avoids hardcoding all supported siproxd configuration parameters.
+
+siproxd_cb() {
+	config_cb() {
+		# Section change: close any previous section.
+		[ -n "$cur_sec" ] && section_end "$cur_sec"
+
+		case "$1" in
+			# New 'siproxd' section: begin processing.
+			"siproxd")
+				cur_sec="$2"
+				section_start "$cur_sec"
+			;;
+			# Config end or unknown section: ignore.
+			*)
+				cur_sec=""
+			;;
+		esac
+	}
+
+	option_cb() {
+		local sec="$cur_sec"
+
+		[ -z "$sec" ] && return
+		list_contains CONF_SKIP "$1" && return
+		[ -n "$2" ] && append_conf "$1" = "$2"
+	}
+
+	list_cb() {
+		option_cb "$@"
+	}
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger "siproxd"
+}
+
+start_service() {
+	mkdir -p "$CONF_DIR" "$REG_DIR" "$PID_DIR"
+	chmod 755 "$CONF_DIR" "$REG_DIR" "$PID_DIR"
+	chown "$SIPROXD_UID:$SIPROXD_GID" "$REG_DIR"
+
+	. /lib/functions/network.sh
+	siproxd_cb
+	config_load 'siproxd'
+}

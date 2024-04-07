@@ -1,0 +1,24 @@
+#!/bin/sh
+
+[ "$ACTION" = ifup ] || exit 0
+
+NAME=kamailio
+COMMAND=/etc/init.d/$NAME
+LOGGER="/usr/bin/logger -t hotplug"
+
+$COMMAND enabled || exit 0
+
+. /lib/functions.sh
+
+config_load $NAME
+
+config_get_bool enabled general enabled 0
+[ $enabled -eq 0 ] && exit 0
+
+config_get hotplug_iface hotplug interface
+
+[ "$INTERFACE" = "$hotplug_iface" ] && {
+	$LOGGER "Restarting $NAME due to \"$ACTION\" of \"$INTERFACE\""
+	$COMMAND restart
+}
+

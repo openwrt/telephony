@@ -1,0 +1,10 @@
+--- a/src/modules/janssonrpcc/netstring.h
++++ b/src/modules/janssonrpcc/netstring.h
+@@ -24,6 +24,7 @@
+ #define __NETSTRING_STREAM_H
+ 
+ #include <string.h>
++#include <event2/buffer.h>
+ #include <event2/bufferevent.h>
+ 
+ typedef struct {

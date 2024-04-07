@@ -1,0 +1,24 @@
+--- a/modem.c
++++ b/modem.c
+@@ -76,10 +76,11 @@ int tty_modem(char* send, char *receive) {
+ 	
+ 	int l=0, in=0, out=0, timeout=10;
+ 	char tmp[4096];
++	struct timespec h = {0, 100 * 1000 * 1000};
+         	 
+ 	if (strlen(send)) {
+ 		while ((timeout--) > 0) {
+-			usleep(100000);
++			nanosleep(&h, NULL);
+ 			ioctl(fd_modem,TIOCMGET,&out);
+        	 		if (out & TIOCM_CTS) {
+ 				l=write(fd_modem,send,strlen(send));
+@@ -97,7 +98,7 @@ int tty_modem(char* send, char *receive) {
+ 				strncat(receive,tmp,in); 
+ 				if (strchr(receive,'\r')) { break; }
+ 				}
+-			else { usleep(100000); }
++			else { nanosleep(&h, NULL); }
+ 			}	
+ 		if (strlen(receive) > 0 && debug > 3) { fprintf(stderr, "%s\n", receive); }
+ 		

@@ -1,0 +1,10 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -284,6 +284,7 @@ dox doxygen:
+ install-data-local:
+ 	$(mkinstalldirs) $(DESTDIR)$(prefix)
+ 	$(mkinstalldirs) $(DESTDIR)@confdir@
++	$(mkinstalldirs) $(DESTDIR)@fsconfdir@/autoload_configs
+ 	@[ -f "$(DESTDIR)@confdir@/freetdm.conf" ] || ( cp conf/*.conf $(DESTDIR)@confdir@)
+ 	@[ -f "$(DESTDIR)@fsconfdir@/autoload_configs/freetdm.conf.xml" ] || ( cp -f conf/freetdm.conf.xml $(DESTDIR)@fsconfdir@/autoload_configs)
+ 	@echo FreeTDM Installed

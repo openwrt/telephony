@@ -1,0 +1,11 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -700,7 +700,7 @@ PKG_CHECK_MODULES([MARIADB], [libmariadb
+   ])
+ ])
+ 
+-PKG_CHECK_MODULES([SPANDSP], [spandsp >= 3.0],[
++PKG_CHECK_MODULES([SPANDSP], [spandsp3 >= 3.0],[
+   AM_CONDITIONAL([HAVE_SPANDSP],[true])],[
+     AC_MSG_ERROR([no usable spandsp; please install spandsp3 devel package or equivalent])
+ ])

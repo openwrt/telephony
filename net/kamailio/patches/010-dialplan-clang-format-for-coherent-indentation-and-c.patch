@@ -1,0 +1,2821 @@
+From 01d0d1de2c82db189c288a157932f4a3ba98970a Mon Sep 17 00:00:00 2001
+From: Victor Seva <linuxmaniac@torreviejawireless.org>
+Date: Wed, 17 May 2023 16:36:04 +0200
+Subject: [PATCH] dialplan: clang-format for coherent indentation and coding
+ style
+
+---
+ src/modules/dialplan/dialplan.c | 522 +++++++++++++++-----------------
+ src/modules/dialplan/dialplan.h |  89 +++---
+ src/modules/dialplan/dp_db.c    | 364 +++++++++++-----------
+ src/modules/dialplan/dp_db.h    |  38 +--
+ src/modules/dialplan/dp_repl.c  | 387 +++++++++++------------
+ 5 files changed, 701 insertions(+), 699 deletions(-)
+
+--- a/src/modules/dialplan/dialplan.c
++++ b/src/modules/dialplan/dialplan.c
+@@ -35,8 +35,6 @@
+  */
+ 
+ 
+-
+-
+ #include <string.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -67,18 +65,19 @@ static void mod_destroy();
+ 
+ static int dialplan_init_rpc(void);
+ 
+-static int dp_translate_f(struct sip_msg* msg, char* str1, char* str2);
+-static int dp_trans_fixup(void ** param, int param_no);
+-static int dp_reload_f(struct sip_msg* msg);
+-static int w_dp_replace(sip_msg_t* msg, char* pid, char* psrc, char* pdst);
+-static int w_dp_match(sip_msg_t* msg, char* pid, char* psrc);
+-
+-static int ki_dp_translate(sip_msg_t* msg, int id, str *input, str *output);
+-static int ki_dp_translate_id(sip_msg_t* msg, int id);
+-static int ki_dp_translate_vars(sip_msg_t* msg, int id, str *input, str *output);
++static int dp_translate_f(struct sip_msg *msg, char *str1, char *str2);
++static int dp_trans_fixup(void **param, int param_no);
++static int dp_reload_f(struct sip_msg *msg);
++static int w_dp_replace(sip_msg_t *msg, char *pid, char *psrc, char *pdst);
++static int w_dp_match(sip_msg_t *msg, char *pid, char *psrc);
++
++static int ki_dp_translate(sip_msg_t *msg, int id, str *input, str *output);
++static int ki_dp_translate_id(sip_msg_t *msg, int id);
++static int ki_dp_translate_vars(
++		sip_msg_t *msg, int id, str *input, str *output);
+ 
+-int dp_replace_fixup(void** param, int param_no);
+-int dp_replace_fixup_free(void** param, int param_no);
++int dp_replace_fixup(void **param, int param_no);
++int dp_replace_fixup_free(void **param, int param_no);
+ 
+ str dp_attr_pvar_s = STR_NULL;
+ pv_spec_t *dp_attr_pvar = NULL;
+@@ -93,76 +92,69 @@ int dp_reload_delta = 5;
+ 
+ static time_t *dp_rpc_reload_time = NULL;
+ 
+-static param_export_t mod_params[]={
+-	{ "db_url",			PARAM_STR,	&dp_db_url },
+-	{ "table_name",		PARAM_STR,	&dp_table_name },
+-	{ "dpid_col",		PARAM_STR,	&dpid_column },
+-	{ "pr_col",			PARAM_STR,	&pr_column },
+-	{ "match_op_col",	PARAM_STR,	&match_op_column },
+-	{ "match_exp_col",	PARAM_STR,	&match_exp_column },
+-	{ "match_len_col",	PARAM_STR,	&match_len_column },
+-	{ "subst_exp_col",	PARAM_STR,	&subst_exp_column },
+-	{ "repl_exp_col",	PARAM_STR,	&repl_exp_column },
+-	{ "attrs_col",		PARAM_STR,	&attrs_column },
+-	{ "attrs_pvar",	    PARAM_STR,	&dp_attr_pvar_s },
+-	{ "fetch_rows",		PARAM_INT,	&dp_fetch_rows },
+-	{ "match_dynamic",	PARAM_INT,	&dp_match_dynamic },
+-	{ "append_branch",	PARAM_INT,	&dp_append_branch },
+-	{ "reload_delta",	PARAM_INT,	&dp_reload_delta },
+-	{0,0,0}
+-};
+-
+-static cmd_export_t cmds[]={
+-	{"dp_translate",(cmd_function)dp_translate_f,	2,	dp_trans_fixup,  0,
+-		ANY_ROUTE},
+-	{"dp_translate",(cmd_function)dp_translate_f,	1,	dp_trans_fixup,  0,
+-		ANY_ROUTE},
+-	{"dp_reload",(cmd_function)dp_reload_f,	0, 0,  0,
+-		ANY_ROUTE},
+-	{"dp_match",(cmd_function)w_dp_match,	2,	fixup_igp_spve,
+-		fixup_free_igp_spve, ANY_ROUTE},
+-	{"dp_replace",(cmd_function)w_dp_replace,	3,	dp_replace_fixup,
+-		dp_replace_fixup_free, ANY_ROUTE},
+-	{0,0,0,0,0,0}
+-};
+-
+-struct module_exports exports= {
+-	"dialplan",      /* module's name */
+-	DEFAULT_DLFLAGS, /* dlopen flags */
+-	cmds,            /* exported functions */
+-	mod_params,      /* param exports */
+-	0,               /* exported RPC functions */
+-	0,               /* exported pseudo-variables */
+-	0,               /* reply processing function */
+-	mod_init,        /* module initialization function */
+-	child_init,      /* per-child init function */
+-	mod_destroy      /* module destroy function */
++static param_export_t mod_params[] = {{"db_url", PARAM_STR, &dp_db_url},
++		{"table_name", PARAM_STR, &dp_table_name},
++		{"dpid_col", PARAM_STR, &dpid_column},
++		{"pr_col", PARAM_STR, &pr_column},
++		{"match_op_col", PARAM_STR, &match_op_column},
++		{"match_exp_col", PARAM_STR, &match_exp_column},
++		{"match_len_col", PARAM_STR, &match_len_column},
++		{"subst_exp_col", PARAM_STR, &subst_exp_column},
++		{"repl_exp_col", PARAM_STR, &repl_exp_column},
++		{"attrs_col", PARAM_STR, &attrs_column},
++		{"attrs_pvar", PARAM_STR, &dp_attr_pvar_s},
++		{"fetch_rows", PARAM_INT, &dp_fetch_rows},
++		{"match_dynamic", PARAM_INT, &dp_match_dynamic},
++		{"append_branch", PARAM_INT, &dp_append_branch},
++		{"reload_delta", PARAM_INT, &dp_reload_delta}, {0, 0, 0}};
++
++static cmd_export_t cmds[] = {{"dp_translate", (cmd_function)dp_translate_f, 2,
++									  dp_trans_fixup, 0, ANY_ROUTE},
++		{"dp_translate", (cmd_function)dp_translate_f, 1, dp_trans_fixup, 0,
++				ANY_ROUTE},
++		{"dp_reload", (cmd_function)dp_reload_f, 0, 0, 0, ANY_ROUTE},
++		{"dp_match", (cmd_function)w_dp_match, 2, fixup_igp_spve,
++				fixup_free_igp_spve, ANY_ROUTE},
++		{"dp_replace", (cmd_function)w_dp_replace, 3, dp_replace_fixup,
++				dp_replace_fixup_free, ANY_ROUTE},
++		{0, 0, 0, 0, 0, 0}};
++
++struct module_exports exports = {
++		"dialplan",		 /* module's name */
++		DEFAULT_DLFLAGS, /* dlopen flags */
++		cmds,			 /* exported functions */
++		mod_params,		 /* param exports */
++		0,				 /* exported RPC functions */
++		0,				 /* exported pseudo-variables */
++		0,				 /* reply processing function */
++		mod_init,		 /* module initialization function */
++		child_init,		 /* per-child init function */
++		mod_destroy		 /* module destroy function */
+ };
+ 
+ 
+ static int mod_init(void)
+ {
+-	if(dialplan_init_rpc()!=0)
+-	{
++	if(dialplan_init_rpc() != 0) {
+ 		LM_ERR("failed to register RPC commands\n");
+ 		return -1;
+ 	}
+ 
+-	LM_DBG("db_url=%s/%d/%p\n", ZSW(dp_db_url.s), dp_db_url.len,dp_db_url.s);
++	LM_DBG("db_url=%s/%d/%p\n", ZSW(dp_db_url.s), dp_db_url.len, dp_db_url.s);
+ 
+-	if(dp_attr_pvar_s.s && dp_attr_pvar_s.len>0) {
++	if(dp_attr_pvar_s.s && dp_attr_pvar_s.len > 0) {
+ 		dp_attr_pvar = pv_cache_get(&dp_attr_pvar_s);
+-		if( (dp_attr_pvar==NULL) ||
+-				((dp_attr_pvar->type != PVT_AVP) &&
+-				 (dp_attr_pvar->type != PVT_XAVP) &&
+-				 (dp_attr_pvar->type != PVT_SCRIPTVAR))) {
++		if((dp_attr_pvar == NULL)
++				|| ((dp_attr_pvar->type != PVT_AVP)
++						&& (dp_attr_pvar->type != PVT_XAVP)
++						&& (dp_attr_pvar->type != PVT_SCRIPTVAR))) {
+ 			LM_ERR("invalid pvar name\n");
+ 			return -1;
+ 		}
+ 	}
+ 
+ 	dp_default_par2 = (dp_param_p)shm_malloc(sizeof(dp_param_t));
+-	if(dp_default_par2 == NULL){
++	if(dp_default_par2 == NULL) {
+ 		LM_ERR("no shm more memory\n");
+ 		return -1;
+ 	}
+@@ -171,22 +163,22 @@ static int mod_init(void)
+ 	/* emulate "$rU/$rU" as second parameter for dp_translate() */
+ 	dp_default_param_s.len = strlen(dp_default_param_s.s);
+ 	dp_default_par2->v.sp[0] = pv_cache_get(&dp_default_param_s);
+-	if (dp_default_par2->v.sp[0]==NULL) {
++	if(dp_default_par2->v.sp[0] == NULL) {
+ 		LM_ERR("input pv is invalid\n");
+ 		return -1;
+ 	}
+ 
+ 	dp_default_param_s.len = strlen(dp_default_param_s.s);
+ 	dp_default_par2->v.sp[1] = pv_cache_get(&dp_default_param_s);
+-	if (dp_default_par2->v.sp[1]==NULL) {
++	if(dp_default_par2->v.sp[1] == NULL) {
+ 		LM_ERR("output pv is invalid\n");
+ 		return -1;
+ 	}
+ 
+-	if(dp_fetch_rows<=0)
++	if(dp_fetch_rows <= 0)
+ 		dp_fetch_rows = 1000;
+ 
+-	if(dp_reload_delta<0)
++	if(dp_reload_delta < 0)
+ 		dp_reload_delta = 5;
+ 
+ 	if(init_data() != 0) {
+@@ -214,11 +206,11 @@ static int child_init(int rank)
+ static void mod_destroy(void)
+ {
+ 	/*destroy shared memory*/
+-	if(dp_default_par2){
++	if(dp_default_par2) {
+ 		shm_free(dp_default_par2);
+ 		dp_default_par2 = NULL;
+ 	}
+-	if(dp_rpc_reload_time!=NULL) {
++	if(dp_rpc_reload_time != NULL) {
+ 		shm_free(dp_rpc_reload_time);
+ 		dp_rpc_reload_time = 0;
+ 	}
+@@ -226,20 +218,21 @@ static void mod_destroy(void)
+ }
+ 
+ 
+-static int dp_get_ivalue(struct sip_msg* msg, dp_param_p dp, int *val)
++static int dp_get_ivalue(struct sip_msg *msg, dp_param_p dp, int *val)
+ {
+ 	pv_value_t value;
+ 
+-	if(dp->type==DP_VAL_INT) {
++	if(dp->type == DP_VAL_INT) {
+ 		*val = dp->v.id;
+ 		LM_DBG("dpid is %d from constant argument\n", *val);
+ 		return 0;
+ 	}
+ 
+-	LM_DBG("searching %d\n",dp->v.sp[0]->type);
++	LM_DBG("searching %d\n", dp->v.sp[0]->type);
+ 
+-	if( pv_get_spec_value( msg, dp->v.sp[0], &value)!=0
+-			|| value.flags&(PV_VAL_NULL|PV_VAL_EMPTY) || !(value.flags&PV_VAL_INT)) {
++	if(pv_get_spec_value(msg, dp->v.sp[0], &value) != 0
++			|| value.flags & (PV_VAL_NULL | PV_VAL_EMPTY)
++			|| !(value.flags & PV_VAL_INT)) {
+ 		LM_ERR("no AVP, XAVP or SCRIPTVAR found (error in scripts)\n");
+ 		return -1;
+ 	}
+@@ -249,14 +242,14 @@ static int dp_get_ivalue(struct sip_msg*
+ }
+ 
+ 
+-static int dp_get_svalue(struct sip_msg * msg, pv_spec_t *spec, str* val)
++static int dp_get_svalue(struct sip_msg *msg, pv_spec_t *spec, str *val)
+ {
+ 	pv_value_t value;
+ 
+ 	LM_DBG("searching %d \n", spec->type);
+ 
+-	if ( pv_get_spec_value(msg,spec,&value)!=0 || value.flags&PV_VAL_NULL
+-			|| value.flags&PV_VAL_EMPTY || !(value.flags&PV_VAL_STR)){
++	if(pv_get_spec_value(msg, spec, &value) != 0 || value.flags & PV_VAL_NULL
++			|| value.flags & PV_VAL_EMPTY || !(value.flags & PV_VAL_STR)) {
+ 		LM_ERR("no AVP, XAVP or SCRIPTVAR found (error in scripts)\n");
+ 		return -1;
+ 	}
+@@ -266,8 +259,8 @@ static int dp_get_svalue(struct sip_msg
+ }
+ 
+ 
+-static int dp_update(struct sip_msg * msg, pv_spec_t * dest,
+-		str * repl, str * attrs)
++static int dp_update(
++		struct sip_msg *msg, pv_spec_t *dest, str *repl, str *attrs)
+ {
+ 	int no_change;
+ 	pv_value_t val;
+@@ -275,16 +268,16 @@ static int dp_update(struct sip_msg * ms
+ 	memset(&val, 0, sizeof(pv_value_t));
+ 	val.flags = PV_VAL_STR;
+ 
+-	no_change = (dest==NULL) || (dest->type == PVT_NONE)
+-						|| (!repl->s) || (!repl->len);
++	no_change = (dest == NULL) || (dest->type == PVT_NONE) || (!repl->s)
++				|| (!repl->len);
+ 
+-	if (no_change)
++	if(no_change)
+ 		goto set_attr_pvar;
+ 
+ 	val.rs = *repl;
+ 
+ 	if(dest->setf) {
+-		if(dest->setf(msg, &dest->pvp, (int)EQ_T, &val)<0) {
++		if(dest->setf(msg, &dest->pvp, (int)EQ_T, &val) < 0) {
+ 			LM_ERR("setting dst pseudo-variable failed\n");
+ 			return -1;
+ 		}
+@@ -292,7 +285,7 @@ static int dp_update(struct sip_msg * ms
+ 		LM_WARN("target variable is read only - skipping setting its value\n");
+ 	}
+ 
+-	if(dp_append_branch!=0) {
++	if(dp_append_branch != 0) {
+ 		if(is_route_type(FAILURE_ROUTE)
+ 				&& (dest->type == PVT_RURI
+ 						|| dest->type == PVT_RURI_USERNAME)) {
+@@ -306,12 +299,11 @@ static int dp_update(struct sip_msg * ms
+ 
+ set_attr_pvar:
+ 
+-	if(dp_attr_pvar==NULL || attrs==NULL)
++	if(dp_attr_pvar == NULL || attrs == NULL)
+ 		return 0;
+ 
+ 	val.rs = *attrs;
+-	if(dp_attr_pvar->setf(msg, &dp_attr_pvar->pvp, (int)EQ_T, &val)<0)
+-	{
++	if(dp_attr_pvar->setf(msg, &dp_attr_pvar->pvp, (int)EQ_T, &val) < 0) {
+ 		LM_ERR("setting attr pseudo-variable failed\n");
+ 		return -1;
+ 	}
+@@ -320,7 +312,7 @@ set_attr_pvar:
+ }
+ 
+ 
+-static int dp_translate_f(struct sip_msg* msg, char* str1, char* str2)
++static int dp_translate_f(struct sip_msg *msg, char *str1, char *str2)
+ {
+ 	int dpid;
+ 	str input, output;
+@@ -332,59 +324,60 @@ static int dp_translate_f(struct sip_msg
+ 		return -1;
+ 
+ 	/*verify first param's value*/
+-	id_par = (dp_param_p) str1;
+-	if (dp_get_ivalue(msg, id_par, &dpid) != 0){
++	id_par = (dp_param_p)str1;
++	if(dp_get_ivalue(msg, id_par, &dpid) != 0) {
+ 		LM_ERR("no dpid value\n");
+ 		return -1;
+ 	}
+ 
+-	if ((idp = select_dpid(dpid)) ==0 ){
++	if((idp = select_dpid(dpid)) == 0) {
+ 		LM_DBG("no information available for dpid %i\n", dpid);
+ 		return -2;
+ 	}
+ 
+-	repl_par = (str2!=NULL)? ((dp_param_p)str2):dp_default_par2;
+-	if (dp_get_svalue(msg, repl_par->v.sp[0], &input)!=0){
++	repl_par = (str2 != NULL) ? ((dp_param_p)str2) : dp_default_par2;
++	if(dp_get_svalue(msg, repl_par->v.sp[0], &input) != 0) {
+ 		LM_ERR("invalid param 2\n");
+ 		return -1;
+ 	}
+ 
+ 	LM_DBG("input is %.*s\n", input.len, input.s);
+ 
+-	outattrs = (!dp_attr_pvar)?NULL:&attrs;
+-	if (dp_translate_helper(msg, &input, &output, idp, outattrs)!=0) {
++	outattrs = (!dp_attr_pvar) ? NULL : &attrs;
++	if(dp_translate_helper(msg, &input, &output, idp, outattrs) != 0) {
+ 		LM_DBG("could not translate %.*s "
+-				"with dpid %i\n", input.len, input.s, idp->dp_id);
++			   "with dpid %i\n",
++				input.len, input.s, idp->dp_id);
+ 		return -1;
+ 	}
+-	LM_DBG("input %.*s with dpid %i => output %.*s\n",
+-			input.len, input.s, idp->dp_id, output.len, output.s);
++	LM_DBG("input %.*s with dpid %i => output %.*s\n", input.len, input.s,
++			idp->dp_id, output.len, output.s);
+ 
+ 	/* set the output */
+-	if (dp_update(msg, repl_par->v.sp[1], &output, outattrs) !=0){
++	if(dp_update(msg, repl_par->v.sp[1], &output, outattrs) != 0) {
+ 		LM_ERR("cannot set the output\n");
+ 		return -1;
+ 	}
+ 
+ 	return 1;
+-
+ }
+ 
+-#define verify_par_type(_par_no, _spec, _ret) \
+-	do{\
+-		if( ((_par_no == 1) \
+-					&& (_spec->type != PVT_AVP) && (_spec->type != PVT_XAVP) && \
+-					(_spec->type!=PVT_SCRIPTVAR) )\
+-				||((_par_no == 2) \
+-					&& (_spec->type != PVT_AVP) && (_spec->type != PVT_XAVP) && \
+-					(_spec->type!=PVT_SCRIPTVAR) \
+-					&& (_spec->type!=PVT_RURI) && (_spec->type!=PVT_RURI_USERNAME))){\
+-			\
+-			LM_ERR("Unsupported Parameter TYPE[%d]\n", _spec->type);\
+-			_ret = E_UNSPEC; \
+-			goto error; \
+-		}\
+-	}while(0);
++#define verify_par_type(_par_no, _spec, _ret)                        \
++	do {                                                             \
++		if(((_par_no == 1) && (_spec->type != PVT_AVP)               \
++				   && (_spec->type != PVT_XAVP)                      \
++				   && (_spec->type != PVT_SCRIPTVAR))                \
++				|| ((_par_no == 2) && (_spec->type != PVT_AVP)       \
++						&& (_spec->type != PVT_XAVP)                 \
++						&& (_spec->type != PVT_SCRIPTVAR)            \
++						&& (_spec->type != PVT_RURI)                 \
++						&& (_spec->type != PVT_RURI_USERNAME))) {    \
++                                                                     \
++			LM_ERR("Unsupported Parameter TYPE[%d]\n", _spec->type); \
++			_ret = E_UNSPEC;                                         \
++			goto error;                                              \
++		}                                                            \
++	} while(0);
+ 
+ 
+ /* first param: DPID: type: INT, AVP, XAVP, SVAR
+@@ -392,19 +385,20 @@ static int dp_translate_f(struct sip_msg
+  * second param: DST type: RURI, RURI_USERNAME, AVP, XAVP, SVAR, N/A
+  * default value for the second param: $ru.user/$ru.user
+  */
+-static int dp_trans_fixup(void ** param, int param_no){
++static int dp_trans_fixup(void **param, int param_no)
++{
+ 
+ 	int dpid;
+-	dp_param_p dp_par= NULL;
+-	char *p, *s=NULL;
++	dp_param_p dp_par = NULL;
++	char *p, *s = NULL;
+ 	str lstr;
+ 	int ret = E_INVALID_PARAMS;
+ 
+-	if(param_no!=1 && param_no!=2)
++	if(param_no != 1 && param_no != 2)
+ 		return 0;
+ 
+-	p = (char*)*param;
+-	if(!p || (*p == '\0')){
++	p = (char *)*param;
++	if(!p || (*p == '\0')) {
+ 		LM_DBG("null param %i\n", param_no);
+ 		return E_CFG;
+ 	}
+@@ -412,7 +406,7 @@ static int dp_trans_fixup(void ** param,
+ 	LM_DBG("param_no is %i\n", param_no);
+ 
+ 	dp_par = (dp_param_p)pkg_malloc(sizeof(dp_param_t));
+-	if(dp_par == NULL){
++	if(dp_par == NULL) {
+ 		LM_ERR("no more pkg memory\n");
+ 		return E_OUT_OF_MEM;
+ 	}
+@@ -421,19 +415,21 @@ static int dp_trans_fixup(void ** param,
+ 	if(param_no == 1) {
+ 		if(*p != '$') {
+ 			dp_par->type = DP_VAL_INT;
+-			lstr.s = *param; lstr.len = strlen(*param);
++			lstr.s = *param;
++			lstr.len = strlen(*param);
+ 			if(str2sint(&lstr, &dpid) != 0) {
+-				LM_ERR("bad number <%s>\n",(char *)(*param));
++				LM_ERR("bad number <%s>\n", (char *)(*param));
+ 				ret = E_CFG;
+ 				goto error;
+ 			}
+ 
+ 			dp_par->type = DP_VAL_INT;
+ 			dp_par->v.id = dpid;
+-		}else{
+-			lstr.s = p; lstr.len = strlen(p);
++		} else {
++			lstr.s = p;
++			lstr.len = strlen(p);
+ 			dp_par->v.sp[0] = pv_cache_get(&lstr);
+-			if (dp_par->v.sp[0]==NULL) {
++			if(dp_par->v.sp[0] == NULL) {
+ 				goto error;
+ 			}
+ 
+@@ -442,30 +438,32 @@ static int dp_trans_fixup(void ** param,
+ 		}
+ 	} else {
+ 
+-		if (((s = strchr(p, '/')) != 0) && (*(s+1)=='\0'))
++		if(((s = strchr(p, '/')) != 0) && (*(s + 1) == '\0'))
+ 			goto error;
+ 
+-		if (s != 0) {
+-			*s = '\0'; s++;
++		if(s != 0) {
++			*s = '\0';
++			s++;
+ 		}
+ 
+-		lstr.s = p; lstr.len = strlen(p);
++		lstr.s = p;
++		lstr.len = strlen(p);
+ 		dp_par->v.sp[0] = pv_cache_get(&lstr);
+-		if(dp_par->v.sp[0]==NULL) {
++		if(dp_par->v.sp[0] == NULL) {
+ 			goto error;
+ 		}
+ 
+-		if (s != 0) {
+-			lstr.s = s; lstr.len = strlen(s);
++		if(s != 0) {
++			lstr.s = s;
++			lstr.len = strlen(s);
+ 			dp_par->v.sp[1] = pv_cache_get(&lstr);
+-			if (dp_par->v.sp[1]==NULL) {
++			if(dp_par->v.sp[1] == NULL) {
+ 				goto error;
+ 			}
+ 			verify_par_type(param_no, dp_par->v.sp[1], ret);
+ 		}
+ 
+ 		dp_par->type = DP_VAL_SPEC;
+-
+ 	}
+ 
+ 	*param = (void *)dp_par;
+@@ -474,13 +472,14 @@ static int dp_trans_fixup(void ** param,
+ 
+ error:
+ 	LM_ERR("failed to parse param %i\n", param_no);
+-	if(dp_par) pkg_free(dp_par);
++	if(dp_par)
++		pkg_free(dp_par);
+ 
+ 	return ret;
+ }
+ 
+-static int dp_replace_helper(sip_msg_t *msg, int dpid, str *input,
+-		pv_spec_t *pvd)
++static int dp_replace_helper(
++		sip_msg_t *msg, int dpid, str *input, pv_spec_t *pvd)
+ {
+ 	dpl_id_p idp;
+ 	str tmp = STR_NULL;
+@@ -488,25 +487,26 @@ static int dp_replace_helper(sip_msg_t *
+ 	str *output = NULL;
+ 	str *outattrs = NULL;
+ 
+-	if ((idp = select_dpid(dpid)) ==0) {
++	if((idp = select_dpid(dpid)) == 0) {
+ 		LM_DBG("no information available for dpid %i\n", dpid);
+ 		return -2;
+ 	}
+ 
+-	outattrs = (!dp_attr_pvar)?NULL:&attrs;
+-	output = (!pvd)?NULL:&tmp;
+-	if (dp_translate_helper(msg, input, output, idp, outattrs)!=0) {
++	outattrs = (!dp_attr_pvar) ? NULL : &attrs;
++	output = (!pvd) ? NULL : &tmp;
++	if(dp_translate_helper(msg, input, output, idp, outattrs) != 0) {
+ 		LM_DBG("could not translate %.*s "
+-				"with dpid %i\n", input->len, input->s, idp->dp_id);
++			   "with dpid %i\n",
++				input->len, input->s, idp->dp_id);
+ 		return -1;
+ 	}
+-	if (output) {
+-		LM_DBG("input %.*s with dpid %i => output %.*s\n",
+-				input->len, input->s, idp->dp_id, output->len, output->s);
++	if(output) {
++		LM_DBG("input %.*s with dpid %i => output %.*s\n", input->len, input->s,
++				idp->dp_id, output->len, output->s);
+ 	}
+ 
+ 	/* set the output */
+-	if (dp_update(msg, pvd, output, outattrs) !=0){
++	if(dp_update(msg, pvd, output, outattrs) != 0) {
+ 		LM_ERR("cannot set the output\n");
+ 		return -1;
+ 	}
+@@ -514,31 +514,31 @@ static int dp_replace_helper(sip_msg_t *
+ 	return 1;
+ }
+ 
+-static int w_dp_replace(sip_msg_t* msg, char* pid, char* psrc, char* pdst)
++static int w_dp_replace(sip_msg_t *msg, char *pid, char *psrc, char *pdst)
+ {
+ 	int dpid = 1;
+ 	str src = STR_NULL;
+ 	pv_spec_t *pvd = NULL;
+ 
+-	if(fixup_get_ivalue(msg, (gparam_t*)pid, &dpid)<0) {
++	if(fixup_get_ivalue(msg, (gparam_t *)pid, &dpid) < 0) {
+ 		LM_ERR("failed to get dialplan id value\n");
+ 		return -1;
+ 	}
+-	if(fixup_get_svalue(msg, (gparam_t*)psrc, &src)<0) {
++	if(fixup_get_svalue(msg, (gparam_t *)psrc, &src) < 0) {
+ 		LM_ERR("failed to get src value\n");
+ 		return -1;
+ 	}
+-	pvd = (pv_spec_t*)pdst;
++	pvd = (pv_spec_t *)pdst;
+ 
+ 	return dp_replace_helper(msg, dpid, &src, pvd);
+ }
+ 
+-static int ki_dp_replace(sip_msg_t* msg, int dpid, str* src, str* dst)
++static int ki_dp_replace(sip_msg_t *msg, int dpid, str *src, str *dst)
+ {
+ 	pv_spec_t *pvd = NULL;
+ 
+ 	pvd = pv_cache_get(dst);
+-	if(pvd==NULL) {
++	if(pvd == NULL) {
+ 		LM_ERR("cannot get pv spec for [%.*s]\n", dst->len, dst->s);
+ 		return -1;
+ 	}
+@@ -546,16 +546,16 @@ static int ki_dp_replace(sip_msg_t* msg,
+ 	return dp_replace_helper(msg, dpid, src, pvd);
+ }
+ 
+-static int w_dp_match(sip_msg_t* msg, char* pid, char* psrc)
++static int w_dp_match(sip_msg_t *msg, char *pid, char *psrc)
+ {
+ 	int dpid = 1;
+ 	str src = STR_NULL;
+ 
+-	if(fixup_get_ivalue(msg, (gparam_t*)pid, &dpid)<0) {
++	if(fixup_get_ivalue(msg, (gparam_t *)pid, &dpid) < 0) {
+ 		LM_ERR("failed to get dialplan id value\n");
+ 		return -1;
+ 	}
+-	if(fixup_get_svalue(msg, (gparam_t*)psrc, &src)<0) {
++	if(fixup_get_svalue(msg, (gparam_t *)psrc, &src) < 0) {
+ 		LM_ERR("failed to get src value\n");
+ 		return -1;
+ 	}
+@@ -563,30 +563,30 @@ static int w_dp_match(sip_msg_t* msg, ch
+ 	return dp_replace_helper(msg, dpid, &src, NULL);
+ }
+ 
+-static int ki_dp_match(sip_msg_t* msg, int dpid, str* src)
++static int ki_dp_match(sip_msg_t *msg, int dpid, str *src)
+ {
+ 	return dp_replace_helper(msg, dpid, src, NULL);
+ }
+ 
+-int dp_replace_fixup(void** param, int param_no)
++int dp_replace_fixup(void **param, int param_no)
+ {
+-	if (param_no == 1)
++	if(param_no == 1)
+ 		return fixup_igp_null(param, param_no);
+-	else if (param_no == 2)
++	else if(param_no == 2)
+ 		return fixup_spve_all(param, param_no);
+-	else if (param_no == 3)
++	else if(param_no == 3)
+ 		return fixup_pvar_all(param, param_no);
+ 	return E_UNSPEC;
+ }
+ 
+ 
+-int dp_replace_fixup_free(void** param, int param_no)
++int dp_replace_fixup_free(void **param, int param_no)
+ {
+-	if (param_no == 1)
++	if(param_no == 1)
+ 		return fixup_free_igp_null(param, param_no);
+-	else if (param_no == 2)
++	else if(param_no == 2)
+ 		return fixup_free_spve_all(param, param_no);
+-	else if (param_no == 3)
++	else if(param_no == 3)
+ 		return fixup_free_pvar_all(param, param_no);
+ 	return E_UNSPEC;
+ }
+@@ -594,14 +594,14 @@ int dp_replace_fixup_free(void** param,
+ /**
+  * trigger reload of dialplan db records from config file
+  */
+-static int dp_reload_f(struct sip_msg* msg)
++static int dp_reload_f(struct sip_msg *msg)
+ {
+-	if (dp_connect_db() < 0) {
++	if(dp_connect_db() < 0) {
+ 		LM_ERR("failed to reload rules fron database (db connect)\n");
+ 		return -1;
+ 	}
+ 
+-	if(dp_load_db() != 0){
++	if(dp_load_db() != 0) {
+ 		LM_ERR("failed to reload rules fron database (db load)\n");
+ 		dp_disconnect_db();
+ 		return -1;
+@@ -614,35 +614,34 @@ static int dp_reload_f(struct sip_msg* m
+ }
+ 
+ 
+-static const char* dialplan_rpc_reload_doc[2] = {
+-	"Reload dialplan table from database",
+-	0
+-};
++static const char *dialplan_rpc_reload_doc[2] = {
++		"Reload dialplan table from database", 0};
+ 
+ 
+ /*
+  * RPC command to reload dialplan table
+  */
+-static void dialplan_rpc_reload(rpc_t* rpc, void* ctx)
++static void dialplan_rpc_reload(rpc_t *rpc, void *ctx)
+ {
+-	if(dp_rpc_reload_time==NULL) {
++	if(dp_rpc_reload_time == NULL) {
+ 		LM_ERR("not ready for reload\n");
+ 		rpc->fault(ctx, 500, "Not ready for reload");
+ 		return;
+ 	}
+-	if(*dp_rpc_reload_time!=0 && *dp_rpc_reload_time > time(NULL) - dp_reload_delta) {
++	if(*dp_rpc_reload_time != 0
++			&& *dp_rpc_reload_time > time(NULL) - dp_reload_delta) {
+ 		LM_ERR("ongoing reload\n");
+ 		rpc->fault(ctx, 500, "ongoing reload");
+ 		return;
+ 	}
+ 	*dp_rpc_reload_time = time(NULL);
+-	if (dp_connect_db() < 0) {
++	if(dp_connect_db() < 0) {
+ 		LM_ERR("failed to reload rules fron database (db connect)\n");
+ 		rpc->fault(ctx, 500, "DB Connection Error");
+ 		return;
+ 	}
+ 
+-	if(dp_load_db() != 0){
++	if(dp_load_db() != 0) {
+ 		LM_ERR("failed to reload rules fron database (db load)\n");
+ 		dp_disconnect_db();
+ 		rpc->fault(ctx, 500, "Dialplan Reload Failed");
+@@ -654,63 +653,55 @@ static void dialplan_rpc_reload(rpc_t* r
+ }
+ 
+ 
+-
+-static const char* dialplan_rpc_translate_doc[2] = {
+-	"Perform dialplan translation",
+-	0
+-};
++static const char *dialplan_rpc_translate_doc[2] = {
++		"Perform dialplan translation", 0};
+ 
+ 
+ /*
+  * RPC command to perform dialplan translation
+  */
+-static void dialplan_rpc_translate(rpc_t* rpc, void* ctx)
++static void dialplan_rpc_translate(rpc_t *rpc, void *ctx)
+ {
+ 	dpl_id_p idp;
+ 	str input;
+ 	int dpid;
+-	str attrs  = {"", 0};
++	str attrs = {"", 0};
+ 	str output = {0, 0};
+-	void* th;
++	void *th;
+ 
+-	if (rpc->scan(ctx, "dS", &dpid, &input) < 2)
+-	{
++	if(rpc->scan(ctx, "dS", &dpid, &input) < 2) {
+ 		rpc->fault(ctx, 500, "Invalid parameters");
+ 		return;
+ 	}
+ 
+-	if ((idp = select_dpid(dpid)) == 0 ){
++	if((idp = select_dpid(dpid)) == 0) {
+ 		LM_ERR("no information available for dpid %i\n", dpid);
+ 		rpc->fault(ctx, 500, "Dialplan ID not matched");
+ 		return;
+ 	}
+ 
+-	if(input.s == NULL || input.len== 0)	{
++	if(input.s == NULL || input.len == 0) {
+ 		LM_ERR("empty input parameter\n");
+ 		rpc->fault(ctx, 500, "Empty input parameter");
+ 		return;
+ 	}
+ 
+-	LM_DBG("trying to translate %.*s with dpid %i\n",
+-			input.len, input.s, idp->dp_id);
+-	if (dp_translate_helper(NULL, &input, &output, idp, &attrs)!=0){
+-		LM_DBG("could not translate %.*s with dpid %i\n",
+-				input.len, input.s, idp->dp_id);
++	LM_DBG("trying to translate %.*s with dpid %i\n", input.len, input.s,
++			idp->dp_id);
++	if(dp_translate_helper(NULL, &input, &output, idp, &attrs) != 0) {
++		LM_DBG("could not translate %.*s with dpid %i\n", input.len, input.s,
++				idp->dp_id);
+ 		rpc->fault(ctx, 500, "No translation");
+ 		return;
+ 	}
+-	LM_DBG("input %.*s with dpid %i => output %.*s\n",
+-			input.len, input.s, idp->dp_id, output.len, output.s);
++	LM_DBG("input %.*s with dpid %i => output %.*s\n", input.len, input.s,
++			idp->dp_id, output.len, output.s);
+ 
+-	if (rpc->add(ctx, "{", &th) < 0)
+-	{
++	if(rpc->add(ctx, "{", &th) < 0) {
+ 		rpc->fault(ctx, 500, "Internal error creating rpc");
+ 		return;
+ 	}
+-	if(rpc->struct_add(th, "SS",
+-				"Output", &output,
+-				"Attributes", &attrs)<0)
+-	{
++	if(rpc->struct_add(th, "SS", "Output", &output, "Attributes", &attrs) < 0) {
+ 		rpc->fault(ctx, 500, "Internal error creating rpc");
+ 		return;
+ 	}
+@@ -721,23 +712,22 @@ static void dialplan_rpc_translate(rpc_t
+ /*
+  * RPC command to dump dialplan
+  */
+-static void dialplan_rpc_dump(rpc_t* rpc, void* ctx)
++static void dialplan_rpc_dump(rpc_t *rpc, void *ctx)
+ {
+ 	dpl_id_p idp;
+ 	dpl_index_p indexp;
+ 	dpl_node_p rulep;
+ 	int dpid;
+-	void* th;
+-	void* ih;
+-	void* sh;
++	void *th;
++	void *ih;
++	void *sh;
+ 
+-	if (rpc->scan(ctx, "d", &dpid) < 1)
+-	{
++	if(rpc->scan(ctx, "d", &dpid) < 1) {
+ 		rpc->fault(ctx, 500, "Missing parameter");
+ 		return;
+ 	}
+ 
+-	if ((idp = select_dpid(dpid)) == 0 ) {
++	if((idp = select_dpid(dpid)) == 0) {
+ 		LM_ERR("no information available for dpid %i\n", dpid);
+ 		rpc->fault(ctx, 500, "Dialplan ID not matched");
+ 		return;
+@@ -746,58 +736,49 @@ static void dialplan_rpc_dump(rpc_t* rpc
+ 	LM_DBG("trying to dump dpid %i\n", idp->dp_id);
+ 
+ 	/* add entry node */
+-	if (rpc->add(ctx, "{", &th) < 0)
+-	{
++	if(rpc->add(ctx, "{", &th) < 0) {
+ 		rpc->fault(ctx, 500, "Internal error root reply");
+ 		return;
+ 	}
+ 
+-	if(rpc->struct_add(th, "d[",
+-				"DPID",  dpid,
+-				"ENTRIES", &ih)<0)
+-	{
++	if(rpc->struct_add(th, "d[", "DPID", dpid, "ENTRIES", &ih) < 0) {
+ 		rpc->fault(ctx, 500, "Internal error sets structure");
+ 		return;
+ 	}
+ 
+-	for(indexp=idp->first_index; indexp!=NULL;indexp=indexp->next) {
++	for(indexp = idp->first_index; indexp != NULL; indexp = indexp->next) {
+ 		LM_DBG("INDEX LEN: %i\n", indexp->len);
+-                for(rulep = indexp->first_rule; rulep!= NULL;rulep = rulep->next) {
++		for(rulep = indexp->first_rule; rulep != NULL; rulep = rulep->next) {
+ 			LM_DBG("DPID: %i PRIO : %i\n", rulep->dpid, rulep->pr);
+-			if (rpc->struct_add(ih, "{","ENTRY", &sh) < 0)
+-			{
++			if(rpc->struct_add(ih, "{", "ENTRY", &sh) < 0) {
+ 				rpc->fault(ctx, 500, "Internal error root reply");
+ 				return;
+ 			}
+ 
+-			if (rpc->struct_add(sh, "dd", "PRIO", rulep->pr,
+-				"MATCHOP", rulep->matchop)<0)
+-			{
++			if(rpc->struct_add(
++					   sh, "dd", "PRIO", rulep->pr, "MATCHOP", rulep->matchop)
++					< 0) {
+ 				rpc->fault(ctx, 500, "Internal error adding prio");
+ 				return;
+ 			}
+-			if (rpc->struct_add(sh, "s", "MATCHEXP", rulep->match_exp) < 0 )
+-			{
++			if(rpc->struct_add(sh, "s", "MATCHEXP", rulep->match_exp) < 0) {
+ 				rpc->fault(ctx, 500, "Internal error adding match exp");
+ 				return;
+ 			}
+-			if (rpc->struct_add(sh, "d", "MATCHLEN", rulep->matchlen) < 0 )
+-			{
+-				rpc->fault(ctx, 500, "Internal error adding expression data and attribute");
++			if(rpc->struct_add(sh, "d", "MATCHLEN", rulep->matchlen) < 0) {
++				rpc->fault(ctx, 500,
++						"Internal error adding expression data and attribute");
+ 				return;
+ 			}
+-			if (rpc->struct_add(sh, "s", "SUBSTEXP", rulep->subst_exp) < 0 )
+-			{
++			if(rpc->struct_add(sh, "s", "SUBSTEXP", rulep->subst_exp) < 0) {
+ 				rpc->fault(ctx, 500, "Internal error adding subst exp");
+ 				return;
+ 			}
+-			if (rpc->struct_add(sh, "s", "REPLEXP", rulep->repl_exp) < 0 )
+-			{
++			if(rpc->struct_add(sh, "s", "REPLEXP", rulep->repl_exp) < 0) {
+ 				rpc->fault(ctx, 500, "Internal error adding replace exp ");
+ 				return;
+ 			}
+-			if (rpc->struct_add(sh, "s", "ATTRS", rulep->attrs) < 0 )
+-			{
++			if(rpc->struct_add(sh, "s", "ATTRS", rulep->attrs) < 0) {
+ 				rpc->fault(ctx, 500, "Internal error adding attribute");
+ 				return;
+ 			}
+@@ -807,26 +788,19 @@ static void dialplan_rpc_dump(rpc_t* rpc
+ 	return;
+ }
+ 
+-static const char* dialplan_rpc_dump_doc[2] = {
+-	"Dump dialplan content",
+-	0
+-};
++static const char *dialplan_rpc_dump_doc[2] = {"Dump dialplan content", 0};
+ 
+ 
+ rpc_export_t dialplan_rpc_list[] = {
+-	{"dialplan.reload", dialplan_rpc_reload,
+-		dialplan_rpc_reload_doc, 0},
+-	{"dialplan.translate",   dialplan_rpc_translate,
+-		dialplan_rpc_translate_doc, 0},
+-	{"dialplan.dump",   dialplan_rpc_dump,
+-		dialplan_rpc_dump_doc, 0},
+-	{0, 0, 0, 0}
+-};
++		{"dialplan.reload", dialplan_rpc_reload, dialplan_rpc_reload_doc, 0},
++		{"dialplan.translate", dialplan_rpc_translate,
++				dialplan_rpc_translate_doc, 0},
++		{"dialplan.dump", dialplan_rpc_dump, dialplan_rpc_dump_doc, 0},
++		{0, 0, 0, 0}};
+ 
+ static int dialplan_init_rpc(void)
+ {
+-	if (rpc_register_array(dialplan_rpc_list)!=0)
+-	{
++	if(rpc_register_array(dialplan_rpc_list) != 0) {
+ 		LM_ERR("failed to register RPC commands\n");
+ 		return -1;
+ 	}
+@@ -863,20 +837,22 @@ static sr_kemi_t sr_kemi_dialplan_export
+ };
+ /* clang-format on */
+ 
+-static int ki_dp_translate(sip_msg_t* msg, int id, str *input_spv, str *output_spv) {
++static int ki_dp_translate(
++		sip_msg_t *msg, int id, str *input_spv, str *output_spv)
++{
+ 	str input, output;
+ 	dpl_id_p idp;
+ 	str attrs, *outattrs;
+ 	pv_spec_t *pvs_i = NULL, *pvs_o = NULL;
+ 
+-	if (!msg)
++	if(!msg)
+ 		return -1;
+ 
+-	if (input_spv != NULL && (input_spv->s == NULL || input_spv->len <= 0)) {
++	if(input_spv != NULL && (input_spv->s == NULL || input_spv->len <= 0)) {
+ 		LM_ERR("invalid destination var name for input\n");
+ 		return -1;
+ 	}
+-	if (output_spv != NULL && (output_spv->s == NULL || output_spv->len <= 0)) {
++	if(output_spv != NULL && (output_spv->s == NULL || output_spv->len <= 0)) {
+ 		LM_ERR("invalid destination var name for output\n");
+ 		return -1;
+ 	}
+@@ -892,56 +868,60 @@ static int ki_dp_translate(sip_msg_t* ms
+ 		pvs_o = pv_cache_get(output_spv);
+ 	}
+ 
+-	if (pvs_i == NULL || pvs_o == NULL) {
++	if(pvs_i == NULL || pvs_o == NULL) {
+ 		LM_ERR("cannot get pv spec for input or output\n");
+ 		return -1;
+ 	}
+ 
+-	if ((pvs_i->type!=PVT_AVP && pvs_i->type!=PVT_XAVP && pvs_i->type!=PVT_SCRIPTVAR &&
+-	    pvs_i->type!=PVT_RURI && pvs_i->type!=PVT_RURI_USERNAME) ||
+-	    (pvs_o->type!=PVT_AVP && pvs_o->type!=PVT_XAVP && pvs_o->type!=PVT_SCRIPTVAR &&
+-	    pvs_o->type!=PVT_RURI && pvs_o->type!=PVT_RURI_USERNAME)) {
++	if((pvs_i->type != PVT_AVP && pvs_i->type != PVT_XAVP
++			   && pvs_i->type != PVT_SCRIPTVAR && pvs_i->type != PVT_RURI
++			   && pvs_i->type != PVT_RURI_USERNAME)
++			|| (pvs_o->type != PVT_AVP && pvs_o->type != PVT_XAVP
++					&& pvs_o->type != PVT_SCRIPTVAR && pvs_o->type != PVT_RURI
++					&& pvs_o->type != PVT_RURI_USERNAME)) {
+ 		LM_ERR("type of pv error\n");
+ 		return -1;
+ 	}
+ 
+-	if ((idp = select_dpid(id)) ==0 ){
++	if((idp = select_dpid(id)) == 0) {
+ 		LM_DBG("no information available for dpid %i\n", id);
+ 		return -2;
+ 	}
+ 
+ 	/* get the input */
+-	if (dp_get_svalue(msg, pvs_i, &input)!=0){
++	if(dp_get_svalue(msg, pvs_i, &input) != 0) {
+ 		LM_ERR("invalid param 2\n");
+ 		return -1;
+ 	}
+ 
+ 	LM_DBG("input is %.*s\n", input.len, input.s);
+ 
+-	outattrs = (!dp_attr_pvar)?NULL:&attrs;
+-	if (dp_translate_helper(msg, &input, &output, idp, outattrs)!=0) {
++	outattrs = (!dp_attr_pvar) ? NULL : &attrs;
++	if(dp_translate_helper(msg, &input, &output, idp, outattrs) != 0) {
+ 		LM_DBG("could not translate %.*s "
+-				"with dpid %i\n", input.len, input.s, idp->dp_id);
++			   "with dpid %i\n",
++				input.len, input.s, idp->dp_id);
+ 		return -1;
+ 	}
+-	LM_DBG("input %.*s with dpid %i => output %.*s\n",
+-			input.len, input.s, idp->dp_id, output.len, output.s);
++	LM_DBG("input %.*s with dpid %i => output %.*s\n", input.len, input.s,
++			idp->dp_id, output.len, output.s);
+ 
+ 	/* set the output */
+-	if (dp_update(msg, pvs_o, &output, outattrs) !=0){
++	if(dp_update(msg, pvs_o, &output, outattrs) != 0) {
+ 		LM_ERR("cannot set the output\n");
+ 		return -1;
+ 	}
+ 
+ 	return 1;
+-
+ }
+ 
+-static int ki_dp_translate_id(sip_msg_t* msg, int id) {
++static int ki_dp_translate_id(sip_msg_t *msg, int id)
++{
+ 	return ki_dp_translate(msg, id, NULL, NULL);
+ }
+ 
+-static int ki_dp_translate_vars(sip_msg_t* msg, int id, str *input, str *output) {
++static int ki_dp_translate_vars(sip_msg_t *msg, int id, str *input, str *output)
++{
+ 	return ki_dp_translate(msg, id, input, output);
+ }
+ 
+--- a/src/modules/dialplan/dialplan.h
++++ b/src/modules/dialplan/dialplan.h
+@@ -34,59 +34,64 @@
+ #include "../../core/pvar.h"
+ #include "../../core/parser/msg_parser.h"
+ 
+-#define DP_EQUAL_OP		0
+-#define DP_REGEX_OP		1
+-#define DP_FNMATCH_OP	2
+-
+-#define MAX_REPLACE_WITH	10
+-
+-#define DP_TFLAGS_PV_MATCH		(1 << 0)
+-#define DP_TFLAGS_PV_SUBST		(1 << 1)
+-
+-typedef struct dpl_node {
+-	int dpid;         /* dialplan id */
+-	int pr;           /* priority */
+-	int matchop;      /* matching operator */
+-	int matchlen;     /* matching value length */
+-	str match_exp;    /* match-first string */
+-	str subst_exp;    /* match string with subtitution groupping */
+-	str repl_exp;     /* replacement expression string */
+-	pcre *match_comp; /* compiled matching expression */
+-	pcre *subst_comp; /* compiled substitution expression */
++#define DP_EQUAL_OP 0
++#define DP_REGEX_OP 1
++#define DP_FNMATCH_OP 2
++
++#define MAX_REPLACE_WITH 10
++
++#define DP_TFLAGS_PV_MATCH (1 << 0)
++#define DP_TFLAGS_PV_SUBST (1 << 1)
++
++typedef struct dpl_node
++{
++	int dpid;					  /* dialplan id */
++	int pr;						  /* priority */
++	int matchop;				  /* matching operator */
++	int matchlen;				  /* matching value length */
++	str match_exp;				  /* match-first string */
++	str subst_exp;				  /* match string with subtitution groupping */
++	str repl_exp;				  /* replacement expression string */
++	pcre *match_comp;			  /* compiled matching expression */
++	pcre *subst_comp;			  /* compiled substitution expression */
+ 	struct subst_expr *repl_comp; /* compiled replacement */
+-	str attrs;        /* attributes string */
+-	unsigned int tflags; /* flags for type of values for matching */
++	str attrs;					  /* attributes string */
++	unsigned int tflags;		  /* flags for type of values for matching */
+ 
+-	struct dpl_node * next; /* next rule */
++	struct dpl_node *next; /* next rule */
+ } dpl_node_t, *dpl_node_p;
+ 
+ /*For every distinct length of a matching string*/
+-typedef struct dpl_index{
++typedef struct dpl_index
++{
+ 	int len;
+-	dpl_node_t * first_rule;
+-	dpl_node_t * last_rule;
++	dpl_node_t *first_rule;
++	dpl_node_t *last_rule;
+ 
+-	struct dpl_index * next; 
+-}dpl_index_t, *dpl_index_p;
++	struct dpl_index *next;
++} dpl_index_t, *dpl_index_p;
+ 
+ /*For every DPID*/
+-typedef struct dpl_id{
++typedef struct dpl_id
++{
+ 	int dp_id;
+-	dpl_index_t* first_index;/*fast access :rules with specific length*/
+-	struct dpl_id * next;
+-}dpl_id_t,*dpl_id_p;
++	dpl_index_t *first_index; /*fast access :rules with specific length*/
++	struct dpl_id *next;
++} dpl_id_t, *dpl_id_p;
+ 
+ 
+-#define DP_VAL_INT		0
+-#define DP_VAL_SPEC		1
++#define DP_VAL_INT 0
++#define DP_VAL_SPEC 1
+ 
+-typedef struct dp_param{
++typedef struct dp_param
++{
+ 	int type;
+-	union {
++	union
++	{
+ 		int id;
+-		pv_spec_t* sp[2];
++		pv_spec_t *sp[2];
+ 	} v;
+-}dp_param_t, *dp_param_p;
++} dp_param_t, *dp_param_p;
+ 
+ int init_data();
+ void destroy_data();
+@@ -94,12 +99,12 @@ int dp_load_db();
+ 
+ dpl_id_p select_dpid(int id);
+ 
+-struct subst_expr* repl_exp_parse(str subst);
++struct subst_expr *repl_exp_parse(str subst);
+ void repl_expr_free(struct subst_expr *se);
+-int dp_translate_helper(sip_msg_t *msg, str *user_name, str *repl_user,
+-		dpl_id_p idp, str *);
+-int rule_translate(sip_msg_t *msg, str *instr, dpl_node_t *rule,
+-		pcre *subst_comp, str *);
++int dp_translate_helper(
++		sip_msg_t *msg, str *user_name, str *repl_user, dpl_id_p idp, str *);
++int rule_translate(
++		sip_msg_t *msg, str *instr, dpl_node_t *rule, pcre *subst_comp, str *);
+ 
+ pcre *reg_ex_comp(const char *pattern, int *cap_cnt, int mtype);
+ #endif
+--- a/src/modules/dialplan/dp_db.c
++++ b/src/modules/dialplan/dp_db.c
+@@ -37,45 +37,46 @@
+ #include "dp_db.h"
+ #include "dialplan.h"
+ 
+-str dp_db_url       =   str_init(DEFAULT_RODB_URL);
+-str dp_table_name   =   str_init(DP_TABLE_NAME);
+-str dpid_column     =   str_init(DPID_COL);
+-str pr_column       =   str_init(PR_COL);
+-str match_op_column =   str_init(MATCH_OP_COL);
+-str match_exp_column=   str_init(MATCH_EXP_COL);
+-str match_len_column=   str_init(MATCH_LEN_COL);
+-str subst_exp_column=   str_init(SUBST_EXP_COL);
+-str repl_exp_column =   str_init(REPL_EXP_COL);
+-str attrs_column    =   str_init(ATTRS_COL);
++str dp_db_url = str_init(DEFAULT_RODB_URL);
++str dp_table_name = str_init(DP_TABLE_NAME);
++str dpid_column = str_init(DPID_COL);
++str pr_column = str_init(PR_COL);
++str match_op_column = str_init(MATCH_OP_COL);
++str match_exp_column = str_init(MATCH_EXP_COL);
++str match_len_column = str_init(MATCH_LEN_COL);
++str subst_exp_column = str_init(SUBST_EXP_COL);
++str repl_exp_column = str_init(REPL_EXP_COL);
++str attrs_column = str_init(ATTRS_COL);
+ 
+ extern int dp_fetch_rows;
+ extern int dp_match_dynamic;
+ 
+-static db1_con_t* dp_db_handle    = 0; /* database connection handle */
++static db1_con_t *dp_db_handle = 0; /* database connection handle */
+ static db_func_t dp_dbf;
+ 
+-#define GET_STR_VALUE(_res, _values, _index)\
+-	do{\
+-		if ( VAL_NULL((_values)+ (_index)) ) { \
+-			LM_ERR(" values %d is NULL - not allowed\n",_index);\
+-			(_res).s = 0; (_res).len = 0;\
+-			goto err;\
+-		} \
+-		(_res).s = VAL_STR((_values)+ (_index)).s;\
+-		(_res).len = strlen(VAL_STR((_values)+ (_index)).s);\
+-	}while(0);
++#define GET_STR_VALUE(_res, _values, _index)                      \
++	do {                                                          \
++		if(VAL_NULL((_values) + (_index))) {                      \
++			LM_ERR(" values %d is NULL - not allowed\n", _index); \
++			(_res).s = 0;                                         \
++			(_res).len = 0;                                       \
++			goto err;                                             \
++		}                                                         \
++		(_res).s = VAL_STR((_values) + (_index)).s;               \
++		(_res).len = strlen(VAL_STR((_values) + (_index)).s);     \
++	} while(0);
+ 
+-void destroy_rule(dpl_node_t * rule);
++void destroy_rule(dpl_node_t *rule);
+ void destroy_hash(int);
+ 
+-dpl_node_t * build_rule(db_val_t * values);
++dpl_node_t *build_rule(db_val_t *values);
+ int add_rule2hash(dpl_node_t *, int);
+ 
+-void list_rule(dpl_node_t * );
++void list_rule(dpl_node_t *);
+ void list_hash(int h_index);
+ 
+ 
+-static dpl_id_p* dp_rules_hash = NULL;
++static dpl_id_p *dp_rules_hash = NULL;
+ static int *dp_crt_idx = NULL;
+ static int *dp_next_idx = NULL;
+ 
+@@ -91,7 +92,7 @@ int dpl_check_pv(str *in)
+ 	str s;
+ 	int len;
+ 
+-	if(in==NULL || in->s==NULL)
++	if(in == NULL || in->s == NULL)
+ 		return -1;
+ 
+ 	LM_DBG("parsing [%.*s]\n", in->len, in->s);
+@@ -101,26 +102,27 @@ int dpl_check_pv(str *in)
+ 
+ 	p = in->s;
+ 
+-	while(is_in_str(p,in))
+-	{
+-		while(is_in_str(p,in) && *p!=PV_MARKER)
++	while(is_in_str(p, in)) {
++		while(is_in_str(p, in) && *p != PV_MARKER)
+ 			p++;
+-		if(*p == '\0' || !is_in_str(p,in))
++		if(*p == '\0' || !is_in_str(p, in))
+ 			break;
+ 		/* last char is $ ? */
+-		if(!is_in_str(p+1, in))
++		if(!is_in_str(p + 1, in))
+ 			break;
+ 		s.s = p;
+-		s.len = in->s+in->len-p;
++		s.len = in->s + in->len - p;
+ 		len = 0;
+ 		spec = pv_spec_lookup(&s, &len);
+-		if(spec!=NULL) {
++		if(spec != NULL) {
+ 			/* found a variable */
+ 			LM_DBG("string [%.*s] has variables\n", in->len, in->s);
+ 			return 0;
+ 		}
+-		if(len) p += len;
+-		else p++;
++		if(len)
++			p += len;
++		else
++			p++;
+ 	}
+ 
+ 	/* not found */
+@@ -129,27 +131,28 @@ int dpl_check_pv(str *in)
+ 
+ int init_db_data(void)
+ {
+-	if(!dp_table_name.s || dp_table_name.len<=0){
++	if(!dp_table_name.s || dp_table_name.len <= 0) {
+ 		LM_ERR("invalid database table name\n");
+ 		return -1;
+ 	}
+ 
+ 	/* Find a database module */
+-	if (db_bind_mod(&dp_db_url, &dp_dbf) < 0){
++	if(db_bind_mod(&dp_db_url, &dp_dbf) < 0) {
+ 		LM_ERR("unable to bind to a database driver\n");
+ 		return -1;
+ 	}
+ 
+-	if(dp_connect_db() !=0)
++	if(dp_connect_db() != 0)
+ 		return -1;
+ 
+-	if(db_check_table_version(&dp_dbf, dp_db_handle, &dp_table_name,
+-				DP_TABLE_VERSION) < 0) {
++	if(db_check_table_version(
++			   &dp_dbf, dp_db_handle, &dp_table_name, DP_TABLE_VERSION)
++			< 0) {
+ 		DB_TABLE_VERSION_ERROR(dp_table_name);
+ 		goto error;
+ 	}
+ 
+-	if(dp_load_db() != 0){
++	if(dp_load_db() != 0) {
+ 		LM_ERR("failed to load database data\n");
+ 		goto error;
+ 	}
+@@ -166,17 +169,17 @@ error:
+ 
+ int dp_connect_db(void)
+ {
+-	if (dp_dbf.init==0){
++	if(dp_dbf.init == 0) {
+ 		LM_CRIT("null dp_dbf\n");
+ 		return -1;
+ 	}
+ 
+-	if(dp_db_handle){
++	if(dp_db_handle) {
+ 		LM_CRIT("BUG: connection to database already open\n");
+ 		return -1;
+ 	}
+ 
+-	if ((dp_db_handle = dp_dbf.init(&dp_db_url)) == 0){
++	if((dp_db_handle = dp_dbf.init(&dp_db_url)) == 0) {
+ 		LM_ERR("unable to connect to the database\n");
+ 		return -1;
+ 	}
+@@ -187,7 +190,7 @@ int dp_connect_db(void)
+ 
+ void dp_disconnect_db(void)
+ {
+-	if(dp_db_handle){
++	if(dp_db_handle) {
+ 		dp_dbf.close(dp_db_handle);
+ 		dp_db_handle = 0;
+ 	}
+@@ -198,20 +201,20 @@ int init_data(void)
+ {
+ 	int *p;
+ 
+-	dp_rules_hash = (dpl_id_p *)shm_malloc(2*sizeof(dpl_id_p));
++	dp_rules_hash = (dpl_id_p *)shm_malloc(2 * sizeof(dpl_id_p));
+ 	if(!dp_rules_hash) {
+ 		LM_ERR("out of shm memory\n");
+ 		return -1;
+ 	}
+ 	dp_rules_hash[0] = dp_rules_hash[1] = 0;
+ 
+-	p = (int *)shm_malloc(2*sizeof(int));
+-	if(!p){
++	p = (int *)shm_malloc(2 * sizeof(int));
++	if(!p) {
+ 		LM_ERR("out of shm memory\n");
+ 		return -1;
+ 	}
+ 	dp_crt_idx = p;
+-	dp_next_idx = p+1;
++	dp_next_idx = p + 1;
+ 	*dp_crt_idx = *dp_next_idx = 0;
+ 
+ 	LM_DBG("trying to initialize data from db\n");
+@@ -224,7 +227,7 @@ int init_data(void)
+ 
+ void destroy_data(void)
+ {
+-	if(dp_rules_hash){
++	if(dp_rules_hash) {
+ 		destroy_hash(0);
+ 		destroy_hash(1);
+ 		shm_free(dp_rules_hash);
+@@ -240,45 +243,46 @@ void destroy_data(void)
+ int dp_load_db(void)
+ {
+ 	int i, nr_rows;
+-	db1_res_t * res = 0;
+-	db_val_t * values;
+-	db_row_t * rows;
+-	db_key_t query_cols[DP_TABLE_COL_NO] = {
+-		&dpid_column,	&pr_column,
+-		&match_op_column,	&match_exp_column,	&match_len_column,
+-		&subst_exp_column,	&repl_exp_column,	&attrs_column };
++	db1_res_t *res = 0;
++	db_val_t *values;
++	db_row_t *rows;
++	db_key_t query_cols[DP_TABLE_COL_NO] = {&dpid_column, &pr_column,
++			&match_op_column, &match_exp_column, &match_len_column,
++			&subst_exp_column, &repl_exp_column, &attrs_column};
+ 
+ 	db_key_t order = &pr_column;
+ 
+ 	dpl_node_t *rule;
+ 
+ 	LM_DBG("init\n");
+-	if( (*dp_crt_idx) != (*dp_next_idx)){
++	if((*dp_crt_idx) != (*dp_next_idx)) {
+ 		LM_WARN("a load command already generated, aborting reload...\n");
+ 		return 0;
+ 	}
+ 
+-	if (dp_dbf.use_table(dp_db_handle, &dp_table_name) < 0){
++	if(dp_dbf.use_table(dp_db_handle, &dp_table_name) < 0) {
+ 		LM_ERR("error in use_table %.*s\n", dp_table_name.len, dp_table_name.s);
+ 		return -1;
+ 	}
+ 
+-	if (DB_CAPABILITY(dp_dbf, DB_CAP_FETCH)) {
+-		if(dp_dbf.query(dp_db_handle,0,0,0,query_cols, 0,
+-					DP_TABLE_COL_NO, order, 0) < 0){
++	if(DB_CAPABILITY(dp_dbf, DB_CAP_FETCH)) {
++		if(dp_dbf.query(dp_db_handle, 0, 0, 0, query_cols, 0, DP_TABLE_COL_NO,
++				   order, 0)
++				< 0) {
+ 			LM_ERR("failed to query database!\n");
+ 			return -1;
+ 		}
+-		if(dp_dbf.fetch_result(dp_db_handle, &res, dp_fetch_rows)<0) {
++		if(dp_dbf.fetch_result(dp_db_handle, &res, dp_fetch_rows) < 0) {
+ 			LM_ERR("failed to fetch\n");
+-			if (res)
++			if(res)
+ 				dp_dbf.free_result(dp_db_handle, res);
+ 			return -1;
+ 		}
+ 	} else {
+ 		/*select the whole table and all the columns*/
+-		if(dp_dbf.query(dp_db_handle,0,0,0,query_cols, 0, 
+-					DP_TABLE_COL_NO, order, &res) < 0){
++		if(dp_dbf.query(dp_db_handle, 0, 0, 0, query_cols, 0, DP_TABLE_COL_NO,
++				   order, &res)
++				< 0) {
+ 			LM_ERR("failed to query database\n");
+ 			return -1;
+ 		}
+@@ -286,38 +290,37 @@ int dp_load_db(void)
+ 
+ 	nr_rows = RES_ROW_N(res);
+ 
+-	*dp_next_idx = ((*dp_crt_idx) == 0)? 1:0;
++	*dp_next_idx = ((*dp_crt_idx) == 0) ? 1 : 0;
+ 	destroy_hash(*dp_next_idx);
+ 
+-	if(nr_rows == 0){
++	if(nr_rows == 0) {
+ 		LM_WARN("no data in the db\n");
+ 		goto end;
+ 	}
+ 
+ 	do {
+-		for(i=0; i<RES_ROW_N(res); i++){
+-			rows 	= RES_ROWS(res);
++		for(i = 0; i < RES_ROW_N(res); i++) {
++			rows = RES_ROWS(res);
+ 
+-			values = ROW_VALUES(rows+i);
++			values = ROW_VALUES(rows + i);
+ 
+-			if((rule = build_rule(values)) ==0 )
++			if((rule = build_rule(values)) == 0)
+ 				goto err2;
+ 
+ 			if(add_rule2hash(rule, *dp_next_idx) != 0)
+ 				goto err2;
+-
+ 		}
+-		if (DB_CAPABILITY(dp_dbf, DB_CAP_FETCH)) {
+-			if(dp_dbf.fetch_result(dp_db_handle, &res, dp_fetch_rows)<0) {
++		if(DB_CAPABILITY(dp_dbf, DB_CAP_FETCH)) {
++			if(dp_dbf.fetch_result(dp_db_handle, &res, dp_fetch_rows) < 0) {
+ 				LM_ERR("failure while fetching!\n");
+-				if (res)
++				if(res)
+ 					dp_dbf.free_result(dp_db_handle, res);
+ 				return -1;
+ 			}
+ 		} else {
+ 			break;
+ 		}
+-	}  while(RES_ROW_N(res)>0);
++	} while(RES_ROW_N(res) > 0);
+ 
+ 
+ end:
+@@ -328,7 +331,8 @@ end:
+ 	return 0;
+ 
+ err2:
+-	if(rule)	destroy_rule(rule);
++	if(rule)
++		destroy_rule(rule);
+ 	destroy_hash(*dp_next_idx);
+ 	dp_dbf.free_result(dp_db_handle, res);
+ 	*dp_next_idx = *dp_crt_idx;
+@@ -340,16 +344,17 @@ int dpl_str_to_shm(str src, str *dest, i
+ {
+ 	int mdup = 0;
+ 
+-	if(src.len ==0 || src.s ==0)
++	if(src.len == 0 || src.s == 0)
+ 		return 0;
+ 
+-	if(mterm!=0 && PV_MARKER=='$') {
+-		if(src.len>1 && src.s[src.len-1]=='$' && src.s[src.len-2]!='$') {
++	if(mterm != 0 && PV_MARKER == '$') {
++		if(src.len > 1 && src.s[src.len - 1] == '$'
++				&& src.s[src.len - 2] != '$') {
+ 			mdup = 1;
+ 		}
+ 	}
+-	dest->s = (char*)shm_malloc((src.len+1+mdup) * sizeof(char));
+-	if(!dest->s){
++	dest->s = (char *)shm_malloc((src.len + 1 + mdup) * sizeof(char));
++	if(!dest->s) {
+ 		LM_ERR("out of shm memory\n");
+ 		return -1;
+ 	}
+@@ -378,28 +383,28 @@ pcre *reg_ex_comp(const char *pattern, i
+ 	size_t size;
+ 
+ 	re = pcre_compile(pattern, 0, &error, &err_offset, NULL);
+-	if (re == NULL) {
+-		LM_ERR("PCRE compilation of '%s' failed at offset %d: %s\n",
+-				pattern, err_offset, error);
++	if(re == NULL) {
++		LM_ERR("PCRE compilation of '%s' failed at offset %d: %s\n", pattern,
++				err_offset, error);
+ 		return (pcre *)0;
+ 	}
+ 	rc = pcre_fullinfo(re, NULL, PCRE_INFO_SIZE, &size);
+-	if (rc != 0) {
++	if(rc != 0) {
+ 		pcre_free(re);
+ 		LM_ERR("pcre_fullinfo on compiled pattern '%s' yielded error: %d\n",
+ 				pattern, rc);
+ 		return (pcre *)0;
+ 	}
+ 	rc = pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, cap_cnt);
+-	if (rc != 0) {
++	if(rc != 0) {
+ 		pcre_free(re);
+ 		LM_ERR("pcre_fullinfo on compiled pattern '%s' yielded error: %d\n",
+ 				pattern, rc);
+ 		return (pcre *)0;
+ 	}
+-	if(mtype==0) {
++	if(mtype == 0) {
+ 		result = (pcre *)shm_malloc(size);
+-		if (result == NULL) {
++		if(result == NULL) {
+ 			pcre_free(re);
+ 			LM_ERR("not enough shared memory for compiled PCRE pattern\n");
+ 			return (pcre *)0;
+@@ -414,20 +419,20 @@ pcre *reg_ex_comp(const char *pattern, i
+ 
+ 
+ /*compile the expressions, and if ok, build the rule */
+-dpl_node_t * build_rule(db_val_t * values)
++dpl_node_t *build_rule(db_val_t *values)
+ {
+ 	pcre *match_comp, *subst_comp;
+ 	struct subst_expr *repl_comp;
+-	dpl_node_t * new_rule;
++	dpl_node_t *new_rule;
+ 	str match_exp, subst_exp, repl_exp, attrs;
+ 	int matchop;
+-	int cap_cnt=0;
+-	unsigned int tflags=0;
++	int cap_cnt = 0;
++	unsigned int tflags = 0;
+ 
+-	matchop = VAL_INT(values+2);
++	matchop = VAL_INT(values + 2);
+ 
+-	if((matchop != DP_REGEX_OP) && (matchop!=DP_EQUAL_OP)
+-			&& (matchop!=DP_FNMATCH_OP)){
++	if((matchop != DP_REGEX_OP) && (matchop != DP_EQUAL_OP)
++			&& (matchop != DP_FNMATCH_OP)) {
+ 		LM_ERR("invalid value for match operator\n");
+ 		return NULL;
+ 	}
+@@ -437,15 +442,15 @@ dpl_node_t * build_rule(db_val_t * value
+ 	new_rule = 0;
+ 
+ 	GET_STR_VALUE(match_exp, values, 3);
+-	if(matchop == DP_REGEX_OP){
+-		if(unlikely(dp_match_dynamic==1)) {
+-			if(dpl_check_pv(&match_exp)==0) {
++	if(matchop == DP_REGEX_OP) {
++		if(unlikely(dp_match_dynamic == 1)) {
++			if(dpl_check_pv(&match_exp) == 0) {
+ 				tflags |= DP_TFLAGS_PV_MATCH;
+ 			}
+ 		}
+-		if(!(tflags&DP_TFLAGS_PV_MATCH)) {
++		if(!(tflags & DP_TFLAGS_PV_MATCH)) {
+ 			match_comp = reg_ex_comp(match_exp.s, &cap_cnt, 0);
+-			if(!match_comp){
++			if(!match_comp) {
+ 				LM_ERR("failed to compile match expression %.*s\n",
+ 						match_exp.len, match_exp.s);
+ 				goto err;
+@@ -454,9 +459,9 @@ dpl_node_t * build_rule(db_val_t * value
+ 	}
+ 
+ 	GET_STR_VALUE(repl_exp, values, 6);
+-	if(repl_exp.len && repl_exp.s){
++	if(repl_exp.len && repl_exp.s) {
+ 		repl_comp = repl_exp_parse(repl_exp);
+-		if(!repl_comp){
++		if(!repl_comp) {
+ 			LM_ERR("failed to compile replacing expression %.*s\n",
+ 					repl_exp.len, repl_exp.s);
+ 			goto err;
+@@ -465,20 +470,20 @@ dpl_node_t * build_rule(db_val_t * value
+ 
+ 	cap_cnt = 0;
+ 	GET_STR_VALUE(subst_exp, values, 5);
+-	if(subst_exp.s && subst_exp.len){
+-		if(unlikely(dp_match_dynamic==1)) {
+-			if(dpl_check_pv(&subst_exp)==0) {
++	if(subst_exp.s && subst_exp.len) {
++		if(unlikely(dp_match_dynamic == 1)) {
++			if(dpl_check_pv(&subst_exp) == 0) {
+ 				tflags |= DP_TFLAGS_PV_SUBST;
+ 			}
+ 		}
+-		if(!(tflags&DP_TFLAGS_PV_SUBST)) {
++		if(!(tflags & DP_TFLAGS_PV_SUBST)) {
+ 			subst_comp = reg_ex_comp(subst_exp.s, &cap_cnt, 0);
+-			if(!subst_comp){
++			if(!subst_comp) {
+ 				LM_ERR("failed to compile subst expression %.*s\n",
+ 						subst_exp.len, subst_exp.s);
+ 				goto err;
+ 			}
+-			if (cap_cnt > MAX_REPLACE_WITH) {
++			if(cap_cnt > MAX_REPLACE_WITH) {
+ 				LM_ERR("subst expression %.*s has too many sub-expressions\n",
+ 						subst_exp.len, subst_exp.s);
+ 				goto err;
+@@ -486,72 +491,77 @@ dpl_node_t * build_rule(db_val_t * value
+ 		}
+ 	}
+ 
+-	LM_DBG("building rule for [%d:%.*s/%.*s/%.*s]\n", matchop,
+-			match_exp.len, ZSW(match_exp.s), subst_exp.len, ZSW(subst_exp.s),
+-			repl_exp.len, ZSW(repl_exp.s));
+-	if (!(tflags&(DP_TFLAGS_PV_SUBST|DP_TFLAGS_PV_MATCH)) &&
+-		repl_comp && (cap_cnt < repl_comp->max_pmatch) &&
+-		(repl_comp->max_pmatch != 0))
+-	{
++	LM_DBG("building rule for [%d:%.*s/%.*s/%.*s]\n", matchop, match_exp.len,
++			ZSW(match_exp.s), subst_exp.len, ZSW(subst_exp.s), repl_exp.len,
++			ZSW(repl_exp.s));
++	if(!(tflags & (DP_TFLAGS_PV_SUBST | DP_TFLAGS_PV_MATCH)) && repl_comp
++			&& (cap_cnt < repl_comp->max_pmatch)
++			&& (repl_comp->max_pmatch != 0)) {
+ 		LM_ERR("repl_exp %.*s refers to %d sub-expressions, but "
+-				"subst_exp %.*s has only %d\n",
+-				repl_exp.len, repl_exp.s, repl_comp->max_pmatch,
+-				subst_exp.len, subst_exp.s, cap_cnt);
++			   "subst_exp %.*s has only %d\n",
++				repl_exp.len, repl_exp.s, repl_comp->max_pmatch, subst_exp.len,
++				subst_exp.s, cap_cnt);
+ 		goto err;
+ 	}
+ 
+ 	new_rule = (dpl_node_t *)shm_malloc(sizeof(dpl_node_t));
+-	if(!new_rule){
++	if(!new_rule) {
+ 		LM_ERR("out of shm memory(new_rule)\n");
+ 		goto err;
+ 	}
+ 	memset(new_rule, 0, sizeof(dpl_node_t));
+ 
+-	if(dpl_str_to_shm(match_exp, &new_rule->match_exp,
+-				tflags&DP_TFLAGS_PV_MATCH)!=0)
++	if(dpl_str_to_shm(
++			   match_exp, &new_rule->match_exp, tflags & DP_TFLAGS_PV_MATCH)
++			!= 0)
+ 		goto err;
+ 
+-	if(dpl_str_to_shm(subst_exp, &new_rule->subst_exp,
+-				tflags&DP_TFLAGS_PV_SUBST)!=0)
++	if(dpl_str_to_shm(
++			   subst_exp, &new_rule->subst_exp, tflags & DP_TFLAGS_PV_SUBST)
++			!= 0)
+ 		goto err;
+ 
+-	if(dpl_str_to_shm(repl_exp, &new_rule->repl_exp, 0)!=0)
++	if(dpl_str_to_shm(repl_exp, &new_rule->repl_exp, 0) != 0)
+ 		goto err;
+ 
+ 	/*set the rest of the rule fields*/
+-	new_rule->dpid		=	VAL_INT(values);
+-	new_rule->pr		=	VAL_INT(values+1);
+-	new_rule->matchlen	= 	VAL_INT(values+4);
+-	new_rule->matchop	=	matchop;
++	new_rule->dpid = VAL_INT(values);
++	new_rule->pr = VAL_INT(values + 1);
++	new_rule->matchlen = VAL_INT(values + 4);
++	new_rule->matchop = matchop;
+ 	GET_STR_VALUE(attrs, values, 7);
+-	if(dpl_str_to_shm(attrs, &new_rule->attrs, 0)!=0)
++	if(dpl_str_to_shm(attrs, &new_rule->attrs, 0) != 0)
+ 		goto err;
+ 
+ 	LM_DBG("attrs are: '%.*s'\n", new_rule->attrs.len, new_rule->attrs.s);
+ 
+ 	new_rule->match_comp = match_comp;
+ 	new_rule->subst_comp = subst_comp;
+-	new_rule->repl_comp  = repl_comp;
+-	new_rule->tflags     = tflags;
++	new_rule->repl_comp = repl_comp;
++	new_rule->tflags = tflags;
+ 
+ 	return new_rule;
+ 
+ err:
+-	if(match_comp) shm_free(match_comp);
+-	if(subst_comp) shm_free(subst_comp);
+-	if(repl_comp) repl_expr_free(repl_comp);
+-	if(new_rule) destroy_rule(new_rule);
++	if(match_comp)
++		shm_free(match_comp);
++	if(subst_comp)
++		shm_free(subst_comp);
++	if(repl_comp)
++		repl_expr_free(repl_comp);
++	if(new_rule)
++		destroy_rule(new_rule);
+ 	return NULL;
+ }
+ 
+ 
+-int add_rule2hash(dpl_node_t * rule, int h_index)
++int add_rule2hash(dpl_node_t *rule, int h_index)
+ {
+ 	dpl_id_p crt_idp, last_idp;
+ 	dpl_index_p indexp, last_indexp, new_indexp;
+ 	int new_id;
+ 
+-	if(!dp_rules_hash){
++	if(!dp_rules_hash) {
+ 		LM_ERR("data not allocated\n");
+ 		return -1;
+ 	}
+@@ -559,15 +569,15 @@ int add_rule2hash(dpl_node_t * rule, int
+ 	new_id = 0;
+ 
+ 	/*search for the corresponding dpl_id*/
+-	for(crt_idp = last_idp =dp_rules_hash[h_index]; crt_idp!= NULL;
++	for(crt_idp = last_idp = dp_rules_hash[h_index]; crt_idp != NULL;
+ 			last_idp = crt_idp, crt_idp = crt_idp->next)
+ 		if(crt_idp->dp_id == rule->dpid)
+ 			break;
+ 
+ 	/*didn't find a dpl_id*/
+-	if(!crt_idp){
+-		crt_idp = (dpl_id_t*)shm_malloc(sizeof(dpl_id_t));
+-		if(!crt_idp){
++	if(!crt_idp) {
++		crt_idp = (dpl_id_t *)shm_malloc(sizeof(dpl_id_t));
++		if(!crt_idp) {
+ 			LM_ERR("out of shm memory (crt_idp)\n");
+ 			return -1;
+ 		}
+@@ -578,11 +588,12 @@ int add_rule2hash(dpl_node_t * rule, int
+ 	}
+ 
+ 	/*search for the corresponding dpl_index*/
+-	for(indexp = last_indexp =crt_idp->first_index; indexp!=NULL;
+-			last_indexp = indexp, indexp = indexp->next){
++	for(indexp = last_indexp = crt_idp->first_index; indexp != NULL;
++			last_indexp = indexp, indexp = indexp->next) {
+ 		if(indexp->len == rule->matchlen)
+ 			goto add_rule;
+-		if((rule->matchlen!=0)&&((indexp->len)?(indexp->len>rule->matchlen):1))
++		if((rule->matchlen != 0)
++				&& ((indexp->len) ? (indexp->len > rule->matchlen) : 1))
+ 			goto add_index;
+ 	}
+ 
+@@ -590,18 +601,18 @@ add_index:
+ 	LM_DBG("new index , len %i\n", rule->matchlen);
+ 
+ 	new_indexp = (dpl_index_t *)shm_malloc(sizeof(dpl_index_t));
+-	if(!new_indexp){
++	if(!new_indexp) {
+ 		LM_ERR("out of shm memory\n");
+ 		goto err;
+ 	}
+-	memset(new_indexp , 0, sizeof(dpl_index_t));
++	memset(new_indexp, 0, sizeof(dpl_index_t));
+ 	new_indexp->next = indexp;
+ 	new_indexp->len = rule->matchlen;
+ 
+ 	/*add as first index*/
+-	if(last_indexp == indexp){
++	if(last_indexp == indexp) {
+ 		crt_idp->first_index = new_indexp;
+-	}else{
++	} else {
+ 		last_indexp->next = new_indexp;
+ 	}
+ 
+@@ -617,13 +628,13 @@ add_rule:
+ 
+ 	indexp->last_rule = rule;
+ 
+-	if(new_id){
++	if(new_id) {
+ 		crt_idp->next = dp_rules_hash[h_index];
+ 		dp_rules_hash[h_index] = crt_idp;
+ 	}
+ 	LM_DBG("added the rule id %i index %i pr %i next %p to the "
+-			"index with %i len\n", rule->dpid, rule->matchlen,
+-			rule->pr, rule->next, indexp->len);
++		   "index with %i len\n",
++			rule->dpid, rule->matchlen, rule->pr, rule->next, indexp->len);
+ 
+ 	return 0;
+ 
+@@ -643,24 +654,23 @@ void destroy_hash(int index)
+ 	if(!dp_rules_hash[index])
+ 		return;
+ 
+-	for(crt_idp = dp_rules_hash[index]; crt_idp != NULL;){
++	for(crt_idp = dp_rules_hash[index]; crt_idp != NULL;) {
+ 
+-		for(indexp = crt_idp->first_index; indexp != NULL;){
++		for(indexp = crt_idp->first_index; indexp != NULL;) {
+ 
+-			for(rulep = indexp->first_rule; rulep!= NULL;){
++			for(rulep = indexp->first_rule; rulep != NULL;) {
+ 
+ 				destroy_rule(rulep);
+ 
+ 				indexp->first_rule = rulep->next;
+ 				shm_free(rulep);
+-				rulep=0;
+-				rulep= indexp->first_rule;
++				rulep = 0;
++				rulep = indexp->first_rule;
+ 			}
+-			crt_idp->first_index= indexp->next;
++			crt_idp->first_index = indexp->next;
+ 			shm_free(indexp);
+-			indexp=0;
++			indexp = 0;
+ 			indexp = crt_idp->first_index;
+-
+ 		}
+ 
+ 		dp_rules_hash[index] = crt_idp->next;
+@@ -673,13 +683,13 @@ void destroy_hash(int index)
+ }
+ 
+ 
+-void destroy_rule(dpl_node_t * rule){
++void destroy_rule(dpl_node_t *rule)
++{
+ 
+ 	if(!rule)
+ 		return;
+ 
+-	LM_DBG("destroying rule with priority %i\n",
+-			rule->pr);
++	LM_DBG("destroying rule with priority %i\n", rule->pr);
+ 
+ 	if(rule->match_comp)
+ 		shm_free(rule->match_comp);
+@@ -712,7 +722,7 @@ dpl_id_p select_dpid(int id)
+ 	if(!dp_rules_hash || !dp_crt_idx)
+ 		return NULL;
+ 
+-	for(idp = dp_rules_hash[*dp_crt_idx]; idp!=NULL; idp = idp->next)
++	for(idp = dp_rules_hash[*dp_crt_idx]; idp != NULL; idp = idp->next)
+ 		if(idp->dp_id == id)
+ 			return idp;
+ 
+@@ -731,11 +741,14 @@ void list_hash(int h_index)
+ 	if(!dp_rules_hash[h_index])
+ 		return;
+ 
+-	for(crt_idp=dp_rules_hash[h_index]; crt_idp!=NULL; crt_idp = crt_idp->next){
++	for(crt_idp = dp_rules_hash[h_index]; crt_idp != NULL;
++			crt_idp = crt_idp->next) {
+ 		LM_DBG("DPID: %i, pointer %p\n", crt_idp->dp_id, crt_idp);
+-		for(indexp=crt_idp->first_index; indexp!=NULL;indexp= indexp->next){
++		for(indexp = crt_idp->first_index; indexp != NULL;
++				indexp = indexp->next) {
+ 			LM_DBG("INDEX LEN: %i\n", indexp->len);
+-			for(rulep = indexp->first_rule; rulep!= NULL;rulep = rulep->next){
++			for(rulep = indexp->first_rule; rulep != NULL;
++					rulep = rulep->next) {
+ 				list_rule(rulep);
+ 			}
+ 		}
+@@ -746,12 +759,9 @@ void list_hash(int h_index)
+ void list_rule(dpl_node_t *rule)
+ {
+ 	LM_DBG("RULE %p: pr %i next %p op %d tflags %u match_exp %.*s, "
+-			"subst_exp %.*s, repl_exp %.*s and attrs %.*s\n", rule,
+-			rule->pr, rule->next,
+-			rule->matchop, rule->tflags,
+-			rule->match_exp.len, ZSW(rule->match_exp.s),
+-			rule->subst_exp.len, ZSW(rule->subst_exp.s),
+-			rule->repl_exp.len, ZSW(rule->repl_exp.s),
+-			rule->attrs.len,	ZSW(rule->attrs.s));
+-
++		   "subst_exp %.*s, repl_exp %.*s and attrs %.*s\n",
++			rule, rule->pr, rule->next, rule->matchop, rule->tflags,
++			rule->match_exp.len, ZSW(rule->match_exp.s), rule->subst_exp.len,
++			ZSW(rule->subst_exp.s), rule->repl_exp.len, ZSW(rule->repl_exp.s),
++			rule->attrs.len, ZSW(rule->attrs.s));
+ }
+--- a/src/modules/dialplan/dp_db.h
++++ b/src/modules/dialplan/dp_db.h
+@@ -32,30 +32,30 @@
+ #include "../../core/str.h"
+ #include "../../lib/srdb1/db.h"
+ 
+-#define DP_TABLE_NAME			"dialplan"
+-#define DPID_COL				"dpid"
+-#define PR_COL					"pr"
+-#define MATCH_OP_COL			"match_op"
+-#define MATCH_EXP_COL			"match_exp"
+-#define MATCH_LEN_COL			"match_len"
+-#define SUBST_EXP_COL			"subst_exp"
+-#define REPL_EXP_COL			"repl_exp"
+-#define ATTRS_COL				"attrs"
++#define DP_TABLE_NAME "dialplan"
++#define DPID_COL "dpid"
++#define PR_COL "pr"
++#define MATCH_OP_COL "match_op"
++#define MATCH_EXP_COL "match_exp"
++#define MATCH_LEN_COL "match_len"
++#define SUBST_EXP_COL "subst_exp"
++#define REPL_EXP_COL "repl_exp"
++#define ATTRS_COL "attrs"
+ 
+ 
+-#define DP_TABLE_VERSION		2
+-#define DP_TABLE_COL_NO 		8
++#define DP_TABLE_VERSION 2
++#define DP_TABLE_COL_NO 8
+ 
+ extern str dp_db_url;
+ extern str dp_table_name;
+-extern str dpid_column; 
+-extern str pr_column; 
+-extern str match_op_column; 
+-extern str match_exp_column; 
+-extern str match_len_column; 
+-extern str subst_exp_column; 
+-extern str repl_exp_column; 
+-extern str attrs_column; 
++extern str dpid_column;
++extern str pr_column;
++extern str match_op_column;
++extern str match_exp_column;
++extern str match_len_column;
++extern str subst_exp_column;
++extern str repl_exp_column;
++extern str attrs_column;
+ 
+ int init_db_data();
+ int dp_connect_db();
+--- a/src/modules/dialplan/dp_repl.c
++++ b/src/modules/dialplan/dp_repl.c
+@@ -42,27 +42,28 @@ typedef struct dpl_dyn_pcre
+ 	int cnt;
+ 	str expr;
+ 
+-	struct dpl_dyn_pcre * next; /* next rule */
++	struct dpl_dyn_pcre *next; /* next rule */
+ } dpl_dyn_pcre_t, *dpl_dyn_pcre_p;
+ 
+-static void dpl_get_avp_val(avp_t *avp, str *dst) {
++static void dpl_get_avp_val(avp_t *avp, str *dst)
++{
+ 	avp_value_t val;
+ 
+-	if (avp==0 || dst==0) return;
++	if(avp == 0 || dst == 0)
++		return;
+ 
+ 	/* Warning! it uses static buffer from int2str !!! */
+ 
+ 	get_avp_val(avp, &val);
+-	if (avp->flags & AVP_VAL_STR) {
++	if(avp->flags & AVP_VAL_STR) {
+ 		*dst = val.s;
+-	}
+-	else { /* probably (!) number */
++	} else { /* probably (!) number */
+ 		dst->s = int2str(val.n, &dst->len);
+ 	}
+ }
+ 
+ int dpl_dyn_printf_s(sip_msg_t *msg, const pv_elem_p elem,
+-	const pv_elem_p avp_elem, str *val, pv_elem_p *elem_prev, str *vexpr)
++		const pv_elem_p avp_elem, str *val, pv_elem_p *elem_prev, str *vexpr)
+ {
+ 	pv_elem_p e = NULL;
+ 	pv_elem_p t = NULL;
+@@ -70,45 +71,52 @@ int dpl_dyn_printf_s(sip_msg_t *msg, con
+ 	str v = STR_NULL;
+ 	int ret = -1;
+ 
+-	if(elem==NULL||avp_elem==NULL||elem_prev==NULL||vexpr==NULL) return -1;
+-	if(str_append(&(avp_elem->text), val, &s)<0) return -1;
++	if(elem == NULL || avp_elem == NULL || elem_prev == NULL || vexpr == NULL)
++		return -1;
++	if(str_append(&(avp_elem->text), val, &s) < 0)
++		return -1;
+ 
+-	if(pv_parse_format(&s, &e)<0) {
++	if(pv_parse_format(&s, &e) < 0) {
+ 		LM_ERR("parsing expression: %.*s\n", s.len, s.s);
+ 		goto clean;
+ 	}
+-	if(*elem_prev==NULL && elem!=avp_elem) {
++	if(*elem_prev == NULL && elem != avp_elem) {
+ 		LM_DBG("search for elem_prev\n");
+-		for(t=elem; t!=NULL; t=t->next) {
+-			if(t->next==avp_elem) { *elem_prev = t;
++		for(t = elem; t != NULL; t = t->next) {
++			if(t->next == avp_elem) {
++				*elem_prev = t;
+ 				LM_DBG("found!\n");
+ 			}
+ 		}
+ 	}
+-	if(*elem_prev) (*elem_prev)->next = e;
++	if(*elem_prev)
++		(*elem_prev)->next = e;
+ 	e->next = avp_elem->next;
+-	if(pv_printf_s(msg, e, &v)<0){
++	if(pv_printf_s(msg, e, &v) < 0) {
+ 		LM_ERR("cannot get avp pcre dynamic expression value\n");
+ 		goto clean;
+ 	}
+ 	/* pv_printf_s uses pv_get_buffer() we do need to copy */
+ 	vexpr->len = v.len;
+-	vexpr->s = pkg_malloc(sizeof(char)*(v.len+1));
+-	if(vexpr->s==NULL) {
++	vexpr->s = pkg_malloc(sizeof(char) * (v.len + 1));
++	if(vexpr->s == NULL) {
+ 		PKG_MEM_ERROR;
+ 		goto clean;
+ 	}
+ 	strcpy(vexpr->s, v.s);
+ 	ret = 0;
+ clean:
+-	if(s.s) pkg_free(s.s);
+-	if(e) pkg_free(e);
+-	if(*elem_prev) (*elem_prev)->next = avp_elem;
++	if(s.s)
++		pkg_free(s.s);
++	if(e)
++		pkg_free(e);
++	if(*elem_prev)
++		(*elem_prev)->next = avp_elem;
+ 	return ret;
+ }
+ 
+ int dpl_get_avp_values(sip_msg_t *msg, const pv_elem_p elem,
+-	const pv_elem_p avp_elem, struct str_list **out)
++		const pv_elem_p avp_elem, struct str_list **out)
+ {
+ 	struct usr_avp *avp = NULL;
+ 	unsigned short name_type;
+@@ -120,16 +128,17 @@ int dpl_get_avp_values(sip_msg_t *msg, c
+ 	pv_elem_p elem_prev = NULL;
+ 	struct str_list *tl = NULL;
+ 
+-	if(elem==NULL||avp_elem==NULL||out==NULL||*out==NULL) {
++	if(elem == NULL || avp_elem == NULL || out == NULL || *out == NULL) {
+ 		LM_ERR("wrong parameters\n");
+ 		return -1;
+ 	}
+-	if(pv_get_avp_name(msg, &(avp_elem->spec->pvp), &avp_name, &name_type)!=0) {
++	if(pv_get_avp_name(msg, &(avp_elem->spec->pvp), &avp_name, &name_type)
++			!= 0) {
+ 		LM_ERR("invalid avp name\n");
+ 		return -1;
+ 	}
+ 	avp = search_first_avp(name_type, avp_name, &avp_value, &state);
+-	if(avp==NULL) {
++	if(avp == NULL) {
+ 		LM_ERR("can't find first avp\n");
+ 		return -1;
+ 	}
+@@ -139,10 +148,10 @@ int dpl_get_avp_values(sip_msg_t *msg, c
+ 	/*LM_DBG("elem[%p] avp_elem[%p], elem_prev[%p] [%.*s]\n",
+ 			elem, avp_elem, elem_prev, tl->s.len, tl->s.s);*/
+ 	sum = tl->s.len;
+-	while ((avp=search_next_avp(&state, &avp_value))!=0) {
++	while((avp = search_next_avp(&state, &avp_value)) != 0) {
+ 		dpl_get_avp_val(avp, &s);
+ 		dpl_dyn_printf_s(msg, elem, avp_elem, &s, &elem_prev, &ts);
+-		if(append_str_list(ts.s, ts.len, &tl, &sum)==NULL) {
++		if(append_str_list(ts.s, ts.len, &tl, &sum) == NULL) {
+ 			while(*out) {
+ 				tl = (*out)->next;
+ 				pkg_free(*out);
+@@ -160,18 +169,20 @@ int dpl_get_avp_values(sip_msg_t *msg, c
+ int dpl_detect_avp_indx(const pv_elem_p elem, pv_elem_p *avp)
+ {
+ 	int num, num_avp_all;
+-	pv_elem_p e = elem;;
+-	if(elem==NULL||avp==NULL) return -1;
++	pv_elem_p e = elem;
++	;
++	if(elem == NULL || avp == NULL)
++		return -1;
+ 
+-	for(e=elem, num=num_avp_all=0; e!=NULL; e=e->next, num++) {
+-		if(e->spec!=NULL && e->spec->type==PVT_AVP &&
+-			e->spec->pvp.pvi.type==PV_IDX_ITR)
+-		{
++	for(e = elem, num = num_avp_all = 0; e != NULL; e = e->next, num++) {
++		if(e->spec != NULL && e->spec->type == PVT_AVP
++				&& e->spec->pvp.pvi.type == PV_IDX_ITR) {
+ 			*avp = e;
+ 			num_avp_all++;
+ 		}
+ 	}
+-	if(num_avp_all==1) return 1; /* just one avp_indx supported */
++	if(num_avp_all == 1)
++		return 1; /* just one avp_indx supported */
+ 	return 0;
+ }
+ 
+@@ -180,29 +191,29 @@ pcre *dpl_dyn_pcre_comp(sip_msg_t *msg,
+ 	pcre *re = NULL;
+ 	int ccnt = 0;
+ 
+-	if(expr==NULL || expr->s==NULL || expr->len<=0 ||
+-	   vexpr==NULL || vexpr->s==NULL || vexpr->len<=0)
++	if(expr == NULL || expr->s == NULL || expr->len <= 0 || vexpr == NULL
++			|| vexpr->s == NULL || vexpr->len <= 0)
+ 		return NULL;
+ 
+ 	re = reg_ex_comp(vexpr->s, &ccnt, 1);
+ 	if(!re) {
+-		if(expr!=vexpr)
++		if(expr != vexpr)
+ 			LM_ERR("failed to compile pcre expression: %.*s (%.*s)\n",
+-				expr->len, expr->s, vexpr->len, vexpr->s);
++					expr->len, expr->s, vexpr->len, vexpr->s);
+ 		else
+-			LM_ERR("failed to compile pcre expression: %.*s\n",
+-				vexpr->len, vexpr->s);
++			LM_ERR("failed to compile pcre expression: %.*s\n", vexpr->len,
++					vexpr->s);
+ 		return NULL;
+ 	}
+ 	if(cap_cnt) {
+ 		*cap_cnt = ccnt;
+ 	}
+-	if(expr!=vexpr)
+-		LM_DBG("compiled dynamic pcre expression: %.*s (%.*s) %d\n",
+-				expr->len, expr->s, vexpr->len, vexpr->s, ccnt);
++	if(expr != vexpr)
++		LM_DBG("compiled dynamic pcre expression: %.*s (%.*s) %d\n", expr->len,
++				expr->s, vexpr->len, vexpr->s, ccnt);
+ 	else
+-		LM_DBG("compiled dynamic pcre expression: %.*s %d\n",
+-				vexpr->len, vexpr->s, ccnt);
++		LM_DBG("compiled dynamic pcre expression: %.*s %d\n", vexpr->len,
++				vexpr->s, ccnt);
+ 	return re;
+ }
+ 
+@@ -218,35 +229,33 @@ dpl_dyn_pcre_p dpl_dynamic_pcre_list(sip
+ 	int cnt = 0;
+ 	str vexpr = STR_NULL;
+ 
+-	if(expr==NULL || expr->s==NULL || expr->len<=0)
+-	{
++	if(expr == NULL || expr->s == NULL || expr->len <= 0) {
+ 		LM_ERR("wrong parameters\n");
+ 		return NULL;
+ 	}
+ 
+-	if(pv_parse_format(expr, &elem)<0) {
+-		LM_ERR("parsing pcre expression: %.*s\n",
+-				expr->len, expr->s);
++	if(pv_parse_format(expr, &elem) < 0) {
++		LM_ERR("parsing pcre expression: %.*s\n", expr->len, expr->s);
+ 		return NULL;
+ 	}
+ 	LM_DBG("parsed pcre expression: %.*s\n", expr->len, expr->s);
+ 	if(dpl_detect_avp_indx(elem, &avp_elem)) {
+ 		l = pkg_malloc(sizeof(struct str_list));
+-		if(l==NULL) {
++		if(l == NULL) {
+ 			PKG_MEM_ERROR;
+ 			goto error;
+ 		}
+ 		memset(l, 0, sizeof(struct str_list));
+-		if(dpl_get_avp_values(msg, elem, avp_elem, &l)<0) {
++		if(dpl_get_avp_values(msg, elem, avp_elem, &l) < 0) {
+ 			LM_ERR("can't get list of avp values\n");
+ 			goto error;
+ 		}
+ 		t = l;
+ 		while(t) {
+ 			re = dpl_dyn_pcre_comp(msg, &(t->s), &(t->s), &cnt);
+-			if(re!=NULL) {
++			if(re != NULL) {
+ 				rt = pkg_malloc(sizeof(dpl_dyn_pcre_t));
+-				if(rt==NULL) {
++				if(rt == NULL) {
+ 					PKG_MEM_ERROR;
+ 					goto error;
+ 				}
+@@ -259,17 +268,16 @@ dpl_dyn_pcre_p dpl_dynamic_pcre_list(sip
+ 			}
+ 			t = t->next;
+ 		}
+-	}
+-	else {
+-		if(pv_printf_s(msg, elem, &vexpr)<0){
++	} else {
++		if(pv_printf_s(msg, elem, &vexpr) < 0) {
+ 			LM_ERR("cannot get pcre dynamic expression value: %.*s\n",
+ 					expr->len, expr->s);
+ 			goto error;
+ 		}
+ 		re = dpl_dyn_pcre_comp(msg, expr, &vexpr, &cnt);
+-		if(re!=NULL) {
++		if(re != NULL) {
+ 			rt = pkg_malloc(sizeof(dpl_dyn_pcre_t));
+-			if(rt==NULL) {
++			if(rt == NULL) {
+ 				PKG_MEM_ERROR;
+ 				goto error;
+ 			}
+@@ -285,15 +293,18 @@ dpl_dyn_pcre_p dpl_dynamic_pcre_list(sip
+ error:
+ 	while(re_list) {
+ 		rt = re_list->next;
+-		if(re_list->re) pcre_free(re_list->re);
++		if(re_list->re)
++			pcre_free(re_list->re);
+ 		pkg_free(re_list);
+ 		re_list = rt;
+ 	}
+ clean:
+-	if(elem) pv_elem_free_all(elem);
++	if(elem)
++		pv_elem_free_all(elem);
+ 	while(l) {
+ 		t = l->next;
+-		if(l->s.s) pkg_free(l->s.s);
++		if(l->s.s)
++			pkg_free(l->s.s);
+ 		pkg_free(l);
+ 		l = t;
+ 	}
+@@ -305,7 +316,7 @@ void repl_expr_free(struct subst_expr *s
+ 	if(!se)
+ 		return;
+ 
+-	if(se->replacement.s){
++	if(se->replacement.s) {
+ 		shm_free(se->replacement.s);
+ 		se->replacement.s = 0;
+ 	}
+@@ -315,13 +326,13 @@ void repl_expr_free(struct subst_expr *s
+ }
+ 
+ 
+-struct subst_expr* repl_exp_parse(str subst)
++struct subst_expr *repl_exp_parse(str subst)
+ {
+ 	struct replace_with rw[MAX_REPLACE_WITH];
+ 	int rw_no;
+-	struct subst_expr * se;
++	struct subst_expr *se;
+ 	int replace_all;
+-	char * p, *end, *repl, *repl_end;
++	char *p, *end, *repl, *repl_end;
+ 	int max_pmatch, r;
+ 	str shms;
+ 
+@@ -329,7 +340,7 @@ struct subst_expr* repl_exp_parse(str su
+ 	replace_all = 0;
+ 	shms.s = NULL;
+ 
+-	if (!(shms.s=shm_malloc((subst.len+1) * sizeof(char))) ){
++	if(!(shms.s = shm_malloc((subst.len + 1) * sizeof(char)))) {
+ 		LM_ERR("out of shm memory\n");
+ 		goto error;
+ 	}
+@@ -342,39 +353,41 @@ struct subst_expr* repl_exp_parse(str su
+ 	rw_no = 0;
+ 
+ 	repl = p;
+-	if((rw_no = parse_repl(rw, &p, end, &max_pmatch, WITHOUT_SEP))< 0) {
++	if((rw_no = parse_repl(rw, &p, end, &max_pmatch, WITHOUT_SEP)) < 0) {
+ 		LM_ERR("parse repl failed\n");
+ 		goto error;
+ 	}
+ 
+-	repl_end=p;
++	repl_end = p;
+ 
+ 	/* construct the subst_expr structure */
+-	se = shm_malloc(sizeof(struct subst_expr)+
+-			((rw_no)?(rw_no-1)*sizeof(struct replace_with):0));
++	se = shm_malloc(
++			sizeof(struct subst_expr)
++			+ ((rw_no) ? (rw_no - 1) * sizeof(struct replace_with) : 0));
+ 	/* 1 replace_with structure is  already included in subst_expr */
+-	if (se==0){
++	if(se == 0) {
+ 		LM_ERR("out of shm memory (subst_expr)\n");
+ 		goto error;
+ 	}
+-	memset((void*)se, 0, sizeof(struct subst_expr));
++	memset((void *)se, 0, sizeof(struct subst_expr));
+ 
+ 	se->replacement.s = shms.s;
+ 	shms.s = NULL;
+-	se->replacement.len=repl_end-repl;
+-	if(!rw_no){
++	se->replacement.len = repl_end - repl;
++	if(!rw_no) {
+ 		replace_all = 1;
+ 	}
+ 	/* start copying */
+ 	LM_DBG("replacement expression is [%.*s]\n", se->replacement.len,
+ 			se->replacement.s);
+-	se->re=0;
+-	se->replace_all=replace_all;
+-	se->n_escapes=rw_no;
+-	se->max_pmatch=max_pmatch;
++	se->re = 0;
++	se->replace_all = replace_all;
++	se->n_escapes = rw_no;
++	se->max_pmatch = max_pmatch;
+ 
+ 	/*replace_with is a simple structure, no shm alloc needed*/
+-	for (r=0; r<rw_no; r++) se->replace[r]=rw[r];
++	for(r = 0; r < rw_no; r++)
++		se->replace[r] = rw[r];
+ 	return se;
+ 
+ error:
+@@ -384,17 +397,17 @@ error:
+ }
+ 
+ 
+-#define MAX_PHONE_NB_DIGITS		127
+-static char dp_output_buf[MAX_PHONE_NB_DIGITS+1];
++#define MAX_PHONE_NB_DIGITS 127
++static char dp_output_buf[MAX_PHONE_NB_DIGITS + 1];
+ int rule_translate(sip_msg_t *msg, str *instr, dpl_node_t *rule,
+ 		pcre *subst_comp, str *result)
+ {
+ 	int repl_nb, offset, match_nb, rc, cap_cnt;
+ 	struct replace_with token;
+-	struct subst_expr * repl_comp;
++	struct subst_expr *repl_comp;
+ 	str match;
+ 	pv_value_t sv;
+-	str* uri;
++	str *uri;
+ 	int ovector[3 * (MAX_REPLACE_WITH + 1)];
+ 	char *p;
+ 	int size;
+@@ -404,53 +417,50 @@ int rule_translate(sip_msg_t *msg, str *
+ 	result->len = 0;
+ 
+ 	repl_comp = rule->repl_comp;
+-	if(!repl_comp){
++	if(!repl_comp) {
+ 		LM_DBG("null replacement\n");
+ 		return 0;
+ 	}
+ 
+-	if(subst_comp){
++	if(subst_comp) {
+ 		/*just in case something went wrong at load time*/
+-		rc = pcre_fullinfo(subst_comp, NULL, PCRE_INFO_CAPTURECOUNT,
+-				&cap_cnt);
+-		if (rc != 0) {
+-			LM_ERR("pcre_fullinfo on compiled pattern yielded error: %d\n",
+-					rc);
++		rc = pcre_fullinfo(subst_comp, NULL, PCRE_INFO_CAPTURECOUNT, &cap_cnt);
++		if(rc != 0) {
++			LM_ERR("pcre_fullinfo on compiled pattern yielded error: %d\n", rc);
+ 			return -1;
+ 		}
+-		if(repl_comp->max_pmatch > cap_cnt){
++		if(repl_comp->max_pmatch > cap_cnt) {
+ 			LM_ERR("illegal access to %i-th subexpr of subst expr (max %d)\n",
+ 					repl_comp->max_pmatch, cap_cnt);
+ 			return -1;
+ 		}
+-		if (rule->tflags&DP_TFLAGS_PV_SUBST && (cap_cnt > MAX_REPLACE_WITH)) {
++		if(rule->tflags & DP_TFLAGS_PV_SUBST && (cap_cnt > MAX_REPLACE_WITH)) {
+ 			LM_ERR("subst expression %.*s has too many sub-expressions\n",
+-				rule->subst_exp.len, rule->subst_exp.s);
++					rule->subst_exp.len, rule->subst_exp.s);
+ 			return -1;
+ 		}
+ 
+ 		/*search for the pattern from the compiled subst_exp*/
+-		if (pcre_exec(subst_comp, NULL, instr->s, instr->len,
+-					0, 0, ovector, 3 * (MAX_REPLACE_WITH + 1)) <= 0) {
++		if(pcre_exec(subst_comp, NULL, instr->s, instr->len, 0, 0, ovector,
++				   3 * (MAX_REPLACE_WITH + 1))
++				<= 0) {
+ 			LM_DBG("the string %.*s matched "
+-					"the match_exp %.*s but not the subst_exp %.*s!\n",
+-					instr->len, instr->s,
+-					rule->match_exp.len, rule->match_exp.s,
+-					rule->subst_exp.len, rule->subst_exp.s);
++				   "the match_exp %.*s but not the subst_exp %.*s!\n",
++					instr->len, instr->s, rule->match_exp.len,
++					rule->match_exp.s, rule->subst_exp.len, rule->subst_exp.s);
+ 			return -1;
+ 		}
+ 	}
+ 
+ 	/*simply copy from the replacing string*/
+-	if(!subst_comp || (repl_comp->n_escapes <=0)){
+-		if(!repl_comp->replacement.s || repl_comp->replacement.len == 0){
++	if(!subst_comp || (repl_comp->n_escapes <= 0)) {
++		if(!repl_comp->replacement.s || repl_comp->replacement.len == 0) {
+ 			LM_ERR("invalid replacing string\n");
+ 			goto error;
+ 		}
+ 		LM_DBG("simply replace the string, subst_comp %p, n_escapes %i\n",
+ 				subst_comp, repl_comp->n_escapes);
+-		memcpy(result->s, repl_comp->replacement.s,
+-				repl_comp->replacement.len);
++		memcpy(result->s, repl_comp->replacement.s, repl_comp->replacement.len);
+ 		result->len = repl_comp->replacement.len;
+ 		result->s[result->len] = '\0';
+ 		return 0;
+@@ -458,91 +468,90 @@ int rule_translate(sip_msg_t *msg, str *
+ 
+ 	/* offset- offset in the replacement string */
+ 	result->len = repl_nb = offset = 0;
+-	p=repl_comp->replacement.s;
++	p = repl_comp->replacement.s;
+ 
+-	while( repl_nb < repl_comp->n_escapes){
++	while(repl_nb < repl_comp->n_escapes) {
+ 
+ 		token = repl_comp->replace[repl_nb];
+ 
+-		if(offset< token.offset){
+-			if((repl_comp->replacement.len < offset)||
+-					(result->len + token.offset -offset >= MAX_PHONE_NB_DIGITS)){
++		if(offset < token.offset) {
++			if((repl_comp->replacement.len < offset)
++					|| (result->len + token.offset - offset
++							>= MAX_PHONE_NB_DIGITS)) {
+ 				LM_ERR("invalid length\n");
+ 				goto error;
+ 			}
+ 			/*copy from the replacing string*/
+ 			size = token.offset - offset;
+ 			memcpy(result->s + result->len, p + offset, size);
+-			LM_DBG("copying <%.*s> from replacing string\n",
+-					size, p + offset);
++			LM_DBG("copying <%.*s> from replacing string\n", size, p + offset);
+ 			result->len += size;
+ 			offset = token.offset;
+ 		}
+ 
+ 		switch(token.type) {
+ 			case REPLACE_NMATCH:
+-				/*copy from the match subexpression*/	
++				/*copy from the match subexpression*/
+ 				match_nb = token.u.nmatch * 2;
+-				match.s =  instr->s + ovector[match_nb];
++				match.s = instr->s + ovector[match_nb];
+ 				match.len = ovector[match_nb + 1] - ovector[match_nb];
+-				if(result->len + match.len >= MAX_PHONE_NB_DIGITS){
++				if(result->len + match.len >= MAX_PHONE_NB_DIGITS) {
+ 					LM_ERR("overflow\n");
+ 					goto error;
+ 				}
+ 
+ 				memcpy(result->s + result->len, match.s, match.len);
+-				LM_DBG("copying match <%.*s> token size %d\n",
+-						match.len, match.s, token.size);
++				LM_DBG("copying match <%.*s> token size %d\n", match.len,
++						match.s, token.size);
+ 				result->len += match.len;
+ 				offset += token.size;
+ 				break;
+ 			case REPLACE_CHAR:
+-				if(result->len + 1>= MAX_PHONE_NB_DIGITS){
++				if(result->len + 1 >= MAX_PHONE_NB_DIGITS) {
+ 					LM_ERR("overflow\n");
+ 					goto error;
+ 				}
+ 				*(result->s + result->len) = token.u.c;
+-				LM_DBG("copying char <%c> token size %d\n",
+-						token.u.c, token.size);
++				LM_DBG("copying char <%c> token size %d\n", token.u.c,
++						token.size);
+ 				result->len++;
+ 				offset += token.size;
+ 				break;
+-			case REPLACE_URI:	
+-				if ( msg== NULL || msg->first_line.type!=SIP_REQUEST){
++			case REPLACE_URI:
++				if(msg == NULL || msg->first_line.type != SIP_REQUEST) {
+ 					LM_CRIT("uri substitution attempt on no request"
+ 							" message\n");
+ 					break; /* ignore, we can continue */
+ 				}
+-				uri= (msg->new_uri.s)?(&msg->new_uri):
+-					(&msg->first_line.u.request.uri);
+-				if(result->len+uri->len>=MAX_PHONE_NB_DIGITS){
++				uri = (msg->new_uri.s) ? (&msg->new_uri)
++									   : (&msg->first_line.u.request.uri);
++				if(result->len + uri->len >= MAX_PHONE_NB_DIGITS) {
+ 					LM_ERR("overflow\n");
+ 					goto error;
+ 				}
+ 				memcpy(result->s + result->len, uri->s, uri->len);
+-				LM_DBG("copying uri <%.*s> token size %d\n",
+-						uri->len, uri->s, token.size);
+-				result->len+=uri->len;
++				LM_DBG("copying uri <%.*s> token size %d\n", uri->len, uri->s,
++						token.size);
++				result->len += uri->len;
+ 				offset += token.size;
+ 				break;
+ 			case REPLACE_SPEC:
+-				if (msg== NULL) {
++				if(msg == NULL) {
+ 					LM_DBG("replace spec attempted on no message\n");
+ 					break;
+ 				}
+-				if (pv_get_spec_value(msg, &token.u.spec, &sv) != 0) {
++				if(pv_get_spec_value(msg, &token.u.spec, &sv) != 0) {
+ 					LM_CRIT("item substitution returned error\n");
+ 					break; /* ignore, we can continue */
+ 				}
+-				if(result->len+sv.rs.len>=MAX_PHONE_NB_DIGITS){
++				if(result->len + sv.rs.len >= MAX_PHONE_NB_DIGITS) {
+ 					LM_ERR("rule_translate: overflow\n");
+ 					goto error;
+ 				}
+-				memcpy(result->s + result->len, sv.rs.s,
+-						sv.rs.len);
+-				LM_DBG("copying pvar value <%.*s> token size %d\n",
+-						sv.rs.len, sv.rs.s, token.size);
+-				result->len+=sv.rs.len;
++				memcpy(result->s + result->len, sv.rs.s, sv.rs.len);
++				LM_DBG("copying pvar value <%.*s> token size %d\n", sv.rs.len,
++						sv.rs.s, token.size);
++				result->len += sv.rs.len;
+ 				offset += token.size;
+ 				break;
+ 			default:
+@@ -552,12 +561,12 @@ int rule_translate(sip_msg_t *msg, str *
+ 		repl_nb++;
+ 	}
+ 	/* anything left? */
+-	if( repl_nb && offset < repl_comp->replacement.len){
++	if(repl_nb && offset < repl_comp->replacement.len) {
+ 		/*copy from the replacing string*/
+ 		size = repl_comp->replacement.len - offset;
+ 		memcpy(result->s + result->len, p + offset, size);
+-		LM_DBG("copying leftover <%.*s> from replacing string\n",
+-				size, p + offset);
++		LM_DBG("copying leftover <%.*s> from replacing string\n", size,
++				p + offset);
+ 		result->len += size;
+ 	}
+ 
+@@ -570,10 +579,10 @@ error:
+ 	return -1;
+ }
+ 
+-#define DP_MAX_ATTRS_LEN	255
+-static char dp_attrs_buf[DP_MAX_ATTRS_LEN+1];
+-int dp_translate_helper(sip_msg_t *msg, str *input, str *output, dpl_id_p idp,
+-		str *attrs)
++#define DP_MAX_ATTRS_LEN 255
++static char dp_attrs_buf[DP_MAX_ATTRS_LEN + 1];
++int dp_translate_helper(
++		sip_msg_t *msg, str *input, str *output, dpl_id_p idp, str *attrs)
+ {
+ 	dpl_node_p rulep;
+ 	dpl_index_p indexp;
+@@ -588,70 +597,70 @@ int dp_translate_helper(sip_msg_t *msg,
+ 	}
+ 
+ 	user_len = input->len;
+-	for(indexp = idp->first_index; indexp!=NULL; indexp = indexp->next)
+-		if(!indexp->len || (indexp->len!=0 && indexp->len == user_len) )
++	for(indexp = idp->first_index; indexp != NULL; indexp = indexp->next)
++		if(!indexp->len || (indexp->len != 0 && indexp->len == user_len))
+ 			break;
+ 
+-	if(!indexp || (indexp!= NULL && !indexp->first_rule)){
++	if(!indexp || (indexp != NULL && !indexp->first_rule)) {
+ 		LM_DBG("no rule for len %i\n", input->len);
+ 		return -1;
+ 	}
+ 
+ search_rule:
+-	for(rulep=indexp->first_rule; rulep!=NULL; rulep= rulep->next) {
++	for(rulep = indexp->first_rule; rulep != NULL; rulep = rulep->next) {
+ 		switch(rulep->matchop) {
+ 
+ 			case DP_REGEX_OP:
+-				LM_DBG("regex operator testing over [%.*s]\n",
+-						input->len, input->s);
+-				if(rulep->tflags&DP_TFLAGS_PV_MATCH) {
++				LM_DBG("regex operator testing over [%.*s]\n", input->len,
++						input->s);
++				if(rulep->tflags & DP_TFLAGS_PV_MATCH) {
+ 					re_list = dpl_dynamic_pcre_list(msg, &rulep->match_exp);
+-					if(re_list==NULL) {
++					if(re_list == NULL) {
+ 						/* failed to compile dynamic pcre -- ignore */
+ 						LM_DBG("failed to compile dynamic pcre[%.*s]\n",
+-							rulep->match_exp.len, rulep->match_exp.s);
++								rulep->match_exp.len, rulep->match_exp.s);
+ 						continue;
+ 					}
+ 					rez = -1;
+ 					do {
+-						if(rez<0) {
+-							rez = pcre_exec(re_list->re, NULL, input->s, input->len,
+-									0, 0, NULL, 0);
++						if(rez < 0) {
++							rez = pcre_exec(re_list->re, NULL, input->s,
++									input->len, 0, 0, NULL, 0);
+ 							LM_DBG("match check: [%.*s] %d\n",
+-								re_list->expr.len, re_list->expr.s, rez);
+-						}
+-						else LM_DBG("match check skipped: [%.*s] %d\n",
+-								re_list->expr.len, re_list->expr.s, rez);
++									re_list->expr.len, re_list->expr.s, rez);
++						} else
++							LM_DBG("match check skipped: [%.*s] %d\n",
++									re_list->expr.len, re_list->expr.s, rez);
+ 						rt = re_list->next;
+ 						pcre_free(re_list->re);
+ 						pkg_free(re_list);
+ 						re_list = rt;
+ 					} while(re_list);
+ 				} else {
+-					rez = pcre_exec(rulep->match_comp, NULL, input->s, input->len,
+-						0, 0, NULL, 0);
++					rez = pcre_exec(rulep->match_comp, NULL, input->s,
++							input->len, 0, 0, NULL, 0);
+ 				}
+ 				break;
+ 
+ 			case DP_EQUAL_OP:
+ 				LM_DBG("equal operator testing\n");
+-				if(rulep->match_exp.s==NULL
++				if(rulep->match_exp.s == NULL
+ 						|| rulep->match_exp.len != input->len) {
+ 					rez = -1;
+ 				} else {
+ 					rez = strncmp(rulep->match_exp.s, input->s, input->len);
+-					rez = (rez==0)?0:-1;
++					rez = (rez == 0) ? 0 : -1;
+ 				}
+ 				break;
+ 
+ 			case DP_FNMATCH_OP:
+ 				LM_DBG("fnmatch operator testing\n");
+-				if(rulep->match_exp.s!=NULL) {
++				if(rulep->match_exp.s != NULL) {
+ 					b = input->s[input->len];
+ 					input->s[input->len] = '\0';
+ 					rez = fnmatch(rulep->match_exp.s, input->s, 0);
+ 					input->s[input->len] = b;
+-					rez = (rez==0)?0:-1;
++					rez = (rez == 0) ? 0 : -1;
+ 				} else {
+ 					rez = -1;
+ 				}
+@@ -665,8 +674,8 @@ search_rule:
+ 			goto repl;
+ 	}
+ 	/*test the rules with len 0*/
+-	if(indexp->len){
+-		for(indexp = indexp->next; indexp!=NULL; indexp = indexp->next)
++	if(indexp->len) {
++		for(indexp = indexp->next; indexp != NULL; indexp = indexp->next)
+ 			if(!indexp->len)
+ 				break;
+ 		if(indexp)
+@@ -677,63 +686,61 @@ search_rule:
+ 	return -1;
+ 
+ repl:
+-	LM_DBG("found a matching rule %p: pr %i, match_exp %.*s\n",
+-			rulep, rulep->pr, rulep->match_exp.len, rulep->match_exp.s);
++	LM_DBG("found a matching rule %p: pr %i, match_exp %.*s\n", rulep,
++			rulep->pr, rulep->match_exp.len, rulep->match_exp.s);
+ 
+ 	if(attrs) {
+ 		attrs->len = 0;
+ 		attrs->s = 0;
+-		if(rulep->attrs.len>0) {
+-			LM_DBG("the rule's attrs are %.*s\n",
+-					rulep->attrs.len, rulep->attrs.s);
++		if(rulep->attrs.len > 0) {
++			LM_DBG("the rule's attrs are %.*s\n", rulep->attrs.len,
++					rulep->attrs.s);
+ 			if(rulep->attrs.len >= DP_MAX_ATTRS_LEN) {
+ 				LM_ERR("out of memory for attributes\n");
+ 				return -1;
+ 			}
+ 			attrs->s = dp_attrs_buf;
+-			memcpy(attrs->s, rulep->attrs.s, rulep->attrs.len*sizeof(char));
++			memcpy(attrs->s, rulep->attrs.s, rulep->attrs.len * sizeof(char));
+ 			attrs->len = rulep->attrs.len;
+ 			attrs->s[attrs->len] = '\0';
+ 
+-			LM_DBG("the copied attributes are: %.*s\n",
+-					attrs->len, attrs->s);
++			LM_DBG("the copied attributes are: %.*s\n", attrs->len, attrs->s);
+ 		}
+ 	}
+ 	if(!output) {
+ 		return 0;
+ 	}
+-	if(rulep->tflags&DP_TFLAGS_PV_SUBST) {
++	if(rulep->tflags & DP_TFLAGS_PV_SUBST) {
+ 		re_list = dpl_dynamic_pcre_list(msg, &rulep->subst_exp);
+-		if(re_list==NULL) {
++		if(re_list == NULL) {
+ 			/* failed to compile dynamic pcre -- ignore */
+ 			LM_DBG("failed to compile dynamic pcre[%.*s]\n",
+-				rulep->subst_exp.len, rulep->subst_exp.s);
++					rulep->subst_exp.len, rulep->subst_exp.s);
+ 			return -1;
+ 		}
+ 		rez = -1;
+ 		do {
+-			if(rez<0) {
++			if(rez < 0) {
+ 				rez = rule_translate(msg, input, rulep, re_list->re, output);
+-				LM_DBG("subst check: [%.*s] %d\n",
+-					re_list->expr.len, re_list->expr.s, rez);
+-			}
+-			else LM_DBG("subst check skipped: [%.*s] %d\n",
+-					re_list->expr.len, re_list->expr.s, rez);
++				LM_DBG("subst check: [%.*s] %d\n", re_list->expr.len,
++						re_list->expr.s, rez);
++			} else
++				LM_DBG("subst check skipped: [%.*s] %d\n", re_list->expr.len,
++						re_list->expr.s, rez);
+ 			rt = re_list->next;
+ 			pcre_free(re_list->re);
+ 			pkg_free(re_list);
+ 			re_list = rt;
+ 		} while(re_list);
+-		if(rez<0) {
++		if(rez < 0) {
+ 			LM_ERR("the string %.*s matched "
+-				"the match_exp %.*s but not the subst_exp %.*s!\n",
+-				input->len, input->s,
+-				rulep->match_exp.len, rulep->match_exp.s,
+-				rulep->subst_exp.len, rulep->subst_exp.s);
++				   "the match_exp %.*s but not the subst_exp %.*s!\n",
++					input->len, input->s, rulep->match_exp.len,
++					rulep->match_exp.s, rulep->subst_exp.len,
++					rulep->subst_exp.s);
+ 		}
+-	}
+-	else {
+-		if(rule_translate(msg, input, rulep, rulep->subst_comp, output)!=0){
++	} else {
++		if(rule_translate(msg, input, rulep, rulep->subst_comp, output) != 0) {
+ 			LM_ERR("could not build the output\n");
+ 			return -1;
+ 		}

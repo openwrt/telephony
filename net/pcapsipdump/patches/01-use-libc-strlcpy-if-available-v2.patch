@@ -1,0 +1,66 @@
+--- a/Makefile
++++ b/Makefile
+@@ -2,11 +2,14 @@ LIBS ?= -lpcap -lstdc++
+ RELEASEFLAGS ?= -O3 -Wall
+ #CXXFLAGS ?= --std=c++0x
+ 
+-# auto-detect if bsd/strings.h is available
+-ifeq ($(shell $(CXX) $(CXXFLAGS) $(LDFLAGS) $(DEFS) -E -o /dev/null \
+-    	make-checks/libbsd.cpp 2>/dev/null; echo $$?),0)
+-	BSDSTR_DEFS := -DUSE_BSD_STRING_H
+-	BSDSTR_LIBS := -lbsd
++# check if libc provides BSD's strlcpy
++ifeq ($(shell $(CXX) $(CXXFLAGS) -D_BSD_SOURCE $(LDFLAGS) $(DEFS) -o /dev/null \
++	make-checks/strlcpy.cpp 2>/dev/null; echo $$?),0)
++	BSDSTR_DEFS := -D_BSD_SOURCE
++# use libbsd's strlcpy
++else
++	BSDSTR_DEFS != pkg-config --cflags libbsd-overlay
++	BSDSTR_LIBS != pkg-config --libs   libbsd-overlay
+ endif
+ 
+ # auto-detect rhel/fedora and debian/ubuntu
+--- a/pcapsipdump_lib.h
++++ b/pcapsipdump_lib.h
+@@ -1,13 +1,5 @@
+ #include <sys/stat.h>
+ 
+-#ifndef BSD
+-  #ifdef USE_BSD_STRING_H
+-    #include <bsd/string.h>
+-  #else
+-    #define strlcpy strncpy
+-  #endif
+-#endif
+-
+ // equivalent of "mkdir -p"
+ int mkdir_p(const char *path, mode_t mode);
+ 
+--- a/make-checks/all.mk
++++ b/make-checks/all.mk
+@@ -1,5 +1,5 @@
+-make-checks/all: make-checks/cxx make-checks/libpcap make-checks/libbsd
++make-checks/all: make-checks/cxx make-checks/libpcap make-checks/strlcpy
+ 	@touch make-checks/all
+ 
+ make-checks/clean:
+-	rm -f make-checks/all make-checks/cxx make-checks/libpcap make-checks/libbsd
++	rm -f make-checks/all make-checks/cxx make-checks/libpcap make-checks/strlcpy
+--- /dev/null
++++ b/make-checks/strlcpy.cpp
+@@ -0,0 +1,6 @@
++#include <string.h>
++int main(int argc, char **argv) {
++	char dst[10];
++	strlcpy(dst, "test", sizeof(dst));
++	return 0;
++}
+--- /dev/null
++++ b/make-checks/strlcpy.mk
+@@ -0,0 +1,6 @@
++CHECK_STRLCPY = $(CXX) $(CXXFLAGS) -D_BSD_SOURCE $(LDFLAGS) make-checks/strlcpy.cpp -o make-checks/strlcpy 2>/dev/null
++
++make-checks/strlcpy:
++	@$(CHECK_STRLCPY) || (\
++	  echo "*** notice: your libc doesn't provide strlcpy()"; \
++	  true)

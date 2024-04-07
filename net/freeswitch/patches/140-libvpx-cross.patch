@@ -1,0 +1,19 @@
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -557,8 +557,15 @@ src/include/switch_version.h: src/includ
+ libs/libedit/src/.libs/libedit.a:
+ 	cd libs/libedit && $(MAKE)
+ 
++# !!! OpenWrt was here !!!
++# - added CROSS and set target to generic-gnu for cross-compile
++# - added CPPFLAGS to CFLAGS, otherwise they would be ignored
++# - disabled optimizations that would override OpenWrt's CFLAGS
++# - disabled the building of tools (because they fail to build and we
++#   don't need them anyway)
++
+ libs/libvpx/Makefile: libs/libvpx/.update
+-	cd libs/libvpx && CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(VISIBILITY_FLAG)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-unit-tests --size-limit=16384x16384
++	cd libs/libvpx && CROSS="$(CROSS)" CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) $(CPPFLAGS) $(VISIBILITY_FLAG)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --target=generic-gnu --disable-optimizations --enable-pic --disable-docs --disable-examples --disable-install-bins --disable-install-srcs --disable-tools --disable-unit-tests --size-limit=16384x16384
+ 
+ libs/libvpx/libvpx.a: libs/libvpx/Makefile libs/libvpx/.update
+ 	@cd libs/libvpx && $(MAKE)

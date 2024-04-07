@@ -1,0 +1,133 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2014 CESNET, z.s.p.o
+# Copyright (C) 2018 OpenWrt.org
+
+START=90
+
+NAME=rtpproxy
+COMMAND="/usr/bin/$NAME"
+
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+LOGGER="/usr/bin/logger -t $NAME"
+LOG_ERR="$LOGGER -p user.err -s"
+
+run_instance() {
+	procd_open_instance
+	procd_set_param command $COMMAND
+	procd_append_param command \
+		$1 \
+		-p "/var/run/$NAME-$2.pid" \
+		-f
+	# forward stderr to logd
+	procd_set_param stderr 1
+	procd_close_instance
+
+	$LOGGER instance $2 has started
+}
+
+check_ip() {
+	local tmp_addr
+
+	if [ "$1" = "ipaddr" ]; then
+		network_get_ipaddr tmp_addr "$2" || tmp_addr="$2"
+	else
+		network_get_ipaddr6 tmp_addr "$2" || tmp_addr="$2"
+	fi
+
+	echo "$tmp_addr"
+}
+
+check_ipaddr() {
+	local value="$1"
+	local type="$2"
+	local param="$3"
+	local one two
+
+	[ -z "$value" ] && {
+		$LOG_ERR empty $type entry
+		return 1
+	}
+
+	# Bail if more than 1 slash.
+	[ $(echo "$value" | awk -F "/" '{print NF-1}') -gt 1 ] && {
+		$LOG_ERR init script does not understand $type entry \""$value"\"
+		return 1
+	}
+
+	IFS="/" read one two << EOF
+$value
+EOF
+
+	one="$(check_ip "$type" "$one")"
+	if [ -n "$two" ]; then
+		two="$(check_ip "$type" "$two")"
+		rtpproxy_options=$rtpproxy_options" $param $one/$two"
+	else
+		rtpproxy_options=$rtpproxy_options" $param $one"
+	fi
+}
+
+check_param() {
+	local param="$1"
+	local value="$2"
+	local default_value="$3"
+
+	if [ "$value" != "" ]; then
+		rtpproxy_options=$rtpproxy_options" $param $value"
+	else
+		if [ "$default_value" != "" ]; then
+			rtpproxy_options=$rtpproxy_options" $param $default_value"
+		fi
+	fi
+}
+
+check_special_param() {
+	local param="$1"
+
+	if [ "$param" != "" ]; then
+		rtpproxy_options=$rtpproxy_options" $param"
+	fi
+}
+
+handle_instance() {
+	local site="$1"
+	local socket opts ipaddr ip6addr rtpproxy_options log_level
+
+	config_get socket	"$site" socket
+	config_get opts		"$site" opts
+	config_get ipaddr	"$site" ipaddr
+	config_get ip6addr	"$site" ip6addr
+	config_get user		"$site" user
+	config_get log_level	"$site" log_level
+
+	check_param "-s" "$socket"
+	check_param "-u" "$user"	"nobody"
+	check_param "-d" "$log_level"	"DBUG"
+
+	check_special_param "$opts"
+
+	[ -n "$ipaddr" ]	&& check_ipaddr "$ipaddr"	ipaddr	'-l'
+	[ -n "$ip6addr" ]	&& check_ipaddr "$ip6addr"	ip6addr	'-6'
+
+	run_instance "$rtpproxy_options" "$site"
+}
+
+start_service() {
+	local enabled
+
+	config_load $NAME
+
+	config_get_bool enabled global enabled 0
+
+	if [ "$enabled" -eq 1 ]; then
+		. /lib/functions/network.sh
+		config_foreach handle_instance instance
+	else
+		$LOG_ERR service not enabled
+		$LOG_ERR edit /etc/config/$NAME
+	fi
+}
+

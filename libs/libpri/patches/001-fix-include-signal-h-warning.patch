@@ -1,0 +1,22 @@
+--- a/pritest.c
++++ b/pritest.c
+@@ -41,7 +41,7 @@
+ #include <sys/ioctl.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <sys/signal.h>
++#include <signal.h>
+ #include <sys/select.h>
+ #include <sys/wait.h>
+ #include <sys/resource.h>
+--- a/testprilib.c
++++ b/testprilib.c
+@@ -41,7 +41,7 @@
+ #include <sys/ioctl.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <sys/signal.h>
++#include <signal.h>
+ #include <sys/select.h>
+ #include <sys/wait.h>
+ #include <sys/resource.h>

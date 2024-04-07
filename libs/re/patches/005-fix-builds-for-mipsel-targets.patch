@@ -1,0 +1,14 @@
+--- a/mk/re.mk
++++ b/mk/re.mk
+@@ -412,11 +412,6 @@ endif
+ 
+ CFLAGS	+= -DARCH=\"$(ARCH)\"
+ 
+-ifeq ($(ARCH),mipsel)
+-CFLAGS += -march=mips32
+-endif
+-
+-
+ ##############################################################################
+ #
+ # External libraries section

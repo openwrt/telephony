@@ -1,0 +1,23 @@
+From ec0c59a798ff1124295e7d5d82c2e30f1226cc07 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C3=89rico=20Nogueira?= <erico.erc@gmail.com>
+Date: Fri, 29 Oct 2021 00:17:05 -0300
+Subject: [PATCH] [core] fix switch_mprintf format string
+
+Segfaults on 32-bit platforms running musl 1.2.x.
+
+Reported-by: Sebastian Kemper <sebastian_ml@gmx.net>
+---
+ src/switch_core_sqldb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/switch_core_sqldb.c
++++ b/src/switch_core_sqldb.c
+@@ -3553,7 +3553,7 @@ SWITCH_DECLARE(switch_status_t) switch_c
+ 	if (force) {
+ 		sql = switch_mprintf("delete from registrations where hostname='%q'", switch_core_get_switchname());
+ 	} else {
+-		sql = switch_mprintf("delete from registrations where expires > 0 and expires <= %ld and hostname='%q'", now, switch_core_get_switchname());
++		sql = switch_mprintf("delete from registrations where expires > 0 and expires <= %" TIME_T_FMT " and hostname='%q'", TIME_T_CAST(now), switch_core_get_switchname());
+ 	}
+ 
+ 	switch_sql_queue_manager_push(sql_manager.qm, sql, 0, SWITCH_FALSE);

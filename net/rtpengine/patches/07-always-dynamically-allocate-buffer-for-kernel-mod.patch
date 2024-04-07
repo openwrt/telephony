@@ -1,0 +1,46 @@
+--- a/kernel-module/xt_RTPENGINE.c
++++ b/kernel-module/xt_RTPENGINE.c
+@@ -3781,7 +3781,6 @@ static inline ssize_t proc_control_read_
+ 	struct rtpengine_table *t;
+ 	int err;
+ 	enum rtpengine_command cmd;
+-	char scratchbuf[512];
+ 	size_t readlen, writelen, writeoffset;
+ 	int i;
+ 
+@@ -3823,13 +3822,9 @@ static inline ssize_t proc_control_read_
+ 		return -ERANGE;
+ 
+ 	// do we need an extra large storage buffer?
+-	if (buflen > sizeof(scratchbuf)) {
+-		msg.storage = kmalloc(buflen, GFP_KERNEL);
+-		if (!msg.storage)
+-			return -ENOMEM;
+-	}
+-	else
+-		msg.storage = scratchbuf;
++	msg.storage = kmalloc(buflen, GFP_KERNEL);
++	if (!msg.storage)
++		return -ENOMEM;
+ 
+ 	// get our table
+ 	inode = file->f_path.dentry->d_inode;
+@@ -3942,16 +3937,14 @@ static inline ssize_t proc_control_read_
+ 			goto err_free;
+ 	}
+ 
+-	if (msg.storage != scratchbuf)
+-		kfree(msg.storage);
++	kfree(msg.storage);
+ 
+ 	return buflen;
+ 
+ err_table_free:
+ 	table_put(t);
+ err_free:
+-	if (msg.storage != scratchbuf)
+-		kfree(msg.storage);
++	kfree(msg.storage);
+ 	return err;
+ }
+ static ssize_t proc_control_write(struct file *file, const char __user *ubuf, size_t buflen, loff_t *off) {

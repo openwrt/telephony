@@ -1,0 +1,20 @@
+--- a/src/mod/endpoints/mod_verto/mod_verto.c
++++ b/src/mod/endpoints/mod_verto/mod_verto.c
+@@ -1121,7 +1121,7 @@ static switch_bool_t check_auth(jsock_t
+ 
+ 						if (tmp > now) {
+ 							jsock->exptime = tmp;
+-							switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Login expire time for %s set to %ld seconds [%ld] [%ld]\n", jsock->uid, tmp - now, jsock->exptime, now);
++							switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Login expire time for %s set to %" TIME_T_FMT " seconds [%" TIME_T_FMT "] [%" TIME_T_FMT "]\n", jsock->uid, TIME_T_CAST(tmp - now), TIME_T_CAST(jsock->exptime), TIME_T_CAST(now));
+ 						} else {
+ 							switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Invalid expire time for %s. Defaulting to 300 sec\n", jsock->uid);
+ 							jsock->exptime = now + 300;
+@@ -2003,7 +2003,7 @@ static void client_run(jsock_t *jsock)
+ 
+ 			if (now >= jsock->exptime) {
+ 				switch_set_flag(jsock, JPFLAG_AUTH_EXPIRED);
+-				die("%s Authentication Expired [%ld] >= [%ld]\n", jsock->uid, now, jsock->exptime);
++				die("%s Authentication Expired [%" TIME_T_FMT "] >= [%" TIME_T_FMT "]\n", jsock->uid, TIME_T_CAST(now), TIME_T_CAST(jsock->exptime));
+ 			}
+ 
+ 		}

@@ -1,0 +1,11 @@
+--- a/autoconf/acinclude.m4
++++ b/autoconf/acinclude.m4
+@@ -497,7 +497,7 @@ AC_DEFUN([CS_GET_VERSION], [
+   SCCP_REVISION="unknown"
+ 
+   CURRENT=`pwd`
+-  BASE=`dirname $ac_dir`
++  BASE=`dirname $ac_aux_dir`
+   cd $BASE >/dev/null
+   . ./tools/versioncheck silent
+   cd $CURRENT >/dev/null

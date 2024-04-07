@@ -1,0 +1,20 @@
+--- a/src/dns/res.c
++++ b/src/dns/res.c
+@@ -26,7 +26,7 @@ int get_resolv_dns(char *domain, size_t
+ 	uint32_t i;
+ 	int ret, err;
+ 
+-#ifdef OPENBSD
++#if defined(OPENBSD) || defined(OPENWRT)
+ 	ret = res_init();
+ 	state = _res;
+ #else
+@@ -76,7 +76,7 @@ int get_resolv_dns(char *domain, size_t
+ 	*n = i;
+ 
+  out:
+-#ifdef OPENBSD
++#if defined(OPENBSD) || defined(OPENWRT)
+ #else
+ 	res_nclose(&state);
+ #endif

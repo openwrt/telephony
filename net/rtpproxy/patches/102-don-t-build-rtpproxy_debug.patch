@@ -1,0 +1,32 @@
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -5,7 +5,7 @@ include $(top_srcdir)/autosrc/Makefile.a
+ 
+ UCL_DIR=$(top_srcdir)/external/libucl
+ 
+-bin_PROGRAMS=rtpproxy rtpproxy_debug
++bin_PROGRAMS=rtpproxy
+ noinst_PROGRAMS = rtpp_rzmalloc_perf rtpp_fintest
+ 
+ if BUILD_OBJCK
+--- a/modules/acct_csv/Makefile.am
++++ b/modules/acct_csv/Makefile.am
+@@ -1,6 +1,6 @@
+ include $(top_srcdir)/m4/memdeb.ami
+ 
+-pkglib_LTLIBRARIES = rtpp_acct_csv.la rtpp_acct_csv_debug.la
++pkglib_LTLIBRARIES = rtpp_acct_csv.la
+ 
+ rtpp_acct_csv_la_SOURCES = rtpp_acct_csv.c
+ rtpp_acct_csv_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+--- a/modules/acct_rtcp_hep/Makefile.am
++++ b/modules/acct_rtcp_hep/Makefile.am
+@@ -3,7 +3,7 @@ include $(top_srcdir)/m4/memdeb.ami
+ HEPSRCDIR=$(top_srcdir)/hepconnector
+ UCLSRCDIR=$(top_srcdir)/external/libucl
+ 
+-pkglib_LTLIBRARIES = rtpp_acct_rtcp_hep.la rtpp_acct_rtcp_hep_debug.la
++pkglib_LTLIBRARIES = rtpp_acct_rtcp_hep.la
+ 
+ noinst_PROGRAMS = rtcp2json_test
+ rtcp2json_test_SOURCES = rtcp2json_test.c rtpp_sbuf.c rtcp2json.c

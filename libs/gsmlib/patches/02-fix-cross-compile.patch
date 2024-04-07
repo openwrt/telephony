@@ -1,0 +1,21 @@
+--- a/configure.in
++++ b/configure.in
+@@ -60,7 +60,7 @@ AC_PROG_CPP
+ AC_PROG_CXX
+ 
+ dnl check for gcc 2.95.x
+-AC_TRY_RUN([
++AC_RUN_IFELSE([
+ #include <unistd.h>
+ main()
+ {
+@@ -72,7 +72,8 @@ main()
+ }
+ ],,
+ [echo "need at least gcc 2.95 to compile correctly"
+-exit 1])
++exit 1],
++[echo "checking if at least gcc 2.95 is available... cross-compiling (assuming yes)"])
+ 
+ dnl check for alloca
+ AC_FUNC_ALLOCA

@@ -1,0 +1,19 @@
+--- a/src/switch_console.c
++++ b/src/switch_console.c
+@@ -1052,10 +1052,12 @@ static void *SWITCH_THREAD_FUNC console_
+ 	while (running) {
+ 		int32_t arg = 0;
+ 
+-		if (getppid() == 1) {
+-			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "We've become an orphan, no more console for us.\n");
+-			break;
+-		}
++		// Parent PID is 1 when started by procd - so FS is not an orphan.
++		// Plus we still want the output.
++		//if (getppid() == 1) {
++		//	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "We've become an orphan, no more console for us.\n");
++		//	break;
++		//}
+ 
+ 		switch_core_session_ctl(SCSC_CHECK_RUNNING, &arg);
+ 		if (!arg) {

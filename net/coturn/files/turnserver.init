@@ -1,0 +1,39 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+STOP=10
+
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+NAME=turnserver
+COMMAND=/usr/bin/$NAME
+
+LOGGER="/usr/bin/logger -s -t $NAME"
+LOG_ERR="$LOGGER -p daemon.err --"
+
+start_service() {
+
+  config_load $NAME
+
+  config_get_bool enabled general enabled 0
+  if [ $enabled -eq 0 ]; then
+    $LOG_ERR service not enabled in /etc/config/$NAME
+    return 1
+  fi
+
+  config_get_bool log_stderr general log_stderr 1
+  config_get_bool log_stdout general log_stdout 1
+
+  config_get options general options
+
+  procd_open_instance
+  procd_set_param command $COMMAND
+  procd_append_param command $options
+  # forward stderr to logd
+  procd_set_param stderr $log_stderr
+  # same for stdout
+  procd_set_param stdout $log_stdout
+  procd_close_instance
+}

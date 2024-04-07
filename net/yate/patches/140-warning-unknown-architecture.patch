@@ -1,0 +1,20 @@
+--- a/libs/miniwebrtc/typedefs.h
++++ b/libs/miniwebrtc/typedefs.h
+@@ -101,7 +101,7 @@
+ #endif
+ 
+ #else
+-#error Please add support for your architecture in typedefs.h
++#warning : Please add support for your architecture in typedefs.h
+ #endif
+ 
+ #if defined(__SSE2__) || defined(_MSC_VER)
+@@ -160,7 +160,7 @@
+     #define WEBRTC_LITTLE_ENDIAN
+ 
+ #else
+-    #error "No platform defined for WebRTC type definitions (typedefs.h)"
++    #warning : "No platform defined for WebRTC type definitions (typedefs.h)"
+ #endif
+ 
+ #endif  // WEBRTC_TYPEDEFS_H_

@@ -1,0 +1,28 @@
+--- a/build_tools/make_build_h
++++ b/build_tools/make_build_h
+@@ -5,6 +5,14 @@ MACHINE=`uname -m  | sed 's/\\\\/\\\\\\\
+ OS=`uname -s`
+ USER=`id | awk -F")" '{print $1}'| awk -F"(" '{print $2}' | sed 's/\\\\/\\\\\\\\/g'`
+ DATE=`date -u "+%Y-%m-%d %H:%M:%S"`
++if [ -n "${SOURCE_DATE_EPOCH}" ]; then
++	# building reproducibly, faking some data
++	HOSTNAME='openwrt.org'
++	KERNEL='unknown'
++	MACHINE='unknown'
++	USER='nobody'
++	DATE=`date -u "+%Y-%m-%d %H:%M:%S" -d @${SOURCE_DATE_EPOCH}`
++fi
+ cat << END
+ /*
+  * build.h
+--- a/build_tools/make_xml_documentation
++++ b/build_tools/make_xml_documentation
+@@ -187,7 +187,7 @@ printf "Building Documentation For: "
+ for subdir in ${mod_subdirs} ; do
+ 	printf "%s " "${subdir}"
+ 	subdir_path="${source_tree}/${subdir}"
+-	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc'); do
++	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc' | LC_ALL=C sort); do
+ 		if [ "${with_moduleinfo}" -eq "1" ] ; then
+ 			MODULEINFO=$(${AWK} -f "${source_tree}/build_tools/get_moduleinfo" "${i}")
+ 			if [ "${MODULEINFO}" != "" ] ; then

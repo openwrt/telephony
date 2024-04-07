@@ -1,0 +1,51 @@
+From 70a9ea2b1e5cceeaf050356e7baf00127a58567d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=D0=94=D0=B8=D0=BB=D1=8F=D0=BD=20=D0=9F=D0=B0=D0=BB=D0=B0?=
+ =?UTF-8?q?=D1=83=D0=B7=D0=BE=D0=B2?= <git-dpa@aegee.org>
+Date: Mon, 8 May 2023 13:13:49 +0200
+Subject: [PATCH] lcr: typos
+
+---
+ src/modules/lcr/doc/lcr_admin.xml | 2 +-
+ src/modules/lcr/lcr_mod.c         | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/src/modules/lcr/doc/lcr_admin.xml
++++ b/src/modules/lcr/doc/lcr_admin.xml
+@@ -1641,7 +1641,7 @@ if (to_any_gw("192.55.66.2", 1)) {
+ 		<para>
+ 			Causes lcr module to dump the contents of its
+ 			in-memory lcr_rule and lcr_rule_target tables.
+-			Rules can be filetered by lcr_id or lcr_id and prefix.
++			Rules can be filtered by lcr_id or lcr_id and prefix.
+ 			The filters are passed as optional parameters.
+ 		</para>
+ 		<para>Parameters:</para>
+--- a/src/modules/lcr/lcr_mod.c
++++ b/src/modules/lcr/lcr_mod.c
+@@ -188,7 +188,7 @@ unsigned int lcr_gw_count_param = DEF_LC
+ /* can gws be defuncted */
+ static unsigned int defunct_capability_param = 0;
+ 
+-/* dont strip or tag param */
++/* don't strip or tag param */
+ static int dont_strip_or_prefix_flag_param = -1;
+ 
+ /* ping related params */
+@@ -846,7 +846,7 @@ static int comp_matched(const void *m1,
+ 		if(mi1->priority < mi2->priority)
+ 			return 1;
+ 		if(mi1->priority == mi2->priority) {
+-			/* Sort by randomized weigth */
++			/* Sort by randomized weight */
+ 			if(mi1->weight > mi2->weight)
+ 				return 1;
+ 			if(mi1->weight == mi2->weight)
+@@ -863,7 +863,7 @@ static int comp_matched(const void *m1,
+ 		if(mi1->priority < mi2->priority)
+ 			return 1;
+ 		if(mi1->priority == mi2->priority) {
+-			/* Sort by randomized weigth */
++			/* Sort by randomized weight */
+ 			if(mi1->weight > mi2->weight)
+ 				return 1;
+ 			if(mi1->weight == mi2->weight)

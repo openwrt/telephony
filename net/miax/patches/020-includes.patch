@@ -1,0 +1,79 @@
+--- a/dtmf.c
++++ b/dtmf.c
+@@ -22,6 +22,7 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <math.h>
++#include <string.h>
+ 
+ #define RATE 8000
+ #define BLOCKLEN (RATE/100)
+--- a/iax/iax.c
++++ b/iax/iax.c
+@@ -344,7 +344,7 @@ static int iax_sched_event(struct iax_event *event, struct iax_frame *frame, int
+ 
+ 	sched = (struct iax_sched*)malloc(sizeof(struct iax_sched));
+ 	if (sched) {
+-		bzero(sched, sizeof(struct iax_sched));
++		memset(sched, 0, sizeof(struct iax_sched));
+ 		gettimeofday(&sched->when, NULL);
+ 		sched->when.tv_sec += (ms / 1000);
+ 		ms = ms % 1000;
+@@ -872,7 +872,7 @@ int iax_do_event(struct iax_session *session, struct iax_event *event)
+ 
+ #define MYSNPRINTF snprintf(requeststr + strlen(requeststr), sizeof(buf) - sizeof(struct ast_iax2_full_hdr) - strlen(requeststr), 
+ 
+-	bzero(buf, sizeof(buf));
++	memset(buf, 0, sizeof(buf));
+ 
+ 	/* Default some things in the frame */
+ 
+@@ -1523,7 +1523,7 @@ int iax_auth_reply(struct iax_session *session, char *password, char *challenge,
+ 		MD5Update(&md5, (const unsigned char *) challenge, strlen(challenge));
+ 		MD5Update(&md5, (const unsigned char *) password, strlen(password));
+ 		MD5Final((unsigned char *) reply, &md5);
+-		bzero(realreply, sizeof(realreply));
++		memset(realreply, 0, sizeof(realreply));
+ 		convert_reply(realreply, (unsigned char *) reply);
+ 		iax_ie_append_str(&ied, IAX_IE_MD5_RESULT, realreply);
+ 	} else {
+@@ -1546,7 +1546,7 @@ static int iax_regauth_reply(struct iax_session *session, char *password, char *
+ 		MD5Update(&md5, (const unsigned char *) challenge, strlen(challenge));
+ 		MD5Update(&md5, (const unsigned char *) password, strlen(password));
+ 		MD5Final((unsigned char *) reply, &md5);
+-		bzero(realreply, sizeof(realreply));
++		memset(realreply, 0, sizeof(realreply));
+ 		convert_reply(realreply, (unsigned char *) reply);
+ 		iax_ie_append_str(&ied, IAX_IE_MD5_RESULT, realreply);
+ 	} else {
+--- a/modem.c
++++ b/modem.c
+@@ -27,7 +27,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+-#include <unistd.h>
++#include <time.h>
+ 
+ static int baudrate=B9600, fd_modem, m_status=0;
+ extern int debug;
+@@ -50,7 +50,7 @@ int tty_modem_init(char *dev) {
+ 	char buf[4096];
+ 	struct termios newtio;
+   
+-	bzero(&newtio, sizeof(newtio));
++	memset(&newtio, 0, sizeof(newtio));
+ 	newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD | O_NDELAY;
+ 	if ( fd_modem = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK) ) {
+ 		cfsetispeed(&newtio,baudrate);
+--- a/oss.c
++++ b/oss.c
+@@ -1,5 +1,8 @@
+ #include "iaxclient_lib.h"
+ #include <fcntl.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/ioctl.h>
+ #include <sys/soundcard.h>
+ 
+ #define RTP 320

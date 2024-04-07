@@ -1,0 +1,57 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -256,30 +256,6 @@ AX_COMPILER_VENDOR
+ # Set CC_FOR_BUILD
+ if test "x${cross_compiling}" = "xyes"; then
+     CC_FOR_BUILD=${CC_FOR_BUILD-gcc}
+-    case "$host" in
+-    	 arm*-linux-gnueabi*|arm*-*-linux-gnueabi*)
+-		# spandsp modem
+-		ac_cv_file__dev_ptmx=yes
+-		# libjs
+-		export ac_cv_va_copy=yes
+-		# srtp
+-		export ac_cv_file__dev_urandom=yes
+-		# rpl_malloc
+-		export ac_cv_func_realloc_0_nonnull=yes
+-		export ac_cv_func_malloc_0_nonnull=yes
+-		# apr
+-		export ac_cv_func_setpgrp_void=yes
+-		export ac_cv_file__dev_zero=yes
+-		export apr_cv_tcp_nodelay_with_cork=yes
+-		export ac_cv_file_dbd_apr_dbd_mysql_c=no
+-		export ac_cv_sizeof_ssize_t=4
+-		export apr_cv_mutex_recursive=yes
+-		export ac_cv_func_pthread_rwlock_init=yes
+-		export apr_cv_type_rwlock_t=yes
+-		export apr_cv_process_shared_works=yes
+-		export apr_cv_mutex_robust_shared=yes
+-	 ;;
+-    esac
+ else
+     CC_FOR_BUILD='$(CC)'
+ fi
+@@ -650,7 +626,7 @@ path_push_unique () {
+   fi
+ }
+ 
+-AC_PATH_PROG([PG_CONFIG], [pg_config], [no])
++AC_PATH_PROG([PG_CONFIG], [pg_config], [no], ["${STAGING_DIR}"/usr/bin])
+ AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+ 
+ case $host in
+@@ -1683,13 +1659,7 @@ AC_CHECK_PROG(PERL,perl,[ac_cv_have_perl
+ # -a "x$ac_cv_have_EXTERN_h" != "xno"
+ 
+ if test "x$ac_cv_have_perl" != "xno"; then
+-   PERL=perl
+-   PERL_SITEDIR="`$PERL -MConfig -e 'print $Config{archlib}'`"
+-   PERL_LIBDIR="-L`$PERL -MConfig -e 'print $Config{archlib}'`/CORE"
+-   PERL_LIBS="`$PERL -MConfig -e 'print $Config{libs}'`"
+-   PERL_CFLAGS="-w -DMULTIPLICITY `$PERL -MExtUtils::Embed -e ccopts | sed -e 's|-arch x86_64 -arch i386||'` -DEMBED_PERL"
+-   PERL_LDFLAGS="`$PERL -MExtUtils::Embed -e ldopts| sed -e 's|-arch x86_64 -arch i386||'`"
+-   PERL_INC="`$PERL -MExtUtils::Embed -e perl_inc`"
++   PERL_CFLAGS="-w -DMULTIPLICITY ${PERL_CFLAGS} -DEMBED_PERL"
+ 
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$PERL_CFLAGS"

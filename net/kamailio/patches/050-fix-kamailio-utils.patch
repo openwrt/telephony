@@ -1,0 +1,9 @@
+--- a/utils/kamctl/kamctlrc
++++ b/utils/kamctl/kamctlrc
+@@ -166,3 +166,6 @@
+ ## Extra start options - default is: not set
+ ## example: start Kamailio with 64MB shared memory: STARTOPTIONS="-m 64"
+ # STARTOPTIONS=
++
++# Disable colour printing in terminal
++NOHLPRINT=1

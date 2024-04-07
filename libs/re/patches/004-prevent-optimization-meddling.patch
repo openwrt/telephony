@@ -1,0 +1,10 @@
+--- a/mk/re.mk
++++ b/mk/re.mk
+@@ -47,7 +47,6 @@
+ 
+ ifneq ($(RELEASE),)
+ CFLAGS  += -DRELEASE
+-OPT_SPEED=1
+ endif
+ 
+ ifneq ($(TRACE_ERR),)

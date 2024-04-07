@@ -1,0 +1,102 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2017 - 2018 OpenWrt.org
+
+START=90
+STOP=10
+
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+NAME=freeswitch
+COMMAND=/usr/bin/$NAME
+
+LOGGER="/usr/bin/logger -s -t $NAME"
+LOG_ERR="$LOGGER -p daemon.err --"
+LOG_WARN="$LOGGER -p daemon.warn --"
+LOG_INFO="$LOGGER -p daemon.info --"
+
+start_service() {
+  dir_etc=/etc/$NAME
+  dir_localstate=/var/lib/$NAME
+  dir_run=/var/run/$NAME
+
+  config_load $NAME
+
+  config_get_bool enabled general enabled 0
+  if [ $enabled -eq 0 ]; then
+    $LOG_ERR service not enabled in /etc/config/$NAME
+    return 1
+  fi
+
+  config_get_bool log_stderr general log_stderr 1
+  config_get_bool log_stdout general log_stdout 1
+
+  config_get dir_cache      directories cache      /tmp/$NAME/cache
+  config_get dir_db         directories db         /tmp/$NAME/db
+  config_get dir_log        directories log        /tmp/$NAME/log
+  config_get dir_recordings directories recordings /tmp/$NAME/recordings
+  config_get dir_storage    directories storage    /tmp/$NAME/storage
+  config_get dir_temp       directories temp       /tmp/$NAME/temp
+
+  config_get options general options
+
+  config_get term_timeout general term_timeout default
+  if [ default = "$term_timeout" ]; then
+    $LOG_INFO using procd\'s default term_timeout
+  elif ! [ 0 -lt "$term_timeout" ] 2>/dev/null; then
+    $LOG_ERR invalid term_timeout in /etc/config/$NAME
+    return 1
+  fi
+
+  for i in "$dir_localstate" "$dir_run"; do
+    if ! [ -e "$i" ]; then
+      mkdir -m 0750 -p "$i"
+      [ -d "$i" ] && chown $NAME:$NAME "$i"
+    fi
+  done
+
+  command -v su >/dev/null
+  ret=$?
+  if [ 0 != "$ret" ]; then
+    $LOG_WARN utility \"su\" not available
+    $LOG_WARN will not attempt to create directories
+  else
+    for i in "$dir_cache" \
+             "$dir_db" \
+             "$dir_log" \
+             "$dir_recordings" \
+             "$dir_storage" \
+             "$dir_temp";
+    do
+      if ! [ -e "$i" ]; then
+        su -s /bin/sh -c "mkdir -m 0750 -p \"$i\"" $NAME
+      fi
+    done
+  fi
+
+  procd_open_instance
+  # starting with full path seems cleaner judging by 'ps' output
+  procd_set_param command $COMMAND
+  # need to specify all or none of -conf, -log, and -db
+  procd_append_param command \
+    -cache "$dir_cache" \
+    -conf "$dir_etc" \
+    -db "$dir_db" \
+    -log "$dir_log" \
+    -recordings "$dir_recordings" \
+    -run "$dir_run" \
+    -storage "$dir_storage" \
+    -temp "$dir_temp" \
+    -u "$NAME" \
+    $options \
+    -c
+  # forward stderr to logd
+  procd_set_param stderr $log_stderr
+  # same for stdout
+  procd_set_param stdout $log_stdout
+  if ! [ default = "$term_timeout" ]; then
+    procd_set_param term_timeout "$term_timeout"
+  fi
+  procd_close_instance
+}

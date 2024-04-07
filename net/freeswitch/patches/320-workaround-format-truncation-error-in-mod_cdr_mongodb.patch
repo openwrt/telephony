@@ -1,0 +1,29 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -363,6 +363,16 @@ if test "$ax_cv_c_compiler_vendor" = "gn
+         [ac_cv_gcc_supports_w_no_misleading_indentation=no])])
+   CFLAGS="$saved_CFLAGS"
+   AC_MSG_RESULT($ac_cv_gcc_supports_w_no_misleading_indentation)
++
++  saved_CFLAGS="$CFLAGS"
++  AC_CACHE_CHECK([whether compiler supports -Wno-error=format-truncation],
++    [ac_cv_gcc_supports_w_no_err_format_truncation], [
++      CFLAGS="$CFLAGS -Wno-error=format-truncation"
++      AC_TRY_COMPILE([],[return 0;],
++        [ac_cv_gcc_supports_w_no_err_format_truncation=yes],
++        [ac_cv_gcc_supports_w_no_err_format_truncation=no])])
++  CFLAGS="$saved_CFLAGS"
++  AC_MSG_RESULT($ac_cv_gcc_supports_w_no_err_format_truncation)
+ fi
+ 
+ # tweak compiler specific flags
+@@ -402,6 +412,9 @@ elif test "x${ax_cv_c_compiler_vendor}"
+     if test "$ac_cv_gcc_supports_w_no_misleading_indentation" = yes; then
+       APR_ADDTO(SWITCH_AM_CFLAGS, -Wno-misleading-indentation)
+     fi
++    if test "$ac_cv_gcc_supports_w_no_err_format_truncation" = yes; then
++      APR_ADDTO(SWITCH_AM_CFLAGS, -Wno-error=format-truncation)
++    fi
+     if test "${enable_64}" = "yes"; then
+ 	case "$host" in
+              *darwin*)

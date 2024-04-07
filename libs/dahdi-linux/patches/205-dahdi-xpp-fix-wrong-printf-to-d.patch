@@ -1,0 +1,44 @@
+From 14a9e676d635b1c2be1bab4114cc76c1793892d0 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 12 May 2023 20:22:31 +0200
+Subject: [PATCH 6/6] dahdi: xpp: fix wrong printf to %d
+
+Fix wrong printf that should be %d with int variables.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ drivers/dahdi/xpp/xbus-core.c    | 2 +-
+ drivers/dahdi/xpp/xframe_queue.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/dahdi/xpp/xbus-core.c
++++ b/drivers/dahdi/xpp/xbus-core.c
+@@ -1772,7 +1772,7 @@ static void xbus_fill_proc_queue(struct
+ 	s32 rem;
+ 	s64 lag_sec = div_s64_rem(q->worst_lag_usec, 1000, &rem);
+ 	seq_printf(sfile,
+-		"%-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%ld ms\n",
++		"%-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%d ms\n",
+ 		q->name, q->steady_state_count, q->count, q->max_count,
+ 		q->worst_count, q->overflows, lag_sec,
+ 		rem);
+--- a/drivers/dahdi/xpp/xframe_queue.c
++++ b/drivers/dahdi/xpp/xframe_queue.c
+@@ -44,7 +44,7 @@ static void __xframe_dump_queue(struct x
+ 		s32 rem;
+ 		s64 sec = div_s64_rem(ktime_us_delta(now, xframe->kt_queued), 1000, &rem);
+ 
+-		snprintf(prefix, ARRAY_SIZE(prefix), "  %3d> %5lld.%03ld msec",
++		snprintf(prefix, ARRAY_SIZE(prefix), "  %3d> %5lld.%03d msec",
+ 			 i++, sec, rem);
+ 		dump_packet(prefix, pack, 1);
+ 	}
+@@ -64,7 +64,7 @@ static bool __xframe_enqueue(struct xfra
+ 		if ((overflow_cnt++ % 1000) < 5) {
+ 			s32 rem;
+ 			s64 lag_sec = div_s64_rem(q->worst_lag_usec, 1000, &rem);
+-			NOTICE("Overflow of %-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%ld ms\n",
++			NOTICE("Overflow of %-15s: counts %3d, %3d, %3d worst %3d, overflows %3d worst_lag %02lld.%d ms\n",
+ 			     q->name, q->steady_state_count, q->count,
+ 			     q->max_count, q->worst_count, q->overflows,
+ 			     lag_sec,

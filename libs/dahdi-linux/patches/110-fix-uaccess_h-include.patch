@@ -1,0 +1,77 @@
+--- a/drivers/dahdi/datamods/syncppp.c
++++ b/drivers/dahdi/datamods/syncppp.c
+@@ -39,6 +39,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+@@ -56,7 +57,11 @@
+ #include <net/syncppp.h>
+ 
+ #include <asm/byteorder.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <asm/uaccess.h>
++#else
++#include <linux/uaccess.h>
++#endif
+ 
+ #define MAXALIVECNT     6               /* max. alive packets */
+ 
+--- a/drivers/dahdi/wcb4xxp/base.c
++++ b/drivers/dahdi/wcb4xxp/base.c
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/init.h>
+ 
++#include <linux/version.h>
+ #include <linux/kernel.h>	/* printk() */
+ #include <linux/errno.h>	/* error codes */
+ #include <linux/module.h>
+@@ -35,7 +36,11 @@
+ #include <linux/spinlock.h>
+ #include <linux/device.h>	/* dev_err() */
+ #include <linux/interrupt.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <asm/uaccess.h>	/* copy_*_user */
++#else
++#include <linux/uaccess.h>
++#endif
+ #include <linux/workqueue.h>	/* work_struct */
+ #include <linux/timer.h>	/* timer_struct */
+ #include <linux/moduleparam.h>
+--- a/drivers/dahdi/xpp/mmapdrv.c
++++ b/drivers/dahdi/xpp/mmapdrv.c
+@@ -1,3 +1,4 @@
++#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+@@ -10,7 +11,11 @@
+ #include <asm/blackfin.h>
+ #include <asm/dma.h>
+ #include <asm/cacheflush.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <asm/uaccess.h>
++#else
++#include <linux/uaccess.h>
++#endif
+ #include <dahdi/kernel.h>
+ #include "mmapbus.h"
+ #include "xbus-core.h"
+--- a/drivers/dahdi/xpp/xpp_usb.c
++++ b/drivers/dahdi/xpp/xpp_usb.c
+@@ -27,7 +27,11 @@
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>	/* for udelay */
+ #include <linux/seq_file.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
+ #include <asm/uaccess.h>
++#else
++#include <linux/uaccess.h>
++#endif
+ #include <asm/atomic.h>
+ #include <asm/timex.h>
+ #include <linux/proc_fs.h>

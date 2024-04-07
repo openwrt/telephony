@@ -1,0 +1,56 @@
+menu "Advanced configuration"
+	depends on PACKAGE_freeswitch
+
+config FS_WITH_DEBUG
+	bool "Compile with debug information"
+	default n
+	help
+	  Enable extra debug codepaths, like asserts and extra output. If you
+	  want to get meaningful backtraces see
+	  https://wiki.openwrt.org/doc/devel/debugging for starting points.
+
+config FS_WITH_FREETYPE
+	bool "Compile with FreeType support"
+	default y if x86_64
+	help
+	  Add FreeType support to FreeSWITCH
+
+config FS_WITH_LIBYUV
+	bool "Compile with libyuv support"
+	default y if x86_64
+	help
+	  Add libyuv support to FreeSWITCH
+
+config FS_WITH_ODBC
+	bool "Compile with ODBC support"
+	default y if x86_64
+	help
+	  Enable ODBC support.
+
+config FS_WITH_PNG
+	bool "Compile with PNG support"
+	default y if x86_64
+	help
+	  Add PNG support to FreeSWITCH
+
+config FS_WITH_SRTP
+	bool "Compile with SRTP support"
+	default y
+	help
+	  Compile with SRTP support.
+
+config FS_WITH_VPX
+	bool "Compile with VPx support"
+	depends on FS_WITH_LIBYUV
+	default y if x86_64
+	help
+	  Compile with VPx video codec support
+
+config FS_WITH_MODCONF
+	bool "Include module examples"
+	default y if x86_64
+	help
+	  Some modules include examples in their source directory, e.g. xml
+	  snippets. Select y to include them.
+
+endmenu
