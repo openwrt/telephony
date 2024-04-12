@@ -8,7 +8,7 @@
  #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
  #include <linux/slab.h>
-@@ -1768,11 +1769,13 @@ out:
+@@ -1771,11 +1772,13 @@ out:
  
  static void xbus_fill_proc_queue(struct seq_file *sfile, struct xframe_queue *q)
  {
