@@ -13,7 +13,7 @@ Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 
 --- a/drivers/dahdi/xpp/xbus-core.c
 +++ b/drivers/dahdi/xpp/xbus-core.c
-@@ -1772,7 +1772,7 @@ static void xbus_fill_proc_queue(struct
+@@ -1775,7 +1775,7 @@ static void xbus_fill_proc_queue(struct
  	s32 rem;
  	s64 lag_sec = div_s64_rem(q->worst_lag_usec, 1000, &rem);
  	seq_printf(sfile,

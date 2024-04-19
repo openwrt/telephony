@@ -1,0 +1,10 @@
+--- a/drivers/dahdi/opvxa1200/Kbuild
++++ b/drivers/dahdi/opvxa1200/Kbuild
+@@ -1,6 +1,6 @@
+ obj-$(DAHDI_BUILD_ALL)$(CONFIG_DAHDI_OPVXA1200) += opvxa1200.o
+ 
+-EXTRA_CFLAGS += -I$(src)/.. -Wno-undef
++EXTRA_CFLAGS += -I$(src)/.. -Wno-undef -Wno-error=unused-variable
+ 
+ opvxa1200-objs := base.o
+ 
