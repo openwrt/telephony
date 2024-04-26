@@ -8,29 +8,27 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=coturn
-PKG_VERSION:=4.6.1
+PKG_VERSION:=4.6.2
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/coturn/coturn/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=8fba86e593ed74adc46e002e925cccff2819745371814f42465fbe717483f1d8
-
-PKG_LICENSE:=BSD-COTURN-CITRIX COMBINED-CITRIX-VIVOCHA-BSD MIT-HASH
-PKG_LICENSE_FILES:=LICENSE src/apps/relay/dbdrivers/* src/server/ns_turn_khash.h
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/coturn/coturn
+PKG_MIRROR_HASH:=55a7d63edfde6548cd6d6f1b62f6997beeebc66e0ff07b0afd175829434cbf3a
 
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>, Sebastian Kemper <sebastian_ml@gmx.net>
-
-PKG_BUILD_PARALLEL:=1
+PKG_LICENSE:=BSD-COTURN-CITRIX COMBINED-CITRIX-VIVOCHA-BSD MIT-HASH
+PKG_LICENSE_FILES:=LICENSE src/apps/relay/dbdrivers/* src/server/ns_turn_khash.h
+PKG_CPE_ID:=cpe:/a:coturn_project:coturn
 
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 PKG_CONFIG_DEPENDS+= \
 	CONFIG_COTURN_ENABLE_MYSQL \
 	CONFIG_COTURN_ENABLE_POSTGRESQL \
 	CONFIG_COTURN_ENABLE_REDIS \
 	CONFIG_COTURN_ENABLE_SQLITE
-
-PKG_CPE_ID:=cpe:/a:coturn_project:coturn
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
