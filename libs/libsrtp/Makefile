@@ -8,16 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
-PKG_VERSION:=2.4.2
-PKG_RELEASE:=2
+PKG_VERSION:=2.6.0
+PKG_RELEASE:=1
 
-PKG_SOURCE:=libsrtp-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/cisco/libsrtp/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=3b1bcb14ebda572b04b9bdf07574a449c84cb924905414e4d94e62837d22b628
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=v$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/cisco/libsrtp
+PKG_MIRROR_HASH:=7ee6ba7138e7e3c4b16dbb6aa1cd639dcca517f2aa3f7dafb2cf245d932e8448
 
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 
