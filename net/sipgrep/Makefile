@@ -9,21 +9,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sipgrep
+PKG_VERSION:=2.2.0
+PKG_RELEASE:=1
+
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/sipcapture/sipgrep
+PKG_MIRROR_HASH:=4fe322d672d5c78160ddf0f0bf599a14b2fc504437262ad08a4003fe66f3e4b5
+
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=COPYING
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/sipcapture/sipgrep.git
-PKG_SOURCE_VERSION:=1cc00079cd80310f7e8b1a696e9a02b8a2b25e04
-PKG_SOURCE_DATE=2019-06-27
-PKG_RELEASE:=3
-PKG_MIRROR_HASH:=2c90b4e262be7270bcc9a2de975adbe8f67dee5ff0c30b397036f2e69229f515
-
-PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
-
 PKG_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 PKG_CONFIG_DEPENDS:=CONFIG_IPV6
 
@@ -44,7 +44,7 @@ troubleshoot SIP signaling over IP networks, allowing the user to
 specify extended regular expressions matching against SIP headers.
 endef
 
-CONFIGURE_ARGS+=$(if $(CONFIG_IPV6),--enable-ipv6)
+CONFIGURE_ARGS+=$(if $(CONFIG_IPV6),en,dis)able-ipv6
 
 define Package/sipgrep/install
 	$(INSTALL_DIR) $(1)/usr/bin
