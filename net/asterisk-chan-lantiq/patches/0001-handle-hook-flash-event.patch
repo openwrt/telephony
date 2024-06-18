@@ -1,0 +1,44 @@
+From 0caa8a00ee81ef0e1417d961243f68a76d850e03 Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Tue, 19 Mar 2024 01:30:09 +0000
+Subject: [PATCH 1/2] handle hook flash event
+
+IFX_TAPI_EVENT_FXS_FLASH translates to AST_CONTROL_FLASH.
+Prevents restart of asterisk in case of a hook-flash event.
+ERROR[7854]: chan_lantiq.c:1618 lantiq_dev_event_handler: Unknown TAPI event 20000006. Restarting Asterisk...
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ src/channels/chan_lantiq.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+--- a/src/channels/chan_lantiq.c
++++ b/src/channels/chan_lantiq.c
+@@ -1572,6 +1572,17 @@ static void lantiq_dev_event_digit(int c
+ 	return;
+ }
+ 
++static void lantiq_dev_event_flash(int c)
++{
++	struct lantiq_pvt *pvt = &iflist[c];
++	if (!pvt->owner) {
++		ast_log(LOG_WARNING, "received hook flash event out of call\n");
++		return;
++	}
++
++	ast_queue_control(pvt->owner, AST_CONTROL_FLASH);
++}
++
+ static void lantiq_dev_event_handler(void)
+ {
+ 	IFX_TAPI_EVENT_t event;
+@@ -1610,6 +1621,9 @@ static void lantiq_dev_event_handler(voi
+ 					lantiq_dev_event_digit(i, '0' + (char)event.data.pulse.digit);
+ 				}
+ 				break;
++			case IFX_TAPI_EVENT_FXS_FLASH:
++				lantiq_dev_event_flash(i);
++				break;
+ 			case IFX_TAPI_EVENT_COD_DEC_CHG:
+ 			case IFX_TAPI_EVENT_TONE_GEN_END:
+ 			case IFX_TAPI_EVENT_CID_TX_SEQ_END:
