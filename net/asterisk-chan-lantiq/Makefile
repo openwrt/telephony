@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk-chan-lantiq
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://github.com/kochstefan/asterisk_channel_lantiq.git
 PKG_SOURCE_VERSION:=2f029ec8778420538c8151c6aceba0f7b44b07c9
