@@ -1,0 +1,200 @@
+From 90c67696fa6676487bb40f391d6cae037175f418 Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Tue, 18 Jun 2024 19:41:38 +0100
+Subject: [PATCH 2/2] configure hook state machine timing
+
+introduce a bunch of new config options to configure hook state
+machine timing parameters:
+ * digit_low_time_min
+ * digit_low_time_max
+ * digit_high_time_min
+ * digit_high_time_max
+ * flash_time_min
+ * flash_time_max
+ * hook_off_time
+ * hook_on_time
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ src/channels/chan_lantiq.c             | 114 +++++++++++++++++++++++++
+ src/configs/samples/lantiq.conf.sample |  11 +++
+ 2 files changed, 125 insertions(+)
+
+--- a/src/channels/chan_lantiq.c
++++ b/src/channels/chan_lantiq.c
+@@ -168,6 +168,14 @@ static struct lantiq_ctx {
+ 		char ch_led[TAPI_AUDIO_PORT_NUM_MAX][LED_NAME_LENGTH]; /* FXS LED names */
+ 		int interdigit_timeout; /* Timeout in ms between dialed digits */
+ 		int numsign_complete; /* If nonzero, then the pound/hash key signifies that dialed number is complete */
++		int digit_low_time_min;
++		int digit_low_time_max;
++		int digit_high_time_min;
++		int digit_high_time_max;
++		int flash_time_min;
++		int flash_time_max;
++		int hook_off_time;
++		int hook_on_time;
+ } dev_ctx;
+ 
+ static int ast_digit_begin(struct ast_channel *ast, char digit);
+@@ -1885,6 +1893,7 @@ static int load_module(void)
+ 	struct ast_tone_zone *tz;
+ 	struct ast_flags config_flags = { 0 };
+ 	int c;
++	int tval;
+ 
+ 	if(!(lantiq_tech.capabilities = ast_format_cap_alloc(AST_FORMAT_CAP_FLAG_DEFAULT))) {
+ 		ast_log(LOG_ERROR, "Unable to allocate format capabilities.\n");
+@@ -1919,6 +1928,16 @@ static int load_module(void)
+ 		goto cfg_error;
+ 	}
+ 
++	/* Hook state machine default values (in ms) */
++	dev_ctx.digit_low_time_min = 30;
++	dev_ctx.digit_low_time_max = 80;
++	dev_ctx.digit_high_time_min = 30;
++	dev_ctx.digit_high_time_max = 80;
++	dev_ctx.hook_off_time = 40;
++	dev_ctx.hook_on_time = 400;
++	dev_ctx.flash_time_min = 80;
++	dev_ctx.flash_time_max = 200;
++
+ 	for (v = ast_variable_browse(cfg, "interfaces"); v; v = v->next) {
+ 		if (!strcasecmp(v->name, "channels")) {
+ 			dev_ctx.channels = atoi(v->value);
+@@ -2070,6 +2089,54 @@ static int load_module(void)
+ 				dev_ctx.interdigit_timeout = DEFAULT_INTERDIGIT_TIMEOUT;
+ 				ast_log(LOG_WARNING, "Invalid interdigit timeout: %s, using default.\n", v->value);
+ 			}
++		} else if (!strcasecmp(v->name, "digit_low_time_min")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.digit_low_time_min = tval;
++				ast_log(LOG_DEBUG, "Setting digit low time (min) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "digit_low_time_max")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.digit_low_time_max = tval;
++				ast_log(LOG_DEBUG, "Setting digit low time (max) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "digit_high_time_min")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.digit_high_time_min = tval;
++				ast_log(LOG_DEBUG, "Setting digit high time (min) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "digit_high_time_max")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.digit_high_time_max = tval;
++				ast_log(LOG_DEBUG, "Setting digit high time (max) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "flash_time_min")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.flash_time_min = tval;
++				ast_log(LOG_DEBUG, "Setting hookflash time (min) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "flash_time_max")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.flash_time_max = tval;
++				ast_log(LOG_DEBUG, "Setting hookflash time (max) to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "hook_off_time")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.hook_off_time = tval;
++				ast_log(LOG_DEBUG, "Setting off-hook time to %s.\n", v->value);
++			}
++		} else if (!strcasecmp(v->name, "hook_on_time")) {
++			tval = atoi(v->value);
++			if (tval > 0) {
++				dev_ctx.hook_on_time = tval;
++				ast_log(LOG_DEBUG, "Setting on-hook time to %s.\n", v->value);
++			}
+ 		} else if (!strcasecmp(v->name, "numsign_complete")) {
+ 			dev_ctx.numsign_complete = ast_true(v->value);
+ 			ast_log(LOG_DEBUG, "Setting numsign_complete to '%s'.\n", dev_ctx.numsign_complete ? "on" : "off");
+@@ -2126,6 +2193,7 @@ static int load_module(void)
+ 	IFX_TAPI_WLEC_CFG_t wlec_cfg;
+ 	IFX_TAPI_JB_CFG_t jb_cfg;
+ 	IFX_TAPI_CID_CFG_t cid_cfg;
++	IFX_TAPI_LINE_HOOK_VT_t line_hook_vt;
+ 
+ 	/* open device */
+ 	dev_ctx.dev_fd = lantiq_dev_open(base_path, 0);
+@@ -2303,6 +2371,52 @@ static int load_module(void)
+ 			goto load_error_st;
+ 		}
+ 
++		/* Configure hook state machine timing */
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_DIGITLOW_TIME;
++		line_hook_vt.nMinTime = dev_ctx.digit_low_time_min;
++		line_hook_vt.nMaxTime = dev_ctx.digit_low_time_max;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_DIGITLOW_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_DIGITHIGH_TIME;
++		line_hook_vt.nMinTime = dev_ctx.digit_high_time_min;
++		line_hook_vt.nMaxTime = dev_ctx.digit_high_time_max;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_DIGITHIGH_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME;
++		line_hook_vt.nMinTime = dev_ctx.flash_time_min;
++		line_hook_vt.nMaxTime = dev_ctx.flash_time_max;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME;
++		line_hook_vt.nMinTime = dev_ctx.hook_off_time;
++		line_hook_vt.nMaxTime = dev_ctx.hook_off_time;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME;
++		line_hook_vt.nMinTime = dev_ctx.hook_on_time;
++		line_hook_vt.nMaxTime = dev_ctx.hook_on_time;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
+ 		/* Configure Caller ID type */
+ 		memset(&cid_cfg, 0, sizeof(cid_cfg));
+ 		cid_cfg.nStandard = cid_type;
+--- a/src/configs/samples/lantiq.conf.sample
++++ b/src/configs/samples/lantiq.conf.sample
+@@ -143,6 +143,17 @@ channels = 2
+ ;interdigit = 4000
+ ;
+ ;
++; Hook state machine timing
++;
++;digit_low_time_min = 30
++;digit_low_time_max = 80
++;digit_high_time_min = 30
++;digit_high_time_max = 80
++;flash_time_min = 80
++;flash_time_max = 200
++;hook_off_time = 40
++;hook_on_time = 400
++;
+ ;
+ ; When dialing, the user may not want to wait for the interdigit timeout to elapse
+ ; after entering the last digit. Pressing the number sign key ("hash key", "pound key")
