@@ -1,4 +1,4 @@
-From 90c67696fa6676487bb40f391d6cae037175f418 Mon Sep 17 00:00:00 2001
+From 2a379aa2490218d3f15585a8d77b13a17d9eed6b Mon Sep 17 00:00:00 2001
 From: Daniel Golle <daniel@makrotopia.org>
 Date: Tue, 18 Jun 2024 19:41:38 +0100
 Subject: [PATCH 2/2] configure hook state machine timing
@@ -131,6 +131,33 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  
 +		/* Configure hook state machine timing */
 +		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME;
++		line_hook_vt.nMinTime = dev_ctx.hook_on_time;
++		line_hook_vt.nMaxTime = dev_ctx.hook_on_time;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME;
++		line_hook_vt.nMinTime = dev_ctx.hook_off_time;
++		line_hook_vt.nMaxTime = dev_ctx.hook_off_time;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
++		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME;
++		line_hook_vt.nMinTime = dev_ctx.flash_time_min;
++		line_hook_vt.nMaxTime = dev_ctx.flash_time_max;
++		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
++			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME %d failed\n", c);
++			goto load_error_st;
++		}
++
++		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
 +		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_DIGITLOW_TIME;
 +		line_hook_vt.nMinTime = dev_ctx.digit_low_time_min;
 +		line_hook_vt.nMaxTime = dev_ctx.digit_low_time_max;
@@ -145,33 +172,6 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 +		line_hook_vt.nMaxTime = dev_ctx.digit_high_time_max;
 +		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
 +			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_DIGITHIGH_TIME %d failed\n", c);
-+			goto load_error_st;
-+		}
-+
-+		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
-+		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME;
-+		line_hook_vt.nMinTime = dev_ctx.flash_time_min;
-+		line_hook_vt.nMaxTime = dev_ctx.flash_time_max;
-+		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
-+			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKFLASH_TIME %d failed\n", c);
-+			goto load_error_st;
-+		}
-+
-+		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
-+		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME;
-+		line_hook_vt.nMinTime = dev_ctx.hook_off_time;
-+		line_hook_vt.nMaxTime = dev_ctx.hook_off_time;
-+		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
-+			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKOFF_TIME %d failed\n", c);
-+			goto load_error_st;
-+		}
-+
-+		memset(&line_hook_vt, 0, sizeof(line_hook_vt));
-+		line_hook_vt.nType = IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME;
-+		line_hook_vt.nMinTime = dev_ctx.hook_on_time;
-+		line_hook_vt.nMaxTime = dev_ctx.hook_on_time;
-+		if (ioctl(dev_ctx.ch_fd[c], IFX_TAPI_LINE_HOOK_VT_SET, &line_hook_vt)) {
-+			ast_log(LOG_ERROR, "IFX_TAPI_LINE_HOOK_VT_HOOKON_TIME %d failed\n", c);
 +			goto load_error_st;
 +		}
 +
