@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=20.5.2
+PKG_VERSION:=20.8.1
 PKG_RELEASE:=1
 PKG_CPE_ID:=cpe:/a:digium:asterisk
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=8f68e1789dfb8aa04b0eba87ea1d599a62e088ddd20926afc997f36b455e1859
+PKG_HASH:=fa498b6224e8c262de6840a67e00e3747e178fcefd9fb2595885d402ca3248f5
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -583,6 +583,7 @@ CONFIGURE_ARGS+= \
 	--with-ilbc=internal \
 	--without-pjproject-bundled \
 	--with-libedit="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-stir-shaken),--with-libjwt-bundled=yes,--with-libjwt-bundled=no) \
 	--with-libxml2 \
 	$(if $(CONFIG_ASTERISK_LIBXSLT_SUPPORT),--with-libxslt,--without-libxslt) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-snmp),--with-netsnmp="$(STAGING_DIR)/usr",--without-netsnmp) \
@@ -1057,7 +1058,7 @@ $(eval $(call BuildAsteriskModule,res-stasis-playback,Stasis application playbac
 $(eval $(call BuildAsteriskModule,res-stasis-recording,Stasis application recording,Stasis application recording support.,+$(PKG_NAME)-res-stasis,,res_stasis_recording,,))
 $(eval $(call BuildAsteriskModule,res-stasis-snoop,Stasis application snoop,Stasis application snoop support.,+$(PKG_NAME)-res-stasis-recording,,res_stasis_snoop,,))
 $(eval $(call BuildAsteriskModule,res-statsd,statsd client,Statsd client support.,,statsd.conf,res_statsd,,))
-$(eval $(call BuildAsteriskModule,res-stir-shaken,STIR/SHAKEN resource module,STIR/SHAKEN resource module.,+$(PKG_NAME)-curl,stir_shaken.conf,res_stir_shaken,,))
+$(eval $(call BuildAsteriskModule,res-stir-shaken,STIR/SHAKEN resource module,STIR/SHAKEN resource module.,+$(PKG_NAME)-curl +libjwt,stir_shaken.conf,res_stir_shaken,,))
 $(eval $(call BuildAsteriskModule,res-stun-monitor,STUN monitoring,STUN network monitor.,,res_stun_monitor.conf,res_stun_monitor,,))
 $(eval $(call BuildAsteriskModule,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface.,+$(PKG_NAME)-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,pthread timing interface.,,,res_timing_pthread,,))

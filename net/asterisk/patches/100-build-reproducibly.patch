@@ -17,10 +17,10 @@
   * build.h
 --- a/build_tools/make_xml_documentation
 +++ b/build_tools/make_xml_documentation
-@@ -187,7 +187,7 @@ printf "Building Documentation For: "
+@@ -193,7 +193,7 @@ printf "Building Documentation For: "
  for subdir in ${mod_subdirs} ; do
  	printf "%s " "${subdir}"
- 	subdir_path="${source_tree}/${subdir}"
+ 	subdir_path=$(make_absolute "$subdir")
 -	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc'); do
 +	for i in $(${FIND} "${subdir_path}" -name '*.c' -or -name '*.cc' | LC_ALL=C sort); do
  		if [ "${with_moduleinfo}" -eq "1" ] ; then
