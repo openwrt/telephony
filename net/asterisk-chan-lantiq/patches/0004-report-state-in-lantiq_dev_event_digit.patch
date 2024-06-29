@@ -1,0 +1,24 @@
+From c1af296bac46a828f16c616f0f470b0d525e7860 Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Sat, 29 Jun 2024 01:12:47 +0100
+Subject: [PATCH 2/2] report state in lantiq_dev_event_digit
+
+Inform user about channel state in case of unhandled digit.
+As it is not really an error, use NOTICE log level instead of ERROR.
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ src/channels/chan_lantiq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/channels/chan_lantiq.c
++++ b/src/channels/chan_lantiq.c
+@@ -1574,7 +1574,7 @@ static void lantiq_dev_event_digit(int c
+ 			}
+ 			break;
+ 		default:
+-			ast_log(LOG_ERROR, "don't know what to do in unhandled state\n");
++			ast_log(LOG_NOTICE, "don't know what to do in unhandled state %s\n", state_string(pvt->channel_state));
+ 			break;
+ 	}
+ 

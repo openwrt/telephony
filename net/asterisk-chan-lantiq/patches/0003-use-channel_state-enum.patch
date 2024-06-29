@@ -1,0 +1,32 @@
+From 1fded33e58cb57a6c67195bd7cd822a25c0c073d Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Sat, 29 Jun 2024 01:05:51 +0100
+Subject: [PATCH 1/2] use channel_state enum
+
+Make compiler aware of finite states listed in enum.
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ src/channels/chan_lantiq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/src/channels/chan_lantiq.c
++++ b/src/channels/chan_lantiq.c
+@@ -141,7 +141,7 @@ enum channel_state {
+ static struct lantiq_pvt {
+ 	struct ast_channel *owner;       /* Channel we belong to, possibly NULL   */
+ 	int port_id;                     /* Port number of this object, 0..n      */
+-	int channel_state;
++	enum channel_state channel_state;/* Current state of the channel          */
+ 	char context[AST_MAX_CONTEXT];   /* this port's dialplan context          */
+ 	int dial_timer;                  /* timer handle for autodial timeout     */
+ 	char dtmfbuf[AST_MAX_EXTENSION]; /* buffer holding dialed digits          */
+@@ -1401,6 +1401,8 @@ static int lantiq_dev_event_hook(int c,
+ 			case INCALL:
+ 				ret = lantiq_end_call(c);
+ 				break;
++			default:
++				break;
+ 		}
+ 
+ 		iflist[c].channel_state = ONHOOK;

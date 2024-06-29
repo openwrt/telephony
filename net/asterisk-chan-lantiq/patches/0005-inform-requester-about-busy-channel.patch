@@ -1,0 +1,23 @@
+From cdc77d6f9388c42bd6e21666b8a4d5789e93d05e Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Sat, 29 Jun 2024 01:20:16 +0100
+Subject: [PATCH] inform requester about busy channel
+
+Set cause to AST_CAUSE_USER_BUSY if requesting the channel failed
+due to being offhook already.
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ src/channels/chan_lantiq.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/src/channels/chan_lantiq.c
++++ b/src/channels/chan_lantiq.c
+@@ -1283,6 +1283,7 @@ static struct ast_channel *ast_lantiq_re
+ 	/* Bail out if channel is already in use */
+ 	struct lantiq_pvt *pvt = &iflist[port_id];
+ 	if (! pvt->channel_state == ONHOOK) {
++		*cause = AST_CAUSE_USER_BUSY;
+ 		ast_debug(1, "TAPI channel %i alread in use.\n", port_id+1);
+ 	} else {
+ 		chan = lantiq_channel(AST_STATE_DOWN, port_id, NULL, NULL, cap, assigned_ids, requestor);
