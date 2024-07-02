@@ -21,7 +21,7 @@ start_service() {
   if [ "$ENABLE_BARESIP" != yes ]; then
     $LOGGER User configuration incomplete - not starting $DAEMON
     $LOGGER Check ENABLE_BARESIP in $DEFAULT
-    exit 1
+    return 1
   fi
 
   procd_open_instance
