@@ -1,0 +1,24 @@
+diff --git a/pjlib/src/pj/os_core_unix.c b/pjlib/src/pj/os_core_unix.c
+index c17ad4ef0..a0f7f65e5 100644
+--- a/pjlib/src/pj/os_core_unix.c
++++ b/pjlib/src/pj/os_core_unix.c
+@@ -167,6 +167,9 @@ PJ_DEF(pj_status_t) pj_init(void)
+ 	return PJ_SUCCESS;
+     }
+ 
++    /* Init logging */
++    pj_log_init();
++
+ #if PJ_HAS_THREADS
+     /* Init this thread's TLS. */
+     if ((rc=pj_thread_init()) != 0) {
+@@ -179,9 +182,6 @@ PJ_DEF(pj_status_t) pj_init(void)
+ 
+ #endif
+ 
+-    /* Init logging */
+-    pj_log_init();
+-
+     /* Initialize exception ID for the pool.
+      * Must do so after critical section is configured.
+      */
