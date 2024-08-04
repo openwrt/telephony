@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
-PKG_VERSION:=1.10.11
+PKG_VERSION:=1.10.12
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch
-PKG_HASH:=7f9603a691220d9f47da42f3b19290b629b69dceb2eee56448f0a7cefcf9d1a1
+PKG_HASH:=e324e4ae063e692c42b93031157329bae339ea007e611d3535333deaed85aa47
 
 PKG_CPE_ID:=cpe:/a:freeswitch:freeswitch
 
@@ -127,7 +127,6 @@ FS_MOD_AVAILABLE:= \
 	http_cache \
 	isac \
 	json_cdr \
-	kazoo \
 	lcr \
 	ldap \
 	local_stream \
@@ -309,6 +308,7 @@ $(call Package/freeswitch/Default)
   MENU:=1
   USERID:=freeswitch=372:freeswitch=372
   DEPENDS:= \
+	  @BROKEN \
 	  $(ICONV_DEPENDS) \
 	  +libstdcpp \
 	  +!BUSYBOX_DEFAULT_SU:shadow-utils \
@@ -592,7 +592,7 @@ CONFIGURE_ARGS+= \
 	--with-python3=no
 endif
 
-ifeq ($(CONFIG_PACKAGE_freeswitch-mod-erlang-event)$(CONFIG_PACKAGE_freeswitch-mod-kazoo),)
+ifeq ($(CONFIG_PACKAGE_freeswitch-mod-erlang-event),)
 CONFIGURE_ARGS+= \
 	--with-erlang=no
 endif
@@ -921,7 +921,6 @@ $(eval $(call Package/freeswitch/Module,httapi,HT-TAPI,This module provides an A
 $(eval $(call Package/freeswitch/Module,http_cache,HTTP GET with caching,This module provides an API for making HTTP GET requests where the\nresult is cached.,))
 $(eval $(call Package/freeswitch/Module,isac,iSAC,iSAC codec support.,@arm||i386||mips||mips64||mips64el||mipsel||x86_64))
 $(eval $(call Package/freeswitch/Module,json_cdr,JSON CDR,JSON-based Call Detail Record handler.,))
-$(eval $(call Package/freeswitch/Module,kazoo,Kazoo,Kazoo module for FreeSWITCH.,+erlang))
 $(eval $(call Package/freeswitch/Module,lcr,LCR,This module adds a facility for least-cost routing.,))
 $(eval $(call Package/freeswitch/Module,ldap,LDAP,LDAP module for FreeSWITCH.,+libopenldap))
 $(eval $(call Package/freeswitch/Module,local_stream,Local stream,Connects multiple channels to a looped stream.,))
