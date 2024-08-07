@@ -73,7 +73,7 @@ The most portable fix for time_t handling is to always cast it to
  
 --- a/src/mod/endpoints/mod_sofia/sofia_presence.c
 +++ b/src/mod/endpoints/mod_sofia/sofia_presence.c
-@@ -4198,7 +4198,8 @@ void sofia_presence_handle_sip_i_subscri
+@@ -4197,7 +4197,8 @@ void sofia_presence_handle_sip_i_subscri
  				sql = switch_mprintf("insert into sip_dialogs (sip_from_user,sip_from_host,call_info,call_info_state,hostname,expires,rcd,profile_name) "
  									 "values ('%q','%q','%q','seized','%q',%"TIME_T_FMT",%ld,'%q')",
  									 to_user, to_host, switch_str_nil(p), mod_sofia_globals.hostname,

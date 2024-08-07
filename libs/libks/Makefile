@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libks
 
-PKG_VERSION:=2.0.2
+PKG_VERSION:=2.0.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=libks-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/signalwire/libks/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=af94f9fcdb2022b8f09187309ac2d372a5a4cc639af77cd4375f2d5c88b4fd63
+PKG_HASH:=0b78d07d7a4ebf6c58d898bde2873bc40941ed29ca237a3c9939860de4a0ba25
 
 PKG_BUILD_PARALLEL:=1
 CMAKE_INSTALL:=1
