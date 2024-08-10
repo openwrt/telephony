@@ -320,7 +320,7 @@ $(call Package/freeswitch/Default)
 	  +libcurl \
 	  +libedit \
 	  +libopenssl \
-	  +libpcre \
+	  +libpcre2 \
 	  +libpthread \
 	  +librt \
 	  +libspandsp3 \
