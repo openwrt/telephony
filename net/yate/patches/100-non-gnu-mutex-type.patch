@@ -13,7 +13,7 @@
  #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -264,7 +264,7 @@ AC_TRY_COMPILE([
+@@ -268,7 +268,7 @@ AC_TRY_COMPILE([
  #include <pthread.h>
  ],[
  pthread_mutexattr_t attr;
