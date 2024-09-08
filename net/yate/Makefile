@@ -9,12 +9,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=yate
-PKG_VERSION:=6.4.0-1
-PKG_RELEASE:=3
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://yate.null.ro/tarballs/yate6/
-PKG_HASH:=8c23dc6bffbf8d478db3a85964b5019771c8f6c9acf5220f3465516a748a03b0
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/yatevoip/yate.git
+PKG_SOURCE_DATE:=2024-09-03
+PKG_SOURCE_VERSION:=d009381e4920e608dc2aae847c56469d471a8c48
+PKG_MIRROR_HASH:=eb85e127df46de9aea20f98b28b23897de631da972b6ae6e312338fcf86c0cfd
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -51,14 +52,11 @@ ifeq ($(CONFIG_HOST_OS_MACOS),y)
     include $(TOPDIR)/feeds/packages/utils/fakeuname/fakeuname.mk
 endif
 
-TAR_OPTIONS+= --strip-components 1
-TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
-
 define Package/$(PKG_NAME)/Default
   SUBMENU:=Telephony
   SECTION:=net
   CATEGORY:=Network
-  URL:=http://yate.null.ro/
+  URL:=https://yate.ro/
 endef
 
 define Package/$(PKG_NAME)
@@ -100,6 +98,7 @@ CONFIGURE_VARS+= \
 	$(if $(CONFIG_HOST_OS_MACOS),PATH=$(FAKEUNAME_PATH):$(TARGET_PATH_PKG))
 
 CONFIGURE_ARGS+= \
+	--disable-atomics \
 	--disable-sctp \
 	--disable-tdmcard \
 	--disable-wanpipe \
@@ -139,6 +138,22 @@ CONFIGURE_ARGS+= \
 	--disable-isac-float
 endif
 
+define Build/Configure
+	(cd $(PKG_BUILD_DIR); ./yate-config.sh)
+	$(call Build/Configure/Default)
+endef
+
+define Build/Install
+	$(call Build/Install/Default,install-noapi)
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(STAGING_DIR)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(STAGING_DIR)/usr/include/
+	$(INSTALL_DIR) $(STAGING_DIR)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(STAGING_DIR)/usr/lib/
+endef
+
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib
 
@@ -163,13 +178,6 @@ endef
 define Package/$(PKG_NAME)-sounds/install
 	$(INSTALL_DIR) $(1)/usr/share/yate/sounds
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/yate/sounds/ $(1)/usr/share/yate/
-endef
-
-define Build/InstallDev
-	$(INSTALL_DIR) $(STAGING_DIR)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(STAGING_DIR)/usr/include/
-	$(INSTALL_DIR) $(STAGING_DIR)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(STAGING_DIR)/usr/lib/
 endef
 
 define BuildPlugin
