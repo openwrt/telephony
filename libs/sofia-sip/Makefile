@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=sofia-sip
 
 PKG_VERSION:=1.13.17
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/freeswitch/$(PKG_NAME)/tar.gz/v${PKG_VERSION}?
@@ -60,7 +60,6 @@ licensed under the LGPL.
 endef
 
 CONFIGURE_ARGS+= \
-	--disable-stun \
 	--without-doxygen \
 	--without-glib
 
