@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch-mod-bcg729
 
 PKG_RELEASE:=1
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=
 
 PKG_LICENSE:=MPL-1.1
 PKG_LICENSE_FILES:=LICENSE

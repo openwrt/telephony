@@ -21,7 +21,7 @@ PKG_INSTALL:=1
 
 PKG_LICENSE:=LGPL
 PKG_LICENSE_FILES:=build/COPYING
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=
 
 include $(INCLUDE_DIR)/package.mk
 

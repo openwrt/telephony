@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2020 Sebastian Kemper <sebastian_ml@gmx.net>
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -21,7 +19,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-mr$(PKG_VER
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=
 
 # When building in parallel, some files (like streambuf.c or dtmflib.c)
 # are generated multiple times by the rtpengine build system.

@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2020 Sebastian Kemper <sebastian_ml@gmx.net>
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -22,9 +20,7 @@ PKG_FIXUP:=autoreconf
 
 PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_MAINTAINER:= \
-	Jiri Slachta <jiri@slachta.eu> \
-	Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 include $(INCLUDE_DIR)/package.mk
 

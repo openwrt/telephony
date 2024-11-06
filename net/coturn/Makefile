@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2021 Sebastian Kemper <sebastian_ml@gmx.net>
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -16,7 +14,7 @@ PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/coturn/coturn
 PKG_MIRROR_HASH:=55a7d63edfde6548cd6d6f1b62f6997beeebc66e0ff07b0afd175829434cbf3a
 
-PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>, Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_LICENSE:=BSD-COTURN-CITRIX COMBINED-CITRIX-VIVOCHA-BSD MIT-HASH
 PKG_LICENSE_FILES:=LICENSE src/apps/relay/dbdrivers/* src/server/ns_turn_khash.h
 PKG_CPE_ID:=cpe:/a:coturn_project:coturn
