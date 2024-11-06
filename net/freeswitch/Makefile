@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2017 Sebastian Kemper <sebastian_ml@gmx.net>
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -10,7 +8,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.12
 PKG_RELEASE:=2
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz
 PKG_SOURCE_URL:=https://files.freeswitch.org/releases/freeswitch

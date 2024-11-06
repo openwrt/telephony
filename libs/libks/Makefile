@@ -1,5 +1,3 @@
-# 
-# Copyright (C) 2019 Sebastian Kemper <sebastian_ml@gmx.net>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -28,7 +26,7 @@ PKG_LICENSE:= \
 	twofish
 PKG_LICENSE_FILES:=copyright
 
-PKG_MAINTAINER:=Sebastian Kemper <sebastian_ml@gmx.net>
+PKG_MAINTAINER:=
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
