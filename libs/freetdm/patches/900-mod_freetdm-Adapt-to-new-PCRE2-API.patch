@@ -1,0 +1,96 @@
+From f2a6ac861701217a42fbcb11d5295eadb34b6beb Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 8 Nov 2024 02:33:00 +0100
+Subject: [PATCH] mod_freetdm: Adapt to new PCRE2 API
+
+Adapt to new PCRE2 API.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ mod_freetdm/mod_freetdm.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
+
+--- a/mod_freetdm/mod_freetdm.c
++++ b/mod_freetdm/mod_freetdm.c
+@@ -2325,21 +2325,21 @@ static FIO_SIGNAL_CB_FUNCTION(on_fxo_sig
+ 			switch_set_string(caller_data->collected, dtmf);
+ 
+ 			if ((regex || fail_regex) && !zstr(dtmf)) {
++				switch_regex_match_data_t *match_data = NULL;
+ 				switch_regex_t *re = NULL;
+-				int ovector[30];
+ 				int match = 0;
+ 
+ 				if (fail_regex) {
+-					match = switch_regex_perform(dtmf, fail_regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(dtmf, fail_regex, &re, &match_data);
+ 					status = match ? FTDM_SUCCESS : FTDM_BREAK;
+-					switch_regex_safe_free(re);
++					switch_regex_and_match_data_safe_free(re, match_data);
+ 					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs fail regex %s %s\n", dtmf, fail_regex, match ? "matched" : "did not match");
+ 				}
+ 
+ 				if (status == FTDM_SUCCESS && regex) {
+-					match = switch_regex_perform(dtmf, regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(dtmf, regex, &re, &match_data);
+ 					status = match ? FTDM_BREAK : FTDM_SUCCESS;
+-					switch_regex_safe_free(re);
++					switch_regex_and_match_data_safe_free(re, match_data);
+ 					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs dial regex %s %s\n", dtmf, regex, match ? "matched" : "did not match");
+ 				}
+ 				ftdm_log(FTDM_LOG_DEBUG, "returning %s to COLLECT event with DTMF %s\n", status == FTDM_SUCCESS ? "success" : "break", dtmf);
+@@ -2545,21 +2545,22 @@ static FIO_SIGNAL_CB_FUNCTION(on_fxs_sig
+ 			switch_set_string(caller_data->collected, dtmf);
+ 
+ 			if ((regex || fail_regex) && !zstr(dtmf)) {
++				switch_regex_match_data_t *match_data = NULL;
+ 				switch_regex_t *re = NULL;
+ 				int ovector[30];
+ 				int match = 0;
+ 
+ 				if (fail_regex) {
+-					match = switch_regex_perform(dtmf, fail_regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(dtmf, fail_regex, &re, &match_data);
+ 					status = match ? FTDM_SUCCESS : FTDM_BREAK;
+-					switch_regex_safe_free(re);
++					switch_regex_and_match_data_safe_free(re, match_data);
+ 					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs fail regex %s %s\n", dtmf, fail_regex, match ? "matched" : "did not match");
+ 				}
+ 
+ 				if (status == FTDM_SUCCESS && regex) {
+-					match = switch_regex_perform(dtmf, regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(dtmf, regex, &re, &match_data);
+ 					status = match ? FTDM_BREAK : FTDM_SUCCESS;
+-					switch_regex_safe_free(re);
++					switch_regex_and_match_data_safe_free(re, match_data);
+ 					ftdm_log(FTDM_LOG_DEBUG, "DTMF [%s] vs dial regex %s %s\n", dtmf, regex, match ? "matched" : "did not match");
+ 				}
+ 				ftdm_log(FTDM_LOG_DEBUG, "returning %s to COLLECT event with DTMF %s\n", status == FTDM_SUCCESS ? "success" : "break", dtmf);
+@@ -2631,22 +2632,23 @@ static FIO_SIGNAL_CB_FUNCTION(on_r2_sign
+ 			ftdm_log(FTDM_LOG_DEBUG, "R2 DNIS so far [%s]\n", caller_data->dnis.digits);
+ 
+ 			if ((regex || fail_regex) && !zstr(caller_data->dnis.digits)) {
++				switch_regex_match_data_t *match_data = NULL;
+ 				switch_regex_t *re = NULL;
+ 				int ovector[30];
+ 				int match = 0;
+ 
+ 				if (fail_regex) {
+-					match = switch_regex_perform(caller_data->dnis.digits, fail_regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(caller_data->dnis.digits, fail_regex, &re, &match_data);
+ 					status = match ? FTDM_SUCCESS : FTDM_BREAK;
+-					switch_regex_safe_free(re);
++					switch_regex_and_match_data_safe_free(re, match_data);
+ 				}
+ 
+ 				if (status == FTDM_SUCCESS && regex) {
+-					match = switch_regex_perform(caller_data->dnis.digits, regex, &re, ovector, sizeof(ovector) / sizeof(ovector[0]));
++					match = switch_regex_perform(caller_data->dnis.digits, regex, &re, &match_data);
+ 					status = match ? FTDM_BREAK : FTDM_SUCCESS;
+ 				}
+ 
+-				switch_regex_safe_free(re);
++				switch_regex_and_match_data_safe_free(re, match_data);
+ 			}
+ 		}
+ 		break;
