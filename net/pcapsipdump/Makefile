@@ -32,7 +32,7 @@ endef
 
 define Package/pcapsipdump/description
  pcapsipdump is a tool for dumping SIP sessions (plus RTP traffic, if
- available) to disk in a fashion similar to "tcpdump -w" (format is
+ available) to disk in a fashion similar to 'tcpdump -w' (format is
  exactly the same), but one file per SIP session (even if there are
  thousands of concurrent SIP sessions).
 endef
