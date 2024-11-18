@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=3.16.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/baresip/baresip/tar.gz/v$(PKG_VERSION)?
@@ -126,8 +126,8 @@ define Package/baresip/install
 			$(1)/usr/lib/baresip/modules \
 			$(1)/usr/share/baresip \
 			$(1)/etc/baresip \
-			$(1)/etc/init.d \
-			$(1)/etc/default
+			$(1)/etc/uci-defaults \
+			$(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/baresip $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libbaresip.so* $(1)/usr/lib
 	$(INSTALL_DATA) \
@@ -137,7 +137,7 @@ define Package/baresip/install
 	$(SED) '/^#/!s/^/#/' $(PKG_BUILD_DIR)/docs/examples/accounts
 	$(SED) '/^#module_path/s|^#||;s|/local||' $(PKG_BUILD_DIR)/docs/examples/config
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/docs/examples/{accounts,config,contacts} $(1)/etc/baresip
-	$(INSTALL_CONF) ./files/baresip.default $(1)/etc/default/baresip
+	$(INSTALL_DATA) ./files/baresip.defaults $(1)/etc/uci-defaults/90-baresip
 	$(INSTALL_BIN) ./files/baresip.init $(1)/etc/init.d/baresip
 endef
 
@@ -145,7 +145,6 @@ define Package/baresip/conffiles
 /etc/baresip/accounts
 /etc/baresip/config
 /etc/baresip/contacts
-/etc/default/baresip
 endef
 
 ##################
