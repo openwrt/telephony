@@ -1,0 +1,12 @@
+CFGFILE=/etc/config/baresip
+
+if [ ! -f "$CFGFILE" ]; then
+	cat >$CFGFILE <<EOF
+config baresip main
+	option enable 0
+	option options ''
+EOF
+fi
+
+chown -R baresip:baresip /etc/baresip
+
