@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
-PKG_VERSION:=5.7.2
-PKG_RELEASE:=2
+PKG_VERSION:=6.0.1
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://www.kamailio.org/pub/kamailio/$(PKG_VERSION)/src
-PKG_SOURCE:=kamailio-$(PKG_VERSION)_src.tar.gz
-PKG_HASH:=72c9a067da8d6fa920d3737d98cd7f66c321f80cbe1076e2d5a392b422503122
+PKG_SOURCE_URL:=https://github.com/kamailio/kamailio/archive/refs/tags/
+PKG_SOURCE:=$(PKG_VERSION).tar.gz
+PKG_HASH:=3d7a91fd52d04f09d814fd34eda6443c559adace4248eb6ae71c949e3e3f9f29
 PKG_BUILD_FLAGS:=no-mips16
 
 PKG_LICENSE:=GPL-2.0+
@@ -32,16 +32,13 @@ MODULES_AVAILABLE:= \
 	alias_db \
 	app_jsdt \
 	app_lua \
-	app_lua_sr \
 	app_python3 \
 	app_ruby \
-	app_sqlang \
 	async \
 	auth \
 	auth_db \
 	auth_diameter \
 	auth_ephemeral \
-	auth_identity \
 	auth_xkeys \
 	avp \
 	avpops \
@@ -104,6 +101,7 @@ MODULES_AVAILABLE:= \
 	ims_isc \
 	ims_ocs \
 	ims_qos \
+	ims_qos_npn \
 	ims_registrar_pcscf \
 	ims_registrar_scscf \
 	ims_usrloc_pcscf \
@@ -134,6 +132,7 @@ MODULES_AVAILABLE:= \
 	nathelper \
 	nat_traversal \
 	ndb_redis \
+	nghttp2 \
 	nosip \
 	outbound \
 	p_usrloc \
@@ -147,6 +146,7 @@ MODULES_AVAILABLE:= \
 	prefix_route \
 	presence \
 	presence_conference \
+	presence_dfks \
 	presence_dialoginfo \
 	presence_mwi \
 	presence_profile \
@@ -161,6 +161,7 @@ MODULES_AVAILABLE:= \
 	pua_usrloc \
 	pua_xmpp \
 	pv \
+	pvtpl \
 	pv_headers \
 	qos \
 	ratelimit \
@@ -205,6 +206,7 @@ MODULES_AVAILABLE:= \
 	tmrec \
 	topoh \
 	topos \
+	topos_htable \
 	topos_redis \
 	tm \
 	tmx \
@@ -279,9 +281,6 @@ $(foreach c,kamailio.cfg kamctlrc,$(call Package/kamailio/install/conffile,$(1),
 		$(PKG_INSTALL_DIR)/usr/sbin/kam{ailio,cmd,ctl,dbctl} \
 		$(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/kamailio/modules
-	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/kamailio/lib{srdb1,srdb2}.so* \
-		$(1)/usr/lib/kamailio/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) \
 		./files/kamailio.conf \
@@ -328,30 +327,6 @@ define Package/kamailio/install/module
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/kamailio/modules/$(2).so* $(1)/usr/lib/kamailio/modules/
 endef
 
-define Package/kamailio-lib-libkamailio-ims
-$(call Package/kamailio/Default)
-  TITLE:=Kamailio IMS library
-  DEPENDS:=kamailio
-endef
-
-define Package/kamailio-lib-libkamailio-ims/install
-	$(INSTALL_DIR) $(1)/usr/lib/kamailio
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/libkamailio_ims.so* \
-						$(1)/usr/lib/kamailio
-endef
-
-define Package/kamailio-lib-libtrie
-$(call Package/kamailio/Default)
-  TITLE:=Kamailio digital tree library
-  DEPENDS:=kamailio
-endef
-
-define Package/kamailio-lib-libtrie/install
-	$(INSTALL_DIR) $(1)/usr/lib/kamailio
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/kamailio/libtrie.so* \
-					$(1)/usr/lib/kamailio
-endef
-
 define Package/kamailio-util-kambdb-recover
 $(call Package/kamailio/Default)
   TITLE:=Kamailio Berkeley DB recovery utility
@@ -394,18 +369,26 @@ endef
 # Kamailio always builds a baseline of packages. The "standard" group is
 # the lightest baseline.
 
-# "uid_gflags" is added to the list of modules to have at least one
-# module that kicks off the build of the internal libsrdb2. The module
-# has no other extra dependencies.
-#
-# The same is done with:
-#   "ims_diameter_server" -> libkamailio_ims
-#   "carrierroute" -> libtrie
+# The following Kamailio libs are compiled into the core from 6.0.x onwards (and
+# thus no longer need to be installed via EXTRA_MODULES):
+#   libkamailio_ims
+#   libtrie
+#   lib{srdb1,srdb2}
 
-EXTRA_MODULES:= \
-	$(if $(CONFIG_PACKAGE_kamailio-mod-carrierroute),,carrierroute) \
-	$(if $(CONFIG_PACKAGE_kamailio-mod-ims-diameter-server),,ims_diameter_server) \
-	$(if $(CONFIG_PACKAGE_kamailio-mod-uid-gflags),,uid_gflags)
+# EXTRA_MODULES:= \
+# 	$(if $(CONFIG_PACKAGE_kamailio-mod-carrierroute),,carrierroute) \
+# 	$(if $(CONFIG_PACKAGE_kamailio-mod-ims-diameter-server),,ims_diameter_server) \
+# 	$(if $(CONFIG_PACKAGE_kamailio-mod-uid-gflags),,uid_gflags)
+
+# Modules which depend on libopenssl
+# auth_ephemeral
+# cdp
+# crypto
+# dnssec
+# nghttp2
+# outbound
+# tls
+# websocket
 
 # MIPS tweak:
 #
@@ -457,8 +440,6 @@ define Build/Compile
 endef
 
 $(eval $(call BuildPackage,kamailio))
-$(eval $(call BuildPackage,kamailio-lib-libkamailio-ims))
-$(eval $(call BuildPackage,kamailio-lib-libtrie))
 $(eval $(call BuildPackage,kamailio-util-kambdb-recover))
 
 ################################
@@ -478,16 +459,13 @@ $(eval $(call BuildKamailioModule,acc_json,Accounting with records exported in J
 $(eval $(call BuildKamailioModule,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailioModule,app_jsdt,Execute JavaScript scripts,,))
 $(eval $(call BuildKamailioModule,app_lua,Execute embedded Lua scripts,,+liblua))
-$(eval $(call BuildKamailioModule,app_lua_sr,Old Lua API,,+kamailio-mod-app-lua,))
 $(eval $(call BuildKamailioModule,app_python3,Python3 scripting interpreter,,+python3-light))
 $(eval $(call BuildKamailioModule,app_ruby,Ruby scripting interpreter,,+libruby))
-$(eval $(call BuildKamailioModule,app_sqlang,Execute Squirrel language scripts,,+libstdcpp))
 $(eval $(call BuildKamailioModule,async,Asynchronous SIP handling functions,,+kamailio-mod-tm +kamailio-mod-tmx))
 $(eval $(call BuildKamailioModule,auth,Authentication Framework,,))
 $(eval $(call BuildKamailioModule,auth_db,Database-backend authentication,,+kamailio-mod-auth))
 $(eval $(call BuildKamailioModule,auth_diameter,Diameter authentication,,+kamailio-mod-sl))
 $(eval $(call BuildKamailioModule,auth_ephemeral,Ephemeral credentials,,+libopenssl))
-$(eval $(call BuildKamailioModule,auth_identity,Identity authentication,,+libopenssl +libcurl))
 $(eval $(call BuildKamailioModule,auth_xkeys,Shared-key authentication,,+kamailio-mod-auth))
 $(eval $(call BuildKamailioModule,avp,Functions for handling AVPs,,))
 $(eval $(call BuildKamailioModule,avpops,AVP operation,,))
@@ -495,8 +473,8 @@ $(eval $(call BuildKamailioModule,benchmark,Config benchmark,,))
 $(eval $(call BuildKamailioModule,blst,Blacklisting API for config,,))
 $(eval $(call BuildKamailioModule,call_control,Call Control,,+kamailio-mod-dialog +kamailio-mod-pv))
 $(eval $(call BuildKamailioModule,call_obj,Call identification support,,))
-$(eval $(call BuildKamailioModule,carrierroute,Carrier Route,,+kamailio-lib-libtrie))
-$(eval $(call BuildKamailioModule,cdp,C Diameter Peer,,))
+$(eval $(call BuildKamailioModule,carrierroute,Carrier Route,,))
+$(eval $(call BuildKamailioModule,cdp,C Diameter Peer,,+libopenssl))
 $(eval $(call BuildKamailioModule,cdp_avp,CDP AVP helper module,,+kamailio-mod-cdp))
 $(eval $(call BuildKamailioModule,cfgutils,Config utilities,,))
 $(eval $(call BuildKamailioModule,cfg_db,Load parameters from database,,))
@@ -541,17 +519,18 @@ $(eval $(call BuildKamailioModule,h350,H.350,,+kamailio-mod-ldap +libopenldap))
 $(eval $(call BuildKamailioModule,htable,Hash Table,,))
 $(eval $(call BuildKamailioModule,http_client,HTTP client using CURL,,+libcurl))
 $(eval $(call BuildKamailioModule,imc,IM conferencing,,+kamailio-mod-db-mysql +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_auth,IMS authentication module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_charging,IMS charging component module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_auth,IMS authentication module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_charging,IMS charging component module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-tm))
 $(eval $(call BuildKamailioModule,ims_dialog,IMS dialog tracking module,,+kamailio-mod-rr +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_diameter_server,IMS DIAMETER server module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp))
-$(eval $(call BuildKamailioModule,ims_icscf,IMS ICSCF component module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-sl +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_ipsec_pcscf,Diameter server implementation,,+kamailio-lib-libkamailio-ims +kamailio-mod-ims-usrloc-pcscf +kamailio-mod-tm +libmnl))
-$(eval $(call BuildKamailioModule,ims_isc,IMS ISC component module,,+kamailio-lib-libkamailio-ims +kamailio-mod-ims-usrloc-scscf +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_ocs,MS OCS component module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp))
-$(eval $(call BuildKamailioModule,ims_qos,IMS Diameter Rx interface between PCSCF and PCRF functions,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-ims-dialog +kamailio-mod-ims-usrloc-pcscf +kamailio-mod-tm))
-$(eval $(call BuildKamailioModule,ims_registrar_pcscf,MS PCSCF registrar module,,+kamailio-lib-libkamailio-ims +kamailio-mod-ims-usrloc-pcscf))
-$(eval $(call BuildKamailioModule,ims_registrar_scscf,IMS SCSCF registrar module,,+kamailio-lib-libkamailio-ims +kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-ims-usrloc-scscf +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_diameter_server,IMS DIAMETER server module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp))
+$(eval $(call BuildKamailioModule,ims_icscf,IMS ICSCF component module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-sl +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_ipsec_pcscf,Diameter server implementation,,+kamailio-mod-ims-usrloc-pcscf +kamailio-mod-tm +libmnl))
+$(eval $(call BuildKamailioModule,ims_isc,IMS ISC component module,,+kamailio-mod-ims-usrloc-scscf +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_ocs,MS OCS component module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp))
+$(eval $(call BuildKamailioModule,ims_qos,IMS Diameter Rx interface between PCSCF and PCRF functions,,+kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-ims-dialog +kamailio-mod-ims-usrloc-pcscf +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,ims_qos_npn,IMS QoS NPN Diameter Rx interface between PCSCF and PCRF functions,enhanced version of IMS QoS implementation,+kamailio-mod-ims-usrloc-pcscf +kamailio-mod-tm +kamailio-mod-cdp +kamailio-mod-cdp-avp))
+$(eval $(call BuildKamailioModule,ims_registrar_pcscf,MS PCSCF registrar module,,+kamailio-mod-ims-usrloc-pcscf))
+$(eval $(call BuildKamailioModule,ims_registrar_scscf,IMS SCSCF registrar module,,+kamailio-mod-cdp +kamailio-mod-cdp-avp +kamailio-mod-ims-usrloc-scscf +kamailio-mod-tm))
 $(eval $(call BuildKamailioModule,ims_usrloc_pcscf,IMS PCSCF usrloc module,,))
 $(eval $(call BuildKamailioModule,ims_usrloc_scscf,IMS SCSCF usrloc module,,))
 $(eval $(call BuildKamailioModule,ipops,IP and IPv6 operations,,))
@@ -579,6 +558,7 @@ $(eval $(call BuildKamailioModule,msrp,MSRP routing engine,,+kamailio-mod-tls))
 $(eval $(call BuildKamailioModule,mtree,Memory caching system,,))
 $(eval $(call BuildKamailioModule,nathelper,NAT helper,,+kamailio-mod-usrloc))
 $(eval $(call BuildKamailioModule,nat_traversal,NAT traversal,,+kamailio-mod-dialog +kamailio-mod-sl +kamailio-mod-tm))
+$(eval $(call BuildKamailioModule,nghttp2,NGHTTP2,HTTP2 server module implementation,+libnghttp2 +libopenssl +libevent2 +libevent2-openssl))
 $(eval $(call BuildKamailioModule,ndb_redis,Connect to REDIS NoSQL,,+libhiredis))
 $(eval $(call BuildKamailioModule,nosip,non-sip package handling,,+kamailio-mod-rr))
 $(eval $(call BuildKamailioModule,outbound,SIP Outbound implementation,,+kamailio-mod-stun +libopenssl))
@@ -594,6 +574,7 @@ $(eval $(call BuildKamailioModule,prefix_route,Execute based on prefix,,))
 $(eval $(call BuildKamailioModule,presence,Presence server,,+kamailio-mod-sl +kamailio-mod-tm,))
 $(eval $(call BuildKamailioModule,presence_conference,Conference events,,+kamailio-mod-presence))
 $(eval $(call BuildKamailioModule,presence_dialoginfo,Dialog Event presence,,+kamailio-mod-presence))
+$(eval $(call BuildKamailioModule,presence_dfks,Device FeatureKey Synchronization,,+kamailio-mod-sl +kamailio-mod-presence +kamailio-mod-pua))
 $(eval $(call BuildKamailioModule,presence_mwi,MWI presence,,+kamailio-mod-presence))
 $(eval $(call BuildKamailioModule,presence_profile,User profile extensions,,+kamailio-mod-presence))
 $(eval $(call BuildKamailioModule,presence_reginfo,Registration info,,+kamailio-mod-presence))
@@ -607,6 +588,7 @@ $(eval $(call BuildKamailioModule,pua_rpc,RPC extensions for PUA,,+kamailio-mod-
 $(eval $(call BuildKamailioModule,pua_usrloc,PUA User Location,,+kamailio-mod-pua +kamailio-mod-usrloc))
 $(eval $(call BuildKamailioModule,pua_xmpp,PUA XMPP,,+kamailio-mod-presence +kamailio-mod-pua +kamailio-mod-xmpp))
 $(eval $(call BuildKamailioModule,pv,Pseudo-Variables,,))
+$(eval $(call BuildKamailioModule,pvtpl,PVTPL,reads content of files at startup and can evaluate the variables inside during runtime,))
 $(eval $(call BuildKamailioModule,pv_headers,Flexible SIP header management,,))
 $(eval $(call BuildKamailioModule,qos,QoS control,,+kamailio-mod-dialog))
 $(eval $(call BuildKamailioModule,ratelimit,Traffic shapping,,))
@@ -651,6 +633,7 @@ $(eval $(call BuildKamailioModule,tls,TLS operations,,+libopenssl,,tls.cfg))
 $(eval $(call BuildKamailioModule,tmrec,Match time recurrences,,))
 $(eval $(call BuildKamailioModule,topoh,Topology hiding,,+kamailio-mod-rr))
 $(eval $(call BuildKamailioModule,topos,Topology stripping module,,+kamailio-mod-rr))
+$(eval $(call BuildKamailioModule,topos_htable,Hash Table storage for topology stripping,,+kamailio-mod-topos +kamailio-mod-htable))
 $(eval $(call BuildKamailioModule,topos_redis,Redis backend for topos module,,+kamailio-mod-ndb-redis +kamailio-mod-topos))
 $(eval $(call BuildKamailioModule,tm,Transaction,,))
 $(eval $(call BuildKamailioModule,tmx,Transaction module extensions,,))
@@ -663,7 +646,7 @@ $(eval $(call BuildKamailioModule,uid_domain,Domains management,,))
 $(eval $(call BuildKamailioModule,uid_gflags,Global attributes and flags,,))
 $(eval $(call BuildKamailioModule,uid_uri_db,Database URI operations,,))
 $(eval $(call BuildKamailioModule,uri_db,Database-backend SIP URI checking,,))
-$(eval $(call BuildKamailioModule,userblocklist,User blocklists,,+kamailio-lib-libtrie))
+$(eval $(call BuildKamailioModule,userblocklist,User blocklists,,))
 $(eval $(call BuildKamailioModule,usrloc,User location,,))
 $(eval $(call BuildKamailioModule,utils,Misc utilities,,+libcurl,))
 $(eval $(call BuildKamailioModule,uuid,UUID utilities,,+libuuid))
