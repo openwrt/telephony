@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kamailio
 PKG_VERSION:=6.0.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://github.com/kamailio/kamailio/archive/refs/tags/
 PKG_SOURCE:=$(PKG_VERSION).tar.gz
@@ -263,6 +263,8 @@ endef
 define Package/kamailio
 $(call Package/kamailio/Default)
   TITLE:=Mature and flexible open source SIP server, v$(PKG_VERSION)
+  USER:=kamailio
+  GROUP:=kamailio
   USERID:=kamailio=380:kamailio=380
   MENU:=1
 endef
@@ -300,6 +302,7 @@ endef
 
 define Package/kamailio/postinst
 #!/bin/sh
+chown "$(USER)":"$(GROUP)" "/etc/kamailio" -R
 if [ -z "$${IPKG_INSTROOT}" ]; then
   echo
   echo "o-------------------------------------------------------------------o"
@@ -412,7 +415,7 @@ MAKE_FLAGS += \
 	LIBDIR=lib \
 	PREFIX=/usr \
 	cfg_prefix="$(PKG_INSTALL_DIR)" \
-	cfg_target=/etc/kamailio \
+	cfg_target=/etc/kamailio/ \
 	group_include="standard" \
 	include_modules="$$(INCL_MODULES) $(EXTRA_MODULES)" \
 	quiet=verbose \
