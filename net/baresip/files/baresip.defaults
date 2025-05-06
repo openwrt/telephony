@@ -5,6 +5,23 @@ if [ ! -f "$CFGFILE" ]; then
 config baresip main
 	option enable 0
 	option options ''
+
+config account
+	option user '+49123456789'
+	option password ''
+	option server 'tel.t-online.de'
+	option transport 'tls'
+	option mediaenc 'srtp'
+	option ignore 1
+
+config account
+	option user '12'
+	option password '7282ce22eee6d91193a1d5014398356x'
+	option server '172.27.0.97'
+	option transport 'udp'
+	option mediaenc ''
+	option append 'answerdelay=0;rwait=90;mwi=no'
+	option ignore 1
 EOF
 fi
 

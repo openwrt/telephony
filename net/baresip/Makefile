@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=3.16.0
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/baresip/baresip/tar.gz/v$(PKG_VERSION)?
@@ -142,7 +142,6 @@ define Package/baresip/install
 endef
 
 define Package/baresip/conffiles
-/etc/baresip/accounts
 /etc/baresip/config
 /etc/baresip/contacts
 endef
