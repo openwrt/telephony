@@ -4,6 +4,31 @@
 START=92
 USE_PROCD=1
 PROG=/usr/bin/baresip
+ACCOUNTS=
+
+add_account()
+{
+	local user password server transport append ignore mediaenc
+	local acc
+
+	uci_validate_section baresip account "${1}" \
+		'ignore:bool:0' \
+		'user:string' \
+		'password:string' \
+		'server:string' \
+		'transport:string:udp' \
+		'mediaenc:string' \
+		'append:string'
+
+	[ "$ignore" = "0" ] || return
+
+	acc="<sip:${user}@${server};transport=${transport}>"
+	[ -n "$mediaenc" ] && acc="${acc};mediaenc=${mediaenc}"
+	[ -n "$password" ] && acc="${acc};auth_pass=${password}"
+	[ -n "$append" ] && acc="${acc};${append}"
+
+	ACCOUNTS="${ACCOUNTS}${acc}\n"
+}
 
 start_service()
 {
@@ -15,6 +40,10 @@ start_service()
 
 	[ "$enable" = "0" ] && return
 
+	config_load baresip
+	config_foreach add_account account
+	printf "$ACCOUNTS" > /etc/baresip/accounts
+
 	procd_open_instance
 	procd_set_param command $PROG -f /etc/baresip $options
 	procd_set_param user baresip
@@ -25,4 +54,9 @@ start_service()
 service_triggers()
 {
 	procd_add_reload_trigger baresip
+}
+
+reload_service()
+{
+	/etc/init.d/baresip restart
 }
