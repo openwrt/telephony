@@ -1,0 +1,66 @@
+commit 5358829a0902fd472f79a56d895db71da2aa03a4
+Author: InterLinked1 <24227567+InterLinked1@users.noreply.github.com>
+Date:   Mon Sep 23 08:04:54 2024 -0400
+
+    xpp, sysfs: Use const struct device_device if needed.
+    
+    Kernel commit d69d804845985c29ab5be5a4b3b1f4787893daf8
+    changed struct device_driver to be const, so make the
+    arguments const on kernels 6.11 and newer.
+    
+    Resolves: #63
+
+--- a/drivers/dahdi/dahdi-sysfs-chan.c
++++ b/drivers/dahdi/dahdi-sysfs-chan.c
+@@ -220,7 +220,11 @@ static void chan_release(struct device *
+ 	chan_dbg(DEVICES, chan, "SYSFS\n");
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)
++static int chan_match(struct device *dev, const struct device_driver *driver)
++#else
+ static int chan_match(struct device *dev, struct device_driver *driver)
++#endif /* LINUX_VERSION_CODE */
+ {
+ 	struct dahdi_chan *chan;
+ 
+--- a/drivers/dahdi/dahdi-sysfs.c
++++ b/drivers/dahdi/dahdi-sysfs.c
+@@ -42,7 +42,11 @@ module_param(tools_rootdir, charp, 0444)
+ MODULE_PARM_DESC(tools_rootdir,
+ 		"root directory of all tools paths (default /)");
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)
++static int span_match(struct device *dev, const struct device_driver *driver)
++#else
+ static int span_match(struct device *dev, struct device_driver *driver)
++#endif /* LINUX_VERSION_CODE */
+ {
+ 	return 1;
+ }
+--- a/drivers/dahdi/xpp/xbus-sysfs.c
++++ b/drivers/dahdi/xpp/xbus-sysfs.c
+@@ -397,7 +397,11 @@ static struct attribute *xbus_dev_attrs[
+ ATTRIBUTE_GROUPS(xbus_dev);
+ #endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)
++static int astribank_match(struct device *dev, const struct device_driver *driver)
++#else
+ static int astribank_match(struct device *dev, struct device_driver *driver)
++#endif /* LINUX_VERSION_CODE */
+ {
+ 	DBG(DEVICES, "SYSFS MATCH: dev->bus_id = %s, driver->name = %s\n",
+ 	    dev_name(dev), driver->name);
+@@ -766,7 +770,11 @@ static DEVICE_ATTR_READER(refcount_xpd_s
+ 	return len;
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)
++static int xpd_match(struct device *dev, const struct device_driver *driver)
++#else
+ static int xpd_match(struct device *dev, struct device_driver *driver)
++#endif /* LINUX_VERSION_CODE */
+ {
+ 	struct xpd_driver *xpd_driver;
+ 	xpd_t *xpd;

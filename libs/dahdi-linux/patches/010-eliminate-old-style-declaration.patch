@@ -1,0 +1,22 @@
+commit fe19b533513a2dbc69208bb3ca5dd4948c72c7b9
+Author: InterLinked1 <24227567+InterLinked1@users.noreply.github.com>
+Date:   Sun Sep 22 14:14:14 2024 -0400
+
+    wct4xxp: Eliminate old-style declaration.
+    
+    Fix a single instance of functions being declared inline after their
+    return type, which causes a compiler error on newer systems.
+    
+    Resolves: #59
+
+--- a/drivers/dahdi/wct4xxp/base.c
++++ b/drivers/dahdi/wct4xxp/base.c
+@@ -1172,7 +1172,7 @@ static int t4_ioctl(struct dahdi_chan *c
+ 	return 0;
+ }
+ 
+-static void inline t4_hdlc_xmit_fifo(struct t4 *wc, unsigned int span, struct t4_span *ts)
++static inline void t4_hdlc_xmit_fifo(struct t4 *wc, unsigned int span, struct t4_span *ts)
+ {
+ 	int res, i;
+ 	unsigned int size = 32;
