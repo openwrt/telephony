@@ -1,0 +1,48 @@
+From 6bfd233e42ed339c95c40ce58306c912a2ba05ad Mon Sep 17 00:00:00 2001
+From: Daniel Golle <daniel@makrotopia.org>
+Date: Sun, 22 Jun 2025 22:57:48 +0100
+Subject: [PATCH] dahdi-base: fix potential underflow of unsigned type
+
+Compile fails on newer kernels due to better fortification of memcpy
+calls.
+
+In function 'strncat',
+    inlined from 'dahdi_ioctl_get_version' at dahdi-linux-3.4.0/drivers/dahdi/dahdi-base.c:5405:3:
+./include/linux/fortify-string.h:114:33: error: '__builtin_memcpy' accessing 4294967295 bytes at offsets [80, 238] and 0 overlaps 6442450943 bytes at offset -2147483648 [-Werror=restrict]
+  114 | #define __underlying_memcpy     __builtin_memcpy
+      |                                 ^
+./include/linux/fortify-string.h:457:9: note: in expansion of macro '__underlying_memcpy'
+  457 |         __underlying_memcpy(p + p_len, q, copy_len);
+      |         ^~~~~~~~~~~~~~~~~~~
+
+Fix this by avoiding a potential underflow of unsigned type size_t.
+
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+ drivers/dahdi/dahdi-base.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/drivers/dahdi/dahdi-base.c
++++ b/drivers/dahdi/dahdi-base.c
+@@ -5380,7 +5380,7 @@ static int dahdi_ioctl_get_version(unsig
+ {
+ 	struct dahdi_versioninfo vi;
+ 	struct ecfactory *cur;
+-	size_t space = sizeof(vi.echo_canceller) - 1;
++	size_t space = sizeof(vi.echo_canceller) - 1, ec_name_len;
+ 	bool have_hwec = dahdi_any_hwec_available();
+ 
+ 	memset(&vi, 0, sizeof(vi));
+@@ -5404,9 +5404,10 @@ static int dahdi_ioctl_get_version(unsig
+ 		}
+ 		strncat(vi.echo_canceller + strlen(vi.echo_canceller),
+ 			ec_name, space);
+-		space -= strlen(ec_name);
+-		if (space < 1)
++		ec_name_len = strlen(ec_name);
++		if (ec_name_len > space + 1)
+ 			break;
++		space -= ec_name_len;
+ 		if (cur->list.next && (cur->list.next != &ecfactory_list)) {
+ 			strncat(vi.echo_canceller + strlen(vi.echo_canceller),
+ 				", ", space);
