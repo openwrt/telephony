@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpri
-PKG_VERSION:=1.6.0
-PKG_RELEASE:=4
+PKG_VERSION:=1.6.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/libpri/releases
-PKG_HASH:=7225ea7ec334a115f9dc08e71f55589c38cb4e00b13964cd2f08cc4e6123e3f6
+PKG_HASH:=d4d1a62766695455f1b616f5f7603458e6d23df787ebabc31ffda1c6298d0509
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 
 PKG_INSTALL:=1
