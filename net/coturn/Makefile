@@ -6,13 +6,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=coturn
-PKG_VERSION:=4.6.2
+PKG_VERSION:=4.7.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/coturn/coturn
-PKG_MIRROR_HASH:=55a7d63edfde6548cd6d6f1b62f6997beeebc66e0ff07b0afd175829434cbf3a
+PKG_MIRROR_HASH:=d98e18fe023fc4fc21386e837e0b57540d805f1ca519d88d2c31081015f7c9ab
 
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_LICENSE:=BSD-COTURN-CITRIX COMBINED-CITRIX-VIVOCHA-BSD MIT-HASH
@@ -26,7 +26,8 @@ PKG_CONFIG_DEPENDS+= \
 	CONFIG_COTURN_ENABLE_MYSQL \
 	CONFIG_COTURN_ENABLE_POSTGRESQL \
 	CONFIG_COTURN_ENABLE_REDIS \
-	CONFIG_COTURN_ENABLE_SQLITE
+	CONFIG_COTURN_ENABLE_SQLITE \
+	CONFIG_COTURN_ENABLE_PROMETHEUS
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -47,7 +48,10 @@ define Package/coturn
 	  +COTURN_ENABLE_MYSQL:libmariadb \
 	  +COTURN_ENABLE_POSTGRESQL:libpq \
 	  +COTURN_ENABLE_REDIS:libhiredis \
-	  +COTURN_ENABLE_SQLITE:libsqlite3
+	  +COTURN_ENABLE_SQLITE:libsqlite3 \
+	  +COTURN_ENABLE_PROMETHEUS:libprom \
+	  +COTURN_ENABLE_PROMETHEUS:libmicrohttpd \
+	  +COTURN_ENABLE_PROMETHEUS:libatomic
   FILE_MODES:=/etc/turnserver:turnserver:turnserver:0750
 endef
 
@@ -85,6 +89,12 @@ define Package/coturn/config
       default n
       help
         Enable Redis support
+
+    config COTURN_ENABLE_PROMETHEUS
+      bool "Prometheus support"
+      default n
+      help
+        Enable Prometheus exporter
 
   endmenu
 endef
@@ -127,14 +137,14 @@ CONFIGURE_ARGS+= \
 CONFIGURE_VARS+= \
 	ARCHIVERCMD="$(TARGET_AR) -r" \
 	LIBEV_OK=1 \
-	TURN_NO_PROMETHEUS=1 \
 	TURN_NO_SCTP=1 \
 	TURN_NO_SYSTEMD=1 \
 	TURN_NO_MONGO=1 \
 	$(if $(CONFIG_COTURN_ENABLE_MYSQL),,TURN_NO_MYSQL=1) \
 	$(if $(CONFIG_COTURN_ENABLE_POSTGRESQL),,TURN_NO_PQ=1) \
 	$(if $(CONFIG_COTURN_ENABLE_REDIS),,TURN_NO_HIREDIS=1) \
-	$(if $(CONFIG_COTURN_ENABLE_SQLITE),,TURN_NO_SQLITE=1)
+	$(if $(CONFIG_COTURN_ENABLE_SQLITE),,TURN_NO_SQLITE=1) \
+	$(if $(CONFIG_COTURN_ENABLE_PROMETHEUS),,TURN_NO_PROMETHEUS=1)
 
 define Build/InstallDev
 endef
