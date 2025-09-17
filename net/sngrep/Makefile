@@ -15,6 +15,7 @@ PKG_RELEASE:=1
 PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-3.0+
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:irontec:sngrep
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/irontec/sngrep/releases/download/v$(PKG_VERSION)
