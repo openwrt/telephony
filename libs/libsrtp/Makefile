@@ -19,6 +19,7 @@ PKG_MIRROR_HASH:=7ee6ba7138e7e3c4b16dbb6aa1cd639dcca517f2aa3f7dafb2cf245d932e844
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:cisco:libsrtp
 
 include $(INCLUDE_DIR)/package.mk
 
