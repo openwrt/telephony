@@ -19,6 +19,7 @@ PKG_BUILD_FLAGS:=no-mips16
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:kamailio:kamailio
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
 PKG_INSTALL:=1
