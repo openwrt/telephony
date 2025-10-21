@@ -67,7 +67,7 @@ CONFIGURE_ARGS+= \
 	--disable-doc
 
 MAKE_FLAGS+= \
-	SUBDIRS="src scripts contrib"
+	SUBDIRS="src contrib"
 
 TARGET_CFLAGS+= \
 	-Wno-unused-const-variable
