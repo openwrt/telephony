@@ -1,0 +1,26 @@
+From bf6c3353d40c0c71f6ffe0d61628af91afca61c5 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Sun, 9 Nov 2025 21:23:32 +0100
+Subject: [PATCH] Disable -pedantic for FORTIFY_SOURCE usage
+
+-pedantic enable again compilation warning (and error with -Werror) with
+GCC extension #include_next used when Fortify Source headers are used.
+
+Remove it to fix compilation errors.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS False)
+ # specify the C++ standard on older CMake (<3.8)
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic -Wno-deprecated-copy -Wno-array-bounds")
++  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-deprecated-copy -Wno-array-bounds")
+ endif()
+ 
+ # Include binary dir first, where we add generated config.h and
