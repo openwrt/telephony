@@ -1,6 +1,6 @@
 --- a/modem.c
 +++ b/modem.c
-@@ -76,10 +76,11 @@ int tty_modem(char* send, char *receive) {
+@@ -76,10 +76,11 @@ int tty_modem(char* send, char *receive)
  	
  	int l=0, in=0, out=0, timeout=10;
  	char tmp[4096];
@@ -13,7 +13,7 @@
  			ioctl(fd_modem,TIOCMGET,&out);
         	 		if (out & TIOCM_CTS) {
  				l=write(fd_modem,send,strlen(send));
-@@ -97,7 +98,7 @@ int tty_modem(char* send, char *receive) {
+@@ -97,7 +98,7 @@ int tty_modem(char* send, char *receive)
  				strncat(receive,tmp,in); 
  				if (strchr(receive,'\r')) { break; }
  				}

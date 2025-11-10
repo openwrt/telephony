@@ -1,0 +1,33 @@
+From 691cf21ea7e77169a272e73735b207658741e2f1 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Mon, 10 Nov 2025 01:59:13 +0100
+Subject: [PATCH 2/2] Fix incompatible pointer type warning in oss module
+
+Fix incompatible pointer type warning in oss module for dtmf and
+gsm_decode functions.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ oss.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/oss.c
++++ b/oss.c
+@@ -38,7 +38,7 @@ int oss_audio_in(struct iaxc_call *call)
+ 					iax_send_voice(call->session, AST_FORMAT_SLINEAR, buf , RTP);
+ 					}
+ 		else {
+-			if ((dtmf_c=dtmf(buf)) > 0) { 
++			if ((dtmf_c=dtmf((short *)buf)) > 0) { 
+ 				if (debug > 4) { fprintf(stderr, "Miax: dtmf %c\n", dtmf_c); }
+ 				iax_send_dtmf(call->session,dtmf_c);
+ 				}
+@@ -68,7 +68,7 @@ int oss_audio_out(struct iaxc_call *call
+ 			}
+ 		else {	
+ 			if (!call->gsmin) { call->gsmin = gsm_create(); }
+-			gsm_decode(call->gsmin, encoded, data);
++			gsm_decode(call->gsmin, encoded, (short *)data);
+ 			}
+ 
+ 		for(i=ol;i<y;i++) {	

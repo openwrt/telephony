@@ -1,0 +1,142 @@
+From 4dec31e0f8fc5d838ac436dafce24630610d1a59 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Mon, 10 Nov 2025 01:56:00 +0100
+Subject: [PATCH 1/2] Fix implicit declaration warning
+
+Fix all implicit declaration warning in multiple source with a mix of
+extern usage and introducing proper header file for functions where
+possible.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ dtmf.c              |  1 +
+ dtmf.h              |  6 ++++++
+ iax/iax-client.h    |  1 +
+ iax/iaxclient_lib.h |  4 ++++
+ miax.c              |  1 +
+ miax.h              |  5 +++++
+ modem.c             |  1 +
+ modem.h             |  9 +++++++++
+ oss.c               |  2 ++
+ oss.h               | 10 ++++++++++
+ 10 files changed, 40 insertions(+)
+ create mode 100644 dtmf.h
+ create mode 100644 modem.h
+ create mode 100644 oss.h
+
+--- a/dtmf.c
++++ b/dtmf.c
+@@ -18,6 +18,7 @@
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+ 
++#include "dtmf.h"
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+--- /dev/null
++++ b/dtmf.h
+@@ -0,0 +1,6 @@
++#ifndef _dtmf_h
++#define _dtmf_h
++
++int dtmf(short *buf);
++
++#endif
+--- a/iax/iax-client.h
++++ b/iax/iax-client.h
+@@ -130,6 +130,7 @@ extern int iax_send_voice(struct iax_ses
+ extern int iax_send_image(struct iax_session *session, int format, char *data, int datalen);
+ extern int iax_send_url(struct iax_session *session, char *url, int link);
+ extern int iax_send_text(struct iax_session *session, char *text);
++extern int iax_send_ping(struct iax_session *session);
+ extern int iax_load_complete(struct iax_session *session);
+ extern int iax_reject(struct iax_session *session, char *reason);
+ extern int iax_busy(struct iax_session *session);
+--- a/iax/iaxclient_lib.h
++++ b/iax/iaxclient_lib.h
+@@ -255,5 +255,9 @@ extern double iaxc_silence_threshold;
+ extern iaxc_event_callback_t iaxc_event_callback;
+ extern MUTEX iaxc_lock;
+ 
++extern int audio_in(struct iaxc_call *call);
++extern int audio_out(struct iaxc_call *call, void *encoded);
++extern int miax_callback(struct iax_event *event, int callNo);
++
+ #endif
+ 
+--- a/miax.c
++++ b/miax.c
+@@ -18,6 +18,7 @@
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+ 
++#include <ctype.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+--- a/miax.h
++++ b/miax.h
+@@ -1,6 +1,9 @@
+ #ifndef _miax_h
+ #define _miax_h
+ 
++#include "modem.h"
++#include "oss.h"
++
+ /*
+ * Miax
+ *
+@@ -27,6 +30,8 @@ int	bt; //bluetooth
+ int	m=0; //modem
+ char	number[1024];
+ 
++int console_loop(int status, char *number);
++
+ int audio_init(char *dev, int compression) {
+ 	oss_audio_init(dev, compression);
+ 	}
+--- a/modem.c
++++ b/modem.c
+@@ -19,6 +19,7 @@
+ */
+                   
+ 
++#include "modem.h"
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+--- /dev/null
++++ b/modem.h
+@@ -0,0 +1,9 @@
++#ifndef _modem_h
++#define _modem_h
++
++int tty_modem_close();
++int tty_modem_init(char *dev);
++int tty_modem(char* send, char *receive);
++int tty_modem_loop(int status, char *number);
++
++#endif
+--- a/oss.c
++++ b/oss.c
+@@ -1,4 +1,6 @@
++#include "dtmf.h"
+ #include "iaxclient_lib.h"
++#include "oss.h"
+ #include <fcntl.h>
+ #include <string.h>
+ #include <unistd.h>
+--- /dev/null
++++ b/oss.h
+@@ -0,0 +1,10 @@
++#ifndef _oss_h
++#define _oss_h
++
++int oss_audio_in(struct iaxc_call *call);
++int oss_audio_out(struct iaxc_call *call, void *encoded);
++int oss_audio_close();
++int oss_audio_open();
++int oss_audio_init(char *dev, int enc);
++
++#endif

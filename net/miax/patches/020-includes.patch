@@ -10,7 +10,7 @@
  #define BLOCKLEN (RATE/100)
 --- a/iax/iax.c
 +++ b/iax/iax.c
-@@ -344,7 +344,7 @@ static int iax_sched_event(struct iax_event *event, struct iax_frame *frame, int
+@@ -343,7 +343,7 @@ static int iax_sched_event(struct iax_ev
  
  	sched = (struct iax_sched*)malloc(sizeof(struct iax_sched));
  	if (sched) {
@@ -19,7 +19,7 @@
  		gettimeofday(&sched->when, NULL);
  		sched->when.tv_sec += (ms / 1000);
  		ms = ms % 1000;
-@@ -872,7 +872,7 @@ int iax_do_event(struct iax_session *session, struct iax_event *event)
+@@ -871,7 +871,7 @@ int iax_do_event(struct iax_session *ses
  
  #define MYSNPRINTF snprintf(requeststr + strlen(requeststr), sizeof(buf) - sizeof(struct ast_iax2_full_hdr) - strlen(requeststr), 
  
@@ -28,7 +28,7 @@
  
  	/* Default some things in the frame */
  
-@@ -1523,7 +1523,7 @@ int iax_auth_reply(struct iax_session *session, char *password, char *challenge,
+@@ -1522,7 +1522,7 @@ int iax_auth_reply(struct iax_session *s
  		MD5Update(&md5, (const unsigned char *) challenge, strlen(challenge));
  		MD5Update(&md5, (const unsigned char *) password, strlen(password));
  		MD5Final((unsigned char *) reply, &md5);
@@ -37,7 +37,7 @@
  		convert_reply(realreply, (unsigned char *) reply);
  		iax_ie_append_str(&ied, IAX_IE_MD5_RESULT, realreply);
  	} else {
-@@ -1546,7 +1546,7 @@ static int iax_regauth_reply(struct iax_session *session, char *password, char *
+@@ -1545,7 +1545,7 @@ static int iax_regauth_reply(struct iax_
  		MD5Update(&md5, (const unsigned char *) challenge, strlen(challenge));
  		MD5Update(&md5, (const unsigned char *) password, strlen(password));
  		MD5Final((unsigned char *) reply, &md5);

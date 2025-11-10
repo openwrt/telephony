@@ -1,6 +1,5 @@
-diff -ruN miax-1.4-old/Makefile miax-1.4-new/Makefile
---- miax-1.4-old/Makefile	2005-04-27 18:56:13.000000000 +0200
-+++ miax-1.4-new/Makefile	2005-11-30 01:07:21.000000000 +0100
+--- a/Makefile
++++ b/Makefile
 @@ -1,4 +1,5 @@
 -CFLAGS= -Iiax/ -Igsm/inc -DIAXC_IAX2 -DLIBIAX -g -DPOSIXSLEEP -DLINUX -O2 
 +OFLAGS= -02 -g
@@ -8,7 +7,7 @@ diff -ruN miax-1.4-old/Makefile miax-1.4-new/Makefile
  SYSLIBS=-lpthread -lm -lbluetooth
  
  
-@@ -32,11 +33,10 @@
+@@ -32,11 +33,10 @@ OBJS=\
  	miax.o
  
  all: $(OBJS)
