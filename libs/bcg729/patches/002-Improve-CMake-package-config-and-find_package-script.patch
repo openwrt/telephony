@@ -1,0 +1,243 @@
+From e29952e7ceff64de6fc6f8db43e3b326481280be Mon Sep 17 00:00:00 2001
+From: Ghislain MARY <ghislain.mary@belledonne-communications.com>
+Date: Mon, 19 Jun 2023 16:56:50 +0200
+Subject: [PATCH] Improve CMake package config and find_package scripts.
+
+---
+ ...29Config.cmake.in => BCG729Config.cmake.in | 46 ++++++++-----------
+ CMakeLists.txt                                | 43 +++++++++--------
+ build/CMakeLists.txt                          |  5 +-
+ src/CMakeLists.txt                            |  8 +---
+ 4 files changed, 44 insertions(+), 58 deletions(-)
+ rename Bcg729Config.cmake.in => BCG729Config.cmake.in (51%)
+
+--- a/Bcg729Config.cmake.in
++++ /dev/null
+@@ -1,55 +0,0 @@
+-############################################################################
+-# Bcg729Config.cmake
+-# Copyright (C) 2015-2023  Belledonne Communications, Grenoble France
+-#
+-############################################################################
+-#
+-# This program is free software; you can redistribute it and/or
+-# modify it under the terms of the GNU General Public License
+-# as published by the Free Software Foundation; either version 2
+-# of the License, or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-# GNU General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-#
+-############################################################################
+-#
+-# Config file for the bcg729 package.
+-# It defines the following variables:
+-#
+-#  BCG729_FOUND - system has bcg729
+-#  BCG729_INCLUDE_DIRS - the bcg729 include directory
+-#  BCG729_LIBRARIES - The libraries needed to use bcg729
+-#  BCG729_CPPFLAGS - The compilation flags needed to use bcg729
+-
+-@PACKAGE_INIT@
+-
+-include("${CMAKE_CURRENT_LIST_DIR}/Bcg729Targets.cmake")
+-
+-set(BCG729_TARGETNAME bcg729)
+-if(@BUILD_SHARED_LIBS@)
+-	set(BCG729_LIBRARIES ${BCG729_TARGETNAME})
+-else()
+-	get_target_property(BCG729_LIBRARIES ${BCG729_TARGETNAME} LOCATION)
+-	get_target_property(BCG729_LINK_LIBRARIES ${BCG729_TARGETNAME} INTERFACE_LINK_LIBRARIES)
+-	if(BCG729_LINK_LIBRARIES)
+-		list(APPEND BCG729_LIBRARIES ${BCG729_LINK_LIBRARIES})
+-	endif()
+-endif()
+-get_target_property(BCG729_INCLUDE_DIRS ${BCG729_TARGETNAME} INTERFACE_INCLUDE_DIRECTORIES)
+-if (NOT BCG729_INCLUDE_DIRS)
+-	set (BCG729_INCLUDE_DIRS)
+-endif()
+-
+-list(INSERT BCG729_INCLUDE_DIRS 0 "@CMAKE_INSTALL_FULL_INCLUDEDIR@")
+-
+-list(REMOVE_DUPLICATES BCG729_INCLUDE_DIRS)
+-
+-set(BCG729_CPPFLAGS @BCG729_CPPFLAGS@)
+-set(BCG729_FOUND 1)
+--- /dev/null
++++ b/BCG729Config.cmake.in
+@@ -0,0 +1,47 @@
++############################################################################
++# BCG729Config.cmake
++# Copyright (C) 2015-2023  Belledonne Communications, Grenoble France
++#
++############################################################################
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License
++# as published by the Free Software Foundation; either version 2
++# of the License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++#
++############################################################################
++#
++# Config file for the bcg729 package.
++#
++# Targets
++# ^^^^^^^
++#
++# The following targets are defined:
++#  bcg729 - The bcg729 library target
++#
++#
++# Result variables
++# ^^^^^^^^^^^^^^^^
++#
++# This config file will set the following variables in your project:
++#
++#  BCG729_FOUND - The bcg729 library has been found
++#  BCG729_TARGET - The name of the CMake target for the bcg729 library
++
++
++@PACKAGE_INIT@
++
++include("${CMAKE_CURRENT_LIST_DIR}/BCG729Targets.cmake")
++
++set(BCG729_TARGET bcg729)
++
++check_required_components(BZRTP)
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,9 +20,9 @@
+ #
+ ############################################################################
+ 
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.22)
+ 
+-project(bcg729 VERSION 1.1.1 LANGUAGES C)
++project(BCG729 VERSION 1.1.1 LANGUAGES C)
+ 
+ 
+ set(PACKAGE "${PROJECT_NAME}")
+@@ -77,21 +77,30 @@ endif()
+ 
+ 
+ include(CMakePackageConfigHelpers)
+-set(CONFIG_PACKAGE_LOCATION "${CMAKE_INSTALL_DATADIR}/Bcg729/cmake")
+-write_basic_package_version_file(
+-	"${PROJECT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
+-	VERSION ${PACKAGE_VERSION}
++set(CMAKE_MODULES_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/cmake")
++configure_package_config_file("${PROJECT_NAME}Config.cmake.in" "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
++	INSTALL_DESTINATION "${CMAKE_MODULES_INSTALL_DIR}"
++	NO_SET_AND_CHECK_MACRO
++)
++write_basic_package_version_file("${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
++	VERSION ${PROJECT_VERSION}
+ 	COMPATIBILITY AnyNewerVersion
+ )
+-export(EXPORT Bcg729Targets
+-	FILE "${PROJECT_BINARY_DIR}/Bcg729Targets.cmake"
++install(FILES
++	"${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
++	"${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
++	DESTINATION ${CMAKE_MODULES_INSTALL_DIR}
++)
++
++export(EXPORT ${PROJECT_NAME}Targets
++	FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
+ )
+-configure_package_config_file(Bcg729Config.cmake.in
+-	"${PROJECT_BINARY_DIR}/Bcg729Config.cmake"
+-	INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
+-	NO_SET_AND_CHECK_MACRO
++install(EXPORT ${PROJECT_NAME}Targets
++	FILE "${PROJECT_NAME}Targets.cmake"
++	DESTINATION ${CMAKE_MODULES_INSTALL_DIR}
+ )
+ 
++
+ set(prefix "${CMAKE_INSTALL_PREFIX}")
+ set(exec_prefix "\${prefix}")
+ set(includedir  "\${prefix}/include")
+@@ -105,15 +114,5 @@ install(FILES
+ 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+ )
+ 
+-install(EXPORT Bcg729Targets
+-	FILE Bcg729Targets.cmake
+-	DESTINATION ${CONFIG_PACKAGE_LOCATION}
+-)
+-install(FILES
+-	"${PROJECT_BINARY_DIR}/Bcg729Config.cmake"
+-	"${PROJECT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
+-	DESTINATION ${CONFIG_PACKAGE_LOCATION}
+-)
+ 
+ add_subdirectory(build)
+-
+--- a/build/CMakeLists.txt
++++ b/build/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ ############################################################################
+ # CMakeLists.txt
+-# Copyright (C) 2017-2018  Belledonne Communications, Grenoble France
++# Copyright (C) 2017-2023  Belledonne Communications, Grenoble France
+ #
+ ############################################################################
+ #
+@@ -21,7 +21,8 @@
+ ############################################################################
+ 
+ if(NOT CPACK_PACKAGE_NAME)
+-	set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
++	string(TOLOWER "${PROJECT_NAME}" LOWERCASE_PROJECT_NAME)
++	set(CPACK_PACKAGE_NAME "${LOWERCASE_PROJECT_NAME}")
+ ENDIF()
+ 
+ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -49,11 +49,6 @@ set(BCG729_SOURCE_FILES
+ 	vad.c
+ )
+ 
+-if(MSVC)
+-	set(MSVC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/MSVC")
+-	include_directories(${MSVC_INCLUDE_DIR})
+-endif()
+-
+ add_library(bcg729 ${BCG729_SOURCE_FILES})
+ target_compile_definitions(bcg729 PRIVATE "BCG729_EXPORTS")
+ set_target_properties(bcg729 PROPERTIES VERSION 0)
+@@ -65,7 +60,6 @@ target_include_directories(bcg729
+ 		${PROJECT_SOURCE_DIR}/include
+ 		${PROJECT_SOURCE_DIR}/src
+ 		${PROJECT_BINARY_DIR}
+-		${MSVC_INCLUDE_DIR}
+ )
+ 
+ if(MSVC AND BUILD_SHARED_LIBS)
+@@ -79,7 +73,7 @@ if(MSVC AND BUILD_SHARED_LIBS)
+ endif()
+ 
+ 
+-install(TARGETS bcg729 EXPORT Bcg729Targets
++install(TARGETS bcg729 EXPORT ${PROJECT_NAME}Targets
+ 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+ 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+ 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

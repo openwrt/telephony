@@ -1,0 +1,268 @@
+From fb0a4eb114696d33f24d44a6248897bf586f864f Mon Sep 17 00:00:00 2001
+From: Ghislain MARY <ghislain.mary@belledonne-communications.com>
+Date: Mon, 13 Mar 2023 18:27:37 +0100
+Subject: [PATCH] Update CMakeLists.txt so that the project can be added as a
+ subdirectory of linphone-sdk.
+
+---
+ Bcg729Config.cmake.in | 21 +++++----------
+ CMakeLists.txt        | 40 +++++++++++-----------------
+ README.md             |  4 +--
+ src/CMakeLists.txt    | 61 ++++++++++++++++++++++++-------------------
+ test/CMakeLists.txt   |  2 ++
+ 5 files changed, 59 insertions(+), 69 deletions(-)
+
+--- a/Bcg729Config.cmake.in
++++ b/Bcg729Config.cmake.in
+@@ -1,6 +1,6 @@
+ ############################################################################
+ # Bcg729Config.cmake
+-# Copyright (C) 2015  Belledonne Communications, Grenoble France
++# Copyright (C) 2015-2023  Belledonne Communications, Grenoble France
+ #
+ ############################################################################
+ #
+@@ -32,21 +32,14 @@
+ 
+ include("${CMAKE_CURRENT_LIST_DIR}/Bcg729Targets.cmake")
+ 
+-if(@ENABLE_SHARED@)
+-	set(BCG729_TARGETNAME bcg729)
++set(BCG729_TARGETNAME bcg729)
++if(@BUILD_SHARED_LIBS@)
+ 	set(BCG729_LIBRARIES ${BCG729_TARGETNAME})
+ else()
+-	set(BCG729_TARGETNAME bcg729-static)
+-	if(TARGET ${BCG729_TARGETNAME})
+-		if(LINPHONE_BUILDER_GROUP_EXTERNAL_SOURCE_PATH_BUILDERS)
+-			set(BCG729_LIBRARIES ${BCG729_TARGETNAME})
+-		else()
+-			get_target_property(BCG729_LIBRARIES ${BCG729_TARGETNAME} LOCATION)
+-		endif()
+-		get_target_property(BCG729_LINK_LIBRARIES ${BCG729_TARGETNAME} INTERFACE_LINK_LIBRARIES)
+-		if(BCG729_LINK_LIBRARIES)
+-			list(APPEND BCG729_LIBRARIES ${BCG729_LINK_LIBRARIES})
+-		endif()
++	get_target_property(BCG729_LIBRARIES ${BCG729_TARGETNAME} LOCATION)
++	get_target_property(BCG729_LINK_LIBRARIES ${BCG729_TARGETNAME} INTERFACE_LINK_LIBRARIES)
++	if(BCG729_LINK_LIBRARIES)
++		list(APPEND BCG729_LIBRARIES ${BCG729_LINK_LIBRARIES})
+ 	endif()
+ endif()
+ get_target_property(BCG729_INCLUDE_DIRS ${BCG729_TARGETNAME} INTERFACE_INCLUDE_DIRECTORIES)
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ ############################################################################
+ # CMakeLists.txt
+-# Copyright (C) 2014  Belledonne Communications, Grenoble France
++# Copyright (C) 2014-2023  Belledonne Communications, Grenoble France
+ #
+ ############################################################################
+ #
+@@ -21,6 +21,7 @@
+ ############################################################################
+ 
+ cmake_minimum_required(VERSION 3.1)
++
+ project(bcg729 VERSION 1.1.1 LANGUAGES C)
+ 
+ 
+@@ -34,27 +35,15 @@ set(PACKAGE_URL "")
+ set(VERSION "${PACKAGE_VERSION}")
+ 
+ 
+-option(ENABLE_SHARED "Build shared library." YES)
+-option(ENABLE_STATIC "Build static library." YES)
+ option(ENABLE_STRICT "Build with strict compile options." YES)
+-option(ENABLE_TESTS "Enable compilation of the tests." NO)
++option(ENABLE_UNIT_TESTS "Enable compilation of the tests." NO)
+ 
+ include(GNUInstallDirs)
+ 
+ 
+-include_directories(
+-	include
+-	src
+-	${CMAKE_CURRENT_BINARY_DIR}
+-	${CMAKE_CURRENT_BINARY_DIR}/src
+-)
+-set(MSVC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/MSVC")
+-if(MSVC)
+-	include_directories(${MSVC_INCLUDE_DIR})
+-endif()
+ 
+ set(BCG729_CPPFLAGS )
+-if(ENABLE_STATIC)
++if(NOT BUILD_SHARED_LIBS)
+ 	set(BCG729_STATIC 1)
+ 	list(APPEND BCG729_CPPFLAGS "-DBCG729_STATIC")
+ endif()
+@@ -69,7 +58,7 @@ else()
+ 			add_definitions(" -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers ")
+ 		endif()
+ 	endif()
+-	if(NOT ENABLE_TESTS) # test access inner functions so maintain visibility if we want to run tests
++	if(NOT ENABLE_UNIT_TESTS) # test access inner functions so maintain visibility if we want to run tests
+ 		add_definitions("-fvisibility=hidden")
+ 	endif()
+ 	if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+@@ -77,11 +66,12 @@ else()
+ 	endif()
+ endif()
+ 
+-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
++configure_file(${PROJECT_SOURCE_DIR}/config.h.cmake ${PROJECT_BINARY_DIR}/config.h)
+ 
+ add_subdirectory(include)
+ add_subdirectory(src)
+-if(ENABLE_TESTS)
++if(ENABLE_UNIT_TESTS AND NOT WIN32)
++	# Deactivated on Windows because of symbol export issues (TODO: fix that)
+ 	add_subdirectory(test)
+ endif()
+ 
+@@ -89,15 +79,15 @@ endif()
+ include(CMakePackageConfigHelpers)
+ set(CONFIG_PACKAGE_LOCATION "${CMAKE_INSTALL_DATADIR}/Bcg729/cmake")
+ write_basic_package_version_file(
+-	"${CMAKE_CURRENT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
++	"${PROJECT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
+ 	VERSION ${PACKAGE_VERSION}
+ 	COMPATIBILITY AnyNewerVersion
+ )
+ export(EXPORT Bcg729Targets
+-	FILE "${CMAKE_CURRENT_BINARY_DIR}/Bcg729Targets.cmake"
++	FILE "${PROJECT_BINARY_DIR}/Bcg729Targets.cmake"
+ )
+ configure_package_config_file(Bcg729Config.cmake.in
+-	"${CMAKE_CURRENT_BINARY_DIR}/Bcg729Config.cmake"
++	"${PROJECT_BINARY_DIR}/Bcg729Config.cmake"
+ 	INSTALL_DESTINATION ${CONFIG_PACKAGE_LOCATION}
+ 	NO_SET_AND_CHECK_MACRO
+ )
+@@ -107,11 +97,11 @@ set(exec_prefix "\${prefix}")
+ set(includedir  "\${prefix}/include")
+ set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+ configure_file(libbcg729.pc.in
+-	"${CMAKE_CURRENT_BINARY_DIR}/libbcg729.pc"
++	"${PROJECT_BINARY_DIR}/libbcg729.pc"
+ 	@ONLY
+ )
+ install(FILES
+-	"${CMAKE_CURRENT_BINARY_DIR}/libbcg729.pc"
++	"${PROJECT_BINARY_DIR}/libbcg729.pc"
+ 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+ )
+ 
+@@ -120,8 +110,8 @@ install(EXPORT Bcg729Targets
+ 	DESTINATION ${CONFIG_PACKAGE_LOCATION}
+ )
+ install(FILES
+-	"${CMAKE_CURRENT_BINARY_DIR}/Bcg729Config.cmake"
+-	"${CMAKE_CURRENT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
++	"${PROJECT_BINARY_DIR}/Bcg729Config.cmake"
++	"${PROJECT_BINARY_DIR}/Bcg729ConfigVersion.cmake"
+ 	DESTINATION ${CONFIG_PACKAGE_LOCATION}
+ )
+ 
+--- a/README.md
++++ b/README.md
+@@ -53,9 +53,7 @@ Building by Autotools way is deprecated.
+ 
+ * `CMAKE_INSTALL_PREFIX=<string>` : install prefix
+ * `CMAKE_PREFIX_PATH=<string>`    : column-separated list of prefixes where to look for dependencies
+-* `ENABLE_SHARED=NO`              : do not build the shared library
+-* `ENABLE_STATIC=NO`              : do not build the static library
+-* `ENABLE_TESTS=NO`               : do not build non-regression tests
++* `ENABLE_UNIT_TESTS=NO`               : do not build non-regression tests
+ 
+ 
+ ### Note for packagers
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ ############################################################################
+ # CMakeLists.txt
+-# Copyright (C) 2014  Belledonne Communications, Grenoble France
++# Copyright (C) 2014-2023  Belledonne Communications, Grenoble France
+ #
+ ############################################################################
+ #
+@@ -49,32 +49,39 @@ set(BCG729_SOURCE_FILES
+ 	vad.c
+ )
+ 
+-if(ENABLE_STATIC)
+-	add_library(bcg729-static STATIC ${BCG729_SOURCE_FILES})
+-	target_compile_definitions(bcg729-static PRIVATE "-DBCG729_EXPORTS")
+-	set_target_properties(bcg729-static PROPERTIES OUTPUT_NAME bcg729)
+-	install(TARGETS bcg729-static EXPORT Bcg729Targets
+-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-		PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+-	)
++if(MSVC)
++	set(MSVC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/MSVC")
++	include_directories(${MSVC_INCLUDE_DIR})
+ endif()
+-if(ENABLE_SHARED)
+-	add_library(bcg729 SHARED ${BCG729_SOURCE_FILES})
+-	target_compile_definitions(bcg729 PRIVATE "-DBCG729_EXPORTS")
+-	set_target_properties(bcg729 PROPERTIES VERSION 0)
+-	if(MSVC)
+-		if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+-			install(FILES $<TARGET_PDB_FILE:bcg729>
+-				DESTINATION ${CMAKE_INSTALL_BINDIR}
+-				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+-			)
+-		endif()
+-		set_target_properties(bcg729 PROPERTIES PREFIX "lib")
++
++add_library(bcg729 ${BCG729_SOURCE_FILES})
++target_compile_definitions(bcg729 PRIVATE "BCG729_EXPORTS")
++set_target_properties(bcg729 PROPERTIES VERSION 0)
++target_include_directories(bcg729
++	PUBLIC
++		$<INSTALL_INTERFACE:include>
++		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
++	PRIVATE
++		${PROJECT_SOURCE_DIR}/include
++		${PROJECT_SOURCE_DIR}/src
++		${PROJECT_BINARY_DIR}
++		${MSVC_INCLUDE_DIR}
++)
++
++if(MSVC AND BUILD_SHARED_LIBS)
++	if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
++		install(FILES $<TARGET_PDB_FILE:bcg729>
++			DESTINATION ${CMAKE_INSTALL_BINDIR}
++			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
++		)
+ 	endif()
+-	install(TARGETS bcg729 EXPORT Bcg729Targets
+-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+-		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+-		PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+-	)
++	set_target_properties(bcg729 PROPERTIES PREFIX "lib")
+ endif()
++
++
++install(TARGETS bcg729 EXPORT Bcg729Targets
++	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++	PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
++)
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -24,6 +24,8 @@ set(BCG729_LIBRARY bcg729)
+ 
+ set(UTIL_SRC src/testUtils.c  src/testUtils.h)
+ 
++include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR})
++
+ add_executable(adaptativeCodebookSearchTest src/adaptativeCodebookSearchTest.c ${UTIL_SRC})
+ target_link_libraries(adaptativeCodebookSearchTest ${BCG729_LIBRARY})
+ 
