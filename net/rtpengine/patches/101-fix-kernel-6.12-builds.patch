@@ -1,0 +1,14 @@
+--- a/kernel-module/xt_RTPENGINE.c
++++ b/kernel-module/xt_RTPENGINE.c
+@@ -4010,7 +4010,11 @@
+ 	if (!net)
+ 		goto drop;
+ 
++#if(LINUX_VERSION_CODE < KERNEL_VERSION(6,10,3))
+ 	rt = ip_route_output(net, dst->u.ipv4, src->u.ipv4, tos, 0);
++#else
++       rt = ip_route_output(net, dst->u.ipv4, src->u.ipv4, tos, 0, 0);
++#endif
+ 	if (IS_ERR(rt))
+ 		goto drop;
+ 	skb_dst_drop(skb);
