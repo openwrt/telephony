@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=siproxd
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/hb9xar/siproxd.git
-PKG_SOURCE_DATE:=2022-02-18
-PKG_SOURCE_VERSION:=4750bea4ffedb4543a404dafc979c2b16b53e523
-PKG_MIRROR_HASH:=9b2fa84b4c05d68f758a35070af970c852ff4cb8beea3d7f93663b10a17e1df8
+PKG_SOURCE_DATE:=2025-07-24
+PKG_SOURCE_VERSION:=0bb5dd4aac9f5578db664d82f67091bc83c3780d
+PKG_MIRROR_HASH:=1f0c7f9aabc130e4d66c6e0b4113f44054d653ff87436c1128b3df8323042447
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -67,7 +67,7 @@ CONFIGURE_ARGS+= \
 	--disable-doc
 
 MAKE_FLAGS+= \
-	SUBDIRS="src scripts contrib"
+	SUBDIRS="src contrib"
 
 TARGET_CFLAGS+= \
 	-Wno-unused-const-variable
