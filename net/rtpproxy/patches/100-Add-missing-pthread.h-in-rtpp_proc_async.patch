@@ -1,0 +1,27 @@
+From c4271a63d77185b0df4e1305573e28e4f94b6572 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Thu, 20 Nov 2025 12:54:15 +0100
+Subject: [PATCH] Add missing pthread.h in rtpp_proc_async
+
+Fix compilation error for missing pthread_t type name.
+
+rtpp_proc_async.h:44:34: error: unknown type name 'pthread_t'
+   44 | void rtpp_proc_async_setprocname(pthread_t thread_id, const char *pname);
+      |                                  ^~~~~~~~~
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ src/rtpp_proc_async.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/src/rtpp_proc_async.h
++++ b/src/rtpp_proc_async.h
+@@ -28,6 +28,8 @@
+ #ifndef _RTPP_PROC_ASYNC_H_
+ #define _RTPP_PROC_ASYNC_H_
+ 
++#include <pthread.h>
++
+ struct rtpp_proc_async;
+ struct rtpp_anetio_cf;
+ struct rtpp_cfg;

@@ -1,0 +1,53 @@
+From 8e0799fbf503dc20e51ffb16d8b9867977753035 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Thu, 20 Nov 2025 12:50:55 +0100
+Subject: [PATCH] Add check for declared optreset
+
+MUSL actually declare optreset and this cause compilation error:
+librtpp_main.c:44:12: error: static declaration of 'optreset' follows non-static declaration
+   44 | static int optreset; /* Not present in linux */
+      |            ^~~~~~~~
+
+Better handle this by scanning a declared optreset in configure.ac and
+depend on the HAVE_DECL_OPTRESET macro to statically declare it instead
+of extern reference it.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ configure.ac       | 2 ++
+ src/librtpp_main.c | 6 ++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -449,6 +449,8 @@ AC_LINK_IFELSE(
+ )
+ AC_CHECK_FUNCS([pthread_yield pthread_setname_np])
+ 
++AC_CHECK_DECLS([optreset], [], [], [[#include <unistd.h>]])
++
+ AC_ARG_ENABLE(docs,
+   AS_HELP_STRING([--enable-docs],[enable generation of documentation]),
+   [ENABLE_DOCS=${enableval}], [ENABLE_DOCS=no])
+--- a/src/librtpp_main.c
++++ b/src/librtpp_main.c
+@@ -27,6 +27,8 @@
+ 
+ #include <unistd.h>
+ 
++#include "config.h"
++
+ #include "librtpproxy.h"
+ #include "librtpp_main.h"
+ 
+@@ -38,8 +40,8 @@ struct opt_save {
+     int optreset;
+ };
+ 
+-#if defined(__linux__)
+-static int optreset; /* Not present in linux */
++#if !HAVE_DECL_OPTRESET
++static int optreset; /* Not present in glibc */
+ #endif
+ 
+ #define OPT_SAVE(sp) (*(sp) = (struct opt_save){optarg, optind, optopt, opterr, optreset})
