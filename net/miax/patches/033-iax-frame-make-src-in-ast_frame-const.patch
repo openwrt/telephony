@@ -1,0 +1,29 @@
+From 5732e9a19676ded26355483ab5239a1c741e5074 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Thu, 20 Nov 2025 11:27:02 +0100
+Subject: [PATCH 2/3] iax: frame: make src in ast_frame const
+
+The __FUNCTION__ char is const. Reflect the type in the ast_frame struct
+to mute compilation warning.
+
+iax/iax.c: In function '__send_command':
+iax/iax.c:779:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  779 |         f.src = __FUNCTION__;
+      |               ^
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ iax/frame.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/iax/frame.h
++++ b/iax/frame.h
+@@ -89,7 +89,7 @@ rame? */
+         /*! How far into "data" the data really starts */
+         int offset;
+         /*! Optional source of frame for debugging */
+-        char *src;
++        const char *src;
+         /*! Pointer to actual data */
+         void *data;
+         /*! Next/Prev for linking stand alone frames */
