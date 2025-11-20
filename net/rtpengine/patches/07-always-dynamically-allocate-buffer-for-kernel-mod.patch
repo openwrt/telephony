@@ -1,6 +1,6 @@
 --- a/kernel-module/xt_RTPENGINE.c
 +++ b/kernel-module/xt_RTPENGINE.c
-@@ -3781,7 +3781,6 @@ static inline ssize_t proc_control_read_
+@@ -3786,7 +3786,6 @@ static inline ssize_t proc_control_read_
  	struct rtpengine_table *t;
  	int err;
  	enum rtpengine_command cmd;
@@ -8,7 +8,7 @@
  	size_t readlen, writelen, writeoffset;
  	int i;
  
-@@ -3823,13 +3822,9 @@ static inline ssize_t proc_control_read_
+@@ -3828,13 +3827,9 @@ static inline ssize_t proc_control_read_
  		return -ERANGE;
  
  	// do we need an extra large storage buffer?
@@ -25,7 +25,7 @@
  
  	// get our table
  	inode = file->f_path.dentry->d_inode;
-@@ -3942,16 +3937,14 @@ static inline ssize_t proc_control_read_
+@@ -3947,16 +3942,14 @@ static inline ssize_t proc_control_read_
  			goto err_free;
  	}
  
