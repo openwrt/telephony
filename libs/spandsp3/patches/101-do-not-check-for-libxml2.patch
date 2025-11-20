@@ -10,7 +10,7 @@
  # Determine XML2 include path
  AC_MSG_CHECKING(for libxml/xmlmemory.h)
  
-@@ -259,6 +262,7 @@ fi
+@@ -254,6 +257,7 @@ fi
  AC_CHECK_HEADERS([libxml/xmlmemory.h])
  AC_CHECK_HEADERS([libxml/parser.h])
  AC_CHECK_HEADERS([libxml/xinclude.h])

@@ -22,6 +22,8 @@ PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 
+PKG_BUILD_DEPENDS:=tiff/host
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libspandsp3
@@ -33,6 +35,10 @@ define Package/libspandsp3
   URL:=https://github.com/freeswitch/spandsp
   ABI_VERSION:=3
 endef
+
+CONFIGURE_VARS += \
+	CC_FOR_BUILD="$(HOSTCC)" \
+	CPPFLAGS_FOR_BUILD="$(HOST_CPPFLAGS)"
 
 # Use fixed point math when soft float support is enabled for target devices.
 ifeq ($(CONFIG_SOFT_FLOAT),y)
