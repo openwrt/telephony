@@ -37,7 +37,7 @@ endef
 
 define Package/rtpproxy
 $(call Package/rtpproxy/Default)
-  DEPENDS:=+libatomic +libpthread +librt
+  DEPENDS:=+libsrtp2 +libatomic +libpthread +librt
   TITLE:=RTP (Realtime Transport Protocol) proxy
   MENU:=1
 endef
