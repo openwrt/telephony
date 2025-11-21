@@ -1,0 +1,50 @@
+From 3b9c1443f42085dea823a6d50acc8613ada29605 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 21 Nov 2025 17:46:00 +0100
+Subject: [PATCH] [mod_pocketsphinx] Use sphinxbase-5prealpha
+
+use latest version of sphinxbase 5prealpha.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ debian/util.sh                               | 2 +-
+ src/mod/asr_tts/mod_pocketsphinx/Makefile.am | 3 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+--- a/debian/util.sh
++++ b/debian/util.sh
+@@ -100,8 +100,8 @@ getlib () {
+ 
+ getlibs () {
+   # get pinned libraries
+-  getlib http://files.freeswitch.org/downloads/libs/sphinxbase-0.8.tar.gz
+-  getlib http://files.freeswitch.org/downloads/libs/pocketsphinx-0.8.tar.gz
++  getlib http://files.freeswitch.org/downloads/libs/sphinxbase-5prealpha.tar.gz
++  getlib http://files.freeswitch.org/downloads/libs/pocketsphinx-5prealpha.tar.gz
+   getlib http://files.freeswitch.org/downloads/libs/communicator_semi_6000_20080321.tar.gz
+   #getlib http://download.zeromq.org/zeromq-2.1.9.tar.gz \
+   #  || getlib http://download.zeromq.org/historic/zeromq-2.1.9.tar.gz
+--- a/src/mod/asr_tts/mod_pocketsphinx/Makefile.am
++++ b/src/mod/asr_tts/mod_pocketsphinx/Makefile.am
+@@ -1,10 +1,10 @@
+ include $(top_srcdir)/build/modmake.rulesam
+ MODNAME=mod_pocketsphinx
+ 
+-SPHINXBASE=sphinxbase-0.8
++SPHINXBASE=sphinxbase-5prealpha
+ SPHINXBASE_DIR=$(switch_srcdir)/libs/$(SPHINXBASE)
+ SPHINXBASE_BUILDDIR=$(switch_builddir)/libs/$(SPHINXBASE)
+-POCKETSPHINX=pocketsphinx-0.8
++POCKETSPHINX=pocketsphinx-5prealpha
+ POCKETSPHINX_DIR=$(switch_srcdir)/libs/$(POCKETSPHINX)
+ POCKETSPHINX_BUILDDIR=$(switch_builddir)/libs/$(POCKETSPHINX)
+ SPHINXBASE_LA=$(SPHINXBASE_BUILDDIR)/src/libsphinxbase/libsphinxbase.la
+@@ -64,7 +64,7 @@ $(DESTDIR)$(grammardir)/model/communicat
+ 	cp -rp $(switch_srcdir)/libs/Communicator_semi_40.cd_semi_6000/* $(DESTDIR)$(grammardir)/model/communicator
+ 
+ dictionary:
+-	@install -m0644 $(POCKETSPHINX_DIR)/model/lm/en_US/cmu07a.dic $(DESTDIR)$(grammardir)/default.dic
++	@install -m0644 $(POCKETSPHINX_DIR)/model/en-us/cmudict-en-us.dict $(DESTDIR)$(grammardir)/default.dic
+ 
+ install-data-local: $(DESTDIR)$(grammardir)/model $(DESTDIR)$(grammardir)/model/communicator dictionary
+ 

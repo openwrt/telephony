@@ -683,7 +683,8 @@ endif
 
 # Some common URLs
 FS_LIBS_URL:=https://files.freeswitch.org/downloads/libs
-FS_SPHINX_URL:=@SF/cmusphinx
+FS_POCKETSPHINX_URL:=@SF/cmusphinx/pocketsphinx
+FS_SPHINX_URL:=@SF/cmusphinx/sphinxbase
 
 # mod_event_zmq
 FS_ZEROMQ_FILE:=zeromq-2.1.9.tar.gz
@@ -691,11 +692,11 @@ FS_ZEROMQ_HASH:=f3542f756687e622beef3a75c8e027fe2d95d4654350cbca4c070ffc58d9ace0
 FS_ZEROMQ_URL:=http://download.zeromq.org
 
 # mod_pocketsphinx
-FS_POCKETSPHINX_FILE:=pocketsphinx-0.8.tar.gz
-FS_POCKETSPHINX_HASH:=874c4c083d91c8ff26a2aec250b689e537912ff728923c141c4dac48662cce7a
+FS_POCKETSPHINX_FILE:=pocketsphinx-5prealpha.tar.gz
+FS_POCKETSPHINX_HASH:=ef5bb5547e2712bdf571f256490ef42a47962033892efd9d7df8eed7fe573ed9
 
-FS_SPHINXBASE_FILE:=sphinxbase-0.8.tar.gz
-FS_SPHINXBASE_HASH:=55708944872bab1015b8ae07b379bf463764f469163a8fd114cbb16c5e486ca8
+FS_SPHINXBASE_FILE:=sphinxbase-5prealpha.tar.gz
+FS_SPHINXBASE_HASH:=f72bdb59e50b558bed47cc2105777200d2b246a0f328e913de16a9b22f9a246f
 
 FS_SPHINXMODEL_FILE:=communicator_semi_6000_20080321.tar.gz
 FS_SPHINXMODEL_HASH:=dbb5e9fb85000a7cb97d6958a3ef8d77532dc55fc730ac6979705e8645cb0c18
@@ -709,8 +710,10 @@ $(eval $(call Download/files,zmq,$(FS_ZEROMQ_FILE),$(FS_ZEROMQ_URL),$(FS_ZEROMQ_
 endif
 
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-pocketsphinx)$(CONFIG_PACKAGE_freeswitch-misc-grammar),)
-$(eval $(call Download/files,pocketsphinx,$(FS_POCKETSPHINX_FILE),$(FS_SPHINX_URL),$(FS_POCKETSPHINX_HASH)))
-$(eval $(call Download/files,sphinxbase,$(FS_SPHINXBASE_FILE),$(FS_SPHINX_URL),$(FS_SPHINXBASE_HASH)))
+TARGET_CFLAGS += -DPOCKETSPHINX_MAJOR_VERSION=5
+
+$(eval $(call Download/files,pocketsphinx,$(FS_POCKETSPHINX_FILE),$(FS_POCKETSPHINX_URL)/5prealpha,$(FS_POCKETSPHINX_HASH)))
+$(eval $(call Download/files,sphinxbase,$(FS_SPHINXBASE_FILE),$(FS_SPHINX_URL)/5prealpha,$(FS_SPHINXBASE_HASH)))
 $(eval $(call Download/files,communicator,$(FS_SPHINXMODEL_FILE),$(FS_LIBS_URL),$(FS_SPHINXMODEL_HASH)))
 endif
 

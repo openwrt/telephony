@@ -1,0 +1,95 @@
+From d0993872c793edf1b78bd79e3cd9a5bb2309d214 Mon Sep 17 00:00:00 2001
+From: Andrey Volk <andywolk@gmail.com>
+Date: Sun, 13 Jul 2025 01:38:29 +0300
+Subject: [PATCH] [mod_pocketsphinx] Use system libraries when possible
+
+---
+ configure.ac                                  | 20 +++++++++++++
+ debian/control-modules                        |  1 +
+ src/mod/asr_tts/mod_pocketsphinx/Makefile.am  | 14 +++++++--
+ .../mod_pocketsphinx.2017.vcxproj             |  9 +++---
+ .../mod_pocketsphinx/mod_pocketsphinx.c       | 29 +++++++++++++++++++
+ w32/pocketsphinx-version.props                | 20 +++++++++++++
+ w32/pocketsphinx.props                        | 18 ++++++++++++
+ 7 files changed, 104 insertions(+), 7 deletions(-)
+ create mode 100644 w32/pocketsphinx-version.props
+ create mode 100644 w32/pocketsphinx.props
+
+--- a/src/mod/asr_tts/mod_pocketsphinx/mod_pocketsphinx.c
++++ b/src/mod/asr_tts/mod_pocketsphinx/mod_pocketsphinx.c
+@@ -203,7 +203,12 @@ static switch_status_t pocketsphinx_asr_
+ 	}
+ 	switch_mutex_unlock(ps->flag_mutex);
+ 
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 	ps_start_utt(ps->ps, NULL);
++#else
++	ps_start_utt(ps->ps);
++#endif
++
+ 	ps->silence_time = switch_micro_time_now();
+ 	switch_clear_flag(ps, PSFLAG_START_OF_SPEECH);
+ 	switch_clear_flag(ps, PSFLAG_NOINPUT_TIMEOUT);
+@@ -338,22 +343,38 @@ static switch_status_t pocketsphinx_asr_
+ 			char const *hyp;
+ 
+ 			switch_mutex_lock(ps->flag_mutex);
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 			if ((hyp = ps_get_hyp(ps->ps, &ps->score, &ps->uttid))) {
++#else
++			if ((hyp = ps_get_hyp(ps->ps, &ps->score))) {
++#endif
+ 				if (!zstr(hyp)) {
+ 					ps_end_utt(ps->ps);
+ 					switch_clear_flag(ps, PSFLAG_READY);
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 					if ((hyp = ps_get_hyp(ps->ps, &ps->score, &ps->uttid))) {
++#else
++					if ((hyp = ps_get_hyp(ps->ps, &ps->score))) {
++#endif
+ 						if (zstr(hyp)) {
+ 							if (!switch_test_flag(ps, PSFLAG_SPEECH_TIMEOUT)) {
+ 								switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Lost the text, never mind....\n");
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 								ps_start_utt(ps->ps, NULL);
++#else
++								ps_start_utt(ps->ps);
++#endif
+ 								switch_set_flag(ps, PSFLAG_READY);
+ 							}
+ 						} else {
+ 							/* get match and confidence */
+ 							int32_t conf;
+ 
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 							conf = ps_get_prob(ps->ps, &ps->uttid);
++#else
++							conf = ps_get_prob(ps->ps);
++#endif
+ 
+ 							ps->confidence = (conf + 20000) / 200;
+ 
+@@ -427,7 +448,11 @@ static switch_status_t pocketsphinx_asr_
+ 	if (!switch_test_flag(ps, PSFLAG_READY)) {
+ 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Manually Resuming\n");
+ 
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 		if (ps_start_utt(ps->ps, NULL)) {
++#else
++		if (ps_start_utt(ps->ps)) {
++#endif
+ 			status = SWITCH_STATUS_GENERR;
+ 		} else {
+ 			switch_set_flag(ps, PSFLAG_READY);
+@@ -474,7 +499,11 @@ static switch_status_t pocketsphinx_asr_
+ 			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Auto Resuming\n");
+ 			switch_set_flag(ps, PSFLAG_READY);
+ 
++#if POCKETSPHINX_MAJOR_VERSION < 1
+ 			ps_start_utt(ps->ps, NULL);
++#else 
++			ps_start_utt(ps->ps);
++#endif
+ 		}
+ 
+ 		status = SWITCH_STATUS_SUCCESS;

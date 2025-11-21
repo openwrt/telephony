@@ -1,0 +1,27 @@
+From 2e825dd3eccc782685f7bb8d50b48eded5c62937 Mon Sep 17 00:00:00 2001
+From: Andrey Volk <andywolk@gmail.com>
+Date: Tue, 15 Jul 2025 13:31:28 +0300
+Subject: [PATCH] [mod_http_cache] Fix error: curl_easy_setopt expects a long
+ argument [-Werror=attribute-warning]
+
+---
+ src/mod/applications/mod_http_cache/mod_http_cache.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/src/mod/applications/mod_http_cache/mod_http_cache.c
++++ b/src/mod/applications/mod_http_cache/mod_http_cache.c
+@@ -1131,10 +1131,10 @@ static switch_status_t http_get(url_cach
+ #else
+ 	if ((get_data.fd = open(get_data.url->filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR)) > -1) {
+ #endif
+-		switch_curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1);
+-		switch_curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, 10);
+-		switch_curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
+-		switch_curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, 1);
++		switch_curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, (long)1);
++		switch_curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS, (long)10);
++		switch_curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, (long)1);
++		switch_curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+ 		if (headers) {
+ 			switch_curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+ 		}
