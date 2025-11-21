@@ -1,0 +1,31 @@
+From 77e2cd4b250e806701081a8b262aa0a804423659 Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Fri, 21 Nov 2025 15:39:53 +0100
+Subject: [PATCH] daemon: poller: fix compilation error for pthread tid
+
+Fix compilation error for pthread tid wrong init.
+
+poller.c: In function 'poller_map_add':
+poller.c:54:18: error: initialization of 'pthread_t' {aka 'struct __pthread *'} from 'int' makes pointer from integer without a cast [-Wint-conversion]
+   54 |
+      |
+
+Setting to -1 is wrong and actually not useful as it gets set right
+after if map is not NULL.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ lib/poller.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/lib/poller.c
++++ b/lib/poller.c
+@@ -51,7 +51,7 @@ struct poller_map *poller_map_new(void)
+ }
+ 
+ static void poller_map_add(struct poller_map *map) {
+-	pthread_t tid = -1;
++	pthread_t tid;
+ 	struct poller *p;
+ 	if (!map)
+ 		return;
