@@ -1,0 +1,28 @@
+From 2c5171191aa7eab72e7f1bc42eebe94ec1a99c72 Mon Sep 17 00:00:00 2001
+From: Andrey Volk <andywolk@gmail.com>
+Date: Sun, 13 Jul 2025 23:14:15 +0300
+Subject: [PATCH] [mod_perl] Fix implicit declaration of function
+
+---
+ src/mod/languages/mod_perl/mod_perl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/src/mod/languages/mod_perl/mod_perl.c
++++ b/src/mod/languages/mod_perl/mod_perl.c
+@@ -45,6 +45,7 @@
+ #include <EXTERN.h>
+ #include <perl.h>
+ #include <switch.h>
++#include "mod_perl_extra.h"
+ static char *embedding[] = { "", "-e", "0", NULL };
+ EXTERN_C void xs_init(pTHX);
+ 
+@@ -207,7 +208,7 @@ static perl_parse_and_execute(PerlInterp
+ 
+ 
+ 
+-static void perl_function(switch_core_session_t *session, char *data)
++static void perl_function(switch_core_session_t *session, const char *data)
+ {
+ 	char *uuid = switch_core_session_get_uuid(session);
+ 	PerlInterpreter *my_perl = clone_perl();
