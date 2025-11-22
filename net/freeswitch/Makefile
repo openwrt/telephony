@@ -884,7 +884,7 @@ $(eval $(call Package/freeswitch/Module,cidlookup,Caller ID lookup,This module p
 $(eval $(call Package/freeswitch/Module,clearmode,Clearmode,Clearmode codec passthrough support.,))
 $(eval $(call Package/freeswitch/Module,cluechoo,Clue Choo,This demo module renders a Clue Choo train on the FreeSWITCH console.,+libncurses))
 $(eval $(call Package/freeswitch/Module,commands,Commands,This module provides miscellaneous API commands.,))
-$(eval $(call Package/freeswitch/Module,conference,Conference,This module provides multi-party conferencing.,))
+$(eval $(call Package/freeswitch/Module,conference,Conference,This module provides multi-party conferencing.,+openal-soft))
 $(eval $(call Package/freeswitch/Module,console,Console logger,Allows control over what messages get logged to the console.,))
 $(eval $(call Package/freeswitch/Module,curl,cURL,This module provides an API for making HTTP requests with cURL.,))
 $(eval $(call Package/freeswitch/Module,dahdi_codec,DAHDI codec,DAHDI codec module.,))
