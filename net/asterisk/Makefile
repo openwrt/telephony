@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=20.14.1
+PKG_VERSION:=22.7.0
 PKG_RELEASE:=1
 PKG_CPE_ID:=cpe:/a:digium:asterisk
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=fa0f953740eed079d5aaadf88f7f7131a053c61e4bc961faed0f30ba77f52ac9
+PKG_HASH:=5b0e5d276aeb014bf8a08a94d1055a9e97b9dce3375846eea70da5221bf9efe7
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -125,19 +125,15 @@ MODULES_AVAILABLE:= \
 	cel-custom \
 	cel-manager \
 	cel-sqlite3-custom \
-	chan-alsa \
 	chan-audiosocket \
 	chan-bridge-media \
 	chan-console \
 	chan-dahdi \
 	chan-iax2 \
-	chan-mgcp \
 	chan-mobile \
 	chan-motif \
 	chan-ooh323 \
 	chan-rtp \
-	chan-sip \
-	chan-skinny \
 	chan-unistim \
 	codec-a-mu \
 	codec-adpcm \
@@ -280,7 +276,6 @@ MODULES_AVAILABLE:= \
 	res-limit \
 	res-manager-devicestate \
 	res-manager-presencestate \
-	res-monitor \
 	res-musiconhold \
 	res-mutestream \
 	res-mwi-devstate \
@@ -294,7 +289,6 @@ MODULES_AVAILABLE:= \
 	res-pjsip-rfc3329 \
 	res-pjsip-stir-shaken \
 	res-pjproject \
-	res-pktccops \
 	res-prometheus \
 	res-realtime \
 	res-remb-modifier \
@@ -321,7 +315,9 @@ MODULES_AVAILABLE:= \
 	res-stun-monitor \
 	res-timing-dahdi \
 	res-timing-pthread \
+	res-timing-timerfd \
 	res-tonedetect \
+	res-websocket-client \
 	res-xmpp
 
 UTILS_AVAILABLE:= \
@@ -482,6 +478,7 @@ endef
 define Package/$(PKG_NAME)/conffiles
 /etc/asterisk/asterisk.conf
 /etc/asterisk/acl.conf
+/etc/asterisk/cdr.conf
 /etc/asterisk/cel.conf
 /etc/asterisk/ccss.conf
 /etc/asterisk/cli.conf
@@ -500,20 +497,19 @@ define Package/$(PKG_NAME)/conffiles
 /etc/asterisk/res_config_sqlite3.conf
 /etc/asterisk/stasis.conf
 /etc/asterisk/udptl.conf
-/etc/asterisk/users.conf
 /etc/config/asterisk
 /etc/init.d/asterisk
 endef
 
 AST_CFG_FILES:= \
-	asterisk.conf acl.conf cel.conf ccss.conf cli.conf \
+	asterisk.conf acl.conf cdr.conf cel.conf ccss.conf cli.conf \
 	cli_permissions.conf codecs.conf dnsmgr.conf dsp.conf extconfig.conf \
 	extensions.conf features.conf http.conf indications.conf \
 	logger.conf manager.conf modules.conf stasis.conf udptl.conf \
-	users.conf res_config_sqlite3.conf
+	res_config_sqlite3.conf
 
 AST_EMB_MODULES:=\
-	app_dial app_echo app_macro app_playback \
+	app_dial app_echo app_stack app_playback \
 	func_callerid func_logic func_strings func_timeout \
 	pbx_config res_crypto res_timing_timerfd
 
@@ -567,13 +563,12 @@ else
 	--without-tonezone
 endif
 
-# Pass CPPFLAGS in the CFLAGS as otherwise the build system will
+# Pass CPPFLAGS in the CFLAGS as otherwise the build system will
 # ignore them.
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
 CONFIGURE_ARGS+= \
 	--disable-xmldoc \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-alsa),--with-asound="$(STAGING_DIR)/usr",--without-asound) \
 	--without-execinfo \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-chan-mobile),--with-bluetooth="$(STAGING_DIR)/usr",--without-bluetooth) \
 	--with-cap="$(STAGING_DIR)/usr" \
@@ -862,23 +857,19 @@ $(eval $(call BuildAsteriskModule,bridge-simple,Simple two channel bridging modu
 $(eval $(call BuildAsteriskModule,bridge-softmix,Multi-party software based channel mixing,Multi-party software based channel mixing.,,,bridge_softmix,,))
 $(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Records.,,cdr.conf cdr_custom.conf cdr_manager.conf,app_cdr app_forkcdr cdr_custom cdr_manager func_cdr,,))
 $(eval $(call BuildAsteriskModule,cdr-csv,Provides CDR CSV,Comma Separated Values CDR backend.,,,cdr_csv,,))
-$(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,SQLite3 CDR backend.,libsqlite3,,cdr_sqlite3_custom,,))
+$(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,SQLite3 CDR backend.,libsqlite3,cdr_sqlite3_custom.conf,cdr_sqlite3_custom,,))
 $(eval $(call BuildAsteriskModule,cel-custom,Customizable CSV CEL backend,Customizable Comma Separated Values CEL backend.,,cel_custom.conf,cel_custom,,))
 $(eval $(call BuildAsteriskModule,cel-manager,AMI CEL backend,Asterisk Manager Interface CEL backend.,,,cel_manager,,))
 $(eval $(call BuildAsteriskModule,cel-sqlite3-custom,SQLite3 custom CEL,SQLite3 custom CEL module.,,cel_sqlite3_custom.conf,cel_sqlite3_custom,,))
-$(eval $(call BuildAsteriskModule,chan-alsa,ALSA channel,ALSA console channel driver.,+alsa-lib,alsa.conf,chan_alsa,,))
 $(eval $(call BuildAsteriskModule,chan-audiosocket,Audiosocket channel,Audiosocket channel.,+$(PKG_NAME)-res-audiosocket,,chan_audiosocket,,))
 $(eval $(call BuildAsteriskModule,chan-bridge-media,Bridge media channel driver,Bridge media channel driver.,,,chan_bridge_media,,))
 $(eval $(call BuildAsteriskModule,chan-console,Console channel driver,Console channel driver.,+portaudio,console.conf,chan_console,,))
 $(eval $(call BuildAsteriskModule,chan-dahdi,DAHDI channel,DAHDI telephony.,+dahdi-tools-libtonezone +kmod-dahdi +libpri @!aarch64,chan_dahdi.conf,chan_dahdi,,))
 $(eval $(call BuildAsteriskModule,chan-iax2,IAX2 channel,Inter Asterisk eXchange.,,iax.conf iaxprov.conf,chan_iax2,,))
-$(eval $(call BuildAsteriskModule,chan-mgcp,MGCP,Media Gateway Control Protocol.,,mgcp.conf,chan_mgcp,,))
 $(eval $(call BuildAsteriskModule,chan-mobile,Bluetooth channel,Bluetooth mobile device channel driver.,+bluez-libs,chan_mobile.conf,chan_mobile,,))
 $(eval $(call BuildAsteriskModule,chan-motif,Jingle channel,Motif Jingle channel driver.,+$(PKG_NAME)-res-xmpp,motif.conf,chan_motif,,))
 $(eval $(call BuildAsteriskModule,chan-ooh323,H.323 channel,Objective Systems H.323 channel.,,ooh323.conf,chan_ooh323,,))
 $(eval $(call BuildAsteriskModule,chan-rtp,RTP media channel,RTP media channel.,+asterisk-res-rtp-multicast,,chan_rtp,,))
-$(eval $(call BuildAsteriskModule,chan-sip,SIP channel,Session Initiation Protocol.,+$(PKG_NAME)-app-confbridge,sip.conf sip_notify.conf,chan_sip,,))
-$(eval $(call BuildAsteriskModule,chan-skinny,Skinny channel,Skinny Client Control Protocol.,,skinny.conf,chan_skinny,,))
 $(eval $(call BuildAsteriskModule,chan-unistim,Unistim channel,UNISTIM protocol.,,unistim.conf,chan_unistim,,))
 $(eval $(call BuildAsteriskModule,codec-a-mu,Alaw to ulaw translation,Alaw and ulaw direct coder/decoder.,,,codec_a_mu,,))
 $(eval $(call BuildAsteriskModule,codec-adpcm,ADPCM text,Adaptive Differential PCM coder/decoder.,,,codec_adpcm,,))
@@ -1021,7 +1012,6 @@ $(eval $(call BuildAsteriskModule,res-http-websocket,HTTP websocket,HTTP WebSock
 $(eval $(call BuildAsteriskModule,res-limit,Resource limits,Resource limits.,,,res_limit,,))
 $(eval $(call BuildAsteriskModule,res-manager-devicestate,Device state topic forwarder,Manager device state topic forwarder.,,,res_manager_devicestate,,))
 $(eval $(call BuildAsteriskModule,res-manager-presencestate,Presence state topic forwarder,Manager presence state topic forwarder.,,,res_manager_presencestate,,))
-$(eval $(call BuildAsteriskModule,res-monitor,PBX channel monitoring,Call monitoring resource.,,,res_monitor,,))
 $(eval $(call BuildAsteriskModule,res-musiconhold,MOH,Music On Hold resource.,,musiconhold.conf,res_musiconhold,,))
 $(eval $(call BuildAsteriskModule,res-mutestream,Mute audio stream resources,Mute audio stream resources.,,,res_mutestream,,))
 $(eval $(call BuildAsteriskModule,res-mwi-devstate,MWI device state subs,This module allows presence subscriptions to voicemail boxes. This\nallows common BLF keys to act as voicemail waiting indicators.,,,res_mwi_devstate,,))
@@ -1035,7 +1025,6 @@ $(eval $(call BuildAsteriskModule,res-pjsip-phoneprov,PJSIP Phone Provisioning,P
 $(eval $(call BuildAsteriskModule,res-pjsip-rfc3329,PJSIP RFC3329,PJSIP RFC3329 Support (partial).,+asterisk-pjsip +asterisk-res-pjproject,,res_pjsip_rfc3329,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-stir-shaken,PJSIP STIR/SHAKEN resource module,PJSIP STIR/SHAKEN resource module.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-stir-shaken,,res_pjsip_stir_shaken,,))
 $(eval $(call BuildAsteriskModule,res-pjproject,Bridge PJPROJECT to Asterisk logging,PJProject log and utility support.,+asterisk-res-sorcery +libpj +libpjlib-util +libpjmedia +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsip +libpjsua +libpjsua2,pjproject.conf,res_pjproject,,))
-$(eval $(call BuildAsteriskModule,res-pktccops,PktcCOPS manager for MGCP,PktcCOPS manager for MGCP.,,res_pktccops.conf,res_pktccops,,))
 $(eval $(call BuildAsteriskModule,res-prometheus,Prometheus resource module,Prometheus resource module.,+libpjsip +libpjmedia +libpjnath +libpjsip-simple +libpjsip-ua +libpjsua +libpjsua2,prometheus.conf,res_prometheus,,))
 $(eval $(call BuildAsteriskModule,res-realtime,RealTime CLI,Realtime data lookup/rewrite.,,,res_realtime,,))
 $(eval $(call BuildAsteriskModule,res-remb-modifier,REMB modifier,REMB modifier module.,,,res_remb_modifier,,))
@@ -1062,7 +1051,9 @@ $(eval $(call BuildAsteriskModule,res-stir-shaken,STIR/SHAKEN resource module,ST
 $(eval $(call BuildAsteriskModule,res-stun-monitor,STUN monitoring,STUN network monitor.,,res_stun_monitor.conf,res_stun_monitor,,))
 $(eval $(call BuildAsteriskModule,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface.,+$(PKG_NAME)-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,pthread timing interface.,,,res_timing_pthread,,))
+$(eval $(call BuildAsteriskModule,res-timing-timerfd,timerfd Timing Interface,timerfd timing interface.,,,res_timing_timerfd,,))
 $(eval $(call BuildAsteriskModule,res-tonedetect,Tone detection,Tone detection module.,,,res_tonedetect,,))
+$(eval $(call BuildAsteriskModule,res-websocket-client,WebSocket Client,WebSocket Client module.,,websocket_client.conf,res_websocket_client,,))
 $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,Asterisk XMPP interface.,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
 
 ################################
