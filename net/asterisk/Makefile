@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
-PKG_VERSION:=22.7.0
+PKG_VERSION:=23.1.0
 PKG_RELEASE:=1
 PKG_CPE_ID:=cpe:/a:digium:asterisk
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.asterisk.org/pub/telephony/asterisk/releases
-PKG_HASH:=5b0e5d276aeb014bf8a08a94d1055a9e97b9dce3375846eea70da5221bf9efe7
+PKG_HASH:=04a05b555b27a7f5cc4f86d301190d7ee2cd4621490d262aed8613495b44316a
 
 PKG_BUILD_DEPENDS:=libxml2/host
 
@@ -323,8 +323,6 @@ MODULES_AVAILABLE:= \
 UTILS_AVAILABLE:= \
 	aelparse \
 	astcanary \
-	astdb2sqlite3 \
-	astdb2bdb \
 	check_expr \
 	check_expr2 \
 	smsq \
@@ -1068,8 +1066,6 @@ $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,Aste
 
 $(eval $(call BuildAsteriskUtil,aelparse,Check extensions.ael file.,+$(PKG_NAME)-pbx-ael,))
 $(eval $(call BuildAsteriskUtil,astcanary,Assures Asterisk no threads have gone missing.,,))
-$(eval $(call BuildAsteriskUtil,astdb2sqlite3,Convert astdb to SQLite 3.,,))
-$(eval $(call BuildAsteriskUtil,astdb2bdb,Convert astdb back to Berkeley DB 1.86.,,))
 $(eval $(call BuildAsteriskUtil,check_expr,Expression checker [older version].,,))
 $(eval $(call BuildAsteriskUtil,check_expr2,Expression checker [newer version].,,))
 $(eval $(call BuildAsteriskUtil,smsq,Send messages from command line.,+libpopt,))
