@@ -396,6 +396,19 @@ define Package/$(PKG_NAME)/config
 		  Warning: this feature is known to cause problems with some modules.
 		  Disable it if you experience problems like segmentation faults.
 
+	config ASTERISK_SSL_SUPPORT
+		bool "Build asterisk with SSL support"
+		default y
+		help
+		  Build Asterisk with SSL support. This is required for some module
+		  functionality.
+
+	config ASTERISK_CRYPTO_SUPPORT
+		bool "Build asterisk with crypto support"
+		default y
+		help
+		  Build Asterisk with crypto support. This is required for some module
+		  functionality.
 	endmenu
 endef
 
@@ -471,7 +484,7 @@ define Package/$(PKG_NAME)
 $(call Package/$(PKG_NAME)/Default)
   TITLE:=Complete open source PBX, v$(PKG_VERSION)
   MENU:=1
-  DEPENDS:=+ASTERISK_LIBXSLT_SUPPORT:libxslt +libstdcpp +jansson +libcap +libedit +libopenssl +libsqlite3 +libuuid +libxml2 +zlib
+  DEPENDS:=+ASTERISK_LIBXSLT_SUPPORT:libxslt +libstdcpp +jansson +libcap +libedit +ASTERISK_SSL_SUPPORT:libopenssl +libsqlite3 +libuuid +libxml2 +zlib
   USERID:=asterisk=385:asterisk=385
 endef
 
@@ -602,7 +615,9 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-app-voicemail-imap),--with-imap=system,--without-imap) \
 	--without-uriparser \
-	--with-z="$(STAGING_DIR)/usr"
+	--with-z="$(STAGING_DIR)/usr" \
+	$(if $(CONFIG_ASTERISK_SSL_SUPPORT),--with-ssl,--without-ssl) \
+	$(if $(CONFIG_ASTERISK_CRYPTO_SUPPORT),--with-crypto,--without-crypto)
 
 ifeq ($(CONFIG_PACKAGE_$(PKG_NAME)-codec-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-speex)$(CONFIG_PACKAGE_$(PKG_NAME)-func-speex),)
 CONFIGURE_ARGS+= \
