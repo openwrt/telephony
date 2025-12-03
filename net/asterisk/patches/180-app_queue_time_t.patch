@@ -1,6 +1,6 @@
 --- a/apps/app_queue.c
 +++ b/apps/app_queue.c
-@@ -4803,8 +4803,12 @@ static int is_longest_waiting_caller(str
+@@ -4759,8 +4759,12 @@ static int is_longest_waiting_caller(str
  					 * will be unused until the first caller is picked up.
  					 */
  					if (ch->start < caller->start && !ch->pending) {
