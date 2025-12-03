@@ -1016,7 +1016,7 @@ $(eval $(call BuildAsteriskModule,res-mwi-devstate,MWI device state subs,This mo
 $(eval $(call BuildAsteriskModule,res-mwi-external,Core external MWI resource,Core external MWI resource.,,,res_mwi_external,,))
 $(eval $(call BuildAsteriskModule,res-mwi-external-ami,AMI for external MWI,AMI support for external MWI.,+$(PKG_NAME)-res-mwi-external,,res_mwi_external_ami,,))
 $(eval $(call BuildAsteriskModule,res-parking,Phone Parking,Call parking resource.,+$(PKG_NAME)-bridge-holding,res_parking.conf,res_parking,,))
-$(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,HTTP phone provisioning.,,phoneprov.conf,res_phoneprov,,))
+$(eval $(call BuildAsteriskModule,res-phoneprov,Phone Provisioning,HTTP phone provisioning.,,phoneprov.conf phoneprov_users.conf,res_phoneprov,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-aoc,PJSIP AOC,PJSIP AOC Support.,+asterisk-pjsip +asterisk-res-pjproject,,res_pjsip_aoc,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-geolocation,PJSIP Geolocation,PJSIP Geolocation support.,+asterisk-pjsip +asterisk-res-geolocation,,res_pjsip_geolocation,,))
 $(eval $(call BuildAsteriskModule,res-pjsip-phoneprov,PJSIP Phone Provisioning,PJSIP phone provisioning.,+$(PKG_NAME)-pjsip +$(PKG_NAME)-res-phoneprov,,res_pjsip_phoneprov_provider,,))
