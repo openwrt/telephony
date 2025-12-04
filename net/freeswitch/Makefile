@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.10.12
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_MAINTAINER:=
 
 PKG_SOURCE:=freeswitch-$(PKG_VERSION).-release.tar.xz

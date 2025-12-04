@@ -1,0 +1,98 @@
+From 58776f3eed03951e3a712c5124a12616f5aa735f Mon Sep 17 00:00:00 2001
+From: Jakub Karolczyk <jakub.karolczyk@signalwire.com>
+Date: Wed, 8 May 2024 12:27:08 +0100
+Subject: [PATCH 2/4] [mod_av] Add support for FFmpeg 6.1
+
+---
+ src/mod/applications/mod_av/avcodec.c  | 11 ++++++++++-
+ src/mod/applications/mod_av/avformat.c | 13 ++++++++++++-
+ src/mod/applications/mod_av/mod_av.h   | 11 +++++++----
+ 3 files changed, 29 insertions(+), 6 deletions(-)
+
+--- a/src/mod/applications/mod_av/avcodec.c
++++ b/src/mod/applications/mod_av/avcodec.c
+@@ -1557,7 +1557,11 @@ static switch_status_t switch_h264_encod
+ 		}
+ 
+ 		 avframe->pict_type = AV_PICTURE_TYPE_I;
++#if (LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V)
++		 avframe->flags |= AV_FRAME_FLAG_KEY;
++#else
+ 		 avframe->key_frame = 1;
++#endif
+ 		 context->last_keyframe_request = switch_time_now();
+ 	}
+ 
+@@ -1600,9 +1604,14 @@ GCC_DIAG_ON(deprecated-declarations)
+ 		}
+ #endif
+ 
++#if (LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V)
++	if (context->need_key_frame && (avframe->flags & AV_FRAME_FLAG_KEY)) {
++		avframe->flags &= ~AV_FRAME_FLAG_KEY;
++#else
+ 	if (context->need_key_frame && avframe->key_frame == 1) {
+-		avframe->pict_type = 0;
+ 		avframe->key_frame = 0;
++#endif
++		avframe->pict_type = 0;
+ 		context->need_key_frame = 0;
+ 	}
+ 
+--- a/src/mod/applications/mod_av/avformat.c
++++ b/src/mod/applications/mod_av/avformat.c
+@@ -623,8 +623,13 @@ static switch_status_t add_stream(av_fil
+ 		c->rc_initial_buffer_occupancy = buffer_bytes * 8;
+ 
+ 		if (codec_id == AV_CODEC_ID_H264) {
++#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++GCC_DIAG_OFF(deprecated-declarations)
++#endif
+ 			c->ticks_per_frame = 2;
+-
++#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++GCC_DIAG_ON(deprecated-declarations)
++#endif
+ 
+ 			c->flags|=AV_CODEC_FLAG_LOOP_FILTER;   // flags=+loop
+ 			c->me_cmp|= 1;  // cmp=+chroma, where CHROMA = 1
+@@ -3212,6 +3217,9 @@ static switch_status_t av_file_read_vide
+ 
+ 	if ((c = av_get_codec_context(mst)) && c->time_base.num) {
+ 		cp = av_stream_get_parser(st);
++#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++GCC_DIAG_OFF(deprecated-declarations)
++#endif
+ 		ticks = cp ? cp->repeat_pict + 1 : c->ticks_per_frame;
+ 		// mst->next_pts += ((int64_t)AV_TIME_BASE * st->codec->time_base.num * ticks) / st->codec->time_base.den;
+ 	}
+@@ -3221,6 +3229,9 @@ static switch_status_t av_file_read_vide
+ 			context->video_start_time, ticks, c ? c->ticks_per_frame : -1, st->time_base.num, st->time_base.den, c ? c->time_base.num : -1, c ? c->time_base.den : -1,
+ 			st->start_time, st->duration == AV_NOPTS_VALUE ? context->fc->duration / AV_TIME_BASE * 1000 : st->duration, st->nb_frames, av_q2d(st->time_base));
+ 	}
++#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++GCC_DIAG_ON(deprecated-declarations)
++#endif
+ 
+  again:
+ 
+--- a/src/mod/applications/mod_av/mod_av.h
++++ b/src/mod/applications/mod_av/mod_av.h
+@@ -40,10 +40,13 @@
+ #ifndef MOD_AV_H
+ #define MOD_AV_H
+ 
+-#define LIBAVCODEC_V 59
+-#define LIBAVFORMAT_V 59
+-#define LIBAVFORMAT_6_V 60
+-#define LIBAVUTIL_V 57
++#define LIBAVCODEC_V 59 /* FFmpeg version >= 5.1 */
++#define LIBAVCODEC_6_V 60 /* FFmpeg version >= 6.0 */
++#define LIBAVCODEC_61_V 31 /* FFmpeg version >= 6.1 */
++#define LIBAVFORMAT_V 59 /* FFmpeg version >= 5.1 */
++#define LIBAVFORMAT_6_V 60 /* FFmpeg version >= 6.0 */
++#define LIBAVFORMAT_61_V 16 /* FFmpeg version >= 6.1 */
++#define LIBAVUTIL_V 57 /* FFmpeg version >= 5.1 */
+ 
+ struct mod_av_globals {
+ 	int debug;

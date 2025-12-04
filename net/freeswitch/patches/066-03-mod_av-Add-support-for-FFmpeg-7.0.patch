@@ -1,0 +1,167 @@
+From 1fd9ac9dd1bdae6e1bd794119f8e5328fe4c7f6c Mon Sep 17 00:00:00 2001
+From: Jakub Karolczyk <jakub.karolczyk@signalwire.com>
+Date: Thu, 9 May 2024 11:45:38 +0100
+Subject: [PATCH 3/4] [mod_av] Add support for FFmpeg 7.0
+
+---
+ src/mod/applications/mod_av/avcodec.c  | 36 +++++++++++++++++++++++---
+ src/mod/applications/mod_av/avformat.c | 17 +++++++++---
+ src/mod/applications/mod_av/mod_av.h   |  2 ++
+ 3 files changed, 47 insertions(+), 8 deletions(-)
+
+--- a/src/mod/applications/mod_av/avcodec.c
++++ b/src/mod/applications/mod_av/avcodec.c
+@@ -1227,8 +1227,14 @@ static switch_status_t open_encoder(h264
+ 
+ 	if (context->encoder_ctx) {
+ 		if (avcodec_is_open(context->encoder_ctx)) {
++#if (LIBAVCODEC_VERSION_MAJOR < LIBAVCODEC_7_V)
+ 			avcodec_close(context->encoder_ctx);
++#else
++			/* avcodec_close() will be called in avcodec_free_context() */
++			avcodec_free_context(&context->encoder_ctx);
++#endif
+ 		}
++
+ 		av_free(context->encoder_ctx);
+ 		context->encoder_ctx = NULL;
+ 	}
+@@ -1320,8 +1326,14 @@ FF_ENABLE_DEPRECATION_WARNINGS
+ 
+ 		if (context->encoder_ctx) {
+ 			if (avcodec_is_open(context->encoder_ctx)) {
++#if (LIBAVCODEC_VERSION_MAJOR < LIBAVCODEC_7_V)
+ 				avcodec_close(context->encoder_ctx);
++#else
++				/* avcodec_close() will be called in avcodec_free_context() */
++				avcodec_free_context(&context->encoder_ctx);
++#endif
+ 			}
++
+ 			av_free(context->encoder_ctx);
+ 			context->encoder_ctx = NULL;
+ 		}
+@@ -1557,7 +1569,7 @@ static switch_status_t switch_h264_encod
+ 		}
+ 
+ 		 avframe->pict_type = AV_PICTURE_TYPE_I;
+-#if (LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V)
++#if ((LIBAVCODEC_VERSION_MAJOR == LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V) || LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_7_V)
+ 		 avframe->flags |= AV_FRAME_FLAG_KEY;
+ #else
+ 		 avframe->key_frame = 1;
+@@ -1604,7 +1616,7 @@ GCC_DIAG_ON(deprecated-declarations)
+ 		}
+ #endif
+ 
+-#if (LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V)
++#if ((LIBAVCODEC_VERSION_MAJOR == LIBAVCODEC_6_V && LIBAVCODEC_VERSION_MINOR >= LIBAVCODEC_61_V) || LIBAVCODEC_VERSION_MAJOR >= LIBAVCODEC_7_V)
+ 	if (context->need_key_frame && (avframe->flags & AV_FRAME_FLAG_KEY)) {
+ 		avframe->flags &= ~AV_FRAME_FLAG_KEY;
+ #else
+@@ -1871,14 +1883,30 @@ static switch_status_t switch_h264_destr
+ 
+ 	switch_buffer_destroy(&context->nalu_buffer);
+ 	if (context->decoder_ctx) {
+-		if (avcodec_is_open(context->decoder_ctx)) avcodec_close(context->decoder_ctx);
++		if (avcodec_is_open(context->decoder_ctx)) {
++#if (LIBAVCODEC_VERSION_MAJOR < LIBAVCODEC_7_V)
++				avcodec_close(context->decoder_ctx);
++#else
++				/* avcodec_close() will be called in avcodec_free_context() */
++				avcodec_free_context(&context->decoder_ctx);
++#endif
++		}
++
+ 		av_free(context->decoder_ctx);
+ 	}
+ 
+ 	switch_img_free(&context->img);
+ 
+ 	if (context->encoder_ctx) {
+-		if (avcodec_is_open(context->encoder_ctx)) avcodec_close(context->encoder_ctx);
++		if (avcodec_is_open(context->encoder_ctx)) {
++#if (LIBAVCODEC_VERSION_MAJOR < LIBAVCODEC_7_V)
++			avcodec_close(context->encoder_ctx);
++#else
++			/* avcodec_close() will be called in avcodec_free_context() */
++			avcodec_free_context(&context->encoder_ctx);
++#endif
++		}
++
+ 		av_free(context->encoder_ctx);
+ 	}
+ 
+--- a/src/mod/applications/mod_av/avformat.c
++++ b/src/mod/applications/mod_av/avformat.c
+@@ -623,11 +623,11 @@ static switch_status_t add_stream(av_fil
+ 		c->rc_initial_buffer_occupancy = buffer_bytes * 8;
+ 
+ 		if (codec_id == AV_CODEC_ID_H264) {
+-#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++#if ((LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V) || LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_7_V)
+ GCC_DIAG_OFF(deprecated-declarations)
+ #endif
+ 			c->ticks_per_frame = 2;
+-#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++#if ((LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V) || LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_7_V)
+ GCC_DIAG_ON(deprecated-declarations)
+ #endif
+ 
+@@ -1417,7 +1417,11 @@ static switch_status_t open_input_file(a
+ 		switch_goto_status(SWITCH_STATUS_FALSE, err);
+ 	}
+ 
++#if (LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_7_V)
++	handle->seekable = !(context->fc->iformat->flags & AVFMT_NOTIMESTAMPS);
++#else
+ 	handle->seekable = context->fc->iformat->read_seek2 ? 1 : (context->fc->iformat->read_seek ? 1 : 0);
++#endif
+ 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "file %s is %sseekable\n", filename, handle->seekable ? "" : "not ");
+ 
+ 	/** Get information on the input file (number of streams etc.). */
+@@ -1509,7 +1513,12 @@ static switch_status_t open_input_file(a
+ 
+ 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Could not open input audio codec channel 2 (error '%s')\n", get_error_text(error, ebuf, sizeof(ebuf)));
+ 		if ((cc = av_get_codec_context(&context->audio_st[0]))) {
++#if (LIBAVCODEC_VERSION_MAJOR < LIBAVCODEC_7_V)
+ 			avcodec_close(cc);
++#else
++			/* avcodec_close() will be called in avcodec_free_context() */
++			avcodec_free_context(&cc);
++#endif
+ 		}
+ 
+ 		context->has_audio = 0;
+@@ -3217,7 +3226,7 @@ static switch_status_t av_file_read_vide
+ 
+ 	if ((c = av_get_codec_context(mst)) && c->time_base.num) {
+ 		cp = av_stream_get_parser(st);
+-#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++#if ((LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V) || LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_7_V)
+ GCC_DIAG_OFF(deprecated-declarations)
+ #endif
+ 		ticks = cp ? cp->repeat_pict + 1 : c->ticks_per_frame;
+@@ -3229,7 +3238,7 @@ GCC_DIAG_OFF(deprecated-declarations)
+ 			context->video_start_time, ticks, c ? c->ticks_per_frame : -1, st->time_base.num, st->time_base.den, c ? c->time_base.num : -1, c ? c->time_base.den : -1,
+ 			st->start_time, st->duration == AV_NOPTS_VALUE ? context->fc->duration / AV_TIME_BASE * 1000 : st->duration, st->nb_frames, av_q2d(st->time_base));
+ 	}
+-#if (LIBAVFORMAT_VERSION_MAJOR >= LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V)
++#if ((LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_6_V && LIBAVFORMAT_VERSION_MINOR >= LIBAVFORMAT_61_V) || LIBAVFORMAT_VERSION_MAJOR == LIBAVFORMAT_7_V)
+ GCC_DIAG_ON(deprecated-declarations)
+ #endif
+ 
+--- a/src/mod/applications/mod_av/mod_av.h
++++ b/src/mod/applications/mod_av/mod_av.h
+@@ -42,9 +42,11 @@
+ 
+ #define LIBAVCODEC_V 59 /* FFmpeg version >= 5.1 */
+ #define LIBAVCODEC_6_V 60 /* FFmpeg version >= 6.0 */
++#define LIBAVCODEC_7_V 61 /* FFmpeg version >= 7.0 */
+ #define LIBAVCODEC_61_V 31 /* FFmpeg version >= 6.1 */
+ #define LIBAVFORMAT_V 59 /* FFmpeg version >= 5.1 */
+ #define LIBAVFORMAT_6_V 60 /* FFmpeg version >= 6.0 */
++#define LIBAVFORMAT_7_V 61 /* FFmpeg version >= 7.0 */
+ #define LIBAVFORMAT_61_V 16 /* FFmpeg version >= 6.1 */
+ #define LIBAVUTIL_V 57 /* FFmpeg version >= 5.1 */
+ 

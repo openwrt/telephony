@@ -1,0 +1,55 @@
+From 9dccd0b6e6761434d54d75d6385cdc7a7b3fa39c Mon Sep 17 00:00:00 2001
+From: Jakub Karolczyk <jakub.karolczyk@signalwire.com>
+Date: Wed, 8 May 2024 10:53:58 +0100
+Subject: [PATCH 1/4] [mod_av] Add support for FFmpeg 6.0
+
+---
+ src/mod/applications/mod_av/avformat.c | 11 +++++++++++
+ src/mod/applications/mod_av/mod_av.h   |  1 +
+ 2 files changed, 12 insertions(+)
+
+--- a/src/mod/applications/mod_av/avformat.c
++++ b/src/mod/applications/mod_av/avformat.c
+@@ -416,6 +416,7 @@ static int interrupt_cb(void *cp)
+ }
+  
+ 
++#if (LIBAVFORMAT_VERSION_MAJOR < LIBAVFORMAT_6_V)
+ static int mod_avformat_alloc_output_context2(AVFormatContext **avctx, const char *format, const char *filename, av_file_context_t *context)
+ {
+ 	AVFormatContext *s = avformat_alloc_context();
+@@ -489,6 +490,7 @@ error:
+ 
+ 	return ret;
+ }
++#endif
+ 
+ static int write_frame(AVFormatContext *fmt_ctx, const AVRational *time_base, AVStream *st, AVPacket *pkt)
+ {
+@@ -2235,7 +2237,16 @@ static switch_status_t av_file_open(swit
+ 		return SWITCH_STATUS_SUCCESS;
+ 	}
+ 
++#if (LIBAVFORMAT_VERSION_MAJOR < LIBAVFORMAT_6_V)
+ 	mod_avformat_alloc_output_context2(&context->fc, format, (char *)file, context);
++#else
++	avformat_alloc_output_context2(&context->fc, NULL, format, (char *)file);
++
++	if (context->fc) {
++		context->fc->interrupt_callback.callback = interrupt_cb;
++		context->fc->interrupt_callback.opaque = context;
++	}
++#endif
+ 
+ 	if (!context->fc) {
+ 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Could not deduce output format from file extension\n");
+--- a/src/mod/applications/mod_av/mod_av.h
++++ b/src/mod/applications/mod_av/mod_av.h
+@@ -42,6 +42,7 @@
+ 
+ #define LIBAVCODEC_V 59
+ #define LIBAVFORMAT_V 59
++#define LIBAVFORMAT_6_V 60
+ #define LIBAVUTIL_V 57
+ 
+ struct mod_av_globals {
