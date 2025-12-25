@@ -1,0 +1,44 @@
+--- a/include/dahdi/kernel.h
++++ b/include/dahdi/kernel.h
+@@ -58,6 +58,15 @@
+ 
+ #include <linux/poll.h>
+ 
++/* Added for DAHDI use of hrtimers (hrtimer_init, etc.) */
++#include <linux/hrtimer.h>
++
++/* del_timer[_sync] was renamed to timer_delete[_sync] in newer kernels */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++#define del_timer      timer_delete
++#define del_timer_sync timer_delete_sync
++#endif
++
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+ #define netif_napi_add netif_napi_add_weight
+ #endif
+@@ -66,6 +75,25 @@
+ #include <linux/pci.h>
+ #include <linux/dma-mapping.h>
+ 
++/* DAHDI expects hrtimer_init(), but kernels >= 6.8 removed it.
++ * Recreate it using the modern hrtimer_setup() API.
++ */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
++static inline void hrtimer_init(struct hrtimer *timer,
++                                clockid_t clock_id,
++                                enum hrtimer_mode mode)
++{
++    /* No callback yet — DAHDI sets it later with hrtimer_update_function() */
++    hrtimer_setup(timer, NULL, clock_id, mode);
++}
++#endif
++
++/* from_timer() helper was removed in newer kernels; restore it for DAHDI. */
++#ifndef from_timer
++#define from_timer(var, callback_timer, timer_fieldname)           \
++        container_of(callback_timer, typeof(*var), timer_fieldname)
++#endif
++
+ static inline void *pci_alloc_consistent(struct pci_dev *hwdev, size_t size, dma_addr_t *dma_handle)
+ {
+     return dma_alloc_coherent(hwdev == NULL ? NULL : &hwdev->dev, size, dma_handle, GFP_ATOMIC);
