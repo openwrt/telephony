@@ -106,7 +106,6 @@ MODULES_AVAILABLE:= \
 	app-verbose \
 	app-waitforcond \
 	app-voicemail \
-	app-voicemail-imap \
 	app-voicemail-odbc \
 	app-waitforring \
 	app-waitforsilence \
@@ -593,7 +592,7 @@ CONFIGURE_ARGS+= \
 	--without-tds \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-res-resolver-unbound),--with-unbound="$(STAGING_DIR)/usr",--without-unbound) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-format-ogg-vorbis),--with-vorbis="$(STAGING_DIR)/usr",--without-vorbis) \
-	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-app-voicemail-imap),--with-imap=system,--without-imap) \
+	--without-imap \
 	--without-uriparser \
 	--with-z="$(STAGING_DIR)/usr"
 
@@ -840,7 +839,6 @@ $(eval $(call BuildAsteriskModule,app-userevent,Custom user event,Custom user ev
 $(eval $(call BuildAsteriskModule,app-verbose,Verbose logging,Send verbose output.,,,app_verbose,,))
 $(eval $(call BuildAsteriskModule,app-waitforcond,Wait for condition,Wait until condition is true.,,,app_waitforcond,,))
 $(eval $(call BuildAsteriskModule,app-voicemail,Voicemail,Voicemail module.,,voicemail.conf,app_voicemail,vm-*,))
-$(eval $(call BuildAsteriskModule,app-voicemail-imap,Voicemail IMAP,Voicemail module.,+uw-imap,,app_voicemail_imap,,))
 $(eval $(call BuildAsteriskModule,app-voicemail-odbc,Voicemail ODBC,Voicemail module.,+unixodbc,,app_voicemail_odbc,,))
 $(eval $(call BuildAsteriskModule,app-waitforring,Wait for first ring,Waits until first ring after time.,,,app_waitforring,,))
 $(eval $(call BuildAsteriskModule,app-waitforsilence,Wait for silence/noise,Wait for silence/noise.,,,app_waitforsilence,,))
