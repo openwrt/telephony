@@ -7,12 +7,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtpengine
-PKG_VERSION:=11.5.1.49
+PKG_VERSION:=13.5.1.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-mr$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sipwise/rtpengine/tar.gz/mr$(PKG_VERSION)?
-PKG_HASH:=33e9565ad221ba86bb985d3983a3871edc17c0b4221bc220fdb3715fce0a828a
+PKG_HASH:=3cfefd1e6f84f276c7503e2aca2e2ba9464999fc68558f67db2575a927c4237d
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-mr$(PKG_VERSION)
 
@@ -97,6 +97,7 @@ $(call Package/rtpengine/Template)
   VARIANT:=transcode
   DEPENDS := \
 	  $(patsubst +%,+PACKAGE_rtpengine:%,$(ENGINE_DEPENDS_TRANSCODING)) \
+	  @BTREE_SUPPORT \
 	  +IPV6:libip6tc
 endef
 
@@ -139,6 +140,7 @@ $(call Package/rtpengine/Template)
   CONFLICTS:=rtpengine
   DEPENDS := \
 	  $(patsubst +%,+PACKAGE_rtpengine-no-transcode:%,$(ENGINE_DEPENDS)) \
+	  @BTREE_SUPPORT \
 	  +IPV6:libip6tc
 endef
 
@@ -209,9 +211,11 @@ define KernelPackage/ipt-rtpengine
 $(call Package/rtpengine/Default)
   TITLE:=Sipwise rtpengine netfilter module
   SUBMENU:=Netfilter Extensions
+  KCONFIG:=CONFIG_BTREE
   FILES:=$(PKG_BUILD_DIR)/kernel-module/xt_RTPENGINE.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoProbe,xt_RTPENGINE)
   DEPENDS := \
+	  @BTREE_SUPPORT \
 	  +PACKAGE_kmod-ipt-rtpengine:kmod-crypto-aead \
 	  +PACKAGE_kmod-ipt-rtpengine:kmod-crypto-hash \
 	  +PACKAGE_kmod-ipt-rtpengine:kmod-ipt-core

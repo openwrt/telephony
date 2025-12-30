@@ -1,8 +1,8 @@
 --- a/lib/common.Makefile
 +++ b/lib/common.Makefile
-@@ -34,12 +34,6 @@ $(DAEMONSRCS) $(HASHSRCS):	$(patsubst %,
- 		echo '#line 1' && \
- 		cat ../daemon/"$@" ) > "$@"
+@@ -51,12 +51,6 @@ install:
+ 
+ $(ALLOBJS):	Makefile ../include/* ../lib/*.h ../kernel-module/*.h
  
 -%.8: ../docs/%.md
 -	cat "$<" | sed '/^# /d; s/^##/#/' | \
@@ -11,13 +11,13 @@
 -			-M "date:$(BUILD_DATE)" \
 -			-o "$@"
  
- resample.c codeclib.strhash.c mix.c packet.c:	fix_frame_channel_layout.h
+ resample.c ../lib/codeclib.strhash.c mix.c packet.c:	../lib/fix_frame_channel_layout.h
  
 --- a/daemon/Makefile
 +++ b/daemon/Makefile
-@@ -93,11 +93,8 @@ LIBASM=		mvr2s_x64_avx2.S mvr2s_x64_avx5
+@@ -113,11 +113,8 @@ ifneq ($(have_liburing),yes)
+ LIBSRCS+=	uring.c
  endif
- OBJS=		$(SRCS:.c=.o) $(LIBSRCS:.c=.o) $(LIBASM:.S=.o)
  
 -MDS=		rtpengine.ronn
 -MANS=		$(MDS:.ronn=.8)
@@ -29,9 +29,9 @@
 -	install -m 0644 -D $(TARGET).8 $(DESTDIR)/usr/share/man/man8/$(TARGET).8
 --- a/recording-daemon/Makefile
 +++ b/recording-daemon/Makefile
-@@ -39,11 +39,8 @@ LIBSRCS=	loglib.c auxlib.c rtplib.c code
+@@ -56,11 +56,8 @@ LIBSRCS=	loglib.c auxlib.c rtplib.c code
+ 		dtmflib.c bufferpool.c bencode.c http.c s3utils.c oauth.c
  LIBASM=		mvr2s_x64_avx2.S mvr2s_x64_avx512.S mix_in_x64_avx2.S mix_in_x64_avx512bw.S mix_in_x64_sse2.S
- OBJS=		$(SRCS:.c=.o) $(LIBSRCS:.c=.o) $(LIBASM:.S=.o)
  
 -MDS=		rtpengine-recording.ronn
 -MANS=		$(MDS:.ronn=.8)
