@@ -314,7 +314,6 @@ MODULES_AVAILABLE:= \
 	res-stun-monitor \
 	res-timing-dahdi \
 	res-timing-pthread \
-	res-timing-timerfd \
 	res-tonedetect \
 	res-websocket-client \
 	res-xmpp
@@ -506,7 +505,7 @@ AST_CFG_FILES:= \
 	res_config_sqlite3.conf
 
 AST_EMB_MODULES:=\
-	app_dial app_echo app_stack app_playback \
+	app_dial app_echo app_playback \
 	func_callerid func_logic func_strings func_timeout \
 	pbx_config res_crypto res_timing_timerfd
 
@@ -1047,7 +1046,6 @@ $(eval $(call BuildAsteriskModule,res-stir-shaken,STIR/SHAKEN resource module,ST
 $(eval $(call BuildAsteriskModule,res-stun-monitor,STUN monitoring,STUN network monitor.,,res_stun_monitor.conf,res_stun_monitor,,))
 $(eval $(call BuildAsteriskModule,res-timing-dahdi,DAHDI Timing Interface,DAHDI timing interface.,+$(PKG_NAME)-chan-dahdi,,res_timing_dahdi,,))
 $(eval $(call BuildAsteriskModule,res-timing-pthread,pthread Timing Interface,pthread timing interface.,,,res_timing_pthread,,))
-$(eval $(call BuildAsteriskModule,res-timing-timerfd,timerfd Timing Interface,timerfd timing interface.,,,res_timing_timerfd,,))
 $(eval $(call BuildAsteriskModule,res-tonedetect,Tone detection,Tone detection module.,,,res_tonedetect,,))
 $(eval $(call BuildAsteriskModule,res-websocket-client,WebSocket Client,WebSocket Client module.,,websocket_client.conf,res_websocket_client,,))
 $(eval $(call BuildAsteriskModule,res-xmpp,XMPP client and component module,Asterisk XMPP interface.,+libiksemel +libopenssl,xmpp.conf,res_xmpp,,))
