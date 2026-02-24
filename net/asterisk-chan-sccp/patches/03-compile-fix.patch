@@ -1,0 +1,24 @@
+--- a/src/pbx_impl/ast116/ast116.c
++++ b/src/pbx_impl/ast116/ast116.c
+@@ -61,6 +61,21 @@ __BEGIN_C_EXTERN__
+ #include <asterisk/format_cap.h>		// for AST_FORMAT_CAP_NAMES_LEN
+ #include <asterisk/say.h>                                        // PARKING
+ 
++/* Channel API prototypes are required for wrapper functions such as
++ * ast_channel_macroexten/macrocontext.  Older headers may have included
++ * this transitively, but newer releases do not. */
++#include <asterisk/channel.h>
++
++/* Some Asterisk versions (particularly older development headers used by
++ * embedded builds) omit explicit prototypes for macroexten/macrocontext
++ * accessor functions.  The PBX wrapper relies on these functions, so
++ * provide forward declarations in case they are missing.  Duplicate
++ * declarations are harmless. */
++const char *ast_channel_macroexten(const struct ast_channel *chan);
++void ast_channel_macroexten_set(struct ast_channel *chan, const char *value);
++const char *ast_channel_macrocontext(const struct ast_channel *chan);
++void ast_channel_macrocontext_set(struct ast_channel *chan, const char *value);
++
+ #define new avoid_cxx_new_keyword
+ #include <asterisk/rtp_engine.h>
+ #undef new
