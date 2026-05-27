@@ -12,7 +12,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=pjproject
 PKG_VERSION:=2.14.1
 PKG_RELEASE:=1
-PKG_CPE_ID:=cpe:/a:pjsip:pjsip
+PKG_CPE_ID:=cpe:/a:teluu:pjsip
 
 # download "vX.Y.tar.gz" as "pjproject-vX.Y.tar.gz"
 PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
