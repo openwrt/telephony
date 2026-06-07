@@ -95,6 +95,11 @@ CONFIGURE_ARGS+= \
 
 TARGET_CFLAGS+=$(TARGET_CPPFLAGS)
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	$(CP) config_site.h $(PKG_BUILD_DIR)/pjlib/include/pj/config_site.h
+endef
+
 define Build/Compile
 	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) EXCLUDE_APP=1 dep
 	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) EXCLUDE_APP=1
