@@ -1,6 +1,6 @@
 --- a/include/asterisk/compat.h
 +++ b/include/asterisk/compat.h
-@@ -130,14 +130,16 @@ void timersub(struct timeval *tvend, str
+@@ -132,14 +132,16 @@ void timersub(struct timeval *tvend, str
  
  #include <errno.h>
  
