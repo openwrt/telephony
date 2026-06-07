@@ -97,3 +97,21 @@
  * and subscriptions as well as the global pjproject endpoint,
  * we don't want to increase it too much.
  */
+#define PJSIP_MAX_MODULE 38
+
+/*
+ * Disable ICE check for source address match. Asterisk handles
+ * this itself and having both enabled causes the rtp stream
+ * to not be established correctly.
+ */
+
+#define PJ_ICE_SESS_CHECK_SRC_ADDR               0
+
+/*
+ * Disables internal absorption of retransmitted INVITE requests
+ * after ACK, restoring legacy behavior where retransmissions
+ * are forwarded to the application layer instead of being
+ * silently handled by the PJSIP stack.
+ */
+
+#define PJSIP_INV_ABSORB_RETRANS_AFTER_ACK 0

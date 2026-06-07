@@ -10,7 +10,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pjproject
-PKG_VERSION:=2.15.1
+PKG_VERSION:=2.17
 PKG_RELEASE:=1
 PKG_CPE_ID:=cpe:/a:pjsip:pjsip
 
@@ -18,7 +18,7 @@ PKG_CPE_ID:=cpe:/a:pjsip:pjsip
 PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_URL_FILE)
 PKG_SOURCE_URL:=https://github.com/pjsip/$(PKG_NAME)/archive/refs/tags
-PKG_HASH:=8f3bd99caf003f96ed8038b8a36031eb9d8cd9eaea1eaff7e01c2eef6bd55706
+PKG_HASH:=065fe06c06788d97c35f563796d59f00ce52fe9558a52d7b490a042a966facce
 PKG_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
