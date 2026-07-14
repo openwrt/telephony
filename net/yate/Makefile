@@ -13,9 +13,9 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/yatevoip/yate.git
-PKG_SOURCE_DATE:=2024-09-03
-PKG_SOURCE_VERSION:=d009381e4920e608dc2aae847c56469d471a8c48
-PKG_MIRROR_HASH:=eb85e127df46de9aea20f98b28b23897de631da972b6ae6e312338fcf86c0cfd
+PKG_SOURCE_DATE:=2026-05-19
+PKG_SOURCE_VERSION:=50eb9056e376e0a4c434ecb94be01eed3672d86a
+PKG_MIRROR_HASH:=fa02612d2f654aa050f88bee349671cc7ccb76b13f296dd5646e2117cae3b17e
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -72,7 +72,7 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 define Package/$(PKG_NAME)/Default/description
-  Is a next-generation telephony engine focused on the VoIP and PSTN. It does
+  Is a next-generation telephony engine focused on VoIP and PSTN. It does
   SIP, H.323, IAX, PSTN, and more.
 endef
 
@@ -126,7 +126,7 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zapcard),,--disable-dahdi --disable-zaptel) \
 	$(if $(CONFIG_PACKAGE_$(PKG_NAME)-mod-zlibcompress),--with-zlib="$(STAGING_DIR)/usr",--without-zlib)
 
-# The regexp implementation of musl 1.1.24 is not fully compatible with yate
+# The regexp implementation of musl 1.2.5 is not fully compatible with yate
 CONFIGURE_ARGS+= \
 	--enable-internalregex
 
