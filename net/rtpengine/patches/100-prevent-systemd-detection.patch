@@ -1,17 +1,18 @@
---- a/lib/lib.Makefile
-+++ b/lib/lib.Makefile
-@@ -35,10 +35,10 @@ ifeq ($(RTPENGINE_VERSION),)
- endif
- CFLAGS+=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+--- a/utils/gen-common-flags
++++ b/utils/gen-common-flags
+@@ -102,10 +102,11 @@ if pkg-config --exists libmosquitto; the
+ fi
  
--# look for libsystemd
--ifeq ($(shell pkg-config --exists libsystemd && echo yes),yes)
--have_libsystemd := yes
--endif
-+# No libsystemd in OpenWrt, but pkg-config could find build host's.
-+#ifeq ($(shell pkg-config --exists libsystemd && echo yes),yes)
-+have_libsystemd := no
-+#endif
- ifeq ($(have_libsystemd),yes)
- CFLAGS+=	$(shell pkg-config --cflags libsystemd)
- CFLAGS+=	-DHAVE_LIBSYSTEMD
+ # look for libsystemd
+-if pkg-config --exists libsystemd; then
+-  gen-pkgconf-flags LIBSYSTEMD        libsystemd
+-  echo "CFLAGS_LIBSYSTEMD += -DHAVE_LIBSYSTEMD"
+-fi
++#  No libsystemd in OpenWrt, but pkg-config could find build host's.
++#if pkg-config --exists libsystemd; then
++#  gen-pkgconf-flags LIBSYSTEMD        libsystemd
++#  echo "CFLAGS_LIBSYSTEMD += -DHAVE_LIBSYSTEMD"
++#fi
+ 
+ # look for liburing
+ if pkg-config --atleast-version=2.3 liburing; then
