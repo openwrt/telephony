@@ -17,7 +17,7 @@
   * build.h
 --- a/build_tools/make_xml_documentation
 +++ b/build_tools/make_xml_documentation
-@@ -193,7 +193,7 @@ printf "Building Documentation For: "
+@@ -201,7 +201,7 @@ printf "Building Documentation For: "
  for subdir in ${mod_subdirs} ; do
  	printf "%s " "${subdir}"
  	subdir_path=$(make_absolute "$subdir")

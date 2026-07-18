@@ -50,7 +50,7 @@ Subject: [PATCH] Fix compilation with OPENSSL_NO_DEPRECATED
  		}
 --- a/res/res_rtp_asterisk.c
 +++ b/res/res_rtp_asterisk.c
-@@ -3122,7 +3122,7 @@ static int dtls_srtp_setup(struct ast_rt
+@@ -3129,7 +3129,7 @@ static int dtls_srtp_setup(struct ast_rt
  	if (rtp->dtls_verify & AST_RTP_DTLS_VERIFY_FINGERPRINT) {
  		X509 *certificate;
  
