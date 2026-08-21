@@ -1,0 +1,13 @@
+--- a/src/apps/relay/dtls_listener.c
++++ b/src/apps/relay/dtls_listener.c
+@@ -37,6 +37,10 @@
+ #define _GNU_SOURCE
+ #endif
+ 
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++
+ #include "apputils.h"
+ #include "mainrelay.h"
+ #include <errno.h>

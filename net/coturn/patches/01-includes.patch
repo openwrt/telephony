@@ -5,5 +5,5 @@
 -LIBEVENT_INCLUDE = -I${PREFIX}/include/ -I/usr/local/include/
 +LIBEVENT_INCLUDE =
  
- INCFLAGS = -Isrc -Isrc/apps/common -Isrc/server -Isrc/client -Isrc/client++ ${LIBEVENT_INCLUDE} 
+ INCFLAGS = -Isrc -Isrc/apps/common -Isrc/server -Isrc/client -Isrc/client++ ${LIBEVENT_INCLUDE}
  
