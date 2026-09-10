@@ -14,7 +14,7 @@ PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/sippy/rtpproxy.git
 PKG_SOURCE_DATE=2025-11-04
 PKG_SOURCE_VERSION:=4909e7b75a9c33265cecd39d082240b26a43f075
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MIRROR_HASH:=cd7f184e485ea9ca1ad6dc0b3f2ebd8562cb6276fdc099caeb473d9f73910669
 
 PKG_BUILD_PARALLEL:=1
@@ -38,7 +38,7 @@ endef
 
 define Package/rtpproxy
 $(call Package/rtpproxy/Default)
-  DEPENDS:=+libsrtp2 +libatomic +libpthread +librt
+  DEPENDS:=+libsrtp2 $(ATOMIC64_DEPENDS) +libpthread +librt
   TITLE:=RTP (Realtime Transport Protocol) proxy
   MENU:=1
 endef
