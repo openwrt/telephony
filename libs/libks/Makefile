@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=libks
 
 PKG_VERSION:=2.0.6
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=libks-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/signalwire/libks/tar.gz/v$(PKG_VERSION)?
@@ -38,11 +38,12 @@ define Package/libks
   TITLE:=Foundational support for SignalWire C products
   URL:=https://github.com/signalwire/libks
   ABI_VERSION:=2
-  DEPENDS:=+libatomic +libopenssl +libuuid
+  DEPENDS:=+libopenssl +libuuid
 endef
 
 # Otherwise OpenWrt's CPPFLAGS are ignored
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
+TARGET_LDFLAGS += -Wl,--as-needed
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/libks2/libks/cmake
