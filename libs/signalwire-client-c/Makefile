@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=signalwire-client-c
 
 PKG_VERSION:=2.0.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/signalwire/signalwire-c.git
@@ -33,11 +33,12 @@ define Package/signalwire-client-c
   TITLE:=SignalWire C client library
   URL:=https://github.com/signalwire/signalwire-c
   ABI_VERSION:=2
-  DEPENDS:=+libatomic +libks +libopenssl
+  DEPENDS:=+libks +libopenssl
 endef
 
 # Otherwise OpenWrt's CPPFLAGS are ignored
 TARGET_CFLAGS += $(TARGET_CPPFLAGS)
+TARGET_LDFLAGS += -Wl,--as-needed
 
 define Package/signalwire-client-c/install/headers
 	$(INSTALL_DIR) $(1)/usr/include/signalwire-client-c2/signalwire-client-c/$(2)
