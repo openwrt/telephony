@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
 PKG_VERSION:=3.16.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/baresip/baresip/tar.gz/v$(PKG_VERSION)?
@@ -191,7 +191,7 @@ $(eval $(call BuildPlugin,fakevideo,Fake video input/output driver,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,+libspandsp))
 $(eval $(call BuildPlugin,g726,G.726 audio codec,+libspandsp))
-$(eval $(call BuildPlugin,gst,Gstreamer 1.0 playbin pipeline,@AUDIO_SUPPORT +glib2 +libgstreamer1))
+$(eval $(call BuildPlugin,gst,Gstreamer 1.0 playbin pipeline,audio-support +glib2 +libgstreamer1))
 $(eval $(call BuildPlugin,httpd,HTTP webserver UI-module,))
 $(eval $(call BuildPlugin,httpreq,HTTP request module,))
 $(eval $(call BuildPlugin,l16,16-bit linear codec,))
