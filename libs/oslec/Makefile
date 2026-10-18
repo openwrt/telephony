@@ -18,7 +18,6 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/oslec
   SUBMENU:=Voice over IP
   TITLE:=Open Source Line Echo Canceller
-  DEPENDS:=@!LINUX_6_12
   URL:=https://www.rowetel.com/ucasterisk/oslec.html
   FILES:=$(PKG_BUILD_DIR)/echo.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,50,echo)
