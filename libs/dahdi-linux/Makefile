@@ -42,7 +42,7 @@ endef
 define KernelPackage/dahdi-echocan-oslec
   SUBMENU:=Voice over IP
   TITLE:=DAHDI OSLEC echo canceller support
-  DEPENDS:=kmod-dahdi +LINUX_6_12:kmod-echo +!LINUX_6_12:kmod-oslec
+  DEPENDS:=kmod-dahdi +kmod-oslec
   URL:=http://www.asterisk.org/
   FILES:=$(PKG_BUILD_DIR)/drivers/dahdi/dahdi_echocan_oslec.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoProbe,dahdi_echocan_oslec)
