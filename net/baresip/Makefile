@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=baresip
-PKG_VERSION:=3.16.0
-PKG_RELEASE:=3
+PKG_VERSION:=4.9.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/baresip/baresip/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=95338c4e4dd6931c94d425d69089b66d32c173e48cb992344e856ead7ba9393b
+PKG_HASH:=fe0dc70640616b5b6814f728af3ce83b4c56dd1d7a9a21658480c305bd092367
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=docs/COPYING
@@ -68,7 +68,6 @@ baresip-mods:= \
 	fakevideo \
 	g711 \
 	g722 \
-	g726 \
 	gst \
 	httpd \
 	httpreq \
@@ -190,7 +189,6 @@ $(eval $(call BuildPlugin,evdev,Linux input driver,))
 $(eval $(call BuildPlugin,fakevideo,Fake video input/output driver,))
 $(eval $(call BuildPlugin,g711,G.711 audio codec,))
 $(eval $(call BuildPlugin,g722,G.722 audio codec,+libspandsp))
-$(eval $(call BuildPlugin,g726,G.726 audio codec,+libspandsp))
 $(eval $(call BuildPlugin,gst,Gstreamer 1.0 playbin pipeline,@AUDIO_SUPPORT +glib2 +libgstreamer1))
 $(eval $(call BuildPlugin,httpd,HTTP webserver UI-module,))
 $(eval $(call BuildPlugin,httpreq,HTTP request module,))
