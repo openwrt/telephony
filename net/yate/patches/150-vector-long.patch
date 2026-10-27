@@ -1,0 +1,51 @@
+From af9be160dadf3636105f1ce9df5eafb417217d93 Mon Sep 17 00:00:00 2001
+From: Robert Hogberg <robert.hogberg@gmail.com>
+Date: Wed, 30 Sep 2026 23:06:06 +0200
+Subject: [PATCH] Fix build of template classes LongVector and UlongVector
+--- a/engine/String.cpp
++++ b/engine/String.cpp
+@@ -1180,6 +1180,20 @@ String& String::operator+=(double value)
+     return operator+=(buf);
+ }
+ 
++String& String::operator+=(long value)
++{
++    char buf[24];
++    ::sprintf(buf,"%ld",value);
++    return operator+=(buf);
++}
++
++String& String::operator+=(unsigned long value)
++{
++    char buf[24];
++    ::sprintf(buf,"%lu",value);
++    return operator+=(buf);
++}
++
+ String& String::operator>>(const char* skip)
+ {
+     if (m_string && skip && *skip) {
+--- a/yateclass.h
++++ b/yateclass.h
+@@ -3740,6 +3740,9 @@ public:
+      */
+     String& operator+=(double value);
+ 
++    String& operator+=(long value);
++    String& operator+=(unsigned long value);
++
+     /**
+      * Equality operator.
+      */
+@@ -3820,6 +3823,11 @@ public:
+     inline String& operator<<(double value)
+ 	{ return operator+=(value); }
+ 
++    inline String& operator<<(long value)
++	{ return operator+=(value); }
++    inline String& operator<<(unsigned long value)
++	{ return operator+=(value); }
++
+     /**
+      * Stream style substring skipping operator.
+      * It eats all characters up to and including the skip string
