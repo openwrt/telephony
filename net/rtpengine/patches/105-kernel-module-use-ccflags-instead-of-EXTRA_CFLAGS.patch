@@ -1,0 +1,30 @@
+From 38700abf0b79e2ce7e5431086d38cc6865668fcd Mon Sep 17 00:00:00 2001
+From: Richard Fuchs <rfuchs@sipwise.com>
+Date: Wed, 28 May 2025 12:42:53 +0000
+Subject: [PATCH] MT#55283 use ccflags instead of EXTRA_CFLAGS
+
+EXTRA_CFLAGS is deprecated and stopped working in 6.15(ish)
+
+Ref: https://bugs.debian.org/1106709
+Ref: https://github.com/torvalds/linux/commit/e966ad0edd0056c7491b8f23992c11734ab61ddf
+Change-Id: Iba835c7dca89106ff2ca7ffba8a7de947c9a4ff8
+[Julius: backport to mr11.5, which also passes -D__RE_EXTERNAL this way]
+Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+---
+ kernel-module/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/kernel-module/Makefile
++++ b/kernel-module/Makefile
+@@ -22,9 +22,9 @@ ifeq ($(RTPENGINE_VERSION),)
+     RTPENGINE_VERSION+=undefined
+   endif
+ endif
+-EXTRA_CFLAGS+=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
++ccflags-y	+= -DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+ 
+-EXTRA_CFLAGS += -D__RE_EXTERNAL
++ccflags-y	+= -D__RE_EXTERNAL
+ 
+ obj-m        += xt_RTPENGINE.o
+ 
