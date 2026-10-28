@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=asterisk
 PKG_VERSION:=23.2.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_CPE_ID:=cpe:/a:sangoma:asterisk
 
 PKG_SOURCE:=asterisk-$(PKG_VERSION).tar.gz
@@ -850,7 +850,7 @@ $(eval $(call BuildAsteriskModule,bridge-holding,Bridging for storing channels i
 $(eval $(call BuildAsteriskModule,bridge-native-rtp,Native RTP bridging technology module,Native RTP bridging module.,,,bridge_native_rtp,,))
 $(eval $(call BuildAsteriskModule,bridge-simple,Simple two channel bridging module,Simple two channel bridging module.,,,bridge_simple,,))
 $(eval $(call BuildAsteriskModule,bridge-softmix,Multi-party software based channel mixing,Multi-party software based channel mixing.,,,bridge_softmix,,))
-$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Records.,,cdr.conf cdr_custom.conf cdr_manager.conf,app_cdr app_forkcdr cdr_custom cdr_manager func_cdr,,))
+$(eval $(call BuildAsteriskModule,cdr,Provides CDR,Call Detail Records.,,cdr_custom.conf cdr_manager.conf,app_cdr app_forkcdr cdr_custom cdr_manager func_cdr,,))
 $(eval $(call BuildAsteriskModule,cdr-csv,Provides CDR CSV,Comma Separated Values CDR backend.,,,cdr_csv,,))
 $(eval $(call BuildAsteriskModule,cdr-sqlite3,Provides CDR SQLITE3,SQLite3 CDR backend.,libsqlite3,cdr_sqlite3_custom.conf,cdr_sqlite3_custom,,))
 $(eval $(call BuildAsteriskModule,cel-custom,Customizable CSV CEL backend,Customizable Comma Separated Values CEL backend.,,cel_custom.conf,cel_custom,,))
