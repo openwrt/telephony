@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
 PKG_VERSION:=2.6.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v$(PKG_VERSION)
@@ -24,6 +24,7 @@ PKG_CPE_ID:=cpe:/a:cisco:libsrtp
 include $(INCLUDE_DIR)/package.mk
 
 CONFIGURE_ARGS+=--enable-openssl
+TARGET_LDFLAGS+=-Wl,--as-needed
 
 define Package/libsrtp2
   SUBMENU:=Telephony
