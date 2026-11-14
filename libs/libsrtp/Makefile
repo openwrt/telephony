@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsrtp
-PKG_VERSION:=2.6.0
-PKG_RELEASE:=2
+PKG_VERSION:=2.7.0
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/cisco/libsrtp
-PKG_MIRROR_HASH:=7ee6ba7138e7e3c4b16dbb6aa1cd639dcca517f2aa3f7dafb2cf245d932e8448
+PKG_MIRROR_HASH:=8911534cf4ae4dc1ffbc3ae684e9d5cc3c9e22cead7486b9f9d929f98c37f04c
 
 PKG_MAINTAINER:=Jiri Slachta <jiri@slachta.eu>
 PKG_LICENSE:=BSD-3-Clause
