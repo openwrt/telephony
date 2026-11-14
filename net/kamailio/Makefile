@@ -462,7 +462,7 @@ $(eval $(call BuildKamailioModule,acc_diameter,Accounting for DIAMETER backend,,
 $(eval $(call BuildKamailioModule,acc_json,Accounting with records exported in JSON format,,+jansson +kamailio-mod-acc))
 $(eval $(call BuildKamailioModule,alias_db,Database-backend aliases,,))
 $(eval $(call BuildKamailioModule,app_jsdt,Execute JavaScript scripts,,))
-$(eval $(call BuildKamailioModule,app_lua,Execute embedded Lua scripts,,+liblua))
+$(eval $(call BuildKamailioModule,app_lua,Execute embedded Lua scripts,,+liblua5.4))
 $(eval $(call BuildKamailioModule,app_python3,Python3 scripting interpreter,,+python3-light))
 $(eval $(call BuildKamailioModule,app_ruby,Ruby scripting interpreter,,+libruby))
 $(eval $(call BuildKamailioModule,async,Asynchronous SIP handling functions,,+kamailio-mod-tm +kamailio-mod-tmx))
